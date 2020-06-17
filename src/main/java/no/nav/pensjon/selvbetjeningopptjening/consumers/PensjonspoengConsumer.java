@@ -1,6 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumers;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -10,9 +11,13 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 public class PensjonspoengConsumer {
-    private String endpoint = "https://wasapp-q2.adeo.no/popp-ws/api/pensjonspoeng";
-    private RestTemplate restTemplate = new RestTemplate();
+    private final String endpoint;
+    private RestTemplate restTemplate;
     private HentSystembrukerToken hentSystembrukerToken = new HentSystembrukerToken();
+
+    public PensjonspoengConsumer(String endpoint) {
+        this.endpoint = endpoint;
+    }
 
     public HentPensjonspoengListeResponse hentPensjonspoengListe(HentPensjonspoengListeRequest request) {
         ResponseEntity<HentPensjonspoengListeResponse> responseEntity;
@@ -32,11 +37,6 @@ public class PensjonspoengConsumer {
         return responseEntity.getBody();
     }
 
-    @Value("${pensjonspoeng.endpoint.url}")
-    public void setEndpoint(String endpoint) {
-        this.endpoint = endpoint;
-    }
-
     private String buildUrl(HentPensjonspoengListeRequest request) {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromHttpUrl(endpoint)
@@ -45,5 +45,9 @@ public class PensjonspoengConsumer {
         return builder.toUriString();
     }
 
-
+    @Autowired
+    @Qualifier("conf.opptjening.resttemplate.oidc")
+    public void setRestTemplate(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 }

@@ -21,8 +21,8 @@ public class HentSystembrukerToken {
     private String endpointUrl;
     private SystembrukerToken lastFetchedUserToken;
     private long expirationLeeway = 100000;
-    private String authUsername = "user";
-    private String authPassword = "password";
+    private String authUsername = System.getenv("SERVICEUSER_USERNAME");
+    private String authPassword = System.getenv("SERVICEUSER_PASSWORD");;
 
     public SystembrukerToken hentSystembrukerToken() {
         if (lastFetchedUserToken != null && !lastFetchedUserToken.isExpired(expirationLeeway)) {
@@ -65,7 +65,7 @@ public class HentSystembrukerToken {
     }
 
     @Autowired
-    @Qualifier("cons.pselv.restTemplateWithoutOIDC")
+    @Qualifier("conf.opptjening.resttemplate")
     public void setRestTemplate(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
@@ -73,16 +73,6 @@ public class HentSystembrukerToken {
     @Value(value = "${hentSystembrukerToken.endpoint.url}")
     public void setEndpointUrl(String endpointUrl) {
         this.endpointUrl = endpointUrl;
-    }
-
-    @Value(value = "${cons.pselv.service.credential.username}")
-    public void setBrukernavn(String brukernavn) {
-        this.authUsername = brukernavn;
-    }
-
-    @Value(value = "${cons.pselv.service.credential.password}")
-    public void setBrukerpassord(String passord) {
-        this.authPassword = passord;
     }
 
     @Value(value = "${hentUserToken.token.expiration.leeway}")
