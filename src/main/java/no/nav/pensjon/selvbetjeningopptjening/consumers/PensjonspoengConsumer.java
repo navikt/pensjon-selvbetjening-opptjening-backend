@@ -10,7 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 public class PensjonspoengConsumer {
-    private String endpoint = "http://wasapp-q2.adeo.no/popp-ws/api/pensjonspoeng";
+    private String endpoint = "https://wasapp-q2.adeo.no/popp-ws/api/pensjonspoeng";
     private RestTemplate restTemplate = new RestTemplate();
     private HentSystembrukerToken hentSystembrukerToken = new HentSystembrukerToken();
 

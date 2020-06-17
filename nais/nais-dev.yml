@@ -23,3 +23,8 @@ spec:
     timeout: 1
   vault:
     enabled: true
+    paths:
+      # Managed secrets
+      - kvPath: /serviceuser/data/dev-fss/srvpensjon
+        mountPath: /secrets/serviceuser
+
