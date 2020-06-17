@@ -25,6 +25,6 @@ spec:
     enabled: true
     paths:
       # Managed secrets
-      - kvPath: /serviceuser/data/dev-fss/srvpensjon
+      - kvPath: /serviceuser/data/dev/srvpensjon
         mountPath: /secrets/serviceuser
 
