@@ -6,8 +6,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import no.nav.security.token.support.core.api.Unprotected;
+
 @RestController
 @RequestMapping("api/internal")
+@Unprotected
 public class ReadinessEndpoint {
     @RequestMapping(path = "isAlive", method = RequestMethod.GET)
     public ResponseEntity isAlive() {
