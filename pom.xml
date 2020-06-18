@@ -21,12 +21,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-dependencies</artifactId>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-        <dependency>
             <groupId>no.nav.security</groupId>
             <artifactId>token-validation-core</artifactId>
             <version>${token-validation-version}</version>
