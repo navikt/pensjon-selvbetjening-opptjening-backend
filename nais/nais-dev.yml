@@ -22,10 +22,10 @@ spec:
     initialDelay: 3
     timeout: 1
   env:
-    - name: "NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_DISCOVERYURL"
-      value: "https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1"
-    - name: "NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME"
-      value: "selvbetjening-idtoken"
+    - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_DISCOVERYURL
+      value: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
+    - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
+      value: selvbetjening-idtoken
   vault:
     enabled: true
     paths:
