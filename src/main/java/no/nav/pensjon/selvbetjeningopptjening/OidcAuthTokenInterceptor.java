@@ -10,7 +10,7 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
-import no.nav.pensjon.selvbetjeningopptjening.consumers.HentSystembrukerToken;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.systembrukertoken.HentSystembrukerToken;
 
 public class OidcAuthTokenInterceptor implements ClientHttpRequestInterceptor {
 

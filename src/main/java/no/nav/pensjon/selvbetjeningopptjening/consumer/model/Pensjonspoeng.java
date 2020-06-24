@@ -1,7 +1,6 @@
-package no.nav.pensjon.selvbetjeningopptjening.consumers;
+package no.nav.pensjon.selvbetjeningopptjening.consumer.model;
 
 import java.io.Serializable;
-
 
 public class Pensjonspoeng implements Serializable {
 

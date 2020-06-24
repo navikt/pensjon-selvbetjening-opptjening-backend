@@ -1,7 +1,9 @@
-package no.nav.pensjon.selvbetjeningopptjening.consumers;
+package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import no.nav.pensjon.selvbetjeningopptjening.consumer.model.Pensjonspoeng;
 
 public class HentPensjonspoengListeResponse {
     private List<Pensjonspoeng> pensjonspoeng = new ArrayList<>();

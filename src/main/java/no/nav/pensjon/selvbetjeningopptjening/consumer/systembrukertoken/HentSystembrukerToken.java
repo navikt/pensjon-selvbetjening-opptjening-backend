@@ -1,4 +1,4 @@
-package no.nav.pensjon.selvbetjeningopptjening.consumers;
+package no.nav.pensjon.selvbetjeningopptjening.consumer.systembrukertoken;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

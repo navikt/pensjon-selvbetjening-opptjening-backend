@@ -1,4 +1,4 @@
-package no.nav.pensjon.selvbetjeningopptjening.consumers;
+package no.nav.pensjon.selvbetjeningopptjening.consumer.systembrukertoken;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
