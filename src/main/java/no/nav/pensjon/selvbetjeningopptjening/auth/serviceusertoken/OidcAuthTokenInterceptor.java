@@ -10,8 +10,6 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
-
 public class OidcAuthTokenInterceptor implements ClientHttpRequestInterceptor {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
