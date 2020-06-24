@@ -1,8 +1,13 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
 public class OpptjeningProvider {
 
-    public OpptjeningResponse calculateOpptjeningForFnr(String fnr){
+    public OpptjeningResponse calculateOpptjeningForFnr(String fnr) {
         /*
                OpptjeningResponse response
             1: pen.hentPerson(fnr) (Trenger kun: Fødselsdato, AFPHistorikk, UføreHistorikk)
@@ -30,6 +35,53 @@ public class OpptjeningProvider {
 
 
         */
-        return new OpptjeningResponse();
+        return createDummyResponse();
+    }
+
+    private OpptjeningResponse createDummyResponse() {
+        Random random = new Random();
+        int firstYear = 1970;
+        int lastYear = 2015;
+        OpptjeningResponse response = new OpptjeningResponse();
+        response.setFirstYearWithOpptjening(firstYear);
+        response.setLastYearWithOpptjening(lastYear);
+        response.setNumberOfYearsWithPensjonspoeng(lastYear - firstYear);
+        response.setOverforOmsorgspoengPossible(true);
+        Map<Integer, OpptjeningDto> opptjeningMap = new HashMap<>();
+        long pensjonsbeholdning = 0L;
+        for (int year = firstYear; year <= lastYear; year++) {
+            pensjonsbeholdning += random.nextInt(100000);
+                    opptjeningMap.put(year, createDummyOpptjening(year,
+                                    random.nextInt(900000),
+                                    (double) random.nextInt(500000),
+                                    random.nextDouble() * 100000,
+                                    random.nextInt(100),
+                                    random.nextDouble(),
+                                    pensjonsbeholdning,
+                                    random.nextDouble(),
+                                    random.nextDouble()));
+        }
+        response.setOpptjeningData(opptjeningMap);
+        return response;
+    }
+
+    private OpptjeningDto createDummyOpptjening(int ar, int inntekt, Double restpensjon, double gjennomsnittligG, Integer maksUforegrad, Double omsorgspoeng,
+            Long pensjonsbeholdning, Double pensjonspoeng, Double registrertePensjonspoeng) {
+        OpptjeningDto opptjening = new OpptjeningDto();
+        opptjening.setAr(ar);
+        opptjening.setPensjonsgivendeInntekt(inntekt);
+        opptjening.setRestpensjon(restpensjon);
+        opptjening.setGjennomsnittligG(gjennomsnittligG);
+        opptjening.setHjelpMerknad("En hjelp-merknad, usikker på om denne skal brukes");
+        opptjening.setMaksUforegrad(maksUforegrad);
+        opptjening.setOmsorgspoeng(omsorgspoeng);
+        opptjening.setOmsorgspoengType("Omsorgstype");
+        opptjening.setPensjonsbeholdning(pensjonsbeholdning);
+        opptjening.setPensjonspoeng(pensjonspoeng);
+        opptjening.setRegistrertePensjonspoeng(registrertePensjonspoeng);
+        OpptjeningPensjonspoengMerknadDto opptjeningPensjonspoengMerknadDto = new OpptjeningPensjonspoengMerknadDto();
+        opptjeningPensjonspoengMerknadDto.setMerknad("Et objekt som holder data om en merknad knyttet til pensjonpoeng. Gjenstår å finne ut hvordan dette skal implementeres");
+        opptjening.setMerknad(Collections.singletonList(opptjeningPensjonspoengMerknadDto));
+        return opptjening;
     }
 }

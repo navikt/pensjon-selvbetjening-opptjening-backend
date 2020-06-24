@@ -10,10 +10,8 @@ public class OpptjeningDto {
     private Double omsorgspoeng;
     private String omsorgspoengType;
     private Double pensjonspoeng;
-    private boolean visMerknad = false;
     private List<OpptjeningPensjonspoengMerknadDto> merknad;
     private String hjelpMerknad;
-    private boolean hideHjelpMerknad;
     private int maksUforegrad;
     private Double registrertePensjonspoeng;
     private Double restpensjon;
@@ -74,28 +72,12 @@ public class OpptjeningDto {
         this.pensjonspoeng = pensjonspoeng;
     }
 
-    public boolean isVisMerknad() {
-        return visMerknad;
-    }
-
-    public void setVisMerknad(boolean visMerknad) {
-        this.visMerknad = visMerknad;
-    }
-
     public String getHjelpMerknad() {
         return hjelpMerknad;
     }
 
     public void setHjelpMerknad(String hjelpMerknad) {
         this.hjelpMerknad = hjelpMerknad;
-    }
-
-    public boolean isHideHjelpMerknad() {
-        return hideHjelpMerknad;
-    }
-
-    public void setHideHjelpMerknad(boolean hideHjelpMerknad) {
-        this.hideHjelpMerknad = hideHjelpMerknad;
     }
 
     public int getMaksUforegrad() {

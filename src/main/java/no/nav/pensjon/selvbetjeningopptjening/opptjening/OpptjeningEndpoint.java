@@ -7,19 +7,18 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingServiceInPoppException;
-import no.nav.pensjon.selvbetjeningopptjening.model.Pensjonspoeng;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.model.Pensjonspoeng;
 import no.nav.pensjon.selvbetjeningopptjening.util.FnrExtractor;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
 
 @RestController
-@RequestMapping("api/opptjening")
+@RequestMapping("api")
 //@ProtectedWithClaims(issuer = ISSUER, claimMap = { "acr=Level4" })
 @ProtectedWithClaims(issuer = ISSUER)
 public class OpptjeningEndpoint {
