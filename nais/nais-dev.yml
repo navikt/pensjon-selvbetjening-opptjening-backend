@@ -28,6 +28,10 @@ spec:
       value: selvbetjening-idtoken
     - name: APP_AZURE_AUD
       value: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
+    - name: HTTP_PROXY_PARAMETERNAME
+      value: "http.proxy"
+    - name: HTTP_PROXY
+      value: http://webproxy-nais.nav.no:8088
   vault:
     enabled: true
     paths:
