@@ -9,8 +9,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
-import no.nav.pensjon.selvbetjeningopptjening.consumers.HentSystembrukerToken;
-import no.nav.pensjon.selvbetjeningopptjening.consumers.PensjonspoengConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.systembrukertoken.HentSystembrukerToken;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.OpptjeningProvider;
 
 @Configuration
 public class OpptjeningConfig {
@@ -30,6 +32,11 @@ public class OpptjeningConfig {
     }
 
     @Bean
+    public OpptjeningProvider opptjeningProvider() {
+        return new OpptjeningProvider();
+    }
+
+    @Bean
     public HentSystembrukerToken hentSystembrukerToken() {
         return new HentSystembrukerToken();
     }
@@ -37,5 +44,10 @@ public class OpptjeningConfig {
     @Bean
     public PensjonspoengConsumer pensjonspoengConsumer(@Value("${pensjonspoeng.endpoint.url}") String endpoint) {
         return new PensjonspoengConsumer(endpoint);
+    }
+
+    @Bean
+    public RestpensjonConsumer restpensjonConsumer(@Value("${restpensjon.endpoint.url}") String endpoint) {
+        return new RestpensjonConsumer(endpoint);
     }
 }
