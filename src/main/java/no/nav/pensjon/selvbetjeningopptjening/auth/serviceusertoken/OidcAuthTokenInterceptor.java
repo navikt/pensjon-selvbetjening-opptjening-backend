@@ -1,4 +1,4 @@
-package no.nav.pensjon.selvbetjeningopptjening;
+package no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken;
 
 import java.io.IOException;
 
@@ -10,15 +10,15 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
-import no.nav.pensjon.selvbetjeningopptjening.consumer.systembrukertoken.HentSystembrukerToken;
+import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
 
 public class OidcAuthTokenInterceptor implements ClientHttpRequestInterceptor {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private HentSystembrukerToken hentSystembrukerTokenService;
+    private ServiceUserTokenGetter serviceUserTokenGetterService;
 
-    public OidcAuthTokenInterceptor(HentSystembrukerToken hentSystembrukerToken){
-        this.hentSystembrukerTokenService = hentSystembrukerToken;
+    public OidcAuthTokenInterceptor(ServiceUserTokenGetter serviceUserTokenGetter){
+        this.serviceUserTokenGetterService = serviceUserTokenGetter;
     }
 
     @Override
@@ -26,7 +26,7 @@ public class OidcAuthTokenInterceptor implements ClientHttpRequestInterceptor {
         logger.debug("Adding OIDC Authorization header to {} {}", request.getMethod(), request.getURI());
 
         try {
-            request.getHeaders().add(HttpHeaders.AUTHORIZATION, "Bearer " + hentSystembrukerTokenService.hentSystembrukerToken().getAccessToken());
+            request.getHeaders().add(HttpHeaders.AUTHORIZATION, "Bearer " + serviceUserTokenGetterService.getServiceUserToken().getAccessToken());
         } catch (Exception e) {
             if (logger.isErrorEnabled()) {
                 logger.error("Error when trying to get OIDC Token! Error Message: " + e.getMessage(), e);

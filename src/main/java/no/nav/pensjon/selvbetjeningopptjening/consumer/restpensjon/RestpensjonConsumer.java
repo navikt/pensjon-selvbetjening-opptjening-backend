@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingServiceInPoppException;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.model.Restpensjon;
+import no.nav.pensjon.selvbetjeningopptjening.model.Restpensjon;
 
 public class RestpensjonConsumer {
     private static final int CHECKED_EXCEPTION_HTTP_STATUS = 512;
@@ -26,7 +26,7 @@ public class RestpensjonConsumer {
     }
 
     public List<Restpensjon> hentRestpensjonListe(String fnr) {
-        ResponseEntity<HentRestpensjonListeResponse> responseEntity;
+        ResponseEntity<RestpensjonListeResponse> responseEntity;
 
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -34,7 +34,7 @@ public class RestpensjonConsumer {
                     buildUrl(fnr),
                     HttpMethod.GET,
                     new HttpEntity<>(headers),
-                    HentRestpensjonListeResponse.class);
+                    RestpensjonListeResponse.class);
         } catch (RestClientResponseException e) {
             return handle(e);
         }
@@ -42,7 +42,7 @@ public class RestpensjonConsumer {
         return responseEntity.getBody() != null ? responseEntity.getBody().getRestpensjoner() : null;
     }
 
-    private String buildUrl(String fnr)  {
+    private String buildUrl(String fnr) {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromHttpUrl(endpoint)
                 .path("/")
@@ -57,7 +57,7 @@ public class RestpensjonConsumer {
             throw new FailedCallingServiceInPoppException("Received unauthorized from PROPOPP013 hentRestpensjoner", e);
         }
 
-        if (e.getRawStatusCode() == CHECKED_EXCEPTION_HTTP_STATUS && e.getMessage().contains("PersonDoesNotExistExceptionDto")) {
+        if (e.getRawStatusCode() == CHECKED_EXCEPTION_HTTP_STATUS && e.getMessage() != null && e.getMessage().contains("PersonDoesNotExistExceptionDto")) {
             throw new FailedCallingServiceInPoppException("Person not found in POPP when calling PROPOPP13 hentRestpensjoner", e);
         }
 

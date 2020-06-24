@@ -2,10 +2,8 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import java.util.Map;
 
-import no.nav.pensjon.selvbetjeningopptjening.opptjening.model.OpptjeningData;
-
 public class OpptjeningResponse {
-    private Map<Integer, OpptjeningData> opptjeningData;
+    private Map<Integer, OpptjeningDto> opptjeningData;
 
     private Integer numberOfYearsWithPensjonspoeng;
 
@@ -17,11 +15,11 @@ public class OpptjeningResponse {
 
     private int lastYearWithOpptjening;
 
-    public Map<Integer, OpptjeningData> getOpptjeningData() {
+    public Map<Integer, OpptjeningDto> getOpptjeningData() {
         return opptjeningData;
     }
 
-    public void setOpptjeningData(Map<Integer, OpptjeningData> opptjeningData) {
+    public void setOpptjeningData(Map<Integer, OpptjeningDto> opptjeningData) {
         this.opptjeningData = opptjeningData;
     }
 

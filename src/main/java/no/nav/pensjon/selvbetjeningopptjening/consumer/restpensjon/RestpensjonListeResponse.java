@@ -2,9 +2,9 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon;
 
 import java.util.List;
 
-import no.nav.pensjon.selvbetjeningopptjening.consumer.model.Restpensjon;
+import no.nav.pensjon.selvbetjeningopptjening.model.Restpensjon;
 
-public class HentRestpensjonListeResponse {
+public class RestpensjonListeResponse {
     private List<Restpensjon> restpensjoner;
 
     public List<Restpensjon> getRestpensjoner() {

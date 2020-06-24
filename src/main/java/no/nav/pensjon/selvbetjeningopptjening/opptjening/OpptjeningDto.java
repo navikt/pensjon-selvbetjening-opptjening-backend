@@ -1,37 +1,22 @@
-package no.nav.pensjon.selvbetjeningopptjening.opptjening.model;
+package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import java.util.List;
 
-public class OpptjeningData {
+public class OpptjeningDto {
     private Integer ar;
-
     private Integer pensjonsgivendeInntekt;
-
     private Long pensjonsbeholdning;
-
     private Double gjennomsnittligG;
-
     private Double omsorgspoeng;
-
     private String omsorgspoengType;
-
     private Double pensjonspoeng;
-
     private boolean visMerknad = false;
-
-    private List<OpptjeningPensjonspoengMerknad> merknad;
-
+    private List<OpptjeningPensjonspoengMerknadDto> merknad;
     private String hjelpMerknad;
-
     private boolean hideHjelpMerknad;
-
     private int maksUforegrad;
-
     private Double registrertePensjonspoeng;
-
     private Double restpensjon;
-
-
 
     public Integer getAr() {
         return ar;
@@ -137,11 +122,11 @@ public class OpptjeningData {
         this.restpensjon = restpensjon;
     }
 
-    public List<OpptjeningPensjonspoengMerknad> getMerknad() {
+    public List<OpptjeningPensjonspoengMerknadDto> getMerknad() {
         return merknad;
     }
 
-    public void setMerknad(List<OpptjeningPensjonspoengMerknad> merknad) {
+    public void setMerknad(List<OpptjeningPensjonspoengMerknadDto> merknad) {
         this.merknad = merknad;
     }
 }

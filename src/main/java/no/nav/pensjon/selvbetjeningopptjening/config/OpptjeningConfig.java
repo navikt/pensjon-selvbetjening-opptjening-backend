@@ -1,4 +1,4 @@
-package no.nav.pensjon.selvbetjeningopptjening;
+package no.nav.pensjon.selvbetjeningopptjening.config;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -9,9 +9,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
+import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.OidcAuthTokenInterceptor;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.systembrukertoken.HentSystembrukerToken;
+import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.OpptjeningProvider;
 
 @Configuration
@@ -27,7 +28,7 @@ public class OpptjeningConfig {
     @Qualifier("conf.opptjening.resttemplate.oidc")
     public RestTemplate oidcRestTemplate() {
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.setInterceptors(Stream.of(new OidcAuthTokenInterceptor(hentSystembrukerToken())).collect(Collectors.toList()));
+        restTemplate.setInterceptors(Stream.of(new OidcAuthTokenInterceptor(serviceUserTokenGetter())).collect(Collectors.toList()));
         return restTemplate;
     }
 
@@ -37,8 +38,8 @@ public class OpptjeningConfig {
     }
 
     @Bean
-    public HentSystembrukerToken hentSystembrukerToken() {
-        return new HentSystembrukerToken();
+    public ServiceUserTokenGetter serviceUserTokenGetter() {
+        return new ServiceUserTokenGetter();
     }
 
     @Bean

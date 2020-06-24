@@ -1,4 +1,4 @@
-package no.nav.pensjon.selvbetjeningopptjening.consumer.systembrukertoken;
+package no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,18 +13,18 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-public class HentSystembrukerToken {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HentSystembrukerToken.class);
+public class ServiceUserTokenGetter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceUserTokenGetter.class);
 
     private RestTemplate restTemplate;
 
     private String endpointUrl;
-    private SystembrukerToken lastFetchedUserToken;
+    private ServiceUserToken lastFetchedUserToken;
     private long expirationLeeway = 100000;
     private String authUsername = System.getenv("SERVICEUSER_USERNAME");
     private String authPassword = System.getenv("SERVICEUSER_PASSWORD");;
 
-    public SystembrukerToken hentSystembrukerToken() {
+    public ServiceUserToken getServiceUserToken() {
         if (lastFetchedUserToken != null && !lastFetchedUserToken.isExpired(expirationLeeway)) {
             LOGGER.trace("Returning cached, non-expired token for service user");
             return lastFetchedUserToken;
@@ -32,7 +32,7 @@ public class HentSystembrukerToken {
         return fetch();
     }
 
-    private SystembrukerToken fetch() {
+    private ServiceUserToken fetch() {
         LOGGER.trace("Retrieving new token for service user");
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, "Basic " + getBasicAuthHeader());
@@ -44,19 +44,19 @@ public class HentSystembrukerToken {
                 .queryParam("grant_type", "client_credentials")
                 .queryParam("scope", "openid");
 
-        SystembrukerToken hentSystembrukerTokenResponse;
+        ServiceUserToken hentServiceUserTokenResponse;
         try {
-            ResponseEntity<SystembrukerToken> response = restTemplate.exchange(
+            ResponseEntity<ServiceUserToken> response = restTemplate.exchange(
                     uriBuilder.toUriString(),
                     HttpMethod.GET,
                     restRequest,
-                    SystembrukerToken.class);
-            hentSystembrukerTokenResponse = response.getBody();
+                    ServiceUserToken.class);
+            hentServiceUserTokenResponse = response.getBody();
         } catch (HttpStatusCodeException e) {
-            LOGGER.error("Feil ved henting av SystembrukerToken: " + e.getMessage(), e);
+            LOGGER.error("Error when getting ServiceUserToken: " + e.getMessage(), e);
             return null;
         }
-        return hentSystembrukerTokenResponse;
+        return hentServiceUserTokenResponse;
     }
 
 
@@ -70,12 +70,12 @@ public class HentSystembrukerToken {
         this.restTemplate = restTemplate;
     }
 
-    @Value(value = "${hentSystembrukerToken.endpoint.url}")
+    @Value(value = "${serviceusertoken.endpoint.url}")
     public void setEndpointUrl(String endpointUrl) {
         this.endpointUrl = endpointUrl;
     }
 
-    @Value(value = "${hentUserToken.token.expiration.leeway}")
+    @Value(value = "${serviceuser.token.expiration.leeway}")
     public void setExpirationLeeway(String expirationLeeway) {
         this.expirationLeeway = Long.parseLong(expirationLeeway);
     }

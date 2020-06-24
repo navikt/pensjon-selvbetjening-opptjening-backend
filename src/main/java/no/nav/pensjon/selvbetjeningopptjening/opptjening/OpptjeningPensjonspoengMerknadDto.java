@@ -1,6 +1,6 @@
-package no.nav.pensjon.selvbetjeningopptjening.opptjening.model;
+package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-public class OpptjeningPensjonspoengMerknad {
+public class OpptjeningPensjonspoengMerknadDto {
     private String skjermbildetekst;
     private boolean showHelpText;
     private String tooltip;

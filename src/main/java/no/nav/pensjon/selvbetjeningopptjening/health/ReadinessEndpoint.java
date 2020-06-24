@@ -1,4 +1,4 @@
-package no.nav.pensjon.selvbetjeningopptjening;
+package no.nav.pensjon.selvbetjeningopptjening.health;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

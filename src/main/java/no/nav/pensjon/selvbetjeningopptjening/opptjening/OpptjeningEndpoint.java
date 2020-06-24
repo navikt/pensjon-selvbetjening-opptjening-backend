@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingServiceInPoppException;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.model.Pensjonspoeng;
+import no.nav.pensjon.selvbetjeningopptjening.model.Pensjonspoeng;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
 
@@ -25,14 +25,9 @@ public class OpptjeningEndpoint {
     private OpptjeningProvider provider;
     private PensjonspoengConsumer pensjonspoengConsumer;
 
-    @GetMapping("/{fnr}")
-    public Opptjening getOpptjening(@PathVariable String fnr) {
-        return new Opptjening(fnr, 123000);
-    }
-
     @GetMapping("/pensjonspoeng/{fnr}")
     public List<Pensjonspoeng> getPensjonspoeng(@PathVariable String fnr) {
-        return pensjonspoengConsumer.hentPensjonspoengListe(fnr);
+        return pensjonspoengConsumer.getPensjonspoengListe(fnr);
     }
 
     @GetMapping("/opptjening/{fnr}")

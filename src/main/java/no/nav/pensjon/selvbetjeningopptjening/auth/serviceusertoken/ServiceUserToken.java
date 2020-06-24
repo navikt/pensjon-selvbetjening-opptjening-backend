@@ -1,10 +1,10 @@
-package no.nav.pensjon.selvbetjeningopptjening.consumer.systembrukertoken;
+package no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
 
-public class SystembrukerToken {
+public class ServiceUserToken {
     @JsonProperty("access_token")
     private String accessToken;
 
@@ -17,11 +17,11 @@ public class SystembrukerToken {
     private final LocalDateTime issuedTime = LocalDateTime.now();
 
     @SuppressWarnings("unused")
-    public SystembrukerToken() {
+    public ServiceUserToken() {
         //Required by Jackson when mapping json object
     }
 
-    public SystembrukerToken(String accessToken, Long expiresIn, String tokenType) {
+    public ServiceUserToken(String accessToken, Long expiresIn, String tokenType) {
         this.accessToken = accessToken;
         this.expiresIn = expiresIn;
         this.tokenType = tokenType;
@@ -49,7 +49,7 @@ public class SystembrukerToken {
 
     @Override
     public String toString() {
-        return "SystembrukerToken{" +
+        return "ServiceUserToken{" +
                 "accessToken='" + accessToken + '\'' +
                 ", expiresIn=" + expiresIn +
                 ", tokenType='" + tokenType + '\'' +

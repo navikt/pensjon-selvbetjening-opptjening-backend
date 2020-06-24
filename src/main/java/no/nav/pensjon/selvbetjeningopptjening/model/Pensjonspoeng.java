@@ -1,4 +1,4 @@
-package no.nav.pensjon.selvbetjeningopptjening.consumer.model;
+package no.nav.pensjon.selvbetjeningopptjening.model;
 
 import java.io.Serializable;
 
