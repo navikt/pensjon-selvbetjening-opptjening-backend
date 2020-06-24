@@ -10,7 +10,11 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.HentPensjonspoengListeResponse;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.systembrukertoken.HentSystembrukerToken;
+
 public class PensjonspoengConsumer {
+
     private final String endpoint;
     private RestTemplate restTemplate;
     private HentSystembrukerToken hentSystembrukerToken = new HentSystembrukerToken();
@@ -19,7 +23,7 @@ public class PensjonspoengConsumer {
         this.endpoint = endpoint;
     }
 
-    public HentPensjonspoengListeResponse hentPensjonspoengListe(HentPensjonspoengListeRequest request) {
+    public HentPensjonspoengListeResponse getPensjonspoengListe(HentPensjonspoengListeRequest request) {
         ResponseEntity<HentPensjonspoengListeResponse> responseEntity;
 
         try {
