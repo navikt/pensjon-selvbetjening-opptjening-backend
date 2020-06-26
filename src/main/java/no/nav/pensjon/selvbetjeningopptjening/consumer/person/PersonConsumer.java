@@ -20,9 +20,9 @@ public class PersonConsumer {
         return Arrays.asList("986745", "348923");
     }
 
-    public Integer getAge(String fnr){
+    public LocalDate getFodselsdato(String fnr){
         //Returning dummy data for now
-        return 59;
+        return LocalDate.of(1955, 4, 8);
     }
 
     public AfpHistorikk getAfpHistorikkForPerson(String fnr){
