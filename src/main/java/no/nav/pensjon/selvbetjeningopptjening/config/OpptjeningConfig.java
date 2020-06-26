@@ -6,8 +6,6 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +19,9 @@ import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserT
 import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.sak.SakConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.OpptjeningProvider;
 import no.nav.pensjon.selvbetjeningopptjening.util.LocalDateTimeFromEpochDeserializer;
 
@@ -71,6 +71,16 @@ public class OpptjeningConfig {
     @Bean
     public OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer(@Value("${popp.endpoint.url}") String endpoint){
         return new OpptjeningsgrunnlagConsumer(endpoint);
+    }
+
+    @Bean
+    public SakConsumer sakConsumer(@Value("${pen.endpoint.url}") String endpoint){
+        return new SakConsumer(endpoint);
+    }
+
+    @Bean
+    public PersonConsumer personConsumer(@Value("${pen.endpoint.url}") String endpoint){
+        return new PersonConsumer(endpoint);
     }
 
     private MappingJackson2HttpMessageConverter createCustomMessageConverterForLocalDate(){
