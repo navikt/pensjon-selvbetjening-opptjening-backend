@@ -45,7 +45,7 @@ public class PensjonspoengConsumer {
     private String buildUrl(String fnr) {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromHttpUrl(endpoint)
-                .path("/" + fnr);
+                .path("/pensjonspoeng/" + fnr);
 
         return builder.toUriString();
     }

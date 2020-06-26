@@ -45,7 +45,7 @@ public class RestpensjonConsumer {
     private String buildUrl(String fnr) {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromHttpUrl(endpoint)
-                .path("/")
+                .path("/restpensjon/")
                 .path(fnr)
                 .queryParam("hentSiste", "false");
 

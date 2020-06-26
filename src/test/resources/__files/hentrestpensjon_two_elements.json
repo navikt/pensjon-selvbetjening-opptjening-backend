@@ -1,0 +1,110 @@
+{
+  "restpensjoner": [
+    {
+      "fnr": "%s",
+      "fomDato": 1546297200000,
+      "pensjonspoengListe": [
+        {
+          "anvendtPi": 398102,
+          "inntekt": {
+            "belop": 473597,
+            "inntektAr": 2005,
+            "inntektId": 242411753,
+            "fnr": "%s",
+            "inntektType": "SUM_PI",
+            "kilde": "POPP",
+            "changeStamp": {
+              "createdBy": "string1",
+              "createdDate": "2019-08-05T13:16:39.979Z",
+              "updatedBy": "string2",
+              "updatedDate": "2019-08-05T13:16:39.979Z"
+            }
+          },
+          "omsorg": {
+            "fnr": "%s",
+            "fnrOmsorgFor": "%s",
+            "omsorgType": "string",
+            "kilde": "string",
+            "ar": 0,
+            "changeStamp": {
+              "createdBy": "string1",
+              "createdDate": "2019-08-05T13:16:39.979Z",
+              "updatedBy": "string2",
+              "updatedDate": "2019-08-05T13:16:39.979Z"
+            }
+          },
+          "changeStamp": {
+            "createdBy": "string1",
+            "createdDate": "2019-08-05T13:16:39.979Z",
+            "updatedBy": "string2",
+            "updatedDate": "2019-08-05T13:16:39.979Z"
+          },
+          "ar": 2005,
+          "pensjonspoengId": 29522753,
+          "poeng": 5.63,
+          "pensjonspoengType": "PPI",
+          "kilde": "PEN",
+          "fnr": "04085502951"
+        }
+      ],
+      "restGrunnpensjon": 69755.83185599999,
+      "restPensjonstillegg": -158460.8319476788,
+      "restTilleggspensjon": 216758.25420490195,
+      "vedtakId": 44106216,
+      "oppdateringArsak": "VEDTAK"
+    },
+    {
+      "fnr": "%s",
+      "fomDato": 1546297200000,
+      "pensjonspoengListe": [
+        {
+          "anvendtPi": 398102,
+          "inntekt": {
+            "belop": 473597,
+            "inntektAr": 2005,
+            "inntektId": 242411753,
+            "fnr": "%s",
+            "inntektType": "SUM_PI",
+            "kilde": "POPP",
+            "changeStamp": {
+              "createdBy": "string1",
+              "createdDate": "2019-08-05T13:16:39.979Z",
+              "updatedBy": "string2",
+              "updatedDate": "2019-08-05T13:16:39.979Z"
+            }
+          },
+          "omsorg": {
+            "fnr": "%s",
+            "fnrOmsorgFor": "%s",
+            "omsorgType": "string",
+            "kilde": "string",
+            "ar": 0,
+            "changeStamp": {
+              "createdBy": "string1",
+              "createdDate": "2019-08-05T13:16:39.979Z",
+              "updatedBy": "string2",
+              "updatedDate": "2019-08-05T13:16:39.979Z"
+            }
+          },
+          "changeStamp": {
+            "createdBy": "string1",
+            "createdDate": "2019-08-05T13:16:39.979Z",
+            "updatedBy": "string2",
+            "updatedDate": "2019-08-05T13:16:39.979Z"
+          },
+          "ar": 2005,
+          "pensjonspoengId": 29522753,
+          "poeng": 5.63,
+          "pensjonspoengType": "PPI",
+          "kilde": "PEN",
+          "fnr": "04085502951"
+        }
+      ],
+      "restGrunnpensjon": 69755.83185599999,
+      "restPensjonstillegg": -158460.8319476788,
+      "restTilleggspensjon": 216758.25420490195,
+      "vedtakId": 44106216,
+      "oppdateringArsak": "VEDTAK"
+    }
+  ]
+}

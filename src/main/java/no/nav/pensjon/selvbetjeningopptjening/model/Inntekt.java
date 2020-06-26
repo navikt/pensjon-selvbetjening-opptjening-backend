@@ -3,9 +3,12 @@ package no.nav.pensjon.selvbetjeningopptjening.model;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * Non-persistent class used to represent Inntekt.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Inntekt implements Serializable {
 
     private Long inntektId;

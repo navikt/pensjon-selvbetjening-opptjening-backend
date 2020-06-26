@@ -2,7 +2,9 @@ package no.nav.pensjon.selvbetjeningopptjening.model;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Omsorg implements Serializable {
 
     private Long omsorgId;

@@ -86,6 +86,12 @@
             <artifactId>jackson-annotations</artifactId>
             <version>2.11.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-standalone</artifactId>
+            <version>2.25.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
