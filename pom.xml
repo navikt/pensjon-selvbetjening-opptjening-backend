@@ -10,7 +10,7 @@
     </parent>
     <groupId>no.nav.pensjon</groupId>
     <artifactId>selvbetjening-opptjening</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>selvbetjening-opptjening</name>
     <description>Backend for pensjon selvbetjening opptjening</description>
 
@@ -60,10 +60,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -89,11 +85,6 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
             <version>2.11.0</version>
-        </dependency>
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>
-            <version>1.5.2</version>
         </dependency>
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
