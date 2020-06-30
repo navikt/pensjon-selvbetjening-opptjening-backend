@@ -13,6 +13,26 @@ public final class Constants {
     public static final String X_NAV_API_KEY = "x-nav-apiKey";
     public static final String FNR = "fnr";
 
+    /**
+     * Birthyear of first group who has a right to new AFP
+     */
+    public static final int FIRST_BIRTHYEAR_WITH_NEW_AFP = 1948;
+
+    /**
+     * Birthyear of first group who has a right to new Alder
+     */
+    public static final int FIRST_BIRTHYEAR_WITH_NEW_ALDER = 1943;
+
+    /**
+     * The first birthyear that has "overgangsregler for opptjening"
+     */
+    public static final int FIRST_BIRTHYEAR_WITH_OVERGANGSREGLER = 1954;
+
+    /**
+     * The last birthyear that has "overgangsregler for opptjening"
+     */
+    public static final int LAST_BIRTHYEAR_WITH_OVERGANGSREGLER = 1962;
+
     private Constants() {
     }
 }

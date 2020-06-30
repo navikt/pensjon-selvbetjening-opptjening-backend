@@ -25,7 +25,7 @@ public class RestpensjonConsumer {
         this.endpoint = endpoint;
     }
 
-    public List<Restpensjon> hentRestpensjonListe(String fnr) {
+    public List<Restpensjon> getRestpensjonListe(String fnr) {
         ResponseEntity<RestpensjonListeResponse> responseEntity;
 
         try {

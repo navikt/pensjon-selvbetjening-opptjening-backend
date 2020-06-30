@@ -4,7 +4,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -65,6 +64,6 @@ public class RestpensjonConsumerTest {
 
     @Test
     public void test() {
-        List<Restpensjon> response = consumer.hentRestpensjonListe("1");
+        List<Restpensjon> response = consumer.getRestpensjonListe("1");
     }
 }

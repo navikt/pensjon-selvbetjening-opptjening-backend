@@ -11,10 +11,6 @@ public class OpptjeningResponse {
 
     private Boolean showRestpensjon = false;
 
-    private int firstYearWithOpptjening;
-
-    private int lastYearWithOpptjening;
-
     public Map<Integer, OpptjeningDto> getOpptjeningData() {
         return opptjeningData;
     }
@@ -45,21 +41,5 @@ public class OpptjeningResponse {
 
     public void setShowRestpensjon(Boolean showRestpensjon) {
         this.showRestpensjon = showRestpensjon;
-    }
-
-    public int getFirstYearWithOpptjening() {
-        return firstYearWithOpptjening;
-    }
-
-    public void setFirstYearWithOpptjening(int firstYearWithOpptjening) {
-        this.firstYearWithOpptjening = firstYearWithOpptjening;
-    }
-
-    public int getLastYearWithOpptjening() {
-        return lastYearWithOpptjening;
-    }
-
-    public void setLastYearWithOpptjening(int lastYearWithOpptjening) {
-        this.lastYearWithOpptjening = lastYearWithOpptjening;
     }
 }

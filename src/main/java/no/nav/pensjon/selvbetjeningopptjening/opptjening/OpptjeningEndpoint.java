@@ -39,7 +39,8 @@ public class OpptjeningEndpoint {
     @GetMapping("/opptjening")
     public OpptjeningResponse getOpptjeningForFnr() {
         try {
-            return provider.calculateOpptjeningForFnr(fnrExtractor.extract());
+            //return provider.calculateOpptjeningForFnr(fnrExtractor.extract());
+            return provider.returnDummyResponse(fnrExtractor.extract());
         } catch (FailedCallingServiceInPoppException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
