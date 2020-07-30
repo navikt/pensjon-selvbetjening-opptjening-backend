@@ -27,7 +27,7 @@ public class PensjonsbeholdningConsumer {
         this.endpoint = endpoint;
     }
 
-    public Map<Integer, Beholdning> getPensjonsbeholdningMap(String fnr) {
+    public List<Beholdning> getPensjonsbeholdning(String fnr) {
         ResponseEntity<BeholdningListeResponse> responseEntity;
         BeholdningListeRequest request = new BeholdningListeRequest(fnr);
         try {
@@ -41,28 +41,16 @@ public class PensjonsbeholdningConsumer {
             return handle(e);
         }
 
-        return responseEntity.getBody() != null ? createBeholdningMap(responseEntity.getBody().getBeholdninger()) : null;
+        return responseEntity.getBody() != null ? responseEntity.getBody().getBeholdninger() : null;
     }
 
-    private Map<Integer, Beholdning> handle(RestClientResponseException e) {
+    private List<Beholdning> handle(RestClientResponseException e) {
         if (e.getRawStatusCode() == HttpStatus.UNAUTHORIZED.value()) {
             throw new FailedCallingServiceInPoppException("Received 401 UNAUTHORIZED from PROPOPP006 hentPensjonsbeholdningListe", e);
         } else if (e.getRawStatusCode() == CHECKED_EXCEPTION_HTTP_STATUS  && e.getMessage() != null && e.getMessage().contains("PersonDoesNotExistExceptionDto")) {
             throw new FailedCallingServiceInPoppException("Person ikke funnet i POPP when calling PROPOPP006 hentPensjonsbeholdningListe", e);
         }
         throw new FailedCallingServiceInPoppException("An error occurred when calling PROPOPP006 hentPensjonsbeholdningListe", e);
-    }
-
-    private Map<Integer, Beholdning> createBeholdningMap(List<Beholdning> beholdningList) {
-        Map<Integer, Beholdning> beholdningMap = new HashMap<>();
-        if (beholdningList != null) {
-            for (Beholdning beholdning : beholdningList) {
-                if (beholdning.getFomDato() != null) {
-                    beholdningMap.put(beholdning.getFomDato().getYear(), beholdning);
-                }
-            }
-        }
-        return beholdningMap;
     }
 
     @Autowired

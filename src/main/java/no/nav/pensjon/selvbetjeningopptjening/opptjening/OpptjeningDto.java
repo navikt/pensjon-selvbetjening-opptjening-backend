@@ -15,6 +15,7 @@ public class OpptjeningDto {
     private int maksUforegrad;
     private Double registrertePensjonspoeng;
     private Double restpensjon;
+    private List<EndringPensjonsopptjeningDto> endringOpptjening;
 
     public Integer getAr() {
         return ar;
@@ -110,5 +111,13 @@ public class OpptjeningDto {
 
     public void setMerknad(List<OpptjeningPensjonspoengMerknadDto> merknad) {
         this.merknad = merknad;
+    }
+
+    public List<EndringPensjonsopptjeningDto> getEndringOpptjening() {
+        return endringOpptjening;
+    }
+
+    public void setEndringOpptjening(List<EndringPensjonsopptjeningDto> endringOpptjening) {
+        this.endringOpptjening = endringOpptjening;
     }
 }

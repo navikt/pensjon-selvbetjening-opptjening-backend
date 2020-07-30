@@ -22,6 +22,7 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.Pensjonspoe
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.sak.SakConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.EndringPensjonsbeholdningCalculator;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.OpptjeningProvider;
 import no.nav.pensjon.selvbetjeningopptjening.util.LocalDateTimeFromEpochDeserializer;
 
@@ -81,6 +82,11 @@ public class OpptjeningConfig {
     @Bean
     public PersonConsumer personConsumer(@Value("${pen.endpoint.url}") String endpoint){
         return new PersonConsumer(endpoint);
+    }
+
+    @Bean
+    public EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator(){
+        return new EndringPensjonsbeholdningCalculator();
     }
 
     private MappingJackson2HttpMessageConverter createCustomMessageConverterForLocalDate(){
