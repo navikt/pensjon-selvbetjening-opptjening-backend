@@ -29,6 +29,7 @@ import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.OpptjeningTypeCode;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.TypeArsakCode;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup;
+import no.nav.pensjon.selvbetjeningopptjening.util.FnrUtil;
 import no.nav.pensjon.selvbetjeningopptjening.util.UserGroupUtil;
 
 public class OpptjeningProvider {
@@ -45,7 +46,7 @@ public class OpptjeningProvider {
     }
 
     public OpptjeningResponse calculateOpptjeningForFnr(String fnr) {
-        LocalDate fodselsdato = personConsumer.getFodselsdato(fnr);
+        LocalDate fodselsdato = FnrUtil.getFodselsdatoForFnr(fnr);
         UserGroup userGroup = UserGroupUtil.findUserGroup(fodselsdato);
         List<Restpensjon> restpensjonList = new ArrayList<>();
 

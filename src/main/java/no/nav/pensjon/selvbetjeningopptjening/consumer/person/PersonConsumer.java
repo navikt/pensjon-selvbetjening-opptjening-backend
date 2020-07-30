@@ -17,11 +17,6 @@ public class PersonConsumer {
         this.endpoint = endpoint;
     }
 
-    public LocalDate getFodselsdato(String fnr) {
-        //Returning dummy data for now
-        return LocalDate.of(1955, 4, 8);
-    }
-
     public List<Sak> getSakUttaksgradhistorikkForPerson(String fnr,
             String saktype) { //TODO: Saktype kan muligens bare alltid være satt til alder i stedet for parameter, men lar den stå inntil videre
         Sak sak1 = new Sak();
