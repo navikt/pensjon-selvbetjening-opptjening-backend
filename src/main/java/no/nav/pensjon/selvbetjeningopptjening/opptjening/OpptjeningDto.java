@@ -2,16 +2,16 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import java.util.List;
 
+import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
+
 public class OpptjeningDto {
     private Integer ar;
     private Integer pensjonsgivendeInntekt;
     private Long pensjonsbeholdning;
-    private Double gjennomsnittligG;
     private Double omsorgspoeng;
     private String omsorgspoengType;
     private Double pensjonspoeng;
-    private List<OpptjeningPensjonspoengMerknadDto> merknad;
-    private String hjelpMerknad;
+    private List<MerknadCode> merknad;
     private int maksUforegrad;
     private Double registrertePensjonspoeng;
     private Double restpensjon;
@@ -41,14 +41,6 @@ public class OpptjeningDto {
         this.pensjonsbeholdning = pensjonsbeholdning;
     }
 
-    public Double getGjennomsnittligG() {
-        return gjennomsnittligG;
-    }
-
-    public void setGjennomsnittligG(Double gjennomsnittligG) {
-        this.gjennomsnittligG = gjennomsnittligG;
-    }
-
     public Double getOmsorgspoeng() {
         return omsorgspoeng;
     }
@@ -71,14 +63,6 @@ public class OpptjeningDto {
 
     public void setPensjonspoeng(Double pensjonspoeng) {
         this.pensjonspoeng = pensjonspoeng;
-    }
-
-    public String getHjelpMerknad() {
-        return hjelpMerknad;
-    }
-
-    public void setHjelpMerknad(String hjelpMerknad) {
-        this.hjelpMerknad = hjelpMerknad;
     }
 
     public int getMaksUforegrad() {
@@ -105,11 +89,11 @@ public class OpptjeningDto {
         this.restpensjon = restpensjon;
     }
 
-    public List<OpptjeningPensjonspoengMerknadDto> getMerknad() {
+    public List<MerknadCode> getMerknad() {
         return merknad;
     }
 
-    public void setMerknad(List<OpptjeningPensjonspoengMerknadDto> merknad) {
+    public void setMerknad(List<MerknadCode> merknad) {
         this.merknad = merknad;
     }
 

@@ -3,6 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +25,9 @@ import no.nav.pensjon.selvbetjeningopptjening.model.Pensjonspoeng;
 import no.nav.pensjon.selvbetjeningopptjening.model.Restpensjon;
 import no.nav.pensjon.selvbetjeningopptjening.model.Sak;
 import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
+import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.OpptjeningTypeCode;
+import no.nav.pensjon.selvbetjeningopptjening.model.code.TypeArsakCode;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup;
 import no.nav.pensjon.selvbetjeningopptjening.util.UserGroupUtil;
 
@@ -420,7 +423,6 @@ public class OpptjeningProvider {
             opptjeningMap.put(year, createDummyOpptjening(year,
                     random.nextInt(900000),
                     (double) random.nextInt(500000),
-                    random.nextDouble() * 100000,
                     random.nextInt(100),
                     random.nextDouble(),
                     pensjonsbeholdning,
@@ -431,23 +433,33 @@ public class OpptjeningProvider {
         return response;
     }
 
-    private OpptjeningDto createDummyOpptjening(int ar, int inntekt, Double restpensjon, double gjennomsnittligG, Integer maksUforegrad, Double omsorgspoeng,
+    private OpptjeningDto createDummyOpptjening(int ar, int inntekt, Double restpensjon, Integer maksUforegrad, Double omsorgspoeng,
             Long pensjonsbeholdning, Double pensjonspoeng, Double registrertePensjonspoeng) {
         OpptjeningDto opptjening = new OpptjeningDto();
         opptjening.setAr(ar);
         opptjening.setPensjonsgivendeInntekt(inntekt);
         opptjening.setRestpensjon(restpensjon);
-        opptjening.setGjennomsnittligG(gjennomsnittligG);
-        opptjening.setHjelpMerknad("En hjelp-merknad, usikker på om denne skal brukes");
         opptjening.setMaksUforegrad(maksUforegrad);
         opptjening.setOmsorgspoeng(omsorgspoeng);
         opptjening.setOmsorgspoengType("Omsorgstype");
         opptjening.setPensjonsbeholdning(pensjonsbeholdning);
         opptjening.setPensjonspoeng(pensjonspoeng);
         opptjening.setRegistrertePensjonspoeng(registrertePensjonspoeng);
-        OpptjeningPensjonspoengMerknadDto opptjeningPensjonspoengMerknadDto = new OpptjeningPensjonspoengMerknadDto();
-        opptjeningPensjonspoengMerknadDto.setMerknad("Et objekt som holder data om en merknad knyttet til pensjonpoeng. Gjenstår å finne ut hvordan dette skal implementeres");
-        opptjening.setMerknad(Collections.singletonList(opptjeningPensjonspoengMerknadDto));
+        opptjening.setMerknad(Collections.singletonList(MerknadCode.TESTMERKNAD));
+        if(ar>=2010){
+            EndringPensjonsopptjeningDto endring1 = new EndringPensjonsopptjeningDto();
+            endring1.setDato(LocalDate.of(ar, 1, 1));
+            endring1.setArsakType(TypeArsakCode.INNGAENDE);
+            endring1.setEndringBelop(0.0);
+            endring1.setPensjonsbeholdningBelop(1467765.0);
+
+            EndringPensjonsopptjeningDto endring2 = new EndringPensjonsopptjeningDto();
+            endring2.setDato(LocalDate.of(ar, 7, 1));
+            endring2.setArsakType(TypeArsakCode.OPPTJENING);
+            endring2.setEndringBelop(50000.0);
+            endring2.setPensjonsbeholdningBelop(1517765.0);
+            opptjening.setEndringOpptjening(Arrays.asList(endring1, endring2));
+        }
         return opptjening;
     }
 
