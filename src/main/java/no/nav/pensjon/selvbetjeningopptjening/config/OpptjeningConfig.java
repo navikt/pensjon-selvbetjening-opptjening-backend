@@ -21,7 +21,7 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.Pensjo
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.sak.SakConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.EndringPensjonsbeholdningCalculator;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.OpptjeningProvider;
 import no.nav.pensjon.selvbetjeningopptjening.util.LocalDateTimeFromEpochDeserializer;
@@ -75,8 +75,8 @@ public class OpptjeningConfig {
     }
 
     @Bean
-    public SakConsumer sakConsumer(@Value("${pen.endpoint.url}") String endpoint){
-        return new SakConsumer(endpoint);
+    public UttaksgradConsumer uttaksgradConsumer(@Value("${pen.endpoint.url}") String endpoint){
+        return new UttaksgradConsumer(endpoint);
     }
 
     @Bean
