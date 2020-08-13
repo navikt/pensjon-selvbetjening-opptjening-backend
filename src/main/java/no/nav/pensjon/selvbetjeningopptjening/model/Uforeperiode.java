@@ -7,8 +7,8 @@ import no.nav.pensjon.selvbetjeningopptjening.model.code.UforeTypeCode;
 public class Uforeperiode {
     private Integer uforegrad;
     private UforeTypeCode uforeType;
-    private LocalDate uforetidspunktFom;
-    private LocalDate uforetidspunktTom;
+    private LocalDate ufgFom;
+    private LocalDate ufgTom;
 
     public Integer getUforegrad() {
         return uforegrad;
@@ -18,8 +18,8 @@ public class Uforeperiode {
         this.uforegrad = uforegrad;
     }
 
-    public void setUforetidspunktTom(LocalDate uforetidspunktTom) {
-        this.uforetidspunktTom = uforetidspunktTom;
+    public void setUfgTom(LocalDate ufgTom) {
+        this.ufgTom = ufgTom;
     }
 
     public UforeTypeCode getUforeType() {
@@ -30,15 +30,15 @@ public class Uforeperiode {
         this.uforeType = uforeType;
     }
 
-    public LocalDate getUforetidspunktFom() {
-        return uforetidspunktFom;
+    public LocalDate getUfgFom() {
+        return ufgFom;
     }
 
-    public void setUforetidspunktFom(LocalDate uforetidspunktFom) {
-        this.uforetidspunktFom = uforetidspunktFom;
+    public void setUfgFom(LocalDate ufgFom) {
+        this.ufgFom = ufgFom;
     }
 
-    public LocalDate getUforetidspunktTom() {
-        return uforetidspunktTom;
+    public LocalDate getUfgTom() {
+        return ufgTom;
     }
 }

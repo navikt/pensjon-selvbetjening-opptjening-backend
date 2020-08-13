@@ -19,10 +19,12 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.Pensjonspoe
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.model.Beholdning;
 import no.nav.pensjon.selvbetjeningopptjening.model.Inntekt;
 import no.nav.pensjon.selvbetjeningopptjening.model.Pensjonspoeng;
 import no.nav.pensjon.selvbetjeningopptjening.model.Restpensjon;
+import no.nav.pensjon.selvbetjeningopptjening.model.UforeHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.OpptjeningTypeCode;
@@ -39,6 +41,7 @@ public class OpptjeningProvider {
     private PersonConsumer personConsumer;
     private UttaksgradConsumer uttaksgradConsumer;
     private EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator;
+    private MerknadHandler merknadHandler;
 
     public OpptjeningResponse returnDummyResponse(String fnr) {
         return createDummyResponse();
@@ -50,6 +53,9 @@ public class OpptjeningProvider {
         List<Restpensjon> restpensjonList = new ArrayList<>();
 
         List<Uttaksgrad> uttaksgradhistorikk = uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr);
+        AfpHistorikk afphistorikk = personConsumer.getAfpHistorikkForPerson(fnr);
+        UforeHistorikk uforehistorikk = personConsumer.getUforeHistorikkForPerson(fnr);
+
         if (shouldGetRestpensjon(userGroup, uttaksgradhistorikk)) {
             restpensjonList = restpensjonConsumer.getRestpensjonListe(fnr);
         }
@@ -58,16 +64,16 @@ public class OpptjeningProvider {
             List<Beholdning> pensjonsbeholdningList = pensjonsbeholdningConsumer.getPensjonsbeholdning(fnr);
             List<Inntekt> inntektList = createInntektList(fodselsdato, fnr);
 
-            return createResponseForUserGroup5(fodselsdato, pensjonsbeholdningList, restpensjonList, inntektList);
+            return createResponseForUserGroup5(fodselsdato, pensjonsbeholdningList, restpensjonList, inntektList, uttaksgradhistorikk, afphistorikk, uforehistorikk);
         } else if (UserGroup.USER_GROUP_4.equals(userGroup)) {
             List<Beholdning> pensjonsbeholdningList = pensjonsbeholdningConsumer.getPensjonsbeholdning(fnr);
             List<Pensjonspoeng> pensjonspoengList = pensjonspoengConsumer.getPensjonspoengListe(fnr);
 
-            return createResponseForUserGroup4(fodselsdato, pensjonspoengList, pensjonsbeholdningList, restpensjonList);
+            return createResponseForUserGroup4(fodselsdato, pensjonspoengList, pensjonsbeholdningList, restpensjonList, uttaksgradhistorikk, afphistorikk, uforehistorikk);
         } else {
             List<Pensjonspoeng> pensjonspoengList = pensjonspoengConsumer.getPensjonspoengListe(fnr);
 
-            return createResponseForUserGroups123(fodselsdato, pensjonspoengList, restpensjonList);
+            return createResponseForUserGroups123(fodselsdato, pensjonspoengList, restpensjonList, uttaksgradhistorikk, afphistorikk, uforehistorikk);
         }
     }
 
@@ -89,10 +95,10 @@ public class OpptjeningProvider {
     }
 
     private boolean userHasUttakAlderspensjonWithUttaksgradLessThan100(List<Uttaksgrad> uttaksgradhistorikk) {
-            for (Uttaksgrad uttaksgrad : uttaksgradhistorikk) {
-                if (uttaksgrad.getUttaksgrad() < 100) {
-                    return true;
-                }
+        for (Uttaksgrad uttaksgrad : uttaksgradhistorikk) {
+            if (uttaksgrad.getUttaksgrad() < 100) {
+                return true;
+            }
         }
         return false;
     }
@@ -103,7 +109,7 @@ public class OpptjeningProvider {
     }
 
     private OpptjeningResponse createResponseForUserGroup5(LocalDate fodselsdato, List<Beholdning> pensjonsbeholdningList, List<Restpensjon> restpensjonListe,
-            List<Inntekt> inntektsopptjeningListe) {
+            List<Inntekt> inntektsopptjeningListe, List<Uttaksgrad> uttaksgradhistorikk, AfpHistorikk afphistorikk, UforeHistorikk uforeHistorikk) {
         OpptjeningResponse response = new OpptjeningResponse();
         Map<Integer, OpptjeningDto> opptjeningMap = createOpptjeningMap(new ArrayList<>(), restpensjonListe);
         Map<Integer, Long> aarSumPensjonsgivendeInntektMap = createAarSumPensjonsgivendeInntektMap(inntektsopptjeningListe);
@@ -118,7 +124,7 @@ public class OpptjeningProvider {
             removeFutureOpptjFromPensjonspoengMap(opptjeningMap, lastYearWithOpptjening);
             populateAdditionalInntektsaar(aarSumPensjonsgivendeInntektMap, opptjeningMap, firstYearWithOpptjening, lastYearWithOpptjening);
             createOpptjeningYearsWithNoOpptjening(opptjeningMap, firstYearWithOpptjening, lastYearWithOpptjening);
-            //TODO: Implement population of merknader
+            populateMerknadForOpptjening(opptjeningMap, pensjonsbeholdningList, uttaksgradhistorikk, afphistorikk, uforeHistorikk);
         }
 
         populateEndringOpptjening(opptjeningMap, pensjonsbeholdningList);
@@ -129,7 +135,7 @@ public class OpptjeningProvider {
     }
 
     private OpptjeningResponse createResponseForUserGroup4(LocalDate fodselsdato, List<Pensjonspoeng> pensjonspoengList, List<Beholdning> pensjonsbeholdningList,
-            List<Restpensjon> restpensjonListe) {
+            List<Restpensjon> restpensjonListe, List<Uttaksgrad> uttaksgradhistorikk, AfpHistorikk afphistorikk, UforeHistorikk uforeHistorikk) {
         OpptjeningResponse response = new OpptjeningResponse();
         Map<Integer, OpptjeningDto> opptjeningMap = createOpptjeningMap(pensjonspoengList, restpensjonListe);
         populatePensjonspoeng(opptjeningMap, pensjonspoengList);
@@ -142,7 +148,7 @@ public class OpptjeningProvider {
             populateRestpensjon(opptjeningMap, restpensjonListe);
             removeFutureOpptjFromPensjonspoengMap(opptjeningMap, lastYearWithOpptjening);
             createOpptjeningYearsWithNoOpptjening(opptjeningMap, firstYearWithOpptjening, lastYearWithOpptjening);
-            //TODO: Implement population of merknader
+            populateMerknadForOpptjening(opptjeningMap, pensjonsbeholdningList, uttaksgradhistorikk, afphistorikk, uforeHistorikk);
         }
 
         response.setNumberOfYearsWithPensjonspoeng(findNumberOfYearsWithPensjonspoeng(opptjeningMap));
@@ -154,7 +160,8 @@ public class OpptjeningProvider {
         return response;
     }
 
-    private OpptjeningResponse createResponseForUserGroups123(LocalDate fodselsdato, List<Pensjonspoeng> pensjonspoengList, List<Restpensjon> restpensjonListe) {
+    private OpptjeningResponse createResponseForUserGroups123(LocalDate fodselsdato, List<Pensjonspoeng> pensjonspoengList, List<Restpensjon> restpensjonListe,
+            List<Uttaksgrad> uttaksgradhistorikk, AfpHistorikk afphistorikk, UforeHistorikk uforeHistorikk) {
         OpptjeningResponse response = new OpptjeningResponse();
         Map<Integer, OpptjeningDto> opptjeningMap = createOpptjeningMap(pensjonspoengList, restpensjonListe);
         populatePensjonspoeng(opptjeningMap, pensjonspoengList);
@@ -167,7 +174,7 @@ public class OpptjeningProvider {
             populateRestpensjon(opptjeningMap, restpensjonListe);
             removeFutureOpptjFromPensjonspoengMap(opptjeningMap, lastYearWithOpptjening);
             createOpptjeningYearsWithNoOpptjening(opptjeningMap, firstYearWithOpptjening, lastYearWithOpptjening);
-            //TODO: Implement population of merknader
+            populateMerknadForOpptjening(opptjeningMap, null, uttaksgradhistorikk, afphistorikk, uforeHistorikk);
         }
 
         response.setNumberOfYearsWithPensjonspoeng(findNumberOfYearsWithPensjonspoeng(opptjeningMap));
@@ -413,6 +420,11 @@ public class OpptjeningProvider {
                         endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(entry.getKey(), beholdningList, uttaksgradForBeholdningAfter2009)));
     }
 
+    private void populateMerknadForOpptjening(Map<Integer, OpptjeningDto> opptjeningMap, List<Beholdning> pensjonsbeholdningList, List<Uttaksgrad> uttaksgradhistorikk,
+            AfpHistorikk afphistorikk, UforeHistorikk uforehistorikk) {
+        opptjeningMap.forEach((key, value) -> merknadHandler.addMerknaderOnOpptjening(key, value, pensjonsbeholdningList, uttaksgradhistorikk, afphistorikk, uforehistorikk));
+    }
+
     private OpptjeningResponse createDummyResponse() {
         Random random = new Random();
         int firstYear = 1970;
@@ -500,5 +512,10 @@ public class OpptjeningProvider {
     @Autowired
     public void setEndringPensjonsbeholdningCalculator(EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator) {
         this.endringPensjonsbeholdningCalculator = endringPensjonsbeholdningCalculator;
+    }
+
+    @Autowired
+    public void setMerknadHandler(MerknadHandler merknadHandler) {
+        this.merknadHandler = merknadHandler;
     }
 }

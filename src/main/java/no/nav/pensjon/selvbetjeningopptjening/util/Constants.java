@@ -33,6 +33,8 @@ public final class Constants {
      */
     public static final int LAST_BIRTHYEAR_WITH_OVERGANGSREGLER = 1962;
 
+    public static final int REFORM_2010 = 2010;
+
     private Constants() {
     }
 }

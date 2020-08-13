@@ -1,5 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
+import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
+
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
@@ -77,7 +79,7 @@ public class EndringPensjonsbeholdningCalculator {
         }
         EndringPensjonsopptjeningDto endring = createEndring(TypeArsakCode.INNGAENDE, dec31PreviousYear, null, pensjonsbeholdningBelop, uttaksgrad);
 
-        if (givenYear == 2010) {
+        if (givenYear == REFORM_2010) {
             endring.setArsakDetails(Arrays.asList(DetailsArsakCode.BEHOLDNING_2010));
         }
 
@@ -131,7 +133,7 @@ public class EndringPensjonsbeholdningCalculator {
 
             Double pensjonsbeholdningBelop = inngaendeBelop + innskudd;
 
-            TypeArsakCode arsakTypeForNyOpptjening = givenYear == 2010 ? TypeArsakCode.INNGAENDE_2010 : TypeArsakCode.OPPTJENING;
+            TypeArsakCode arsakTypeForNyOpptjening = givenYear == REFORM_2010 ? TypeArsakCode.INNGAENDE_2010 : TypeArsakCode.OPPTJENING;
             if (Math.floor(beholdning.getBelop()) == (Math.floor(inngaendeBelop + innskudd))) {
                 EndringPensjonsopptjeningDto endringNyOpptjening =
                         createEndring(arsakTypeForNyOpptjening, jan1GivenYear, innskudd, pensjonsbeholdningBelop, fetchUttaksgrad(jan1GivenYear, beholdning, uttaksgradList));
@@ -274,9 +276,9 @@ public class EndringPensjonsbeholdningCalculator {
     }
 
     private void addDetailsToReguleringEndring(EndringPensjonsopptjeningDto endring, Integer givenYear) {
-        if (givenYear == 2010) {
+        if (givenYear == REFORM_2010) {
             endring.setArsakDetails(Arrays.asList(DetailsArsakCode.REGULERING_2010));
-        } else if (givenYear >= 2011) {
+        } else if (givenYear > REFORM_2010) {
             endring.setArsakDetails(Arrays.asList(DetailsArsakCode.REGULERING));
         }
     }

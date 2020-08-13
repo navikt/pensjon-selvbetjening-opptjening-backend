@@ -28,12 +28,12 @@ public class PersonConsumer {
         UforeHistorikk uforeHistorikk = new UforeHistorikk();
         Uforeperiode uforeperiode1 = new Uforeperiode();
         uforeperiode1.setUforegrad(70);
-        uforeperiode1.setUforetidspunktFom(LocalDate.of(2000, 1, 4));
-        uforeperiode1.setUforetidspunktTom(LocalDate.of(2003, 1, 4));
+        uforeperiode1.setUfgFom(LocalDate.of(2000, 1, 4));
+        uforeperiode1.setUfgTom(LocalDate.of(2003, 1, 4));
         Uforeperiode uforeperiode2 = new Uforeperiode();
         uforeperiode2.setUforegrad(50);
-        uforeperiode2.setUforetidspunktFom(LocalDate.of(2005, 1, 4));
-        uforeperiode2.setUforetidspunktTom(LocalDate.of(2019, 1, 4));
+        uforeperiode2.setUfgFom(LocalDate.of(2005, 1, 4));
+        uforeperiode2.setUfgTom(LocalDate.of(2019, 1, 4));
         uforeHistorikk.setUforeperiodeListe(Arrays.asList(uforeperiode1, uforeperiode2));
 
         return uforeHistorikk;
