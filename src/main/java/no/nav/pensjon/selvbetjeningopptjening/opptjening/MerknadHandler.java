@@ -34,7 +34,7 @@ public class MerknadHandler {
 
         addMerknadGradertAlderspensjon(year, uttaksgradhistorikk, merknadList);
         addMerknadIngenOpptjening(opptjening, merknadList);
-        opptjening.setMerknad(merknadList);
+        opptjening.setMerknader(merknadList);
     }
 
     private void addMerknadAFP(int year, List<MerknadCode> merknadList, AfpHistorikk afpHistorikk) {

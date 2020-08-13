@@ -5,25 +5,15 @@ import java.util.List;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
 
 public class OpptjeningDto {
-    private Integer ar;
     private Integer pensjonsgivendeInntekt;
     private Long pensjonsbeholdning;
     private Double omsorgspoeng;
     private String omsorgspoengType;
     private Double pensjonspoeng;
-    private List<MerknadCode> merknad;
-    private int maksUforegrad;
-    private Double registrertePensjonspoeng;
+    private List<MerknadCode> merknader;
     private Double restpensjon;
+    private int maksUforegrad;
     private List<EndringPensjonsopptjeningDto> endringOpptjening;
-
-    public Integer getAr() {
-        return ar;
-    }
-
-    public void setAr(Integer ar) {
-        this.ar = ar;
-    }
 
     public Integer getPensjonsgivendeInntekt() {
         return pensjonsgivendeInntekt;
@@ -65,22 +55,6 @@ public class OpptjeningDto {
         this.pensjonspoeng = pensjonspoeng;
     }
 
-    public int getMaksUforegrad() {
-        return maksUforegrad;
-    }
-
-    public void setMaksUforegrad(int maksUforegrad) {
-        this.maksUforegrad = maksUforegrad;
-    }
-
-    public Double getRegistrertePensjonspoeng() {
-        return registrertePensjonspoeng;
-    }
-
-    public void setRegistrertePensjonspoeng(Double registrertePensjonspoeng) {
-        this.registrertePensjonspoeng = registrertePensjonspoeng;
-    }
-
     public Double getRestpensjon() {
         return restpensjon;
     }
@@ -89,12 +63,20 @@ public class OpptjeningDto {
         this.restpensjon = restpensjon;
     }
 
-    public List<MerknadCode> getMerknad() {
-        return merknad;
+    public List<MerknadCode> getMerknader() {
+        return merknader;
     }
 
-    public void setMerknad(List<MerknadCode> merknad) {
-        this.merknad = merknad;
+    public void setMerknader(List<MerknadCode> merknader) {
+        this.merknader = merknader;
+    }
+
+    public int getMaksUforegrad() {
+        return maksUforegrad;
+    }
+
+    public void setMaksUforegrad(int maksUforegrad) {
+        this.maksUforegrad = maksUforegrad;
     }
 
     public List<EndringPensjonsopptjeningDto> getEndringOpptjening() {

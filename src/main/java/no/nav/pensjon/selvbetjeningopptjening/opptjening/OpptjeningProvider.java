@@ -1,5 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
+import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
+
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
@@ -199,17 +201,15 @@ public class OpptjeningProvider {
         return opptjeningMap;
     }
 
-    private OpptjeningDto createOpptjening(
-            Map<Integer, OpptjeningDto> pensjonspoengMap, int ar) {
-        OpptjeningDto pensjonspoeng;
-        if (pensjonspoengMap.containsKey(ar)) {
-            pensjonspoeng = pensjonspoengMap.get(ar);
+    private OpptjeningDto createOpptjening(Map<Integer, OpptjeningDto> opptjeningMap, int ar) {
+        OpptjeningDto opptjening;
+        if (opptjeningMap.containsKey(ar)) {
+            opptjening = opptjeningMap.get(ar);
         } else {
-            pensjonspoeng = new OpptjeningDto();
-            pensjonspoeng.setAr(ar);
+            opptjening = new OpptjeningDto();
         }
 
-        return pensjonspoeng;
+        return opptjening;
     }
 
     private void populatePensjonsbeholdning(Map<Integer, OpptjeningDto> opptjeningMap, Map<Integer, Beholdning> pensjonsbeholdningMap) {
@@ -293,19 +293,19 @@ public class OpptjeningProvider {
         }
     }
 
-    private void removeFutureOpptjFromPensjonspoengMap(Map<Integer, OpptjeningDto> pensjonspoengMap, int latestOpptjeningsar) {
-        pensjonspoengMap.entrySet().stream()
-                .filter(opptjening -> opptjening.getValue().getAr() > latestOpptjeningsar)
-                .forEach(opptjening -> pensjonspoengMap.remove(opptjening.getKey()));
+    private void removeFutureOpptjFromPensjonspoengMap(Map<Integer, OpptjeningDto> opptjeningMap, int latestOpptjeningsar) {
+        opptjeningMap.entrySet().stream()
+                .filter(opptjeningEntry -> opptjeningEntry.getKey() > latestOpptjeningsar)
+                .forEach(opptjeningEntry -> opptjeningMap.remove(opptjeningEntry.getKey()));
     }
 
     private int retrieveLatestOpptjeningsar(Map<Integer, OpptjeningDto> pensjonspoengMap) {
         int lastYearWithOpptjening = -1;
         int thisYear = LocalDate.now().getYear();
 
-        for (OpptjeningDto opptjening : pensjonspoengMap.values()) {
-            if (opptjening.getAr() > lastYearWithOpptjening && opptjening.getAr() <= thisYear) {
-                lastYearWithOpptjening = opptjening.getAr();
+        for (Integer opptjeningAr : pensjonspoengMap.keySet()) {
+            if (opptjeningAr > lastYearWithOpptjening && opptjeningAr <= thisYear) {
+                lastYearWithOpptjening = opptjeningAr;
             }
         }
         return lastYearWithOpptjening > -1 ? lastYearWithOpptjening : thisYear;
@@ -329,11 +329,10 @@ public class OpptjeningProvider {
         if (firstYearWithOpptjening > 0 && lastYearWithOpptjening > 0) {
             for (int year = firstYearWithOpptjening; year <= lastYearWithOpptjening; year++) {
                 if (!pensjonspoengMap.containsKey(year)) {
-                    OpptjeningDto pensjonspoeng = new OpptjeningDto();
-                    pensjonspoeng.setAr(year);
-                    pensjonspoeng.setPensjonsgivendeInntekt(0);
-                    pensjonspoeng.setPensjonspoeng(0.0);
-                    pensjonspoengMap.put(year, pensjonspoeng);
+                    OpptjeningDto opptjening = new OpptjeningDto();
+                    opptjening.setPensjonsgivendeInntekt(0);
+                    opptjening.setPensjonspoeng(0.0);
+                    pensjonspoengMap.put(year, opptjening);
                 }
             }
         }
@@ -390,7 +389,6 @@ public class OpptjeningProvider {
 
     private void populatePensjonspoengInntekt(Pensjonspoeng pensjonspoeng, OpptjeningDto opptjening) {
         Double poeng = pensjonspoeng.getPoeng();
-        opptjening.setRegistrertePensjonspoeng(poeng);
         opptjening.setPensjonspoeng(poeng);
         opptjening.setPensjonsgivendeInntekt(pensjonspoeng.getInntekt().getBelop().intValue());
     }
@@ -409,13 +407,13 @@ public class OpptjeningProvider {
 
     private void populateEndringOpptjening(Map<Integer, OpptjeningDto> opptjeningMap, List<Beholdning> beholdningList) {
         List<Long> vedtakIdForBeholdningAfter2009 = beholdningList.stream()
-                .filter(beholdning -> beholdning.getVedtakId() != null && beholdning.getFomDato().getYear() >= 2009)
+                .filter(beholdning -> beholdning.getVedtakId() != null && beholdning.getFomDato().getYear() >= REFORM_2010 - 1)
                 .map(Beholdning::getVedtakId).collect(Collectors.toList());
 
         List<Uttaksgrad> uttaksgradForBeholdningAfter2009 = uttaksgradConsumer.getUttaksgradForVedtak(vedtakIdForBeholdningAfter2009);
 
         opptjeningMap.entrySet().stream()
-                .filter(entry -> entry.getKey() >= 2010)
+                .filter(entry -> entry.getKey() >= REFORM_2010)
                 .forEach(entry -> entry.getValue().setEndringOpptjening(
                         endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(entry.getKey(), beholdningList, uttaksgradForBeholdningAfter2009)));
     }
@@ -431,7 +429,6 @@ public class OpptjeningProvider {
         int lastYear = 2015;
         OpptjeningResponse response = new OpptjeningResponse();
         response.setNumberOfYearsWithPensjonspoeng(lastYear - firstYear);
-        response.setOverforOmsorgspoengPossible(true);
         Map<Integer, OpptjeningDto> opptjeningMap = new HashMap<>();
         long pensjonsbeholdning = 0L;
         for (int year = firstYear; year <= lastYear; year++) {
@@ -452,16 +449,13 @@ public class OpptjeningProvider {
     private OpptjeningDto createDummyOpptjening(int ar, int inntekt, Double restpensjon, Integer maksUforegrad, Double omsorgspoeng,
             Long pensjonsbeholdning, Double pensjonspoeng, Double registrertePensjonspoeng) {
         OpptjeningDto opptjening = new OpptjeningDto();
-        opptjening.setAr(ar);
         opptjening.setPensjonsgivendeInntekt(inntekt);
         opptjening.setRestpensjon(restpensjon);
-        opptjening.setMaksUforegrad(maksUforegrad);
         opptjening.setOmsorgspoeng(omsorgspoeng);
         opptjening.setOmsorgspoengType("Omsorgstype");
         opptjening.setPensjonsbeholdning(pensjonsbeholdning);
         opptjening.setPensjonspoeng(pensjonspoeng);
-        opptjening.setRegistrertePensjonspoeng(registrertePensjonspoeng);
-        opptjening.setMerknad(Collections.singletonList(MerknadCode.TESTMERKNAD));
+        opptjening.setMerknader(Collections.singletonList(MerknadCode.TESTMERKNAD));
         if (ar >= 2010) {
             EndringPensjonsopptjeningDto endring1 = new EndringPensjonsopptjeningDto();
             endring1.setDato(LocalDate.of(ar, 1, 1));
