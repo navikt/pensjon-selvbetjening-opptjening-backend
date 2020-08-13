@@ -10,7 +10,6 @@ public class FnrUtil {
     public static LocalDate getFodselsdatoForFnr(String fnr){
         // Adjust bnr or dnr (for fnr return value will be equal to pid)
         String adjustedFnr = makeDnrOrBostnrAdjustments(fnr);
-        // Construct a date string with MMDDyyyy format
 
         String dateString = adjustedFnr.substring(0, 4) + get4DigitYearOfBirthWithAdjustedFnr(adjustedFnr, isDnummer(fnr));
 
