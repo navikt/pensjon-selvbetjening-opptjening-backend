@@ -354,13 +354,14 @@ public class OpptjeningProvider {
 
         if (isOpptjeningTypeOmsorgspoeng(pensjonspoeng.getPensjonspoengType())) {
             populateOmsorgspoeng(pensjonspoeng, opptjening);
+            merknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng);
         }
 
         if (isOmsorgspoengGreaterThanPensjonspoeng(opptjening)) {
             opptjening.setPensjonspoeng(opptjening.getOmsorgspoeng());
         }
 
-        //TODO: Implement merknad for omsorg here
+        merknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng);
     }
 
     private boolean isOpptjeningTypeInntekt(String opptjeningType) {
