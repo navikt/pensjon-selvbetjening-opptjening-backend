@@ -45,10 +45,6 @@ public class OpptjeningProvider {
     private EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator;
     private MerknadHandler merknadHandler;
 
-    public OpptjeningResponse returnDummyResponse(String fnr) {
-        return createDummyResponse();
-    }
-
     public OpptjeningResponse calculateOpptjeningForFnr(String fnr) {
         LocalDate fodselsdato = FnrUtil.getFodselsdatoForFnr(fnr);
         UserGroup userGroup = UserGroupUtil.findUserGroup(fodselsdato);
@@ -422,56 +418,6 @@ public class OpptjeningProvider {
     private void populateMerknadForOpptjening(Map<Integer, OpptjeningDto> opptjeningMap, List<Beholdning> pensjonsbeholdningList, List<Uttaksgrad> uttaksgradhistorikk,
             AfpHistorikk afphistorikk, UforeHistorikk uforehistorikk) {
         opptjeningMap.forEach((key, value) -> merknadHandler.addMerknaderOnOpptjening(key, value, pensjonsbeholdningList, uttaksgradhistorikk, afphistorikk, uforehistorikk));
-    }
-
-    private OpptjeningResponse createDummyResponse() {
-        Random random = new Random();
-        int firstYear = 1970;
-        int lastYear = 2015;
-        OpptjeningResponse response = new OpptjeningResponse();
-        response.setNumberOfYearsWithPensjonspoeng(lastYear - firstYear);
-        Map<Integer, OpptjeningDto> opptjeningMap = new HashMap<>();
-        long pensjonsbeholdning = 0L;
-        for (int year = firstYear; year <= lastYear; year++) {
-            pensjonsbeholdning += random.nextInt(100000);
-            opptjeningMap.put(year, createDummyOpptjening(year,
-                    random.nextInt(900000),
-                    (double) random.nextInt(500000),
-                    random.nextInt(100),
-                    random.nextDouble(),
-                    pensjonsbeholdning,
-                    random.nextDouble(),
-                    random.nextDouble()));
-        }
-        response.setOpptjeningData(opptjeningMap);
-        return response;
-    }
-
-    private OpptjeningDto createDummyOpptjening(int ar, int inntekt, Double restpensjon, Integer maksUforegrad, Double omsorgspoeng,
-            Long pensjonsbeholdning, Double pensjonspoeng, Double registrertePensjonspoeng) {
-        OpptjeningDto opptjening = new OpptjeningDto();
-        opptjening.setPensjonsgivendeInntekt(inntekt);
-        opptjening.setRestpensjon(restpensjon);
-        opptjening.setOmsorgspoeng(omsorgspoeng);
-        opptjening.setOmsorgspoengType("Omsorgstype");
-        opptjening.setPensjonsbeholdning(pensjonsbeholdning);
-        opptjening.setPensjonspoeng(pensjonspoeng);
-        opptjening.setMerknader(Collections.singletonList(MerknadCode.TESTMERKNAD));
-        if (ar >= 2010) {
-            EndringPensjonsopptjeningDto endring1 = new EndringPensjonsopptjeningDto();
-            endring1.setDato(LocalDate.of(ar, 1, 1));
-            endring1.setArsakType(TypeArsakCode.INNGAENDE);
-            endring1.setEndringBelop(0.0);
-            endring1.setPensjonsbeholdningBelop(1467765.0);
-
-            EndringPensjonsopptjeningDto endring2 = new EndringPensjonsopptjeningDto();
-            endring2.setDato(LocalDate.of(ar, 7, 1));
-            endring2.setArsakType(TypeArsakCode.OPPTJENING);
-            endring2.setEndringBelop(50000.0);
-            endring2.setPensjonsbeholdningBelop(1517765.0);
-            opptjening.setEndringOpptjening(Arrays.asList(endring1, endring2));
-        }
-        return opptjening;
     }
 
     @Autowired
