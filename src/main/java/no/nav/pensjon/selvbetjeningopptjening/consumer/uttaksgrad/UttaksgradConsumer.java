@@ -13,7 +13,7 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingServiceInPoppException;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingServiceInPenException;
 import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
 
 public class UttaksgradConsumer {
@@ -68,9 +68,9 @@ public class UttaksgradConsumer {
 
     private List<Uttaksgrad> handle(RestClientResponseException e) {
         if (e.getRawStatusCode() == HttpStatus.UNAUTHORIZED.value()) {
-            throw new FailedCallingServiceInPoppException("Received 401 UNAUTHORIZED from PEN", e);
+            throw new FailedCallingServiceInPenException("Received 401 UNAUTHORIZED from PEN", e);
         }
-        throw new FailedCallingServiceInPoppException("An error occurred when calling PROPOPP006 hentPensjonsbeholdningListe", e);
+        throw new FailedCallingServiceInPenException("An error occurred when calling PEN", e);
     }
 
     @Autowired
