@@ -7,11 +7,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingServiceInPoppException;
 import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
 
 public class UttaksgradConsumer {
@@ -58,10 +60,17 @@ public class UttaksgradConsumer {
                     new HttpEntity<>(headers),
                     UttaksgradListResponse.class);
         } catch (RestClientResponseException e) {
-            return null;
+            return handle(e);
         }
 
         return responseEntity.getBody() != null ? responseEntity.getBody().getUttaksgradList() : null;
+    }
+
+    private List<Uttaksgrad> handle(RestClientResponseException e) {
+        if (e.getRawStatusCode() == HttpStatus.UNAUTHORIZED.value()) {
+            throw new FailedCallingServiceInPoppException("Received 401 UNAUTHORIZED from PEN", e);
+        }
+        throw new FailedCallingServiceInPoppException("An error occurred when calling PROPOPP006 hentPensjonsbeholdningListe", e);
     }
 
     @Autowired
