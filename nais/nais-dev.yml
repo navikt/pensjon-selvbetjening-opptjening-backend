@@ -32,6 +32,9 @@ spec:
       value: "http.proxy"
     - name: HTTP_PROXY
       value: http://webproxy-nais.nav.no:8088
+  prometheus:
+    enabled: true
+    path: /api/mgmt/prom
   vault:
     enabled: true
     paths:
