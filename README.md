@@ -18,8 +18,7 @@ I et Java-IDE kjør `SelvbetjeningOpptjeningApplication`.
 #### Applikasjonshelse (usikrede):
 * Liveness: http://localhost:8080/api/internal/isAlive
 * Readiness: http://localhost:8080/api/internal/isReady
-* Helse: http://localhost:8080/mgmt/health
+* Helse: http://localhost:8080/api/mgmt/health
 
-#### Metrikker (usikrede):
-* Liste over metrikker: http://localhost:8080/mgmt/metrics
-* Prometheus: http://localhost:8080/mgmt/prom
+#### Metrikker (usikret):
+* Prometheus: http://localhost:8080/api/mgmt/prom
