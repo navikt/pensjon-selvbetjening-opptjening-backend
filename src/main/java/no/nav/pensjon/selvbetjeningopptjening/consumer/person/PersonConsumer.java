@@ -1,41 +1,64 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.person;
 
-import java.time.LocalDate;
-import java.util.Arrays;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientResponseException;
+import org.springframework.web.client.RestTemplate;
 
 import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.model.UforeHistorikk;
-import no.nav.pensjon.selvbetjeningopptjening.model.Uforeperiode;
 
 public class PersonConsumer {
     private String endpoint;
+    private RestTemplate restTemplate;
 
     public PersonConsumer(String endpoint) {
         this.endpoint = endpoint;
     }
 
     public AfpHistorikk getAfpHistorikkForPerson(String fnr) {
-        //Returning dummy data for now
-        AfpHistorikk afpHistorikk = new AfpHistorikk();
-        afpHistorikk.setVirkFom(LocalDate.of(2019, 1, 4));
-        afpHistorikk.setVirkTom(LocalDate.of(2020, 4, 19));
+        ResponseEntity<AfpHistorikk> responseEntity;
 
-        return afpHistorikk;
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("pid", fnr);
+            responseEntity = restTemplate.exchange(
+                    endpoint + "/person/afphistorikk",
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
+                    AfpHistorikk.class);
+        } catch (RestClientResponseException e) {
+            return null;
+        }
+
+        return responseEntity.getBody();
     }
 
     public UforeHistorikk getUforeHistorikkForPerson(String fnr) {
-        //Returning dummy data for now
-        UforeHistorikk uforeHistorikk = new UforeHistorikk();
-        Uforeperiode uforeperiode1 = new Uforeperiode();
-        uforeperiode1.setUforegrad(70);
-        uforeperiode1.setUfgFom(LocalDate.of(2000, 1, 4));
-        uforeperiode1.setUfgTom(LocalDate.of(2003, 1, 4));
-        Uforeperiode uforeperiode2 = new Uforeperiode();
-        uforeperiode2.setUforegrad(50);
-        uforeperiode2.setUfgFom(LocalDate.of(2005, 1, 4));
-        uforeperiode2.setUfgTom(LocalDate.of(2019, 1, 4));
-        uforeHistorikk.setUforeperiodeListe(Arrays.asList(uforeperiode1, uforeperiode2));
+        ResponseEntity<UforeHistorikk> responseEntity;
 
-        return uforeHistorikk;
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("pid", fnr);
+            responseEntity = restTemplate.exchange(
+                    endpoint + "/person/uforehistorikk",
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
+                    UforeHistorikk.class);
+        } catch (RestClientResponseException e) {
+            return null;
+        }
+
+        return responseEntity.getBody();
+    }
+
+    @Autowired
+    @Qualifier("conf.opptjening.resttemplate.oidc")
+    public void setRestTemplate(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
     }
 }
