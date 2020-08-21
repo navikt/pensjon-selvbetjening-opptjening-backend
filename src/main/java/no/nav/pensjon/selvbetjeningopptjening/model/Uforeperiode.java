@@ -2,11 +2,14 @@ package no.nav.pensjon.selvbetjeningopptjening.model;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UforeTypeCode;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Uforeperiode {
     private Integer uforegrad;
-    private UforeTypeCode uforeType;
+    private UforeTypeCode uforetype;
     private LocalDate ufgFom;
     private LocalDate ufgTom;
 
@@ -22,12 +25,12 @@ public class Uforeperiode {
         this.ufgTom = ufgTom;
     }
 
-    public UforeTypeCode getUforeType() {
-        return uforeType;
+    public UforeTypeCode getUforetype() {
+        return uforetype;
     }
 
-    public void setUforeType(UforeTypeCode uforeType) {
-        this.uforeType = uforeType;
+    public void setUforetype(UforeTypeCode uforetype) {
+        this.uforetype = uforetype;
     }
 
     public LocalDate getUfgFom() {
