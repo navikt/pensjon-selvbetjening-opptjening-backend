@@ -1,14 +1,18 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.person;
 
+import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.PEN;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
+import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.model.UforeHistorikk;
 
@@ -32,7 +36,7 @@ public class PersonConsumer {
                     new HttpEntity<>(headers),
                     AfpHistorikk.class);
         } catch (RestClientResponseException e) {
-            return null;
+            throw handle(e, "PROPEN2602 getAfphistorikkForPerson");
         }
 
         return responseEntity.getBody();
@@ -50,10 +54,21 @@ public class PersonConsumer {
                     new HttpEntity<>(headers),
                     UforeHistorikk.class);
         } catch (RestClientResponseException e) {
-            return null;
+            throw handle(e, "PROPEN2603 getUforehistorikkForPerson");
         }
 
         return responseEntity.getBody();
+    }
+
+    private FailedCallingExternalServiceException handle(RestClientResponseException e, String serviceIdentifier) {
+        if (e.getRawStatusCode() == HttpStatus.UNAUTHORIZED.value()) {
+            return new FailedCallingExternalServiceException(PEN, serviceIdentifier, "Received 401 UNAUTHORIZED", e);
+        } else if (e.getRawStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
+            return new FailedCallingExternalServiceException(PEN, serviceIdentifier, "An error occurred in the provider, received 500 INTERNAL SERVER ERROR", e);
+        } else if (e.getRawStatusCode() == HttpStatus.BAD_REQUEST.value()) {
+            return new FailedCallingExternalServiceException(PEN, serviceIdentifier, "Received 400 BAD REQUEST", e);
+        }
+        return new FailedCallingExternalServiceException(PEN, serviceIdentifier, "An error occurred in the consumer", e);
     }
 
     @Autowired
