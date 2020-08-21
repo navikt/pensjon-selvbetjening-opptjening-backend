@@ -50,7 +50,7 @@ public class MerknadHandler {
         if (pensjonsbeholdningList != null) {
             addMerknadReform2010(year, merknadList);
             addMerknadDagpengerAndForstegangsteneste(year, merknadList, pensjonsbeholdningList);
-            addMerknadOmsorgFromPensjonsbeholdning(year, merknadList, pensjonsbeholdningList);
+            addMerknadOmsorgFromPensjonsbeholdning(year, opptjening, merknadList, pensjonsbeholdningList);
         }
 
         addMerknadGradertAlderspensjon(year, uttaksgradhistorikk, merknadList);
@@ -74,18 +74,17 @@ public class MerknadHandler {
             Integer maxUforegrad = null;
 
             for (Uforeperiode periode : uforehistorikk.getUforeperiodeListe()) {
-                if (isRealUforeperiode(periode) && (periode.getUforeType().equals(UforeTypeCode.UFORE) || periode.getUforeType().equals(UforeTypeCode.UF_M_YRKE))) {
+                if (isRealUforeperiode(periode) && (periode.getUforetype().equals(UforeTypeCode.UFORE) || periode.getUforetype().equals(UforeTypeCode.UF_M_YRKE))) {
                     if (isUforeperiodeVirkFomBeforeGrunnlagsAr(year, periode)) {
                         if (maxUforegrad == null || periode.getUforegrad() > maxUforegrad) {
                             maxUforegrad = periode.getUforegrad();
                         }
                     }
                 }
-
-                if (maxUforegrad != null && maxUforegrad > 0) {
-                    opptjening.setMaksUforegrad(maxUforegrad);
-                    merknadList.add(MerknadCode.UFOREGRAD);
-                }
+            }
+            if (maxUforegrad != null && maxUforegrad > 0) {
+                opptjening.setMaksUforegrad(maxUforegrad);
+                merknadList.add(MerknadCode.UFOREGRAD);
             }
         }
     }
@@ -108,7 +107,7 @@ public class MerknadHandler {
     }
 
     private boolean isRealUforeperiode(Uforeperiode uforeperiode) {
-        UforeTypeCode uforeType = uforeperiode.getUforeType();
+        UforeTypeCode uforeType = uforeperiode.getUforetype();
         return uforeType != null && (uforeType.equals(UforeTypeCode.UF_M_YRKE) || uforeType.equals(UforeTypeCode.UFORE) || uforeType.equals(UforeTypeCode.YRKE));
     }
 
@@ -163,11 +162,11 @@ public class MerknadHandler {
                 && beholdning.getForstegangstjenesteOpptjeningBelop().getBelop() > 0;
     }
 
-    private void addMerknadOmsorgFromPensjonsbeholdning(int year, List<MerknadCode> merknadList, List<Beholdning> pensjonsbeholdningList) {
+    private void addMerknadOmsorgFromPensjonsbeholdning(int year, OpptjeningDto opptjening, List<MerknadCode> merknadList, List<Beholdning> pensjonsbeholdningList) {
         pensjonsbeholdningList.stream()
                 .filter(beholdning -> omsorgopptjeningsbelopGreaterThanZero(beholdning) && year == beholdning.getOmsorgOpptjeningBelop().getAr())
                 .findFirst().ifPresent(beholdning -> {
-            if (!merknadList.contains(MerknadCode.OMSORGSOPPTJENING)) {
+            if (!opptjening.getMerknader().contains(MerknadCode.OMSORGSOPPTJENING)) {
                 merknadList.add(MerknadCode.OMSORGSOPPTJENING);
             }
         });
@@ -175,7 +174,7 @@ public class MerknadHandler {
         pensjonsbeholdningList.stream()
                 .filter(beholdning -> beholdningHarOpptjeningOBU7EllerOBU6(beholdning) && year == beholdning.getOmsorgOpptjeningBelop().getAr())
                 .findFirst().ifPresent(beholdning -> {
-            if (!merknadList.contains(MerknadCode.OVERFORE_OMSORGSOPPTJENING)) {
+            if (!opptjening.getMerknader().contains(MerknadCode.OVERFORE_OMSORGSOPPTJENING)) {
                 merknadList.add(MerknadCode.OVERFORE_OMSORGSOPPTJENING);
             }
         });

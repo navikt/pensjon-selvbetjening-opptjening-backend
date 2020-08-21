@@ -1,5 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad;
 
+import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.PEN;
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,7 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingServiceInPenException;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
 
 public class UttaksgradConsumer {
@@ -36,7 +38,7 @@ public class UttaksgradConsumer {
                     new HttpEntity<>(headers),
                     UttaksgradListResponse.class);
         } catch (RestClientResponseException e) {
-            return null;
+            throw handle(e, "PROPEN3000 getUttaksgradForVedtak");
         }
 
         return responseEntity.getBody() != null ? responseEntity.getBody().getUttaksgradList() : null;
@@ -53,24 +55,28 @@ public class UttaksgradConsumer {
 
         try {
             HttpHeaders headers = new HttpHeaders();
-            headers.add("fnr", fnr);
+            headers.add("pid", fnr);
             responseEntity = restTemplate.exchange(
                     endpoint + "/uttaksgrad/person?sakType=ALDER",
                     HttpMethod.GET,
                     new HttpEntity<>(headers),
                     UttaksgradListResponse.class);
         } catch (RestClientResponseException e) {
-            return handle(e);
+            throw handle(e, "PROPEN3001 getAlderSakUttaksgradhistorikkForPerson");
         }
 
         return responseEntity.getBody() != null ? responseEntity.getBody().getUttaksgradList() : null;
     }
 
-    private List<Uttaksgrad> handle(RestClientResponseException e) {
+    private FailedCallingExternalServiceException handle(RestClientResponseException e, String serviceIdentifier) {
         if (e.getRawStatusCode() == HttpStatus.UNAUTHORIZED.value()) {
-            throw new FailedCallingServiceInPenException("Received 401 UNAUTHORIZED from PEN", e);
+            return new FailedCallingExternalServiceException(PEN, serviceIdentifier, "Received 401 UNAUTHORIZED", e);
+        } else if (e.getRawStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
+            return new FailedCallingExternalServiceException(PEN, serviceIdentifier, "An error occurred in the provider, received 500 INTERNAL SERVER ERROR", e);
+        } else if (e.getRawStatusCode() == HttpStatus.BAD_REQUEST.value()) {
+            return new FailedCallingExternalServiceException(PEN, serviceIdentifier, "Received 400 BAD REQUEST", e);
         }
-        throw new FailedCallingServiceInPenException("An error occurred when calling PEN", e);
+        return new FailedCallingExternalServiceException(PEN, serviceIdentifier, "An error occurred in the consumer", e);
     }
 
     @Autowired
