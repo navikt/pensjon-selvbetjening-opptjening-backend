@@ -9,6 +9,12 @@ NAV-interne henvendelser kan sendes via Slack i kanalen [#po-pensjon-teamselvbet
 
 I et Java-IDE kjør `SelvbetjeningOpptjeningApplication`.
 
+Bruk profil `laptop` for test på mobilitetsløsning, eller `uimage` for Utviklerimage.
+
+Eksempel VM options i Run/Debug config: `-Dspring.profiles.active=laptop -Dfnr=<fnr>`
+
+På laptop bruk k8s port-forwarding for tjenestene STS, PEN og POPP.
+
 ### Endepunkter
 
 #### Pensjonsrelaterte (sikrede):
