@@ -1,5 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon;
 
+import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +15,12 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingServiceInPoppException;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.model.Restpensjon;
 
 public class RestpensjonConsumer {
     private static final int CHECKED_EXCEPTION_HTTP_STATUS = 512;
+    private static final String CONSUMED_SERVICE = "PROPOPP013 hentRestpensjoner";
     private final String endpoint;
     private RestTemplate restTemplate;
 
@@ -36,7 +39,7 @@ public class RestpensjonConsumer {
                     new HttpEntity<>(headers),
                     RestpensjonListeResponse.class);
         } catch (RestClientResponseException e) {
-            return handle(e);
+            throw handle(e);
         }
 
         return responseEntity.getBody() != null ? responseEntity.getBody().getRestpensjoner() : null;
@@ -52,16 +55,16 @@ public class RestpensjonConsumer {
         return builder.toUriString();
     }
 
-    private List<Restpensjon> handle(RestClientResponseException e) {
+    private FailedCallingExternalServiceException handle(RestClientResponseException e) {
         if (e.getRawStatusCode() == HttpStatus.UNAUTHORIZED.value()) {
-            throw new FailedCallingServiceInPoppException("Received unauthorized from PROPOPP013 hentRestpensjoner", e);
+            return new FailedCallingExternalServiceException(POPP, CONSUMED_SERVICE, "Received 401 UNAUTHORIZED", e);
+        } else if (e.getRawStatusCode() == CHECKED_EXCEPTION_HTTP_STATUS && e.getMessage() != null && e.getMessage().contains("PersonDoesNotExistExceptionDto")) {
+            return new FailedCallingExternalServiceException(POPP, CONSUMED_SERVICE, "Person ikke funnet", e);
+        } else if (e.getRawStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
+            return new FailedCallingExternalServiceException(POPP, CONSUMED_SERVICE, "An error occurred in the provider, received 500 INTERNAL SERVER ERROR", e);
         }
 
-        if (e.getRawStatusCode() == CHECKED_EXCEPTION_HTTP_STATUS && e.getMessage() != null && e.getMessage().contains("PersonDoesNotExistExceptionDto")) {
-            throw new FailedCallingServiceInPoppException("Person not found in POPP when calling PROPOPP13 hentRestpensjoner", e);
-        }
-
-        throw new FailedCallingServiceInPoppException("Unexpected error while trying to call PROPOPP13 hentRestpensjoner", e);
+        return new FailedCallingExternalServiceException(POPP, CONSUMED_SERVICE, "An error occurred in the consumer", e);
     }
 
     @Autowired
