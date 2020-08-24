@@ -22,7 +22,20 @@ class EndringPensjonsbeholdningCalculatorTest {
     }
 
     @Test
-    void when_beholdning_list_has_one_element_then_calculateEndringPensjonsbeholdningr_returns_3_elements() {
+    void when_beholdning_list_has_one_element_with_FomDato_GivenYear_then_calculateEndringPensjonsbeholdning_returns_2_elements() {
+        Beholdning beholdning = new Beholdning();
+        beholdning.setFomDato(LocalDate.of(2020, 4, 1));
+        beholdning.setBelop(1d);
+        List<Beholdning> list = Collections.singletonList(beholdning);
+
+        List<EndringPensjonsopptjeningDto> dtos =
+                new EndringPensjonsbeholdningCalculator().calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
+
+        assertEquals(2, dtos.size());
+    }
+
+    @Test
+    void when_beholdning_list_has_one_element_with_FomDato_1JanGivenYear_then_calculateEndringPensjonsbeholdning_returns_3_elements() {
         Beholdning beholdning = new Beholdning();
         beholdning.setFomDato(LocalDate.of(2020, 1, 1));
         beholdning.setBelop(1d);
@@ -32,5 +45,19 @@ class EndringPensjonsbeholdningCalculatorTest {
                 new EndringPensjonsbeholdningCalculator().calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
 
         assertEquals(3, dtos.size());
+    }
+
+    @Test
+    void when_beholdning_list_has_one_element_with_FomDato_1JanGivenYear_and_TomDato_31DecGivenYear_then_calculateEndringPensjonsbeholdning_returns_4_elements() {
+        Beholdning beholdning = new Beholdning();
+        beholdning.setFomDato(LocalDate.of(2020, 1, 1));
+        beholdning.setTomDato(LocalDate.of(2020,12,31));
+        beholdning.setBelop(1d);
+        List<Beholdning> list = Collections.singletonList(beholdning);
+
+        List<EndringPensjonsopptjeningDto> dtos =
+                new EndringPensjonsbeholdningCalculator().calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
+
+        assertEquals(4, dtos.size());
     }
 }
