@@ -1,37 +1,31 @@
 package no.nav.pensjon.selvbetjeningopptjening.util;
 
-import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-
-import no.nav.security.token.support.core.context.TokenValidationContext;
+import no.nav.pensjon.selvbetjeningopptjening.config.StringExtractor;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException;
+import org.springframework.web.context.request.RequestContextHolder;
 
-@Component
-public class FnrExtractor {
+import static java.util.Objects.requireNonNull;
 
-    private TokenValidationContextHolder context;
+public class FnrExtractor implements StringExtractor {
 
     private static final String ISSUER = "selvbetjening";
+    private final TokenValidationContextHolder contextHolder;
 
-    public FnrExtractor(TokenValidationContextHolder context) {
-        this.context = context;
+    public FnrExtractor(TokenValidationContextHolder contextHolder) {
+        this.contextHolder = requireNonNull(contextHolder);
     }
 
+    @Override
     public String extract() {
         if (RequestContextHolder.getRequestAttributes() == null) {
-            throw new JwtTokenUnauthorizedException("FnrExtractor: Token not found.");
+            throw new JwtTokenUnauthorizedException("Token not found (no request attributes)");
         }
 
-        return getFnr(ISSUER);
+        return getFnr();
     }
 
-    private String getFnr(String issuer) {
-        return getTokenContext().getJwtToken(issuer).getSubject();
+    private String getFnr() {
+        return contextHolder.getTokenValidationContext().getJwtToken(ISSUER).getSubject();
     }
-
-    private TokenValidationContext getTokenContext() {
-        return context.getTokenValidationContext();
-    }
-
 }

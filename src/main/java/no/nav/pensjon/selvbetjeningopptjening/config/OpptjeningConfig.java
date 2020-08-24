@@ -7,10 +7,14 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
+import no.nav.pensjon.selvbetjeningopptjening.util.FnrExtractor;
+import no.nav.pensjon.selvbetjeningopptjening.util.SimpleStringExtractor;
+import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
@@ -66,36 +70,48 @@ public class OpptjeningConfig {
     }
 
     @Bean
-    public PensjonsbeholdningConsumer pensjonsbeholdningConsumer(@Value("${popp.endpoint.url}") String endpoint){
+    public PensjonsbeholdningConsumer pensjonsbeholdningConsumer(@Value("${popp.endpoint.url}") String endpoint) {
         return new PensjonsbeholdningConsumer(endpoint);
     }
 
     @Bean
-    public OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer(@Value("${popp.endpoint.url}") String endpoint){
+    public OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer(@Value("${popp.endpoint.url}") String endpoint) {
         return new OpptjeningsgrunnlagConsumer(endpoint);
     }
 
     @Bean
-    public UttaksgradConsumer uttaksgradConsumer(@Value("${pen.endpoint.url}") String endpoint){
+    public UttaksgradConsumer uttaksgradConsumer(@Value("${pen.endpoint.url}") String endpoint) {
         return new UttaksgradConsumer(endpoint);
     }
 
     @Bean
-    public PersonConsumer personConsumer(@Value("${pen.endpoint.url}") String endpoint){
+    public PersonConsumer personConsumer(@Value("${pen.endpoint.url}") String endpoint) {
         return new PersonConsumer(endpoint);
     }
 
     @Bean
-    public EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator(){
+    public EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator() {
         return new EndringPensjonsbeholdningCalculator();
     }
 
     @Bean
-    public MerknadHandler merknadHandler(){
+    public MerknadHandler merknadHandler() {
         return new MerknadHandler();
     }
 
-    private MappingJackson2HttpMessageConverter createCustomMessageConverterForLocalDate(){
+    @Bean
+    @Profile("default")
+    public StringExtractor fnrExtractor(TokenValidationContextHolder context) {
+        return new FnrExtractor(context);
+    }
+
+    @Bean
+    @Profile("!default")
+    public StringExtractor simpleFnrExtractor(@Value("${fnr}") String fnr) {
+        return new SimpleStringExtractor(fnr);
+    }
+
+    private MappingJackson2HttpMessageConverter createCustomMessageConverterForLocalDate() {
         ObjectMapper objectMapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addDeserializer(LocalDate.class, new LocalDateTimeFromEpochDeserializer());
