@@ -18,7 +18,7 @@ import no.nav.pensjon.selvbetjeningopptjening.model.Inntekt;
 
 public class OpptjeningsgrunnlagConsumer {
     private static final int CHECKED_EXCEPTION_HTTP_STATUS = 512;
-    private static final String CONSUMED_SERVICE = "PROPOPP007 hentOpptjeningsgrunnlag";
+    public static final String CONSUMED_SERVICE = "PROPOPP007 hentOpptjeningsgrunnlag";
     private final String endpoint;
     private RestTemplate restTemplate;
 
@@ -36,6 +36,8 @@ public class OpptjeningsgrunnlagConsumer {
                     HentOpptjeningsGrunnlagResponse.class);
         } catch (RestClientResponseException e) {
             throw handle(e);
+        } catch(Exception e){
+            throw new FailedCallingExternalServiceException(POPP, CONSUMED_SERVICE, "An error occurred in the consumer", e);
         }
 
         return responseEntity.getBody() != null ? responseEntity.getBody().getOpptjeningsGrunnlag().getInntektListe() : null;
@@ -66,7 +68,7 @@ public class OpptjeningsgrunnlagConsumer {
             return new FailedCallingExternalServiceException(POPP, CONSUMED_SERVICE, "An error occurred in the provider, received 500 INTERNAL SERVER ERROR", e);
         }
 
-        return new FailedCallingExternalServiceException(POPP, CONSUMED_SERVICE, "An error occurred in the consumer", e);
+        return new FailedCallingExternalServiceException(POPP, CONSUMED_SERVICE, "An error occurred in the provider", e);
     }
 
     @Autowired
