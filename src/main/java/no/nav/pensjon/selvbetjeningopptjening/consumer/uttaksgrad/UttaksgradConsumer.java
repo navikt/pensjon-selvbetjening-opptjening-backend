@@ -31,14 +31,15 @@ public class UttaksgradConsumer {
         ResponseEntity<UttaksgradListResponse> responseEntity;
 
         try {
-            HttpHeaders headers = new HttpHeaders();
             responseEntity = restTemplate.exchange(
                     buildUrl(endpoint, vedtakIdList),
                     HttpMethod.GET,
-                    new HttpEntity<>(headers),
+                    null,
                     UttaksgradListResponse.class);
         } catch (RestClientResponseException e) {
             throw handle(e, "PROPEN3000 getUttaksgradForVedtak");
+        } catch (Exception e) {
+            throw new FailedCallingExternalServiceException(PEN, "PROPEN3000 getUttaksgradForVedtak", "An error occurred in the consumer", e);
         }
 
         return responseEntity.getBody() != null ? responseEntity.getBody().getUttaksgradList() : null;
@@ -63,6 +64,8 @@ public class UttaksgradConsumer {
                     UttaksgradListResponse.class);
         } catch (RestClientResponseException e) {
             throw handle(e, "PROPEN3001 getAlderSakUttaksgradhistorikkForPerson");
+        } catch (Exception e) {
+            throw new FailedCallingExternalServiceException(PEN, "PROPEN3001 getAlderSakUttaksgradhistorikkForPerson", "An error occurred in the consumer", e);
         }
 
         return responseEntity.getBody() != null ? responseEntity.getBody().getUttaksgradList() : null;

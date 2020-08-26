@@ -37,6 +37,8 @@ public class PersonConsumer {
                     AfpHistorikk.class);
         } catch (RestClientResponseException e) {
             throw handle(e, "PROPEN2602 getAfphistorikkForPerson");
+        } catch (Exception e) {
+            throw new FailedCallingExternalServiceException(PEN, "PROPEN2602 getAfphistorikkForPerson", "An error occurred in the consumer", e);
         }
 
         return responseEntity.getBody();
@@ -55,6 +57,8 @@ public class PersonConsumer {
                     UforeHistorikk.class);
         } catch (RestClientResponseException e) {
             throw handle(e, "PROPEN2603 getUforehistorikkForPerson");
+        } catch (Exception e) {
+            throw new FailedCallingExternalServiceException(PEN, "PROPEN2603 getUforehistorikkForPerson", "An error occurred in the consumer", e);
         }
 
         return responseEntity.getBody();
