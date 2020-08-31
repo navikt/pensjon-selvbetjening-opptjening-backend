@@ -3,7 +3,10 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 import static org.junit.jupiter.api.Assertions.*;
 
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.TypeArsakCode.INNGAENDE;
+import static no.nav.pensjon.selvbetjeningopptjening.model.code.TypeArsakCode.INNGAENDE_2010;
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.TypeArsakCode.OPPTJENING;
+import static no.nav.pensjon.selvbetjeningopptjening.model.code.TypeArsakCode.REGULERING;
+import static no.nav.pensjon.selvbetjeningopptjening.model.code.TypeArsakCode.UTGAENDE;
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.TypeArsakCode.UTTAK;
 
 import java.time.LocalDate;
@@ -16,10 +19,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import no.nav.pensjon.selvbetjeningopptjening.model.Beholdning;
+import no.nav.pensjon.selvbetjeningopptjening.model.Lonnsvekstregulering;
+import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
+import no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode;
 
 class EndringPensjonsbeholdningCalculatorTest {
 
-    @Mock
     EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator;
 
     @BeforeEach
@@ -46,6 +51,7 @@ class EndringPensjonsbeholdningCalculatorTest {
         assertEquals(2, dtos.size());
     }
 
+
     @Test
     void when_FomDato_1JanGivenYear_then_addInngaendeBeholdning_and_addNyOpptjening_returns_3_ArsakType_values() {
         Beholdning beholdning = new Beholdning();
@@ -59,6 +65,168 @@ class EndringPensjonsbeholdningCalculatorTest {
         assertEquals(INNGAENDE, dtos.get(0).getArsakType());
         assertEquals(OPPTJENING,dtos.get(1).getArsakType());
         assertEquals(UTTAK,dtos.get(2).getArsakType());
+    }
+
+
+    @Test
+    void when_GivenYear_2020_with_uttaksgrad_value_100_then_addNyOpptjening_returns_ArsakDetailCode_OPPTJENING_HEL() {
+        Beholdning beholdning = new Beholdning();
+        beholdning.setFomDato(LocalDate.of(2020, 1, 1));
+        beholdning.setBelop(1d);
+        beholdning.setVedtakId(1L);
+        List<Beholdning> list = Collections.singletonList(beholdning);
+        Uttaksgrad uttaksgrad = new Uttaksgrad();
+        uttaksgrad.setVedtakId(1L);
+        uttaksgrad.setUttaksgrad(100);
+        uttaksgrad.setFomDato(LocalDate.of(2019,1,1));
+        uttaksgrad.setTomDato(LocalDate.of(2020,12,31));
+
+
+        List<EndringPensjonsopptjeningDto> dtos =
+                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list,Collections.singletonList(uttaksgrad));
+
+        assertEquals(DetailsArsakCode.OPPTJENING_HEL, dtos.get(1).getArsakDetails().get(0));
+        assertEquals(OPPTJENING,dtos.get(1).getArsakType());
+    }
+
+    @Test
+    void when_GivenYear_2020_with_uttaksgrad_value_lessthan100_then_addNyOpptjening_returns_ArsakDetailCode_OPPTJENING_GRADERT() {
+        Beholdning beholdning = new Beholdning();
+        beholdning.setFomDato(LocalDate.of(2020, 1, 1));
+        beholdning.setBelop(1d);
+        beholdning.setVedtakId(1L);
+        List<Beholdning> list = Collections.singletonList(beholdning);
+        Uttaksgrad uttaksgrad = new Uttaksgrad();
+        uttaksgrad.setVedtakId(1L);
+        uttaksgrad.setUttaksgrad(50);
+        uttaksgrad.setFomDato(LocalDate.of(2019,1,1));
+        uttaksgrad.setTomDato(LocalDate.of(2020,12,31));
+
+
+        List<EndringPensjonsopptjeningDto> dtos =
+                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list,Collections.singletonList(uttaksgrad));
+
+        assertEquals(DetailsArsakCode.OPPTJENING_GRADERT, dtos.get(1).getArsakDetails().get(0));
+        assertEquals(OPPTJENING,dtos.get(1).getArsakType());
+    }
+
+    @Test
+    void when_FomDato_1Jan2020_with_uttaksgrad_value_0_then_addNyOpptjening_returns_ArsakDetailCode_OPPTJENING_2012() {
+        Beholdning beholdning = new Beholdning();
+        beholdning.setFomDato(LocalDate.of(2020, 1, 1));
+        beholdning.setBelop(1d);
+        beholdning.setVedtakId(1L);
+        List<Beholdning> list = Collections.singletonList(beholdning);
+        Uttaksgrad uttaksgrad = new Uttaksgrad();
+        uttaksgrad.setVedtakId(1L);
+        uttaksgrad.setUttaksgrad(0);
+        uttaksgrad.setFomDato(LocalDate.of(2019,1,1));
+        uttaksgrad.setTomDato(LocalDate.of(2020,12,31));
+
+
+        List<EndringPensjonsopptjeningDto> dtos =
+                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list,Collections.singletonList(uttaksgrad));
+
+        assertEquals(DetailsArsakCode.OPPTJENING_2012, dtos.get(1).getArsakDetails().get(0));
+        assertEquals(OPPTJENING,dtos.get(1).getArsakType());
+    }
+
+    @Test
+    void when_FomDato_1MayGivenYear_with_Lonnsvekstregulering_then_addRegulering_returns_ArsakDetailCode_REGULERING() {
+        Beholdning beholdning = new Beholdning();
+        beholdning.setFomDato(LocalDate.of(2020, 5, 1));
+        beholdning.setLonnsvekstregulering(new Lonnsvekstregulering());
+        beholdning.getLonnsvekstregulering().setReguleringsbelop(1d);
+
+        beholdning.setBelop(1d);
+        List<Beholdning> list = Collections.singletonList(beholdning);
+
+        List<EndringPensjonsopptjeningDto> dtos =
+                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
+
+        assertEquals(DetailsArsakCode.REGULERING, dtos.get(1).getArsakDetails().get(0));
+        assertEquals(REGULERING,dtos.get(1).getArsakType());
+
+    }
+
+    @Test
+    void when_FomDato_1JanGivenYear_and_GivenYear_2010_then_addInngaendeBeholdning_and_addNyOpptjening_returns_3_ArsakType_values() {
+        Beholdning beholdning = new Beholdning();
+        beholdning.setFomDato(LocalDate.of(2010, 1, 1));
+        beholdning.setBelop(1d);
+        List<Beholdning> list = Collections.singletonList(beholdning);
+
+        List<EndringPensjonsopptjeningDto> dtos =
+                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2010, list, new ArrayList<>());
+
+        assertEquals(INNGAENDE, dtos.get(0).getArsakType());
+        assertEquals(INNGAENDE_2010,dtos.get(1).getArsakType());
+        assertEquals(UTTAK,dtos.get(2).getArsakType());
+    }
+
+    @Test
+    void when_FomDato_1JanGivenYear_and_TomDato_31DecGivenYear_then_addInngaendeBeholdning_and_addNyOpptjening_and_addUtgaendeBeholdning_returns_4_ArsakType_values() {
+        Beholdning beholdning = new Beholdning();
+        beholdning.setFomDato(LocalDate.of(2020, 1, 1));
+        beholdning.setTomDato(LocalDate.of(2020,12,31));
+
+        beholdning.setBelop(1d);
+        List<Beholdning> list = Collections.singletonList(beholdning);
+
+        List<EndringPensjonsopptjeningDto> dtos =
+                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
+
+        assertEquals(INNGAENDE, dtos.get(0).getArsakType());
+        assertEquals(OPPTJENING,dtos.get(1).getArsakType());
+        assertEquals(UTTAK,dtos.get(2).getArsakType());
+        assertEquals(UTGAENDE,dtos.get(3).getArsakType());
+
+    }
+
+    @Test
+    void when_FomDato_Before_1st_May_GivenYear_then_addInngaendeBeholdning_and_addChangesUttaksgradBeforeReguleringAtMay1th_returns_2_ArsakType_values() {
+        Beholdning beholdning = new Beholdning();
+        beholdning.setFomDato(LocalDate.of(2020, 3, 1));
+        beholdning.setBelop(1d);
+        List<Beholdning> list = Collections.singletonList(beholdning);
+
+        List<EndringPensjonsopptjeningDto> dtos =
+                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
+
+        assertEquals(INNGAENDE, dtos.get(0).getArsakType());
+        assertEquals(UTTAK,dtos.get(1).getArsakType());
+    }
+
+    @Test
+    void when_FomDato_After_1st_May_GivenYear_then_addInngaendeBeholdning_and_addChangesUttaksgradAfterReguleringAtMay1th_returns_2_ArsakType_values() {
+        Beholdning beholdning = new Beholdning();
+        beholdning.setFomDato(LocalDate.of(2020, 6, 1));
+        beholdning.setBelop(1d);
+        List<Beholdning> list = Collections.singletonList(beholdning);
+
+        List<EndringPensjonsopptjeningDto> dtos =
+                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
+
+        assertEquals(INNGAENDE, dtos.get(0).getArsakType());
+        assertEquals(UTTAK,dtos.get(1).getArsakType());
+    }
+
+    @Test
+    void when_FomDato_1MayGivenYear_with_Lonnsvekstregulering_then_addInngaendeBeholdning_and_addRegulering_returns_2_ArsakType_values() {
+        Beholdning beholdning = new Beholdning();
+        beholdning.setFomDato(LocalDate.of(2020, 5, 1));
+        beholdning.setLonnsvekstregulering(new Lonnsvekstregulering());
+        beholdning.getLonnsvekstregulering().setReguleringsbelop(1d);
+
+        beholdning.setBelop(1d);
+        List<Beholdning> list = Collections.singletonList(beholdning);
+
+        List<EndringPensjonsopptjeningDto> dtos =
+                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
+
+        assertEquals(INNGAENDE, dtos.get(0).getArsakType());
+        assertEquals(REGULERING,dtos.get(1).getArsakType());
+
     }
 
     @Test
