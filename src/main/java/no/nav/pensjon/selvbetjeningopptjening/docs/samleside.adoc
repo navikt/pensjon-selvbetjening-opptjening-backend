@@ -1,1 +1,1 @@
-include::test/Test.adoc[]
+include::Test.adoc[]

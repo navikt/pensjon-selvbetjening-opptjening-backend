@@ -20,6 +20,6 @@ Dette er dokumentasjonen for backend til Pensjon Selvbetjening Opptjening  som e
 
 Det er videre lagt til ADR for å støtte om beslutninger som er under vurdering eller forslag til applikasjonen.
 
-include::{dir}../main/java/no/nav/pensjon/selvbetjening/docs/samleside.adoc[]
+include::{dir}../main/java/no/nav/pensjon/selvbetjeningopptjening/docs/samleside.adoc[]
 
 include::adr/introADR.adoc[]
