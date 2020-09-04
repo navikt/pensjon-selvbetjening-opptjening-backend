@@ -37,7 +37,7 @@ EndringPensjonsopptjening-objektet beskriver en enkelt endring som har skjedd p�
 |Element |Type |Beskrivelse
 |dato|LocalDate|Dato endringen skjedde
 |arsakType|<<index.adoc#typeArsakCode,TypeArsakCode>>|Kode som beskriver hva slags type endring det er snakk om.
-|arsakDetails|List<DetailsArsakCode>|Liste med koder som beskriver ytterligere informasjon om endringen.
+|arsakDetails|List<<<index.adoc#detailsArsakCode,DetailsArsakCode>>>|Liste med koder som beskriver ytterligere informasjon om endringen.
 |endringBelop|Double|Beløpet pensjonsbeholdningen har økt/minket med. (negativt hvis redusert pensjonsbeholdning)
 |pensjonsbeholdningBelop|Double|Total pensjonsbeholdning etter endringen.
 |uttaksgrad|int|Hvis bruker har uttak av alderspensjon, viser denne uttaksgrad på tidspunktet hvor endringen skjedde.
@@ -78,7 +78,7 @@ Informasjonskoder som brukes til å identifisere hva slags type endring et <<ind
 
 .DetailsArsakCode
 Informasjonskoder som brukes til å gi utfyllende informasjon om en <<index.adoc#endringOpptjening,endring>> som har skjedd på pensjonsopptjeningen.
-[#typeArsakCode, options="header,footer"]
+[#detailsArsakCode, options="header,footer"]
 
 |=======================
 |Kode|Beskrivelse
