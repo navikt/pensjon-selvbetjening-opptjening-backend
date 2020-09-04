@@ -1,0 +1,32 @@
+== Introduksjon til ADR
+
+Ett Architectural decision record (ADR) er et dokument som inneholder viktige beslutninger
+som har blitt tatt sammen med kontekst og konsekvenser.
+
+For mer informasjon se https://github.com/joelparkerhenderson/architecture_decision_record[]
+
+=== Hvordan lage en ADR
+
+Forslag til hvordan skrive en ADR :
+
+1. Point in Time - Identify when the AD was made.
+2. Rationality - Explain the reason for making the particular AD.
+3. Immutable record - The decisions made in a previously published ADR should not be altered.
+4. Specificity - Each ADR should be about a single AD.
+
+=== Template
+
+==== Title
+24.04.2020
+
+==== Status
+
+What is the status, such as proposed, accepted, rejected, deprecated, superseded, etc.?
+
+==== Context
+What is the issue that we're seeing that is motivating this decision or change?
+
+==== Consequences
+What becomes easier or more difficult to do because of this change?
+
+include::antoraADR.adoc[]

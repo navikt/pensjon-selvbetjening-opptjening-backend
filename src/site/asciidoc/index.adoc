@@ -1,0 +1,25 @@
+= Pensjon Selvbetjening Opptjening Backend
+Pesys
+:toc: left
+:toclevels: 2
+:doctype: book
+:revnumber: 1.0
+:revdate: 01-01-2020
+:revremark: Første utkast av {doctitle}
+:version-label!:
+
+:sectnums:
+
+:sectnumlevels: 3
+
+:dir: ../
+
+== Innhold
+
+Dette er dokumentasjonen for backend til Pensjon Selvbetjening Opptjening  som er generert ved bruk av Asciidoc og PlantUML.
+
+Det er videre lagt til ADR for å støtte om beslutninger som er under vurdering eller forslag til applikasjonen.
+
+include::{dir}../main/java/no/nav/pensjon/selvbetjening/docs/samleside.adoc[]
+
+include::adr/introADR.adoc[]
