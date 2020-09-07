@@ -5,7 +5,6 @@ import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -80,7 +79,7 @@ public class EndringPensjonsbeholdningCalculator {
         EndringPensjonsopptjeningDto endring = createEndring(TypeArsakCode.INNGAENDE, dec31PreviousYear, null, pensjonsbeholdningBelop, uttaksgrad);
 
         if (givenYear == REFORM_2010) {
-            endring.setArsakDetails(Arrays.asList(DetailsArsakCode.BEHOLDNING_2010));
+            endring.setArsakDetails(List.of(DetailsArsakCode.BEHOLDNING_2010));
         }
 
         endringList.add(endring);
@@ -125,7 +124,7 @@ public class EndringPensjonsbeholdningCalculator {
              */
             if (beholdning.getBeholdningInnskudd() != null) {
                 innskudd = beholdning.getBeholdningInnskudd();
-                if (givenYear.equals(2010) && beholdning.getLonnsvekstregulering() != null
+                if (givenYear.equals(REFORM_2010) && beholdning.getLonnsvekstregulering() != null
                         && beholdning.getLonnsvekstregulering().getReguleringsbelop() != null) {
                     innskudd += beholdning.getLonnsvekstregulering().getReguleringsbelop();
                 }
@@ -134,7 +133,7 @@ public class EndringPensjonsbeholdningCalculator {
             Double pensjonsbeholdningBelop = inngaendeBelop + innskudd;
 
             TypeArsakCode arsakTypeForNyOpptjening = givenYear == REFORM_2010 ? TypeArsakCode.INNGAENDE_2010 : TypeArsakCode.OPPTJENING;
-            if (Math.floor(beholdning.getBelop()) == (Math.floor(inngaendeBelop + innskudd))) {
+            if (!isBeholdningWithinUttaksgradPeriodeIncludeSameDay(beholdning, uttaksgradList)) {
                 EndringPensjonsopptjeningDto endringNyOpptjening =
                         createEndring(arsakTypeForNyOpptjening, jan1GivenYear, innskudd, pensjonsbeholdningBelop, fetchUttaksgrad(jan1GivenYear, beholdning, uttaksgradList));
 
@@ -150,7 +149,7 @@ public class EndringPensjonsbeholdningCalculator {
                 EndringPensjonsopptjeningDto endringUttak = createEndring(TypeArsakCode.UTTAK, jan1GivenYear, beholdning.getBelop() - pensjonsbeholdningBelop,
                         beholdning.getBelop(), fetchUttaksgrad(jan1GivenYear, beholdning, uttaksgradList));
 
-                endringUttak.setArsakDetails(Arrays.asList(DetailsArsakCode.UTTAK));
+                endringUttak.setArsakDetails(List.of(DetailsArsakCode.UTTAK));
                 endringListe.add(endringUttak);
             }
             forrigeBeholdning = beholdning;
@@ -214,7 +213,7 @@ public class EndringPensjonsbeholdningCalculator {
                 EndringPensjonsopptjeningDto endringUttak = createEndring(TypeArsakCode.UTTAK, beholdning.getFomDato(),
                         beholdning.getBelop() - previousBeholdningBelop, beholdning.getBelop(), fetchUttaksgrad(beholdning.getFomDato(), beholdning, uttaksgradList));
 
-                endringUttak.setArsakDetails(Arrays.asList(DetailsArsakCode.UTTAK));
+                endringUttak.setArsakDetails(List.of(DetailsArsakCode.UTTAK));
                 endringListe.add(endringUttak);
 
                 previousBeholdningBelop = beholdning.getBelop();
@@ -224,10 +223,18 @@ public class EndringPensjonsbeholdningCalculator {
         return forrigeBeholdning;
     }
 
+    private boolean isBeholdningWithinUttaksgradPeriodeIncludeSameDay(Beholdning beholdning, List<Uttaksgrad> uttaksgradList) {
+        return uttaksgradList.stream().anyMatch(uttaksgrad ->
+                beholdning.getFomDato().compareTo(uttaksgrad.getFomDato()) > -1
+                        && (beholdning.getTomDato() == null && (uttaksgrad.getTomDato() == null || uttaksgrad.getTomDato().compareTo(beholdning.getFomDato()) > -1)
+                        || (beholdning.getTomDato() != null && (uttaksgrad.getTomDato() == null || beholdning.getTomDato().compareTo(uttaksgrad.getTomDato()) < 1)))
+        );
+    }
+
     private boolean isBeholdningWithinPeriode(Beholdning beholdning, LocalDate start, LocalDate end) {
         return beholdning.getFomDato().isAfter(start)
-                && (beholdning.getTomDato() == null && end.isAfter(beholdning.getFomDato())
-                || (beholdning.getTomDato() != null && beholdning.getTomDato().isBefore(end)));
+                && (beholdning.getTomDato() == null && (end == null || end.isAfter(beholdning.getFomDato()))
+                || (beholdning.getTomDato() != null && (end == null || beholdning.getTomDato().isBefore(end))));
     }
 
     private Beholdning addRegulering(List<Beholdning> beholdningListe, List<EndringPensjonsopptjeningDto> endringListe,
@@ -257,7 +264,7 @@ public class EndringPensjonsbeholdningCalculator {
                     forrigeBeholdning = beholdning;
                 }
 
-                if (!(Math.floor(beholdning.getBelop()) == (Math.floor(vedtakPensjonseringsBelop)))) {
+                if (isBeholdningWithinUttaksgradPeriodeIncludeSameDay(beholdning, uttaksgradList)) {
                     Double belop = beholdning.getBelop();
                     if (vedtakPensjonseringsBelop != null) {
                         belop -= vedtakPensjonseringsBelop;
@@ -265,7 +272,7 @@ public class EndringPensjonsbeholdningCalculator {
                     EndringPensjonsopptjeningDto endringUttak = createEndring(TypeArsakCode.UTTAK, may1GivenYear, belop, beholdning.getBelop(), fetchUttaksgrad(
                             may1GivenYear, beholdning, uttaksgradList));
 
-                    endringUttak.setArsakDetails(Arrays.asList(DetailsArsakCode.UTTAK));
+                    endringUttak.setArsakDetails(List.of(DetailsArsakCode.UTTAK));
                     endringListe.add(endringUttak);
 
                     forrigeBeholdning = beholdning;
@@ -277,9 +284,9 @@ public class EndringPensjonsbeholdningCalculator {
 
     private void addDetailsToReguleringEndring(EndringPensjonsopptjeningDto endring, Integer givenYear) {
         if (givenYear == REFORM_2010) {
-            endring.setArsakDetails(Arrays.asList(DetailsArsakCode.REGULERING_2010));
+            endring.setArsakDetails(List.of(DetailsArsakCode.REGULERING_2010));
         } else if (givenYear > REFORM_2010) {
-            endring.setArsakDetails(Arrays.asList(DetailsArsakCode.REGULERING));
+            endring.setArsakDetails(List.of(DetailsArsakCode.REGULERING));
         }
     }
 
@@ -304,7 +311,7 @@ public class EndringPensjonsbeholdningCalculator {
 
                 EndringPensjonsopptjeningDto endringUttak = createEndring(TypeArsakCode.UTTAK, beholdning.getFomDato(), endringBelop, beholdning.getBelop(),
                         fetchUttaksgrad(beholdning.getFomDato(), beholdning, uttaksgradList));
-                endringUttak.setArsakDetails(Arrays.asList(DetailsArsakCode.UTTAK));
+                endringUttak.setArsakDetails(List.of(DetailsArsakCode.UTTAK));
                 endringListe.add(endringUttak);
 
                 prevBeholdning = beholdning;
