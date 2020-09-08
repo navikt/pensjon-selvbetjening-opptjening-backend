@@ -13,7 +13,7 @@ Pesys
 :sectnumlevels: 3
 
 :dir: ../
-:imagesdir: /images/
+:imagesdir: {dir}/images/
 
 include::{dir}../main/java/no/nav/pensjon/selvbetjeningopptjening/docs/samleside.adoc[]
 
