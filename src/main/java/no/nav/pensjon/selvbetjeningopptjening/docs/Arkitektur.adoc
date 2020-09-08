@@ -1,1 +1,5 @@
 == Arkitektur
+Diagrammet under viser overordnet arkitektur for applikasjonen. For ytterligere detaljer se koden.
+
+.Arkitekturskisse
+image::resources/architecture_diagram.png[]

@@ -1,11 +1,15 @@
 == Beskrivelse
-.Hensikt
+==== Hensikt
 Applikasjonen pensjon-selvbetjening-opptjening-backend er en applikasjon som samler
 inn rådata fra primært POPP (register for pensjonsopptjening) og PEN (pensjonsfaglig kjerne)
 og orkestrerer disse dataene slik at de kan hentes og presenteres til bruker av applikasjonen
 pensjon-selvbetjening-opptjening-frontend.
 
-.Hvordan ta i bruk applikasjonen
+Applikasjonen er laget med utgangspunkt i logikk
+fra det gamle JSF-baserte skjermbildet "Din pensjonsopptjening" i PSELV som applikasjonen skal
+erstatte.
+
+==== Hvordan ta i bruk applikasjonen
 Applikasjonen eksponeres som REST-endepunkt og har følgende API:
 
 [options="header,footer"]
@@ -15,7 +19,7 @@ Applikasjonen eksponeres som REST-endepunkt og har følgende API:
 
 |=======================
 
-.Eksempel på respons fra /api/opptjening
+==== Eksempel på respons fra /api/opptjening
 [source,perl]
 ----
 {
