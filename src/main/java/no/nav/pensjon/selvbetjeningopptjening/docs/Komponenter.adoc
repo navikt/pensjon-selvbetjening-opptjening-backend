@@ -92,7 +92,7 @@ det aktuelle året og beholdning.forstegangstjenestebeløp.beløp, så skal merk
 
 * Omsorgsopptjening: Hvis det finnes en beholdning hvor beholdning.omsorgsopptjeningBeløp.beløp er større enn 0 og
 beholdning.omsorgsopptjeningBelop.år er lik det aktuelle året, så skal merknaden OMSORGSOPPTJENING legges til i merknadlista for det aktuelle året.
-Hvis det for den samme beholdningen også er slik at beholdning.omsorgsopptjeningBelop.omsorgliste inneholder kodene OBU6 eller OBU7, så
+Hvis det for den samme beholdningen også er slik at <<index.adoc#beholdning,beholdning>>.omsorgsopptjeningBelop.omsorgliste inneholder kodene OBU6 eller OBU7, så
 skal i tillegg merknaden OVERFORE_OMSORGSOPPTJENING legges til i merknadlista for det aktuelle året.
 
 * Gradert og hel alderspensjon: Hvis det i lista som applikasjonen får fra PROPEN3001 forekommer en uttaksgrad som er gjeldende det aktuelle året,
