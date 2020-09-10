@@ -1,0 +1,104 @@
+== Komponenter
+==== OpptjenningProvider
+.Hensikt
+Komponenten utgjør hovedlogikken til applikasjonen. I denne komponenten gjøres alle consumer-kall
+som henter de nødvendige rådataene fra PEN og POPP. Disse dataene settes så sammen til en oversiktlig
+respons som viser opptjeningsdata for hvert år. Komponenten gjør også kall til de to andre
+komponentene EndringPensjonsopptjeningCalculator og MerknadHandler, og  inkluderer deres resultater i
+den ferdig konstruerte responsen.
+
+.Funksjonell beskrivelse
+Hvilke data som blir populert på responsen styres av hvilken brukergruppe den aktuelle brukeren tilhører.
+For brukere født etter 1963, som alle er på nytt regelverk, vil responsen kun populeres med pensjonsbeholdning.
+Pensjonspoeng blir ikke populert for disse brukerne. For brukere født fra og med 1954 og til og med 1962 vil både
+pensjonspoeng og pensjonsbeholdning populeres, fordi disse brukerne har både gammelt og nytt regelverk.
+For brukere født før 1954 er det kun pensjonspoeng som populeres, fordi disse brukerene kun er på
+gammelt regelverk.
+
+Utover det å populere selve opptjeningsdataene i form av beholdning og pensjonspoeng, setter også
+OpptjeningProvider verdier knyttet til omsorgsopptjening, pensjonsgivende inntekt og restpensjon. I tillegg gjøres selve kallene til
+EndringPensjonsopptjeningCalculator og MerknadHandler for å henholdsvis sette endringsinformasjon
+for brukerne med pensjonsbeholdning og sette merknader knyttet til det aktuelle året.
+
+Det refereres til koden for videre detaljer om hva komponenten gjør.
+
+==== EndringPensjonsopptjeningCalculator
+.Hensikt
+Komponenten holder all logikk som brukes for å populere feltet endringOpptjening på et enkelt
+<<index.adoc#opptjening,Opptjening>>-objekt. Komponenten tar inn informasjon om beholdning og
+uttaksgrad for brukeren og beregner hvordan brukerens pensjonsbeholdning har endret seg i løpet
+av et bestemt år.
+
+.Funksjonell beskrivelse
+Det finnes en rekke forskjellige hendelser i løpet av et år som trigger en endring av pensjonsopptjening.
+Disse er beskrevet i tabellen <<index.adoc#typeArsakCode,TypeArsakCode>>.
+
+Hvordan beregnes de ulike endringene:
+
+* Inngående: Endringer av typen INNGAENDE vil ha endringsbeløp alltid satt til 0, mens pensjonsbeholdningbeløp
+vil være satt til den beholdningen som bruker hadde siste dag forrige år.
+* Opptjening: Endringer av typen OPPTJENING vil ha satt endringsbeløp lik det som står som beholdningInnskudd
+på beholdningen som gjelder på den første dagen i det aktuelle året. Endringsbeløpet reflekterer opptjening man har fått som følge av inntekten man hadde to år tilbake fra det aktuelle året.
+Pensjonsbeholdningbeløpet settes til summen av endringen og pensjonsbeholdningbeløpet på inngående-endringen.
+* Inngående 2010: Endringer markert INNGAENDE_2010 forekommer kun i året 2010. Disse er egentlig også å regne som
+opptjening, på samme måte som de som er markert OPPTJENING. Forskjellen er at det var først i 2010 at pensjonsreformen
+trådte i kraft og man begynte å benytte begrepet pensjonsbeholdning. Dermed ble all opptjening frem til 2008 regnet sammen
+for å danne en initiell pensjonsbeholdning i 2010. Dermed er opptjeningen i 2010 et resultat av opptjening fra alle
+år frem til 2008, og ikke bare et resultat av opptjening fra to år tilbake som vanlig opptjening er.
+* Regulering: Endringer markert REGULERING er endringer i beholdning som skyldes den årlige lønnsvekstreguleringen som skjer
+hvert år. Endringsbeløpet på en slik endring tilsvarer reguleringsbeløpet på beholdningen som gjelder på første mai
+det aktuelle året. Pensjonsbeholdningbeløpet tilsvarer summen av pensjonsbeholdningsbeløpet på forrige endring i
+endringslista summert med reguleringsbeløpet fra beholdningen som gjelder første mai det aktuelle året.
+* Uttak: Endringer markert UTTAK er endringer som skyldes at bruker har tatt ut alderspensjon. Når bruker tar ut alderspensjon
+reduseres pensjonsbeholdningen tilsvarende uttaksgraden. Endringsbeløpet reflekterer da dette ved at hvis brukeren har for eksempel
+uttaksgrad lik 100 %, så er endringsbeløpet lik -<total pensjonsbeholdning>. Merk at hvis bruker fremdeles har opptjening
+etter uttak av 100 % alderspensjon vil pensjonsbeholdningen øke tilsvarende opptjeningen. Hvis brukeren da har 100 % uttak blir
+da opptjeningen umiddelbart tatt ut, noe som resulterer i en endring markert med UTTAK som tilsvarer det negative av opptjeningen.
+Pensjonsbeholdningen som øker etter uttak av alderspensjon vil også bli regulert, og dermed øke. Denne økningen vil også
+reflekteres som en negativ endring markert UTTAK tilsvarende økningen man fikk i endringen markert REGULERING. Merk at dette
+tilfellet med umiddelbart uttak kun gjelder ved 100 % uttak, ikke ved gradert uttak hvor pensjonsbeholdningen bare vil fortsette å øke.
+Pensjonsbeholdningbeløpet på endringen tilsvarer pensjonsbeholdningen etter uttak. Ved 100 % uttak vil denne være 0,
+ved for eksempel 60 % uttak vil pensjonsbeholdningbeløpet tilsvare 40 % av den opprinnelige totale pensjonsbeholdningen.
+* Utgående: Endringer markert UTGAENDE blir kun lagt til i lista hvis det forekommer en beholdning som har fom-dato på
+siste dag i det aktuelle året. Da settes kun pensjonsbeholdningsbeløpet lik denne beholdningen. Endringsbeløpet settes ikke.
+
+Merk: Overnevnte liste beskriver overordnet funksjonelt de ulike endringstypene. Se koden for nøyaktige detaljer på hvordan de regnes ut.
+
+EndringPensjonsopptjeningCalculator populerer også feltet arsakDetails i <<index.adoc#endringOpptjening,EndringPensjonsopptjening>>. Dette
+populeres med kodene i <<index.adoc#detailsArsakCode,DetailsArsakCode>>. For detaljer om disse, se tabellen om disse kodene, samt den
+implementerte koden.
+
+==== MerknadHandler
+.Hensikt
+Komponenten holder all logikk knyttet til populering av feltet merknader i et <<index.adoc#opptjening,Opptjening>>-objekt. Logikken
+i komponenten skal identifisere hvilke <<index.adoc#merknadCode,merknadkoder>> som er aktuelle for det aktuelle året.
+
+.Funksjonell beskrivelse
+Hver merknadkode vurderes for seg basert på gjeldende data dette året. Følgende vurderinger gjøres for hver merknad:
+
+* AFP: Merknad om bruker har AFP det aktuelle året vurderes ved å se på AFP-historikken som er mottatt fra tjenesten PROPEN2602.
+Hvis det aktuelle året er innenfor AFP-historikkens periode, legges koden AFP til i merknadlista.
+
+* Uføregrad: Merknad om bruker er ufør det aktuelle året vurderes basert på uførehistorikken som er hentet fra tjenesten PROPEN2603.
+Hvis det aktuelle året er innenfor uføreperioden legges koden UFOREGRAD til i merknadlisten. I tillegg settes feltet maksUforegrad på
+det aktuelle <<index.adoc#opptjening,Opptjening>>-objektet.
+
+* Reform: Merknaden REFORM legges til lista hvis det aktuelle året er 2010.
+
+* Dagpenger og førstegangstjeneste: Hvis det finnes en beholdning slik at beholdning.dagpengebeløp.år er lik det aktuelle året og
+beholdning.dagpengebeløp.beløpordinær er større enn 0, så skal
+merknaden DAGPENGER legges til merknadlista for dette året. Tilsvarende hvis det finnes en beholdning slik at beholdning.forstegangstjenestebelop.år er lik
+det aktuelle året og beholdning.forstegangstjenestebeløp.beløp, så skal merknaden FORSTEGANGSTJENESTE legges til i merknadlista.
+
+* Omsorgsopptjening: Hvis det finnes en beholdning hvor beholdning.omsorgsopptjeningBeløp.beløp er større enn 0 og
+beholdning.omsorgsopptjeningBelop.år er lik det aktuelle året, så skal merknaden OMSORGSOPPTJENING legges til i merknadlista for det aktuelle året.
+Hvis det for den samme beholdningen også er slik at <<index.adoc#beholdning,beholdning>>.omsorgsopptjeningBelop.omsorgliste inneholder kodene OBU6 eller OBU7, så
+skal i tillegg merknaden OVERFORE_OMSORGSOPPTJENING legges til i merknadlista for det aktuelle året.
+
+* Gradert og hel alderspensjon: Hvis det i lista som applikasjonen får fra PROPEN3001 forekommer en uttaksgrad som er gjeldende det aktuelle året,
+så skal det legges til merknad om uttak. Hvis den aktuelle uttaksgraden som gjelder på året er 100, skal merknaden HELT_UTTAK legges til i merknadlisten.
+Er uttaksgraden mindre enn 100 skal merknaden GRADERT_UTTAK legges til i merknadlisten i stedet.
+
+* Ingen opptjening: Hvis det aktuelle <<index.adoc#opptjening,Opptjening>>-objektet som skal populeres med merknader verken har fått satt
+pensjonsgivende inntekt, pensjonsbeholdning eller pensjonspoeng, samtidig som det ikke allerede eksisterer en merknad REFORM, så skal merknaden
+INGEN_OPPTJENING legges til i merknadlista for det aktuelle året.

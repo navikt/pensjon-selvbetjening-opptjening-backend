@@ -1,0 +1,50 @@
+== Avhengigheter
+Applikasjonen har eksterne avhengigheter til POPP (registeret for pensjonsopptjening) og PEN (den pensjonsfaglige kjerne).
+Det er fra disse to stedene applikajsonen får rådataene den trenger for å utføre sin nødvendige forretningslogikk.
+I mange av tilfellene har ikke applikasjonen behov for alle dataene den får fra de eksterne tjenestene, kun en liten del av dataene,
+men siden de eksterne tjenestene er generaliserte mottas disse dataene likevel.
+
+Pensjon-selvbetjening-opptjening-backend har følgende eksterna avhengigheter:
+
+==== Avhengigheter til POPP
+
+====== PROPOPP006 HentPensjonsbeholdningListe
+.Bruk av data PROPOPP006
+PROPOPP006 leverer en liste med beholdning-objekter som beskriver en brukers pensjonsbeholdning. Hvert beholdning-objekt
+representerer pensjonsbeholodning-data for en bestemt periode definert med en fom-dato og en tom-dato. Disse dataene
+er veldig sentrale applikasjonens forretningslogikk for å kunne vise hvordan pensjonsbeholdningen har utviklet seg
+for brukere født etter 1953.
+
+.Domene-objekter relevante for PROPOPP006:
+[options="header,footer"]
+|=======================
+|Objekt|Beskrivelse
+|[#beholdning]#Beholdning#|Selve beholdning-objektet som tjenesten returnerer en liste bestående av.
+|Lonnsvekstregulering|Et objekt som ligger på Beholdning-objektet og som beskriver hvor mye beholdningen har endret seg som følge av regulering.
+|InntektOpptjeningBelop|Et objekt som ligger på Beholdning-objektet og som beskriver hvor mye beholdningen har blitt endret som følge av ny opptjening.
+|OmsorgOpptjeningBelop|Et objekt som ligger på Beholdning-objektet og som bskriver hvor mye beholdningen har endret seg som følge av omsorgsopptjening.
+|DagpengerOpptjeningBelop|Et objekt som ligger på Beholdning-objektet og som bskriver hvor mye beholdningen har endret seg som følge av dagpenger.
+|ForstegangstjenesteOpptjeningBelop|Et objekt som ligger på Beholdning-objektet og som bskriver hvor mye beholdningen har endret seg som følge av førstegangstjeneste.
+|UforeOpptjeningBelop|Et objekt som ligger på Beholdning-objektet og som bskriver hvor mye beholdningen har endret seg som følge av uføre.
+|=======================
+Disse domeneobjektene tilhører POPP, se POPP-dokumentasjon for ytterligere detaljer.
+
+
+====== PROPOPP007 HentOpptjeningsgrunnlag
+
+====== PROPOPP019 HentPensjonspoengListe
+
+====== PROPOPP013 HentRestpensjoner
+
+==== Avhengigheter til PEN
+
+====== PROPEN2602 GetAfphistorikkForPerson
+
+====== PROPEN2603 GetUforehistorikkForPerson
+
+====== PROPEN3000 GetUttaksgradForVedtak
+
+====== PROPEN3001 GetAlderSakUttaksgradhistorikkForPerson
+
+
+

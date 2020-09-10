@@ -198,7 +198,7 @@ public class MerknadHandler {
 
     private void addMerknadGradertAlderspensjon(int year, List<Uttaksgrad> uttaksgradList, List<MerknadCode> merknadList) {
         uttaksgradList.stream()
-                .filter(uttaksgrad -> year >= uttaksgrad.getFomDato().getYear() && (uttaksgrad.getTomDato() != null && year <= uttaksgrad.getTomDato().getYear()))
+                .filter(uttaksgrad -> year >= uttaksgrad.getFomDato().getYear() && (uttaksgrad.getTomDato() == null || year <= uttaksgrad.getTomDato().getYear()))
                 .forEach(uttaksgrad -> {
                     if (uttaksgrad.getUttaksgrad() < 100 && uttaksgrad.getUttaksgrad() > 0 && !merknadList.contains(MerknadCode.GRADERT_UTTAK)) {
                         merknadList.add(MerknadCode.GRADERT_UTTAK);

@@ -1,0 +1,108 @@
+== Modell
+
+Applikasjonens respons bygges opp av følgende objekter:
+
+==== OpptjeningResponse
+Opptjeningresponse-objektet inneholder et map som lister opptjeningsdata for hvert år brukeren har hatt opptjening.
+[#opptjeningResponse, options="header,footer"]
+
+|=======================
+|Element |Type |Beskrivelse
+|opptjeningData|Map<Integer, <<index.adoc#opptjening,Opptjening>>>|Map som holder opptjeningsdata. Hvert opptjening-objekt inneholder data for ett år. Key i mapet representerer år.
+|numberOfYearsWithPensjonspoeng|int|Antall av årene i opptjeningData hvor brukeren har opptjening i form av pensjonspoeng.
+|=======================
+
+==== Opptjening
+Opptjening-objektet inneholder alle opptjeningsdata for et bestemt år for brukeren.
+[#opptjening, options="header,footer"]
+
+|=======================
+|Element |Type |Beskrivelse
+|pensjonsgivendeInntekt|Integer|Brukerens pensjonsgivende inntekt det aktuelle året
+|pensjonsbeholdning|Long|Brukerens pensjonsbeholdning ved utløp av det aktuelle året, hvis bruker har pensjonsbeholdning
+|omsorgspoeng|Double|Brukerens omsorgspoeng det aktuelle året
+|omsorgspoengType|String|Type omsorgspoeng
+|pensjonspoeng|Double|Brukerens pensjonspoeng det aktuelle året, hvis bruker har pensjonspoeng
+|merknader|List<<<index.adoc#merknadCode,MerknadCode>>>|Merknader forbundet med det aktuelle året
+|restpensjon|Double|Brukerens restpensjons det aktuelle året
+|maksUforegrad|int|Uføregrad, hvis bruker har uføretrygd det aktuelle året.
+|endringOpptjening|List<<<index.adoc#endringPensjonsopptjening,EndringPensjonsOpptjening>>>|Liste med endringer som skjedde på brukerens pensjonsbeholdning det aktuelle året.
+|=======================
+
+==== EndringPensjonsopptjening
+EndringPensjonsopptjening-objektet beskriver en enkelt endring som har skjedd på pensjonsbeholdningen til brukeren.
+[#endringPensjonsopptjening, options="header,footer"]
+
+|=======================
+|Element |Type |Beskrivelse
+|dato|LocalDate|Dato endringen skjedde
+|arsakType|<<index.adoc#typeArsakCode,TypeArsakCode>>|Kode som beskriver hva slags type endring det er snakk om.
+|arsakDetails|List<<<index.adoc#detailsArsakCode,DetailsArsakCode>>>|Liste med koder som beskriver ytterligere informasjon om endringen.
+|endringBelop|Double|Beløpet pensjonsbeholdningen har økt/minket med. (negativt hvis redusert pensjonsbeholdning)
+|pensjonsbeholdningBelop|Double|Total pensjonsbeholdning etter endringen.
+|uttaksgrad|int|Hvis bruker har uttak av alderspensjon, viser denne uttaksgrad på tidspunktet hvor endringen skjedde.
+
+|=======================
+
+==== Funksjonelle koder
+===== MerknadCode
+Informasjonskoder som brukes til å identifisere merknader angående hendelser som kan påvirke <<index.adoc#opptjening,opptjeningen>> et bestemt år.
+[#merknadCode, options="header,footer"]
+
+|=======================
+|Kode|Beskrivelse
+|AFP|Brukeren har avtalefestet pensjon dette året.
+|REFORM|Pensjonsreform forekom dette året.
+|INGEN_OPPTJENING|Brukeren hadde ingen registrert opptjening dette året.
+|UFOREGRAD|Brukeren hadde uføretrygd dette året.
+|DAGPENGER|Brukeren mottok dagpenger dette året.
+|FORSTEGANGSTJENESTE|Brukeren var i førstegangstjeneste dette året.
+|OMSORGSOPPTJENING|Brukeren hadde omsorgsopptjening dette året.
+|OVERFORE_OMSORGSOPPTJENING|Brukeren har mulighet til å overføre omsorgspoeng for dette året.
+|GRADERT_UTTAK|Brukeren hadde gradert uttak av alderspensjon dette året.
+|HELT_UTTAK|Brukeren hadde helt uttak av alderspensjon dette året.
+|=======================
+
+===== TypeArsakCode
+Informasjonskoder som brukes til å identifisere hva slags type endring et <<index.adoc#endringOpptjening,EndringPensjonsOpptjening>>-objekt representerer.
+[#typeArsakCode, options="header,footer"]
+
+|=======================
+|Kode|Beskrivelse
+|INNGAENDE|Endringen representerer en inngående beholdning. Altså hva beholdningen var i starten av året man ser på.
+|REGULERING|Endringen representerer en endring som skjedde på beholdningen som følge av den årlige reguleringen.
+|INNGAENDE_2010|I 2010 forekom pensjonsreformen som gjorde at man gjorde en omregning av pensjonsbeholdningen basert på opptjening fra alle år frem til 2008. Dette fører til en økning på den opprinnelige inngående beholdningen dette året.
+|OPPTJENING|Endring av pensjonsbeholdningen som følge av opptjening.
+|UTTAK|Endring av pensjonsbeholdningen som følge av uttak av alderspensjon. Uttak-koden kan også gjenspeile uttak av forsinket opptjening.
+|UTGAENDE|Utgående beholdning ved slutten av året.
+|=======================
+
+===== DetailsArsakCode
+Informasjonskoder som brukes til å gi utfyllende informasjon om en <<index.adoc#endringOpptjening,endring>> som har skjedd på pensjonsopptjeningen.
+[#detailsArsakCode, options="header,footer"]
+
+|=======================
+|Kode|Beskrivelse
+|OPPTJENING_GRADERT|Fordi bruker har gradert uttak har den nye opptjeningen blitt lagt til pensjonsbeholdningen.
+|OPPTJENING_HEL|Fordi bruker tar ut hel alderspensjon (100 prosent) har ny opptjening ført til en økning i den utbetalte pensjonen før skatt.
+|REGULERING|Pensjonsbeholdningen reguleres årlig i samsvar med lønnsveksten i folketrygdloven
+|UTTAK|Ved uttak reduseres pensjonsbeholdningen med like stor andel som uttaksgraden bruker har valgt.
+|OPPTJENING_2012|Fra og med 2012 vil pensjonsopptjeningen for et kalenderår oppreguleres med lønnsvekst og tilføres pensjonsbeholdningen ved utløpet av året ligningen for det aktuelle året er ferdig.
+|REGULERING_2010|Fram til 1. mai 2011 er det ikke fastsatt en egen lønnsvekstfaktor. Endringen i folketrygdens grunnbeløp denne årlige lønnsveksten. Beholdningen er i 2010 derfor regulert med forholdet mellom folketrygdens grunnbeløp 1. mai 2010 (75 641) og grunnbeløpet 1. januar 2010 (72 881).
+|OPPTJENING_2011|Pensjonsopptjeningen for 2009 oppreguleres med grunnbeløpet på beregningstidspunktet (75 641) og gjennomsnittlig grunnbeløp for 2009.
+|BEHOLDNING_2010|Pensjonsbeholdningen ble etablert med virkning 1. januar 2010 i forbindelse med at pensjonsreformen trådte i kraft. Da ble den opptjeningen bruker hadde i kalenderår frem til og med 2008 (siste ferdiglignede år) summert til beholdningsstørrelse.
+|=======================
+
+===== UserGroup
+UserGroup-kodene er koder som brukes internt i applikasjonen til å skille de ulike brukergruppene fra hverandre. Merk at disse kodene da altså ikke er del av responsen,
+men forsåelse av disse kodene er vesentlig for å forstå applikasjonens interne logikk.
+[#udserGroup, options="header,footer"]
+
+|=======================
+|Kode|Beskrivelse
+|USER_GROUP_1|Brukere født før 1943.
+|USER_GROUP_2|Brukere født etter 1943 og før 1949.
+|USER_GROUP_3|Brukere født fra og med 1949 til og med 1953.
+|USER_GROUP_4|Brukere født fra og med 1954 til og med 1962. Disse har blandet nytt og gammelt regelverk for alderspensjon.
+|USER_GROUP_5|Brukere født fra og med 1963. Disse har kun nytt regelverk for alderspensjon.
+|=======================
