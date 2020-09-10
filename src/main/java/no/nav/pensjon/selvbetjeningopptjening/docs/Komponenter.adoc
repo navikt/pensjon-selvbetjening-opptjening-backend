@@ -76,10 +76,10 @@ i komponenten skal identifisere hvilke <<index.adoc#merknadCode,merknadkoder>> s
 .Funksjonell beskrivelse
 Hver merknadkode vurderes for seg basert på gjeldende data dette året. Følgende vurderinger gjøres for hver merknad:
 
-* AFP: Merknad om bruker har AFP det aktuelle året vurderes ved å se på AFP-historikken som er mottatt fra tjenesten PROPEN2602.
+* AFP: Merknad om bruker har AFP det aktuelle året vurderes ved å se på AFP-historikken som er mottatt fra tjenesten <<index.adoc#propen2602,PROPEN2602>>.
 Hvis det aktuelle året er innenfor AFP-historikkens periode, legges koden AFP til i merknadlista.
 
-* Uføregrad: Merknad om bruker er ufør det aktuelle året vurderes basert på uførehistorikken som er hentet fra tjenesten PROPEN2603.
+* Uføregrad: Merknad om bruker er ufør det aktuelle året vurderes basert på uførehistorikken som er hentet fra tjenesten <<index.adoc#propen2603,PROPEN2603>>.
 Hvis det aktuelle året er innenfor uføreperioden legges koden UFOREGRAD til i merknadlisten. I tillegg settes feltet maksUforegrad på
 det aktuelle <<index.adoc#opptjening,Opptjening>>-objektet.
 
@@ -95,7 +95,7 @@ beholdning.omsorgsopptjeningBelop.år er lik det aktuelle året, så skal merkna
 Hvis det for den samme beholdningen også er slik at <<index.adoc#beholdning,beholdning>>.omsorgsopptjeningBelop.omsorgliste inneholder kodene OBU6 eller OBU7, så
 skal i tillegg merknaden OVERFORE_OMSORGSOPPTJENING legges til i merknadlista for det aktuelle året.
 
-* Gradert og hel alderspensjon: Hvis det i lista som applikasjonen får fra PROPEN3001 forekommer en uttaksgrad som er gjeldende det aktuelle året,
+* Gradert og hel alderspensjon: Hvis det i lista som applikasjonen får fra <<index.adoc#propen3001,PROPEN3001>> forekommer en uttaksgrad som er gjeldende det aktuelle året,
 så skal det legges til merknad om uttak. Hvis den aktuelle uttaksgraden som gjelder på året er 100, skal merknaden HELT_UTTAK legges til i merknadlisten.
 Er uttaksgraden mindre enn 100 skal merknaden GRADERT_UTTAK legges til i merknadlisten i stedet.
 
