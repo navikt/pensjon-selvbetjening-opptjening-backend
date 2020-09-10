@@ -11,7 +11,7 @@ Pensjon-selvbetjening-opptjening-backend har følgende eksterne avhengigheter:
 ==== [#propopp006]#PROPOPP006 HentPensjonsbeholdningListe#
 .Bruk av data fra PROPOPP006
 PROPOPP006 leverer en liste med beholdning-objekter som beskriver en brukers pensjonsbeholdning. Hvert beholdning-objekt
-representerer pensjonsbeholodning-data for en bestemt periode definert med en fom-dato og en tom-dato. Disse dataene
+representerer pensjonsbehlodning-data for en bestemt periode definert med en fom-dato og en tom-dato. Disse dataene
 er veldig sentrale applikasjonens forretningslogikk for å kunne vise hvordan pensjonsbeholdningen har utviklet seg
 for brukere født etter 1953.
 
@@ -70,7 +70,7 @@ Disse domeneobjektene tilhører POPP, se POPP-dokumentasjon for ytterligere deta
 ==== [#propopp013]#PROPOPP013 HentRestpensjoner#
 .Bruk av data fra PROPOPP013
 PROPOPP013 returnerer en liste med restpensjon-objekter. Et slikt restpensjon-objekt bekskriver restpensjonen for en bruker
-for et gitt år. Restpensjons-dataene er aktuelle å bruke og vise i applikasjonens respons i tilfeller hvor bruker har gradert
+for et gitt år. Restpensjonsdataene er aktuelle å bruke og vise i applikasjonens respons i tilfeller hvor bruker har gradert
 alderspensjon. Detter er aktuelt for alle brukergrupper bortsett fra <<index.adoc#userGroup,USER_GROUP_1>>.
 
 .Domene-objekter relevante for PROPOPP013:
@@ -84,7 +84,7 @@ Disse domeneobjektene tilhører POPP, se POPP-dokumentasjon for ytterligere deta
 
 === Avhengigheter til PEN
 
-===== [#propen2602]#PROPEN2602 GetAfphistorikkForPerson#
+==== [#propen2602]#PROPEN2602 GetAfphistorikkForPerson#
 .Bruk av data fra PROPEN2602
 Tjenesten PROPEN2602 ble opprettet i PEN for å dekke behovet pensjon-selvbetjening-opptjening-backend har for å
 kunne hente AFP-historikk via REST. Tjenesten returnerer AFP-historikk for en person som brukes for å avgjøre om en person
@@ -98,7 +98,7 @@ har AFP på et gitt år, og dermed legge ved en merknad i responsen om dette.
 |=======================
 Disse domeneobjektene tilhører PEN, se PEN-dokumentasjon for ytterligere detaljer.
 
-===== [#propen2603]#PROPEN2603 GetUforehistorikkForPerson#
+==== [#propen2603]#PROPEN2603 GetUforehistorikkForPerson#
 .Bruk av data fra PROPEN2603
 Tjenesten PROPEN2603 ble opprettet i PEN for å dekke behovet pensjon-selvbetjening-opptjening-backend har for å
 kunne hente uførehistorikk via REST. Tjenesten returnerer uførehistorikk for en person som brukes for å avgjøre om en person
@@ -113,12 +113,12 @@ har uføretrygd på et gitt år, og dermed legge ved en merknad i responsen om d
 |=======================
 Disse domeneobjektene tilhører PEN, se PEN-dokumentasjon for ytterligere detaljer.
 
-===== [#propen3000]#PROPEN3000 GetUttaksgradForVedtak#
+==== [#propen3000]#PROPEN3000 GetUttaksgradForVedtak#
 .Bruk av data fra PROPEN3000
 Tjenesten PROPEN3000 ble opprettet i PEN for å dekke behovet pensjon-selvbetjening-opptjening-backend har for å
 kunne hente uttaksgrad for alderspensjon via REST. Basert på vedtakId man gir som input til tjenesten, returnerer
 den en liste med uttaksgrad-objekter som beskriver uttaksgrad en person hadde knyttet til det aktuelle vedtaket.
-Tjenesten benyttes for å identifisere når bruker har uttak av alderspensjon, og hvor stort dette uttaket.
+Tjenesten benyttes for å identifisere når bruker har uttak av alderspensjon, og hvor stort dette uttaket er.
 
 .Domene-objekter relevante for PROPEN3000:
 [options="header,footer"]
@@ -128,11 +128,12 @@ Tjenesten benyttes for å identifisere når bruker har uttak av alderspensjon, o
 |=======================
 Disse domeneobjektene tilhører PEN, se PEN-dokumentasjon for ytterligere detaljer.
 
-===== [#propen3001]#PROPEN3001 GetAlderSakUttaksgradhistorikkForPerson#
+==== [#propen3001]#PROPEN3001 GetAlderSakUttaksgradhistorikkForPerson#
 .Bruk av data fra PROPEN3001
 Tjenesten PROPEN3001 ble opprettet i PEN for å dekke behovet pensjon-selvbetjening-opptjening-backend har for å
 kunne hente uttaksgrad for alderspensjon via REST. Basert på fnr som gis inn som input returneres alle uttaksgrader
-som er registrert på den aktuelle personen.
+som er registrert på den aktuelle personen. Tjenesten benyttes for å identifisere når bruker har uttak av alderspensjon,
+og hvor stort dette uttaket er.
 
 .Domene-objekter relevante for PROPEN3000:
 [options="header,footer"]

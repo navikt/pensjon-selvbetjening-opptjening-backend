@@ -2,7 +2,7 @@
 
 Applikasjonens respons bygges opp av følgende objekter:
 
-==== OpptjeningResponse
+=== OpptjeningResponse
 Opptjeningresponse-objektet inneholder et map som lister opptjeningsdata for hvert år brukeren har hatt opptjening.
 [#opptjeningResponse, options="header,footer"]
 
@@ -12,7 +12,7 @@ Opptjeningresponse-objektet inneholder et map som lister opptjeningsdata for hve
 |numberOfYearsWithPensjonspoeng|int|Antall av årene i opptjeningData hvor brukeren har opptjening i form av pensjonspoeng.
 |=======================
 
-==== Opptjening
+=== Opptjening
 Opptjening-objektet inneholder alle opptjeningsdata for et bestemt år for brukeren.
 [#opptjening, options="header,footer"]
 
@@ -26,10 +26,10 @@ Opptjening-objektet inneholder alle opptjeningsdata for et bestemt år for bruke
 |merknader|List<<<index.adoc#merknadCode,MerknadCode>>>|Merknader forbundet med det aktuelle året
 |restpensjon|Double|Brukerens restpensjons det aktuelle året
 |maksUforegrad|int|Uføregrad, hvis bruker har uføretrygd det aktuelle året.
-|endringOpptjening|List<<<index.adoc#endringPensjonsopptjening,EndringPensjonsOpptjening>>>|Liste med endringer som skjedde på brukerens pensjonsbeholdning det aktuelle året.
+|endringOpptjening|List<<<index.adoc#endringPensjonsopptjening,EndringPensjonsopptjening>>>|Liste med endringer som skjedde på brukerens pensjonsbeholdning det aktuelle året.
 |=======================
 
-==== EndringPensjonsopptjening
+=== EndringPensjonsopptjening
 EndringPensjonsopptjening-objektet beskriver en enkelt endring som har skjedd på pensjonsbeholdningen til brukeren.
 [#endringPensjonsopptjening, options="header,footer"]
 
@@ -44,8 +44,8 @@ EndringPensjonsopptjening-objektet beskriver en enkelt endring som har skjedd p�
 
 |=======================
 
-==== Funksjonelle koder
-===== MerknadCode
+=== Funksjonelle koder
+==== MerknadCode
 Informasjonskoder som brukes til å identifisere merknader angående hendelser som kan påvirke <<index.adoc#opptjening,opptjeningen>> et bestemt år.
 [#merknadCode, options="header,footer"]
 
@@ -63,8 +63,8 @@ Informasjonskoder som brukes til å identifisere merknader angående hendelser s
 |HELT_UTTAK|Brukeren hadde helt uttak av alderspensjon dette året.
 |=======================
 
-===== TypeArsakCode
-Informasjonskoder som brukes til å identifisere hva slags type endring et <<index.adoc#endringOpptjening,EndringPensjonsOpptjening>>-objekt representerer.
+==== TypeArsakCode
+Informasjonskoder som brukes til å identifisere hva slags type endring et <<index.adoc#endringOpptjening,EndringPensjonsopptjening>>-objekt representerer.
 [#typeArsakCode, options="header,footer"]
 
 |=======================
@@ -77,7 +77,7 @@ Informasjonskoder som brukes til å identifisere hva slags type endring et <<ind
 |UTGAENDE|Utgående beholdning ved slutten av året.
 |=======================
 
-===== DetailsArsakCode
+==== DetailsArsakCode
 Informasjonskoder som brukes til å gi utfyllende informasjon om en <<index.adoc#endringOpptjening,endring>> som har skjedd på pensjonsopptjeningen.
 [#detailsArsakCode, options="header,footer"]
 
@@ -93,7 +93,7 @@ Informasjonskoder som brukes til å gi utfyllende informasjon om en <<index.adoc
 |BEHOLDNING_2010|Pensjonsbeholdningen ble etablert med virkning 1. januar 2010 i forbindelse med at pensjonsreformen trådte i kraft. Da ble den opptjeningen bruker hadde i kalenderår frem til og med 2008 (siste ferdiglignede år) summert til beholdningsstørrelse.
 |=======================
 
-===== UserGroup
+==== UserGroup
 UserGroup-kodene er koder som brukes internt i applikasjonen til å skille de ulike brukergruppene fra hverandre. Merk at disse kodene da altså ikke er del av responsen,
 men forsåelse av disse kodene er vesentlig for å forstå applikasjonens interne logikk.
 [#userGroup, options="header,footer"]
