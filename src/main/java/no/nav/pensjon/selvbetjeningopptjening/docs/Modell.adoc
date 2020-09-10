@@ -96,7 +96,7 @@ Informasjonskoder som brukes til å gi utfyllende informasjon om en <<index.adoc
 ===== UserGroup
 UserGroup-kodene er koder som brukes internt i applikasjonen til å skille de ulike brukergruppene fra hverandre. Merk at disse kodene da altså ikke er del av responsen,
 men forsåelse av disse kodene er vesentlig for å forstå applikasjonens interne logikk.
-[#udserGroup, options="header,footer"]
+[#userGroup, options="header,footer"]
 
 |=======================
 |Kode|Beskrivelse

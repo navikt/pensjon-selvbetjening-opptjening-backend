@@ -4,12 +4,12 @@ Det er fra disse to stedene applikajsonen får rådataene den trenger for å utf
 I mange av tilfellene har ikke applikasjonen behov for alle dataene den får fra de eksterne tjenestene, kun en liten del av dataene,
 men siden de eksterne tjenestene er generaliserte mottas disse dataene likevel.
 
-Pensjon-selvbetjening-opptjening-backend har følgende eksterna avhengigheter:
+Pensjon-selvbetjening-opptjening-backend har følgende eksterne avhengigheter:
 
-==== Avhengigheter til POPP
+=== Avhengigheter til POPP
 
-====== PROPOPP006 HentPensjonsbeholdningListe
-.Bruk av data PROPOPP006
+==== PROPOPP006 HentPensjonsbeholdningListe
+.Bruk av data fra PROPOPP006
 PROPOPP006 leverer en liste med beholdning-objekter som beskriver en brukers pensjonsbeholdning. Hvert beholdning-objekt
 representerer pensjonsbeholodning-data for en bestemt periode definert med en fom-dato og en tom-dato. Disse dataene
 er veldig sentrale applikasjonens forretningslogikk for å kunne vise hvordan pensjonsbeholdningen har utviklet seg
@@ -22,29 +22,75 @@ for brukere født etter 1953.
 |[#beholdning]#Beholdning#|Selve beholdning-objektet som tjenesten returnerer en liste bestående av.
 |Lonnsvekstregulering|Et objekt som ligger på Beholdning-objektet og som beskriver hvor mye beholdningen har endret seg som følge av regulering.
 |InntektOpptjeningBelop|Et objekt som ligger på Beholdning-objektet og som beskriver hvor mye beholdningen har blitt endret som følge av ny opptjening.
-|OmsorgOpptjeningBelop|Et objekt som ligger på Beholdning-objektet og som bskriver hvor mye beholdningen har endret seg som følge av omsorgsopptjening.
-|DagpengerOpptjeningBelop|Et objekt som ligger på Beholdning-objektet og som bskriver hvor mye beholdningen har endret seg som følge av dagpenger.
-|ForstegangstjenesteOpptjeningBelop|Et objekt som ligger på Beholdning-objektet og som bskriver hvor mye beholdningen har endret seg som følge av førstegangstjeneste.
-|UforeOpptjeningBelop|Et objekt som ligger på Beholdning-objektet og som bskriver hvor mye beholdningen har endret seg som følge av uføre.
+|OmsorgOpptjeningBelop|Et objekt som ligger på Beholdning-objektet og som beskriver hvor mye beholdningen har endret seg som følge av omsorgsopptjening.
+|DagpengerOpptjeningBelop|Et objekt som ligger på Beholdning-objektet og som beskriver hvor mye beholdningen har endret seg som følge av dagpenger.
+|ForstegangstjenesteOpptjeningBelop|Et objekt som ligger på Beholdning-objektet og som beskriver hvor mye beholdningen har endret seg som følge av førstegangstjeneste.
+|UforeOpptjeningBelop|Et objekt som ligger på Beholdning-objektet og som beskriver hvor mye beholdningen har endret seg som følge av uføre.
+|Inntekt|Et objekt som ligger på InntektOpptjeningBelop-objektet som beskriver en inntekt for personen for et gitt år.
+|Omsorg|Et objekt som ligger på OmsorgOpptjeningBelop-objektet som beskriver hvilken omsorgstype en person med omsorgsopptjening har hatt.
+|Dagpenger|Et objekt som ligger på DagpengerOpptjeningBelop som inneholder informasjon om dagpenger en person har hatt for et bestemt år.
+|Forstegangstjeneste|Et objekt som ligger på ForstegangstjenesteOpptjeningBelop-objektet og som innheholder førstegangstjenesteperioder for en person.
+|FørstegangstjenestePeriode|Et objekt som ligger på Forstegangstjeneste-objektet og beskriver en periode med førstegangstjeneste.
 |=======================
 Disse domeneobjektene tilhører POPP, se POPP-dokumentasjon for ytterligere detaljer.
 
 
-====== PROPOPP007 HentOpptjeningsgrunnlag
+==== PROPOPP007 HentOpptjeningsgrunnlag
+.Bruk av data fra PROPOPP007
+PROPOPP006 returnerer en liste av inntekt-objekter. Hvert inntekt-objekt representerer en inntekt personen hadde på et gitt år.
+Dataene fra PROPOPP007 brukes kun for å hente inntekter for personer som tilhører brukergruppe <<index.adoc#userGroup,USER_GROUP_5>>.
+For brukergruppe <<index.adoc#userGroup,USER_GROUP_4>> hentes inntekt direkte fra beholdning-objektet man fikk fra PROPOPP006, mens for øvrige
+brukergrupper hentes inntekten fra pensjonspoeng-objektet man fikk fra PROPOPP019.
 
-====== PROPOPP019 HentPensjonspoengListe
+.Domene-objekter relevante for PROPOPP007:
+[options="header,footer"]
+|=======================
+|Objekt|Beskrivelse
+|Inntekt|Et objekt som beskriver inntekten en bruker hadde for et bestemt år.
+|=======================
+Disse domeneobjektene tilhører POPP, se POPP-dokumentasjon for ytterligere detaljer.
 
-====== PROPOPP013 HentRestpensjoner
+==== PROPOPP019 HentPensjonspoengListe
+.Bruk av data fra PROPOPP019
+PROPOPP019 returnerer en liste med pensjonspoeng-objekter. Et slikt pensjonspoeng-objekt beskriver
+pensjonspoengene for et gitt år for en person. Pensjonspoengene er relevante for å vise opptjeningsinformasjon for
+brukere født i perioden før 1963, altså alle <<index.adoc#userGroup,brukergrupper>> bortsett fra <<index.adoc#userGroup,USER_GROUP_5>>.
+For brukere i <<index.adoc#userGroup,USER_GROUP_1, USER_GROUP_2 eller USER_GROUP_3>> hentes i tillegg også inntektsinformasjon fra
+pensjonspoeng-objektene.
 
-==== Avhengigheter til PEN
+.Domene-objekter relevante for PROPOPP019:
+[options="header,footer"]
+|=======================
+|Objekt|Beskrivelse
+|Pensjonspoeng|Et objekt som beskriver informasjon om pensjonspoeng for en bruker for et gitt år.
+|Inntekt|Et objekt som ligger på Pensjonspoeng-objektet og beskriver inntekten en bruker hadde for et bestemt år.
+|=======================
+Disse domeneobjektene tilhører POPP, se POPP-dokumentasjon for ytterligere detaljer.
 
-====== PROPEN2602 GetAfphistorikkForPerson
+==== PROPOPP013 HentRestpensjoner
+.Bruk av data fra PROPOPP013
+PROPOPP013 returnerer en liste med restpensjon-objekter. Et slikt restpensjon-objekt bekskriver restpensjonen for en bruker
+for et gitt år. Restpensjons-dataene er aktuelle å bruke og vise i applikasjonens respons i tilfeller hvor bruker har gradert
+alderspensjon. Detter er aktuelt for alle brukergrupper bortsett fra <<index.adoc#userGroup,USER_GROUP_1>>.
 
-====== PROPEN2603 GetUforehistorikkForPerson
+.Domene-objekter relevante for PROPOPP013:
+[options="header,footer"]
+|=======================
+|Objekt|Beskrivelse
+|Restpensjon|Inneholder data angående restpensjonen for en bruker for et gitt år.
+|Pensjonspoeng|Restpensjon-objektet har en liste med pensjonspoeng-objekter.
+|=======================
+Disse domeneobjektene tilhører POPP, se POPP-dokumentasjon for ytterligere detaljer.
 
-====== PROPEN3000 GetUttaksgradForVedtak
+=== Avhengigheter til PEN
 
-====== PROPEN3001 GetAlderSakUttaksgradhistorikkForPerson
+===== PROPEN2602 GetAfphistorikkForPerson
+
+===== PROPEN2603 GetUforehistorikkForPerson
+
+===== PROPEN3000 GetUttaksgradForVedtak
+
+===== PROPEN3001 GetAlderSakUttaksgradhistorikkForPerson
 
 
 
