@@ -17,6 +17,7 @@ spec:
     timeout: 1
   ingresses:
     - https://pensjon-selvbetjening-opptjening-backend.adeo.no
+    - https://pensjon-selvbetjening-opptjening-backend.nais.adeo.no
   readiness:
     path: "/api/internal/isReady"
     initialDelay: 3
