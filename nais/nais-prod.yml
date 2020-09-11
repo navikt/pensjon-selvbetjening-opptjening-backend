@@ -1,0 +1,48 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: pensjon-selvbetjening-opptjening-backend
+  namespace: default
+  labels:
+    team: pensjonselvbetjening
+spec:
+  image: {{ image }}
+  port: 8080
+  replicas:
+    min: 2
+    max: 2
+  liveness:
+    path: "/api/internal/isAlive"
+    initialDelay: 3
+    timeout: 1
+  ingresses:
+    - https://pensjon-selvbetjening-opptjening-backend.adeo.no
+  readiness:
+    path: "/api/internal/isReady"
+    initialDelay: 3
+    timeout: 1
+  env:
+    - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_DISCOVERYURL
+      value: https://login.microsoftonline.com/navnob2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten
+    - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
+      value: selvbetjening-idtoken
+    - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_ACCEPTED_AUDIENCE
+      value: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
+    - name: HTTP_PROXY_PARAMETERNAME
+      value: "http.proxy"
+    - name: HTTP_PROXY
+      value: http://webproxy-internett.nav.no:8088
+    - name: SERVICEUSERTOKEN_ENDPOINT_URL
+      value: https://security-token-service.nais.adeo.no/rest/v1/sts/token
+    - name: PEN_ENDPOINT_URL
+      value: https://pensjon-pen.nais.adeo.no/pen/api/
+    - name: POPP_ENDPOINT_URL
+      value: https://pensjon-popp.nais.adeo.no/popp/api
+  prometheus:
+    enabled: true
+    path: /api/mgmt/prom
+  vault:
+    enabled: true
+    paths:
+      - kvPath: /serviceuser/data/prod/srvpensjon
+        mountPath: /secrets/serviceuser
