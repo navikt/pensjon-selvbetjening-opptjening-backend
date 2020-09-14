@@ -32,6 +32,8 @@ spec:
       value: "http.proxy"
     - name: HTTP_PROXY
       value: http://webproxy-nais.nav.no:8088
+    - name: UNLEASH_ENDPOINT_URL
+      value: https://unleash.nais.adeo.no/api
   prometheus:
     enabled: true
     path: /api/mgmt/prom

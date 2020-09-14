@@ -39,6 +39,8 @@ spec:
       value: https://pensjon-pen.nais.adeo.no/pen/api/
     - name: POPP_ENDPOINT_URL
       value: https://pensjon-popp.nais.adeo.no/popp/api
+     - name: UNLEASH_ENDPOINT_URL
+       value: https://unleash.nais.adeo.no/api
   prometheus:
     enabled: true
     path: /api/mgmt/prom
