@@ -30,7 +30,7 @@ spec:
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
       value: selvbetjening-idtoken
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_ACCEPTED_AUDIENCE
-      value: 9b4e07a3-4f4c-4bab-b866-87f62dff480d
+      value: 45104d6a-f5bc-4e8c-b352-4bbfc9381f25
     - name: HTTP_PROXY_PARAMETERNAME
       value: "http.proxy"
     - name: HTTP_PROXY
