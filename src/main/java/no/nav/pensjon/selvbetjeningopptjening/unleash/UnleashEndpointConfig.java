@@ -18,6 +18,7 @@ import no.finn.unleash.util.UnleashConfig;
 
 import no.nav.pensjon.selvbetjeningopptjening.unleash.strategies.ByEnvironmentStrategy;
 import no.nav.pensjon.selvbetjeningopptjening.unleash.strategies.ByInstanceIdStrategy;
+import no.nav.pensjon.selvbetjeningopptjening.unleash.strategies.ByProfileStrategy;
 import no.nav.pensjon.selvbetjeningopptjening.unleash.strategies.ByUserIdStrategy;
 import no.nav.pensjon.selvbetjeningopptjening.unleash.strategies.IsNotProdStrategy;
 
@@ -51,7 +52,7 @@ public class UnleashEndpointConfig {
     @Bean
     @Autowired
     public Unleash defaultUnleash(UnleashConfig unleashConfig) {
-        Strategy[] strategies = {new IsNotProdStrategy(), new ByEnvironmentStrategy(), new ByInstanceIdStrategy(), new ByUserIdStrategy()};
+        Strategy[] strategies = {new IsNotProdStrategy(), new ByEnvironmentStrategy(), new ByInstanceIdStrategy(), new ByUserIdStrategy(), new ByProfileStrategy()};
         DefaultUnleash unleash = new DefaultUnleash(unleashConfig, strategies);
         UnleashProvider.initialize(unleash);
         return unleash;
