@@ -30,11 +30,12 @@ public class OpptjeningEndpoint {
     @GetMapping("/opptjening")
     public OpptjeningResponse getOpptjeningForFnr() {
         try {
-            if (toggle(OpptjeningFeature.PEN_PL1441).isEnabled()) {
-                return provider.calculateOpptjeningForFnr(fnrExtractor.extract());
-            } else {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The service is not made available for the specified user yet");
-            }
+            return provider.calculateOpptjeningForFnr(fnrExtractor.extract());
+//            if (toggle(OpptjeningFeature.PEN_PL1441).isEnabled()) {
+//                return provider.calculateOpptjeningForFnr(fnrExtractor.extract());
+//            } else {
+//                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The service is not made available for the specified user yet");
+//            }
         } catch (FailedCallingExternalServiceException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
