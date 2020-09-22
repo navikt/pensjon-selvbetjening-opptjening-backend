@@ -1,6 +1,9 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -17,10 +20,18 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlRequest;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlResponse;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedsel;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.HentPersonResponse;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlData;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
@@ -55,10 +66,16 @@ class OpptjeningProviderTest {
     private UttaksgradConsumer uttaksgradConsumer;
 
     @Mock
+    private PdlConsumer pdlConsumer;
+
+    @Mock
     private EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator;
 
     @Mock
     private MerknadHandler merknadHandler;
+
+    @Captor
+    private ArgumentCaptor<Integer> yearCaptor;
 
     private OpptjeningProvider opptjeningProvider;
 
@@ -73,28 +90,37 @@ class OpptjeningProviderTest {
         opptjeningProvider.setPersonConsumer(personConsumer);
         opptjeningProvider.setRestpensjonConsumer(restpensjonConsumer);
         opptjeningProvider.setUttaksgradConsumer(uttaksgradConsumer);
+        opptjeningProvider.setPdlConsumer(pdlConsumer);
     }
 
     @Test
-    void When_Fnr_is_not_in_proper_number_format_then_calculateOpptjeningForFnr_throws_NumberFormatException() {
+    void When_Fnr_is_not_in_proper_number_format_and_no_pdl_response_then_calculateOpptjeningForFnr_throws_NumberFormatException() {
         String fnr = "fnr";
+        PdlResponse pdlResponse = new PdlResponse();
+        PdlData pdlData = new PdlData();
+        HentPersonResponse hentPersonResponse = new HentPersonResponse();
+        pdlData.setHentPerson(hentPersonResponse);
+        pdlResponse.setData(pdlData);
 
-        assertThrows(NumberFormatException.class,() -> opptjeningProvider.calculateOpptjeningForFnr(fnr));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(pdlResponse);
+
+        assertThrows(NumberFormatException.class, () -> opptjeningProvider.calculateOpptjeningForFnr(fnr));
     }
 
     @Test
     void When_Uttaksgrad_is_not_set_then_calculateOpptjeningForFnr_throws_NullPointerException() {
         String fnr = "06076323304";
         List<Uttaksgrad> uttaksgradList = List.of(new Uttaksgrad());
-       // uttaksgradList.get(0).setUttaksgrad(50);
+        // uttaksgradList.get(0).setUttaksgrad(50);
         AfpHistorikk afphistorikk = new AfpHistorikk();
         UforeHistorikk uforehistorikk = new UforeHistorikk();
 
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(uttaksgradList);
         when(personConsumer.getAfpHistorikkForPerson(fnr)).thenReturn(afphistorikk);
         when(personConsumer.getUforeHistorikkForPerson(fnr)).thenReturn(uforehistorikk);
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(LocalDate.of(1963, 7, 6), null));
 
-        assertThrows(NullPointerException.class,() -> opptjeningProvider.calculateOpptjeningForFnr(fnr));
+        assertThrows(NullPointerException.class, () -> opptjeningProvider.calculateOpptjeningForFnr(fnr));
     }
 
     @Test
@@ -104,7 +130,7 @@ class OpptjeningProviderTest {
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
 
         Beholdning beholdning = new Beholdning();
-        beholdning.setFomDato(LocalDate.of(1980,1,1));
+        beholdning.setFomDato(LocalDate.of(1980, 1, 1));
         beholdning.setBelop(100d);
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
@@ -117,6 +143,7 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(fnr)).thenReturn(uforehistorikk);
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(fnr)).thenReturn(beholdningList);
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(inntektList);
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(LocalDate.of(1963, 7, 6), null));
 
         OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(fnr);
         Map<Integer, OpptjeningDto> opptjeningDtoMap = opptjeningResponse.getOpptjeningData();
@@ -130,7 +157,7 @@ class OpptjeningProviderTest {
         String fnr = "06076323304";
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
         Beholdning beholdning = new Beholdning();
-        beholdning.setFomDato(LocalDate.of(1983,1,1));
+        beholdning.setFomDato(LocalDate.of(1983, 1, 1));
         beholdning.setBelop(100d);
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
@@ -143,6 +170,7 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(fnr)).thenReturn(uforehistorikk);
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(fnr)).thenReturn(beholdningList);
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(inntektList);
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(LocalDate.of(1963, 7, 6), null));
 
         OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(fnr);
 
@@ -157,7 +185,7 @@ class OpptjeningProviderTest {
         String fnr = "06076023304";
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
         Beholdning beholdning = new Beholdning();
-        beholdning.setFomDato(LocalDate.of(1983, 1,1));
+        beholdning.setFomDato(LocalDate.of(1983, 1, 1));
         beholdning.setBelop(100d);
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
@@ -170,7 +198,8 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(fnr)).thenReturn(uforehistorikk);
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(fnr)).thenReturn(beholdningList);
         when(pensjonspoengConsumer.getPensjonspoengListe(fnr)).thenReturn(pensjonspoengList);
-        doNothing().when(merknadHandler).addMerknaderOnOpptjening(anyInt(),any(OpptjeningDto.class),anyList(),anyList(),any(AfpHistorikk.class),any(UforeHistorikk.class));
+        doNothing().when(merknadHandler).addMerknaderOnOpptjening(anyInt(), any(OpptjeningDto.class), anyList(), anyList(), any(AfpHistorikk.class), any(UforeHistorikk.class));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(LocalDate.of(1960, 7, 6), null));
 
         OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(fnr);
 
@@ -199,12 +228,12 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(fnr)).thenReturn(uforehistorikk);
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(fnr)).thenReturn(beholdningList);
         when(pensjonspoengConsumer.getPensjonspoengListe(fnr)).thenReturn(pensjonspoengList);
-        doNothing().when(merknadHandler).addMerknaderOnOpptjening(anyInt(),any(OpptjeningDto.class),anyList(),anyList(),any(AfpHistorikk.class),any(UforeHistorikk.class));
+        doNothing().when(merknadHandler).addMerknaderOnOpptjening(anyInt(), any(OpptjeningDto.class), anyList(), anyList(), any(AfpHistorikk.class), any(UforeHistorikk.class));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(LocalDate.of(1960, 7, 6), null));
 
         OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(fnr);
 
         Map<Integer, OpptjeningDto> opptjeningDtoMap = opptjeningResponse.getOpptjeningData();
-
 
         assertEquals(pensjonspoeng.getPensjonspoengType(), opptjeningDtoMap.get(pensjonspoeng.getAr()).getOmsorgspoengType());
         assertEquals(pensjonspoeng.getPoeng(), opptjeningDtoMap.get(pensjonspoeng.getAr()).getOmsorgspoeng());
@@ -234,7 +263,8 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(fnr)).thenReturn(uforehistorikk);
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(fnr)).thenReturn(beholdningList);
         when(pensjonspoengConsumer.getPensjonspoengListe(fnr)).thenReturn(pensjonspoengList);
-        doNothing().when(merknadHandler).addMerknaderOnOpptjening(anyInt(),any(OpptjeningDto.class),anyList(),anyList(),any(AfpHistorikk.class),any(UforeHistorikk.class));
+        doNothing().when(merknadHandler).addMerknaderOnOpptjening(anyInt(), any(OpptjeningDto.class), anyList(), anyList(), any(AfpHistorikk.class), any(UforeHistorikk.class));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(LocalDate.of(1960, 7, 6), null));
 
         OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(fnr);
 
@@ -262,18 +292,69 @@ class OpptjeningProviderTest {
         UforeHistorikk uforehistorikk = new UforeHistorikk();
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
         List<Beholdning> beholdningList = new ArrayList<>();
-        List<Pensjonspoeng> pensjonspoengList = Arrays.asList(pensjonspoeng,pensjonspoeng1);
+        List<Pensjonspoeng> pensjonspoengList = Arrays.asList(pensjonspoeng, pensjonspoeng1);
 
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(uttaksgradList);
         when(personConsumer.getAfpHistorikkForPerson(fnr)).thenReturn(afphistorikk);
         when(personConsumer.getUforeHistorikkForPerson(fnr)).thenReturn(uforehistorikk);
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(fnr)).thenReturn(beholdningList);
         when(pensjonspoengConsumer.getPensjonspoengListe(fnr)).thenReturn(pensjonspoengList);
-        doNothing().when(merknadHandler).addMerknaderOnOpptjening(anyInt(),any(OpptjeningDto.class),anyList(),anyList(),any(AfpHistorikk.class),any(UforeHistorikk.class));
+        doNothing().when(merknadHandler).addMerknaderOnOpptjening(anyInt(), any(OpptjeningDto.class), anyList(), anyList(), any(AfpHistorikk.class), any(UforeHistorikk.class));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(LocalDate.of(1960, 7, 6), null));
 
         OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(fnr);
 
         assertEquals(2, opptjeningResponse.getNumberOfYearsWithPensjonspoeng());
+    }
 
+    @Test
+    public void When_PdlResponse_not_contains_foedselsdato_then_use_foedselsaar_from_pdl_instead() {
+        String fnr = "06076023304";
+        Integer expectedFoedselsaar = 1970;
+
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(null, expectedFoedselsaar));
+        when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(new ArrayList<>());
+        when(personConsumer.getAfpHistorikkForPerson(fnr)).thenReturn(new AfpHistorikk());
+        when(personConsumer.getUforeHistorikkForPerson(fnr)).thenReturn(new UforeHistorikk());
+        when(pensjonsbeholdningConsumer.getPensjonsbeholdning(fnr)).thenReturn(new ArrayList<>());
+
+        when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), yearCaptor.capture(), anyInt())).thenReturn(new ArrayList<>());
+
+        opptjeningProvider.calculateOpptjeningForFnr(fnr);
+
+        assertThat(yearCaptor.getValue() - 13, is(expectedFoedselsaar));
+    }
+
+    @Test
+    public void When_PdlResponse_contains_foedselsdato_then_use_foedselsaar_from_pdl_foedselsdato() {
+        String fnr = "06076023304";
+        Integer expectedFoedselsaar = 1970;
+
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(LocalDate.of(expectedFoedselsaar, 8, 9), 1990));
+        when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(new ArrayList<>());
+        when(personConsumer.getAfpHistorikkForPerson(fnr)).thenReturn(new AfpHistorikk());
+        when(personConsumer.getUforeHistorikkForPerson(fnr)).thenReturn(new UforeHistorikk());
+        when(pensjonsbeholdningConsumer.getPensjonsbeholdning(fnr)).thenReturn(new ArrayList<>());
+
+        when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), yearCaptor.capture(), anyInt())).thenReturn(new ArrayList<>());
+
+        opptjeningProvider.calculateOpptjeningForFnr(fnr);
+
+        assertThat(yearCaptor.getValue() - 13, is(expectedFoedselsaar));
+    }
+
+    private PdlResponse createPdlResponseForFoedselsdato(LocalDate foedselsdato, Integer foedselsaar) {
+        PdlResponse pdlResponse = new PdlResponse();
+        PdlData pdlData = new PdlData();
+        HentPersonResponse hentPersonResponse = new HentPersonResponse();
+        Foedsel foedsel = new Foedsel();
+        foedsel.setFoedselsdato(foedselsdato);
+        foedsel.setFoedselsaar(foedselsaar);
+
+        hentPersonResponse.setFoedsel(List.of(foedsel));
+        pdlData.setHentPerson(hentPersonResponse);
+        pdlResponse.setData(pdlData);
+
+        return pdlResponse;
     }
 }

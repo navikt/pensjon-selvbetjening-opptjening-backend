@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.util.FnrExtractor;
 import no.nav.pensjon.selvbetjeningopptjening.util.SimpleStringExtractor;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
@@ -87,6 +88,11 @@ public class OpptjeningConfig {
     @Bean
     public PersonConsumer personConsumer(@Value("${pen.endpoint.url}") String endpoint) {
         return new PersonConsumer(endpoint);
+    }
+
+    @Bean
+    public PdlConsumer pdlConsumer(@Value("${pdl.endpoint.url}") String endpoint, TokenValidationContextHolder context){
+        return new PdlConsumer(endpoint, context, serviceUserTokenGetter());
     }
 
     @Bean

@@ -37,7 +37,7 @@ Disse domeneobjektene tilhører POPP, se POPP-dokumentasjon for ytterligere deta
 
 ==== [#propopp007]#PROPOPP007 HentOpptjeningsgrunnlag#
 .Bruk av data fra PROPOPP007
-PROPOPP006 returnerer en liste av inntekt-objekter. Hvert inntekt-objekt representerer en inntekt personen hadde på et gitt år.
+PROPOPP007 returnerer en liste av inntekt-objekter. Hvert inntekt-objekt representerer en inntekt personen hadde på et gitt år.
 Dataene fra PROPOPP007 brukes kun for å hente inntekter for personer som tilhører brukergruppe <<index.adoc#userGroup,USER_GROUP_5>>.
 For brukergruppe <<index.adoc#userGroup,USER_GROUP_4>> hentes inntekt direkte fra beholdning-objektet man fikk fra <<index.adoc#propopp006,PROPOPP0006>>, mens for øvrige
 brukergrupper hentes inntekten fra pensjonspoeng-objektet man fikk fra <<index.adoc#propopp019,PROPOPP019>>.

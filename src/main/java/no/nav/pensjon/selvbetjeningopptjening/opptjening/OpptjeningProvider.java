@@ -5,17 +5,19 @@ import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.stream.Collectors;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlRequest;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedsel;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
@@ -28,25 +30,25 @@ import no.nav.pensjon.selvbetjeningopptjening.model.Pensjonspoeng;
 import no.nav.pensjon.selvbetjeningopptjening.model.Restpensjon;
 import no.nav.pensjon.selvbetjeningopptjening.model.UforeHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
-import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.OpptjeningTypeCode;
-import no.nav.pensjon.selvbetjeningopptjening.model.code.TypeArsakCode;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup;
 import no.nav.pensjon.selvbetjeningopptjening.util.FnrUtil;
 import no.nav.pensjon.selvbetjeningopptjening.util.UserGroupUtil;
 
 public class OpptjeningProvider {
+    private static final Log LOGGER = LogFactory.getLog(OpptjeningProvider.class);
     private PensjonsbeholdningConsumer pensjonsbeholdningConsumer;
     private OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer;
     private PensjonspoengConsumer pensjonspoengConsumer;
     private RestpensjonConsumer restpensjonConsumer;
     private PersonConsumer personConsumer;
+    private PdlConsumer pdlConsumer;
     private UttaksgradConsumer uttaksgradConsumer;
     private EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator;
     private MerknadHandler merknadHandler;
 
     public OpptjeningResponse calculateOpptjeningForFnr(String fnr) {
-        LocalDate fodselsdato = FnrUtil.getFodselsdatoForFnr(fnr);
+        LocalDate fodselsdato = getFodselsdato(fnr);
         UserGroup userGroup = UserGroupUtil.findUserGroup(fodselsdato);
         List<Restpensjon> restpensjonList = new ArrayList<>();
 
@@ -73,6 +75,22 @@ public class OpptjeningProvider {
 
             return createResponseForUserGroups123(fodselsdato, pensjonspoengList, restpensjonList, uttaksgradhistorikk, afphistorikk, uforehistorikk);
         }
+    }
+
+    private LocalDate getFodselsdato(String fnr) {
+        List<Foedsel> pdlFoedselDataList = pdlConsumer.getPdlResponse(new PdlRequest(fnr)).getData().getHentPerson().getFoedsel();
+        if (pdlFoedselDataList != null && !pdlFoedselDataList.isEmpty()) {
+            Foedsel foedsel = pdlFoedselDataList.get(0);
+            if (foedsel.getFoedselsdato() != null) {
+                LOGGER.info("Using fodselsdato retrieved from PDL");
+                return foedsel.getFoedselsdato();
+            } else if (foedsel.getFoedselsaar() != null) {
+                LOGGER.warn("No fodselsdato found for fnr in PDL, but found fodselsaar. Fodselsdato was set to first day in fodselsaar.");
+                return LocalDate.of(foedsel.getFoedselsaar(), 1, 1);
+            }
+        }
+        LOGGER.warn("No fodselsdato found in PDL for fnr. Deriving fodelsdato directly from fnr instead");
+        return FnrUtil.getFodselsdatoForFnr(fnr);
     }
 
     private Map<Integer, Beholdning> createBeholdningMap(List<Beholdning> beholdningList) {
@@ -448,6 +466,11 @@ public class OpptjeningProvider {
     @Autowired
     public void setUttaksgradConsumer(UttaksgradConsumer uttaksgradConsumer) {
         this.uttaksgradConsumer = uttaksgradConsumer;
+    }
+
+    @Autowired
+    public void setPdlConsumer(PdlConsumer pdlConsumer) {
+        this.pdlConsumer = pdlConsumer;
     }
 
     @Autowired
