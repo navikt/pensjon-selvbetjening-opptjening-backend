@@ -3,6 +3,8 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 import static no.nav.pensjon.selvbetjeningopptjening.unleash.UnleashProvider.toggle;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.ISSUER;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,7 @@ import no.nav.security.token.support.core.api.ProtectedWithClaims;
 @ProtectedWithClaims(issuer = ISSUER) // Use @Unprotected when running with laptop/uimage profile
 public class OpptjeningEndpoint {
 
+    private static final Log LOGGER = LogFactory.getLog(OpptjeningEndpoint.class);
     private OpptjeningProvider provider;
     private StringExtractor fnrExtractor;
 
@@ -36,6 +39,7 @@ public class OpptjeningEndpoint {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The service is not made available for the specified user yet");
             }
         } catch (FailedCallingExternalServiceException e) {
+            LOGGER.error(e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
     }
