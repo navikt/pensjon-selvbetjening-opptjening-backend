@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -105,7 +104,7 @@ class OpptjeningProviderTest {
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
 
         Beholdning beholdning = new Beholdning();
-        beholdning.setFomDato(LocalDate.of(1980,01,01));
+        beholdning.setFomDato(LocalDate.of(1980,1,1));
         beholdning.setBelop(100d);
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
@@ -131,7 +130,7 @@ class OpptjeningProviderTest {
         String fnr = "06076323304";
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
         Beholdning beholdning = new Beholdning();
-        beholdning.setFomDato(LocalDate.of(1983,01,01));
+        beholdning.setFomDato(LocalDate.of(1983,1,1));
         beholdning.setBelop(100d);
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
@@ -158,7 +157,7 @@ class OpptjeningProviderTest {
         String fnr = "06076023304";
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
         Beholdning beholdning = new Beholdning();
-        beholdning.setFomDato(LocalDate.of(1983,01,01));
+        beholdning.setFomDato(LocalDate.of(1983, 1,1));
         beholdning.setBelop(100d);
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
@@ -206,6 +205,7 @@ class OpptjeningProviderTest {
 
         Map<Integer, OpptjeningDto> opptjeningDtoMap = opptjeningResponse.getOpptjeningData();
 
+
         assertEquals(pensjonspoeng.getPensjonspoengType(), opptjeningDtoMap.get(pensjonspoeng.getAr()).getOmsorgspoengType());
         assertEquals(pensjonspoeng.getPoeng(), opptjeningDtoMap.get(pensjonspoeng.getAr()).getOmsorgspoeng());
     }
@@ -219,7 +219,7 @@ class OpptjeningProviderTest {
         pensjonspoeng.setPensjonspoengType("PPI");
         pensjonspoeng.setPoeng(10d);
         Inntekt inntekt = new Inntekt();
-        inntekt.setBelop(200l);
+        inntekt.setBelop(200L);
         pensjonspoeng.setInntekt(inntekt);
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
@@ -272,8 +272,6 @@ class OpptjeningProviderTest {
         doNothing().when(merknadHandler).addMerknaderOnOpptjening(anyInt(),any(OpptjeningDto.class),anyList(),anyList(),any(AfpHistorikk.class),any(UforeHistorikk.class));
 
         OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(fnr);
-
-        Map<Integer, OpptjeningDto> opptjeningDtoMap = opptjeningResponse.getOpptjeningData();
 
         assertEquals(2, opptjeningResponse.getNumberOfYearsWithPensjonspoeng());
 
