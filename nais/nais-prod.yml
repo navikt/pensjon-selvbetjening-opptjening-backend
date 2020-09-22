@@ -9,8 +9,8 @@ spec:
   image: {{ image }}
   port: 8080
   replicas:
-    min: 1
-    max: 1
+    min: 2
+    max: 2
   liveness:
     path: "/api/internal/isAlive"
     initialDelay: 30
@@ -18,22 +18,29 @@ spec:
     periodSeconds: 30
     failureThreshold: 5
   ingresses:
-    - https://pensjon-selvbetjening-opptjening-backend.nais.preprod.local
+    - https://pensjon-selvbetjening-opptjening-backend.adeo.no
+    - https://pensjon-selvbetjening-opptjening-backend.nais.adeo.no
   readiness:
     path: "/api/internal/isReady"
     initialDelay: 3
     timeout: 1
   env:
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_DISCOVERYURL
-      value: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
+      value: https://login.microsoftonline.com/navnob2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
       value: selvbetjening-idtoken
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_ACCEPTED_AUDIENCE
-      value: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
+      value: 45104d6a-f5bc-4e8c-b352-4bbfc9381f25
     - name: HTTP_PROXY_PARAMETERNAME
       value: "http.proxy"
     - name: HTTP_PROXY
       value: http://webproxy-nais.nav.no:8088
+    - name: SERVICEUSERTOKEN_ENDPOINT_URL
+      value: https://security-token-service.nais.adeo.no/rest/v1/sts/token
+    - name: PEN_ENDPOINT_URL
+      value: https://pensjon-pen.nais.adeo.no/pen/api/
+    - name: POPP_ENDPOINT_URL
+      value: https://pensjon-popp.nais.adeo.no/popp/api
     - name: UNLEASH_ENDPOINT_URL
       value: https://unleash.nais.adeo.no/api
   prometheus:
@@ -42,7 +49,5 @@ spec:
   vault:
     enabled: true
     paths:
-      # Managed secrets
-      - kvPath: /serviceuser/data/dev/srvpensjon
+      - kvPath: /serviceuser/data/prod/srvpensjon
         mountPath: /secrets/serviceuser
-
