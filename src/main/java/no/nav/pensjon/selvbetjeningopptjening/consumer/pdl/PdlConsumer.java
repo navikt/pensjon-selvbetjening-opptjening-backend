@@ -15,18 +15,20 @@ public class PdlConsumer {
     private static final Log LOGGER = LogFactory.getLog(PdlConsumer.class);
     private static final String ISSUER = "selvbetjening";
     private TokenValidationContextHolder context;
+    private ServiceUserTokenGetter serviceUserTokenGetter;
 
     private WebClient webclient;
 
     public PdlConsumer(String endpoint, TokenValidationContextHolder context, ServiceUserTokenGetter serviceUserTokenGetter) {
         this.context = context;
+        this.serviceUserTokenGetter = serviceUserTokenGetter;
         webclient = WebClient
                 .builder()
                 .baseUrl(endpoint)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 //.defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + context.getTokenValidationContext().getJwtToken(ISSUER).getTokenAsString())
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + serviceUserTokenGetter.getServiceUserToken().getAccessToken())
-                .defaultHeader("Nav-Consumer-Token", "Bearer " + serviceUserTokenGetter.getServiceUserToken().getAccessToken())
+                //.defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + serviceUserTokenGetter.getServiceUserToken().getAccessToken())
+                //.defaultHeader("Nav-Consumer-Token", "Bearer " + serviceUserTokenGetter.getServiceUserToken().getAccessToken())
                 .defaultHeader("Tema", "PEN")
                 .build();
     }
@@ -35,7 +37,8 @@ public class PdlConsumer {
         try {
             PdlResponse pdlResponse =
                     webclient.post()
-//                            .header(HttpHeaders.AUTHORIZATION, "Bearer " + context.getTokenValidationContext().getJwtToken(ISSUER).getTokenAsString())
+                            .header(HttpHeaders.AUTHORIZATION, "Bearer " + context.getTokenValidationContext().getJwtToken(ISSUER).getTokenAsString())
+                            .header("Nav-Consumer-Token", "Bearer " + serviceUserTokenGetter.getServiceUserToken().getAccessToken())
                             .bodyValue(request.getGraphQlQuery())
                             .retrieve()
                             .bodyToMono(PdlResponse.class).block();
