@@ -25,7 +25,7 @@ public class PdlConsumer {
                 .baseUrl(endpoint)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 //.defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + context.getTokenValidationContext().getJwtToken(ISSUER).getTokenAsString())
-                //.defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + serviceUserTokenGetter.getServiceUserToken().getAccessToken())
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + serviceUserTokenGetter.getServiceUserToken().getAccessToken())
                 .defaultHeader("Nav-Consumer-Token", "Bearer " + serviceUserTokenGetter.getServiceUserToken().getAccessToken())
                 .defaultHeader("Tema", "PEN")
                 .build();
@@ -35,7 +35,7 @@ public class PdlConsumer {
         try {
             PdlResponse pdlResponse =
                     webclient.post()
-                            .header(HttpHeaders.AUTHORIZATION, "Bearer " + context.getTokenValidationContext().getJwtToken(ISSUER).getTokenAsString())
+//                            .header(HttpHeaders.AUTHORIZATION, "Bearer " + context.getTokenValidationContext().getJwtToken(ISSUER).getTokenAsString())
                             .bodyValue(request.getGraphQlQuery())
                             .retrieve()
                             .bodyToMono(PdlResponse.class).block();
