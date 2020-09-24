@@ -1,5 +1,5 @@
 # pensjon-selvbetjening-opptjening-backend
-Applikasjonen som samler inn rådata fra primært POPP 
+Applikasjon som samler inn rådata fra primært POPP 
 (register for pensjonsopptjening) og PEN (pensjonsfaglig kjerne) og orkestrerer disse dataene slik at de kan hentes
  og presenteres til bruker av applikasjonen pensjon-selvbetjening-opptjening-frontend. (https://github.com/navikt/pensjon-selvbetjening-opptjening-frontend)
 
