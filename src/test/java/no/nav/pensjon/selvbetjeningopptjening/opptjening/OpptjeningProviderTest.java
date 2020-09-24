@@ -25,6 +25,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlRequest;
@@ -328,9 +329,27 @@ class OpptjeningProviderTest {
     @Test
     public void When_PdlResponse_contains_foedselsdato_then_use_foedselsaar_from_pdl_foedselsdato() {
         String fnr = "06076023304";
-        Integer expectedFoedselsaar = 1970;
+        int expectedFoedselsaar = 1970;
 
         when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(LocalDate.of(expectedFoedselsaar, 8, 9), 1990));
+        when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(new ArrayList<>());
+        when(personConsumer.getAfpHistorikkForPerson(fnr)).thenReturn(new AfpHistorikk());
+        when(personConsumer.getUforeHistorikkForPerson(fnr)).thenReturn(new UforeHistorikk());
+        when(pensjonsbeholdningConsumer.getPensjonsbeholdning(fnr)).thenReturn(new ArrayList<>());
+
+        when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), yearCaptor.capture(), anyInt())).thenReturn(new ArrayList<>());
+
+        opptjeningProvider.calculateOpptjeningForFnr(fnr);
+
+        assertThat(yearCaptor.getValue() - 13, is(expectedFoedselsaar));
+    }
+
+    @Test
+    public void When_Call_to_PDL_fails_then_use_foedselsaar_from_fnr_instead() {
+        String fnr = "06076423304";
+        Integer expectedFoedselsaar = 1964;
+
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenThrow(new FailedCallingExternalServiceException("",""));
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(new ArrayList<>());
         when(personConsumer.getAfpHistorikkForPerson(fnr)).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(fnr)).thenReturn(new UforeHistorikk());
