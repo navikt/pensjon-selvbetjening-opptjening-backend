@@ -26,9 +26,6 @@ public class PdlConsumer {
                 .builder()
                 .baseUrl(endpoint)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                //.defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + context.getTokenValidationContext().getJwtToken(ISSUER).getTokenAsString())
-                //.defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + serviceUserTokenGetter.getServiceUserToken().getAccessToken())
-                //.defaultHeader("Nav-Consumer-Token", "Bearer " + serviceUserTokenGetter.getServiceUserToken().getAccessToken())
                 .defaultHeader("Tema", "PEN")
                 .build();
     }

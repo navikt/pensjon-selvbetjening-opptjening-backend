@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlRequest;
@@ -78,18 +79,22 @@ public class OpptjeningProvider {
     }
 
     private LocalDate getFodselsdato(String fnr) {
-        List<Foedsel> pdlFoedselDataList = pdlConsumer.getPdlResponse(new PdlRequest(fnr)).getData().getHentPerson().getFoedsel();
-        if (pdlFoedselDataList != null && !pdlFoedselDataList.isEmpty()) {
-            Foedsel foedsel = pdlFoedselDataList.get(0);
-            if (foedsel.getFoedselsdato() != null) {
-                LOGGER.info("Using fodselsdato retrieved from PDL");
-                return foedsel.getFoedselsdato();
-            } else if (foedsel.getFoedselsaar() != null) {
-                LOGGER.warn("No fodselsdato found for fnr in PDL, but found fodselsaar. Fodselsdato was set to first day in fodselsaar.");
-                return LocalDate.of(foedsel.getFoedselsaar(), 1, 1);
+        try {
+            List<Foedsel> pdlFoedselDataList = pdlConsumer.getPdlResponse(new PdlRequest(fnr)).getData().getHentPerson().getFoedsel();
+            if (pdlFoedselDataList != null && !pdlFoedselDataList.isEmpty()) {
+                Foedsel foedsel = pdlFoedselDataList.get(0);
+                if (foedsel.getFoedselsdato() != null) {
+                    return foedsel.getFoedselsdato();
+                } else if (foedsel.getFoedselsaar() != null) {
+                    LOGGER.warn("No fodselsdato found for fnr in PDL, but found fodselsaar. Fodselsdato was set to first day in fodselsaar.");
+                    return LocalDate.of(foedsel.getFoedselsaar(), 1, 1);
+                }
             }
+        } catch (FailedCallingExternalServiceException e) {
+            LOGGER.error("Call to PDL failed. Deriving fodselsdato directly from fnr instead");
+            return FnrUtil.getFodselsdatoForFnr(fnr);
         }
-        LOGGER.warn("No fodselsdato found in PDL for fnr. Deriving fodelsdato directly from fnr instead");
+        LOGGER.warn("No fodselsdato found in PDL for fnr. Deriving fodselsdato directly from fnr instead");
         return FnrUtil.getFodselsdatoForFnr(fnr);
     }
 
@@ -254,7 +259,7 @@ public class OpptjeningProvider {
 
     private Map<Integer, Long> createAarSumPensjonsgivendeInntektMap(List<Inntekt> inntektsopptjeningListe) {
         return inntektsopptjeningListe.stream()
-                .filter(inntektsopptjening -> inntektsopptjening.getInntektType().equals("SUM_PI")) //TODO: Vurder om enum skal innføres slik som i pesys
+                .filter(inntektsopptjening -> inntektsopptjening.getInntektType().equals("SUM_PI"))
                 .collect(Collectors.toMap(Inntekt::getInntektAr, Inntekt::getBelop));
     }
 
