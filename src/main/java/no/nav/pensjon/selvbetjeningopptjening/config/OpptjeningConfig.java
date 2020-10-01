@@ -43,21 +43,16 @@ public class OpptjeningConfig {
 
     @Bean
     @Qualifier("conf.opptjening.resttemplate.oidc")
-    public RestTemplate oidcRestTemplate() {
+    public RestTemplate oidcRestTemplate(ServiceUserTokenGetter tokenGetter) {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(0, createCustomMessageConverterForLocalDate());
-        restTemplate.setInterceptors(Stream.of(new OidcAuthTokenInterceptor(serviceUserTokenGetter())).collect(Collectors.toList()));
+        restTemplate.setInterceptors(Stream.of(new OidcAuthTokenInterceptor(tokenGetter)).collect(Collectors.toList()));
         return restTemplate;
     }
 
     @Bean
     public OpptjeningProvider opptjeningProvider() {
         return new OpptjeningProvider();
-    }
-
-    @Bean
-    public ServiceUserTokenGetter serviceUserTokenGetter() {
-        return new ServiceUserTokenGetter();
     }
 
     @Bean
@@ -91,8 +86,10 @@ public class OpptjeningConfig {
     }
 
     @Bean
-    public PdlConsumer pdlConsumer(@Value("${pdl.endpoint.url}") String endpoint, TokenValidationContextHolder context){
-        return new PdlConsumer(endpoint, context, serviceUserTokenGetter());
+    public PdlConsumer pdlConsumer(@Value("${pdl.endpoint.url}") String endpoint,
+                                   TokenValidationContextHolder context,
+                                   ServiceUserTokenGetter tokenGetter) {
+        return new PdlConsumer(endpoint, context, tokenGetter);
     }
 
     @Bean
