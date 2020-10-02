@@ -1,18 +1,13 @@
 package no.nav.pensjon.selvbetjeningopptjening.unleash.strategies;
 
-import static java.util.Optional.ofNullable;
+import no.nav.pensjon.selvbetjeningopptjening.config.StringExtractor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
-import no.finn.unleash.strategy.Strategy;
-
-import no.nav.pensjon.selvbetjeningopptjening.config.SpringContext;
-import no.nav.pensjon.selvbetjeningopptjening.config.StringExtractor;
-
-public class ByUserIdStrategy implements Strategy {
+public class ByUserIdStrategy extends BeanStrategy {
 
     @Override
     public String getName() {
@@ -21,25 +16,25 @@ public class ByUserIdStrategy implements Strategy {
 
     @Override
     public boolean isEnabled(Map<String, String> parameters) {
-        return ofNullable(parameters)
+        return Optional.ofNullable(parameters)
                 .map(par -> par.get("user"))
                 .filter(s -> !s.isEmpty())
-                .map(instance -> instance.split(","))
+                .map(user -> user.split(","))
                 .map(Arrays::stream)
-                .map(instance -> instance.anyMatch(this::isCurrentUser))
+                .map(user -> user.anyMatch(this::isCurrentUser))
                 .orElse(false);
     }
 
     private boolean isCurrentUser(String user) {
-        String userId = SpringContext.getBean(StringExtractor.class).extract();
+        String userId = getBean(StringExtractor.class).extract();
         return userId != null && (userId.equals(user) || isEncryptedUserId(userId, user));
     }
 
     private boolean isEncryptedUserId(String givenUserId, String encryptedUserId) {
-        if (encryptedUserId.matches("\\A\\$2a?\\$\\d\\d\\$[./0-9A-Za-z]{53}")) {
-            BCryptPasswordEncoder bcryptEncoder = new BCryptPasswordEncoder();
-            return bcryptEncoder.matches(givenUserId, encryptedUserId);
+        if (!encryptedUserId.matches("\\A\\$2a?\\$\\d\\d\\$[./0-9A-Za-z]{53}")) {
+            return false;
         }
-        return false;
+
+        return new BCryptPasswordEncoder().matches(givenUserId, encryptedUserId);
     }
 }

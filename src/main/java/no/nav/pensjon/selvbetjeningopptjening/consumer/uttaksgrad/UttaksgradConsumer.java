@@ -6,11 +6,13 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -18,15 +20,17 @@ import org.springframework.web.util.UriComponentsBuilder;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
 
-public class UttaksgradConsumer {
+@Component
+public class UttaksgradConsumer implements UttaksgradGetter {
 
     private String endpoint;
     private RestTemplate restTemplate;
 
-    public UttaksgradConsumer(String endpoint) {
+    public UttaksgradConsumer(@Value("${pen.endpoint.url}") String endpoint) {
         this.endpoint = endpoint;
     }
 
+    @Override
     public List<Uttaksgrad> getUttaksgradForVedtak(List<Long> vedtakIdList) {
         ResponseEntity<UttaksgradListResponse> responseEntity;
 

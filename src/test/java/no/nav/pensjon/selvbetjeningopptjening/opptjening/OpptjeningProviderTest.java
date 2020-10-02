@@ -85,7 +85,7 @@ class OpptjeningProviderTest {
 
     @BeforeEach
     public void setUp() {
-        opptjeningProvider = new OpptjeningProvider();
+        opptjeningProvider = new OpptjeningProvider(uttaksgradConsumer);
         opptjeningProvider.setEndringPensjonsbeholdningCalculator(endringPensjonsbeholdningCalculator);
         opptjeningProvider.setMerknadHandler(merknadHandler);
         opptjeningProvider.setOpptjeningsgrunnlagConsumer(opptjeningsgrunnlagConsumer);
@@ -93,7 +93,6 @@ class OpptjeningProviderTest {
         opptjeningProvider.setPensjonspoengConsumer(pensjonspoengConsumer);
         opptjeningProvider.setPersonConsumer(personConsumer);
         opptjeningProvider.setRestpensjonConsumer(restpensjonConsumer);
-        opptjeningProvider.setUttaksgradConsumer(uttaksgradConsumer);
         opptjeningProvider.setPdlConsumer(pdlConsumer);
     }
 

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.util.FnrExtractor;
 import no.nav.pensjon.selvbetjeningopptjening.util.SimpleStringExtractor;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
@@ -26,7 +27,6 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.Pensjo
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.EndringPensjonsbeholdningCalculator;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.MerknadHandler;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.OpptjeningProvider;
@@ -51,8 +51,8 @@ public class OpptjeningConfig {
     }
 
     @Bean
-    public OpptjeningProvider opptjeningProvider() {
-        return new OpptjeningProvider();
+    public OpptjeningProvider opptjeningProvider(UttaksgradGetter uttaksgradGetter) {
+        return new OpptjeningProvider(uttaksgradGetter);
     }
 
     @Bean
@@ -73,11 +73,6 @@ public class OpptjeningConfig {
     @Bean
     public OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer(@Value("${popp.endpoint.url}") String endpoint) {
         return new OpptjeningsgrunnlagConsumer(endpoint);
-    }
-
-    @Bean
-    public UttaksgradConsumer uttaksgradConsumer(@Value("${pen.endpoint.url}") String endpoint) {
-        return new UttaksgradConsumer(endpoint);
     }
 
     @Bean

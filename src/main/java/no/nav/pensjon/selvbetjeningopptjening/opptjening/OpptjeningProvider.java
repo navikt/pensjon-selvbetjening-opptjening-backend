@@ -23,7 +23,7 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.Pensjo
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.model.Beholdning;
 import no.nav.pensjon.selvbetjeningopptjening.model.Inntekt;
@@ -37,6 +37,7 @@ import no.nav.pensjon.selvbetjeningopptjening.util.FnrUtil;
 import no.nav.pensjon.selvbetjeningopptjening.util.UserGroupUtil;
 
 public class OpptjeningProvider {
+
     private static final Log LOGGER = LogFactory.getLog(OpptjeningProvider.class);
     private PensjonsbeholdningConsumer pensjonsbeholdningConsumer;
     private OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer;
@@ -44,16 +45,20 @@ public class OpptjeningProvider {
     private RestpensjonConsumer restpensjonConsumer;
     private PersonConsumer personConsumer;
     private PdlConsumer pdlConsumer;
-    private UttaksgradConsumer uttaksgradConsumer;
+    private UttaksgradGetter uttaksgradGetter;
     private EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator;
     private MerknadHandler merknadHandler;
 
-    public OpptjeningResponse calculateOpptjeningForFnr(String fnr) {
+    public OpptjeningProvider(UttaksgradGetter uttaksgradGetter) {
+        this.uttaksgradGetter = uttaksgradGetter;
+    }
+
+    OpptjeningResponse calculateOpptjeningForFnr(String fnr) {
         LocalDate fodselsdato = getFodselsdato(fnr);
         UserGroup userGroup = UserGroupUtil.findUserGroup(fodselsdato);
         List<Restpensjon> restpensjonList = new ArrayList<>();
 
-        List<Uttaksgrad> uttaksgradhistorikk = uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr);
+        List<Uttaksgrad> uttaksgradhistorikk = uttaksgradGetter.getAlderSakUttaksgradhistorikkForPerson(fnr);
         AfpHistorikk afphistorikk = personConsumer.getAfpHistorikkForPerson(fnr);
         UforeHistorikk uforehistorikk = personConsumer.getUforeHistorikkForPerson(fnr);
 
@@ -430,7 +435,7 @@ public class OpptjeningProvider {
                 .filter(beholdning -> beholdning.getVedtakId() != null && beholdning.getFomDato().getYear() >= REFORM_2010 - 1)
                 .map(Beholdning::getVedtakId).collect(Collectors.toList());
 
-        List<Uttaksgrad> uttaksgradForBeholdningAfter2009 = uttaksgradConsumer.getUttaksgradForVedtak(vedtakIdForBeholdningAfter2009);
+        List<Uttaksgrad> uttaksgradForBeholdningAfter2009 = uttaksgradGetter.getUttaksgradForVedtak(vedtakIdForBeholdningAfter2009);
 
         opptjeningMap.entrySet().stream()
                 .filter(entry -> entry.getKey() >= REFORM_2010)
@@ -466,11 +471,6 @@ public class OpptjeningProvider {
     @Autowired
     public void setPersonConsumer(PersonConsumer personConsumer) {
         this.personConsumer = personConsumer;
-    }
-
-    @Autowired
-    public void setUttaksgradConsumer(UttaksgradConsumer uttaksgradConsumer) {
-        this.uttaksgradConsumer = uttaksgradConsumer;
     }
 
     @Autowired
