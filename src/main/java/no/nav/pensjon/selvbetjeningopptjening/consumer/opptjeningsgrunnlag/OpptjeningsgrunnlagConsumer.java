@@ -1,24 +1,22 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag;
 
-import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
-
-import java.util.List;
-
+import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
+import no.nav.pensjon.selvbetjeningopptjening.model.Inntekt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.pensjon.selvbetjeningopptjening.model.Inntekt;
+import java.util.List;
+
+import static no.nav.pensjon.selvbetjeningopptjening.consumer.PoppUtil.handle;
+import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
 
 public class OpptjeningsgrunnlagConsumer {
-    private static final int CHECKED_EXCEPTION_HTTP_STATUS = 512;
-    public static final String CONSUMED_SERVICE = "PROPOPP007 hentOpptjeningsgrunnlag";
+
+    static final String CONSUMED_SERVICE = "PROPOPP007 hentOpptjeningsgrunnlag";
     private final String endpoint;
     private RestTemplate restTemplate;
 
@@ -27,26 +25,26 @@ public class OpptjeningsgrunnlagConsumer {
     }
 
     public List<Inntekt> getInntektListeFromOpptjeningsgrunnlag(String fnr, Integer fomAr, Integer tomAr) {
-        ResponseEntity<HentOpptjeningsGrunnlagResponse> responseEntity;
         try {
-            responseEntity = restTemplate.exchange(
-                    buildUrl("/opptjeningsgrunnlag/" + fnr, fomAr, tomAr),
+            HentOpptjeningsGrunnlagResponse response = restTemplate.exchange(
+                    buildUrl(fnr, fomAr, tomAr),
                     HttpMethod.GET,
                     null,
-                    HentOpptjeningsGrunnlagResponse.class);
+                    HentOpptjeningsGrunnlagResponse.class)
+                    .getBody();
+
+            return response == null ? null : response.getOpptjeningsGrunnlag().getInntektListe();
         } catch (RestClientResponseException e) {
-            throw handle(e);
-        } catch(Exception e){
+            throw handle(e, CONSUMED_SERVICE);
+        } catch (Exception e) {
             throw new FailedCallingExternalServiceException(POPP, CONSUMED_SERVICE, "An error occurred in the consumer", e);
         }
-
-        return responseEntity.getBody() != null ? responseEntity.getBody().getOpptjeningsGrunnlag().getInntektListe() : null;
     }
 
-    private String buildUrl(String path, Integer fomAr, Integer tomAr) {
+    private String buildUrl(String fnr, Integer fomAr, Integer tomAr) {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromHttpUrl(endpoint)
-                .path(path);
+                .path("/opptjeningsgrunnlag/" + fnr);
 
         if (fomAr != null) {
             builder.queryParam("fomAr", Integer.toString(fomAr));
@@ -57,18 +55,6 @@ public class OpptjeningsgrunnlagConsumer {
         }
 
         return builder.toUriString();
-    }
-
-    private FailedCallingExternalServiceException handle(RestClientResponseException e) {
-        if (e.getRawStatusCode() == HttpStatus.UNAUTHORIZED.value()) {
-            return new FailedCallingExternalServiceException(POPP, CONSUMED_SERVICE, "Received 401 UNAUTHORIZED", e);
-        } else if (e.getRawStatusCode() == CHECKED_EXCEPTION_HTTP_STATUS && e.getMessage() != null && e.getMessage().contains("PersonDoesNotExistExceptionDto")) {
-            return new FailedCallingExternalServiceException(POPP, CONSUMED_SERVICE, "Person ikke funnet", e);
-        } else if (e.getRawStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
-            return new FailedCallingExternalServiceException(POPP, CONSUMED_SERVICE, "An error occurred in the provider, received 500 INTERNAL SERVER ERROR", e);
-        }
-
-        return new FailedCallingExternalServiceException(POPP, CONSUMED_SERVICE, "An error occurred in the provider", e);
     }
 
     @Autowired
