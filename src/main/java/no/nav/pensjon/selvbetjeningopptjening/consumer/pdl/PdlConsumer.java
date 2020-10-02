@@ -1,5 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlError;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -11,12 +12,14 @@ import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserT
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 
+import java.util.List;
+
 public class PdlConsumer {
-    private static final Log LOGGER = LogFactory.getLog(PdlConsumer.class);
+
     private static final String ISSUER = "selvbetjening";
+    private final Log logger = LogFactory.getLog(getClass());
     private TokenValidationContextHolder context;
     private ServiceUserTokenGetter serviceUserTokenGetter;
-
     private WebClient webclient;
 
     public PdlConsumer(String endpoint, TokenValidationContextHolder context, ServiceUserTokenGetter serviceUserTokenGetter) {
@@ -32,29 +35,36 @@ public class PdlConsumer {
 
     public PdlResponse getPdlResponse(PdlRequest request) {
         try {
-            PdlResponse pdlResponse =
+            PdlResponse response =
                     webclient.post()
                             .header(HttpHeaders.AUTHORIZATION, "Bearer " + context.getTokenValidationContext().getJwtToken(ISSUER).getTokenAsString())
                             .header("Nav-Consumer-Token", "Bearer " + serviceUserTokenGetter.getServiceUserToken().getAccessToken())
                             .bodyValue(request.getGraphQlQuery())
                             .retrieve()
                             .bodyToMono(PdlResponse.class).block();
-            if (pdlResponse == null) {
-                LOGGER.error("PDL error: Failed parsing response");
+
+            if (response == null) {
+                logger.error("PDL error: Failed parsing response");
                 throw new FailedCallingExternalServiceException("PDL", "Failed parsing response");
             }
-            if (pdlResponse.getErrors() != null && !pdlResponse.getErrors().isEmpty()) {
-                StringBuilder errorListBuilder = new StringBuilder();
-                errorListBuilder.append("Errors from PDL: ");
-                pdlResponse.getErrors().forEach(error -> errorListBuilder.append(error.getMessage()).append(", "));
 
-                LOGGER.error("PDL error: " + pdlResponse.getErrors().toString());
-                throw new FailedCallingExternalServiceException("PDL", errorListBuilder.substring(0, errorListBuilder.length() - 2));
-            }
-            return pdlResponse;
+            handleErrors(response.getErrors());
+            return response;
         } catch (JSONException e) {
-            LOGGER.error("PDL error: Failed deserializing JSON response", e);
+            logger.error("PDL error: Failed deserializing JSON response", e);
             throw new FailedCallingExternalServiceException("PDL", "Failed deserializing JSON response");
         }
+    }
+
+    private void handleErrors(List<PdlError> errors) {
+        if (errors == null || errors.isEmpty()) {
+            return;
+        }
+
+        var builder = new StringBuilder();
+        builder.append("Errors from PDL: ");
+        errors.forEach(error -> builder.append(error.getMessage()).append(", "));
+        logger.error("PDL error: " + errors.toString());
+        throw new FailedCallingExternalServiceException("PDL", builder.substring(0, builder.length() - 2));
     }
 }

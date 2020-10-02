@@ -114,14 +114,17 @@ public class OpptjeningConfig {
         return new SimpleStringExtractor(fnr);
     }
 
-    private MappingJackson2HttpMessageConverter createCustomMessageConverterForLocalDate() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        SimpleModule module = new SimpleModule();
+    private static MappingJackson2HttpMessageConverter createCustomMessageConverterForLocalDate() {
+        var converter = new MappingJackson2HttpMessageConverter();
+        converter.setObjectMapper(objectMapper());
+        return converter;
+    }
+
+    private static ObjectMapper objectMapper() {
+        var objectMapper = new ObjectMapper();
+        var module = new SimpleModule();
         module.addDeserializer(LocalDate.class, new LocalDateTimeFromEpochDeserializer());
         objectMapper.registerModule(module);
-
-        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-        converter.setObjectMapper(objectMapper);
-        return converter;
+        return objectMapper;
     }
 }

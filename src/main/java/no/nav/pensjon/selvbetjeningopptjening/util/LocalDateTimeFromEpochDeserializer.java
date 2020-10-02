@@ -16,8 +16,8 @@ public class LocalDateTimeFromEpochDeserializer extends StdDeserializer<LocalDat
     }
 
     @Override
-    public LocalDate deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        return Instant.ofEpochMilli(jp.readValueAs(Long.class)).atZone(ZoneId.systemDefault()).toLocalDate();
+    public LocalDate deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+        var instant = Instant.ofEpochMilli(parser.readValueAs(Long.class));
+        return instant.atZone(ZoneId.systemDefault()).toLocalDate();
     }
-
 }
