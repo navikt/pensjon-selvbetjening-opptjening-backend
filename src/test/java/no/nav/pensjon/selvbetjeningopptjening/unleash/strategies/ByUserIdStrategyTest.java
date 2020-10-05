@@ -48,6 +48,16 @@ class ByUserIdStrategyTest {
         assertFalse(isEnabled);
     }
 
+    @Test
+    void isEnabled_returns_false_when_encryptedUserId_fails_patternMatch() {
+        String encryptedUserId = "failure";
+        setToggleValue(encryptedUserId);
+
+        boolean isEnabled = strategy.isEnabled(params);
+
+        assertFalse(isEnabled);
+    }
+
     private void setToggleValue(String value) {
         params.put("user", value);
     }
