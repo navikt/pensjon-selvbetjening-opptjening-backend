@@ -53,51 +53,43 @@ class OpptjeningProviderTest {
 
     @Mock
     private PensjonsbeholdningConsumer pensjonsbeholdningConsumer;
-
     @Mock
     private OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer;
-
     @Mock
     private PensjonspoengConsumer pensjonspoengConsumer;
-
     @Mock
     private RestpensjonConsumer restpensjonConsumer;
-
     @Mock
     private PersonConsumer personConsumer;
-
     @Mock
     private UttaksgradConsumer uttaksgradConsumer;
-
     @Mock
     private PdlConsumer pdlConsumer;
-
     @Mock
     private EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator;
-
     @Mock
     private MerknadHandler merknadHandler;
-
     @Captor
     private ArgumentCaptor<Integer> yearCaptor;
 
     private OpptjeningProvider opptjeningProvider;
 
     @BeforeEach
-    public void setUp() {
-        opptjeningProvider = new OpptjeningProvider(uttaksgradConsumer);
-        opptjeningProvider.setEndringPensjonsbeholdningCalculator(endringPensjonsbeholdningCalculator);
-        opptjeningProvider.setMerknadHandler(merknadHandler);
-        opptjeningProvider.setOpptjeningsgrunnlagConsumer(opptjeningsgrunnlagConsumer);
-        opptjeningProvider.setPensjonsbeholdningConsumer(pensjonsbeholdningConsumer);
-        opptjeningProvider.setPensjonspoengConsumer(pensjonspoengConsumer);
-        opptjeningProvider.setPersonConsumer(personConsumer);
-        opptjeningProvider.setRestpensjonConsumer(restpensjonConsumer);
-        opptjeningProvider.setPdlConsumer(pdlConsumer);
+    void setUp() {
+        opptjeningProvider = new OpptjeningProvider(
+                pensjonsbeholdningConsumer,
+                opptjeningsgrunnlagConsumer,
+                pensjonspoengConsumer,
+                restpensjonConsumer,
+                personConsumer,
+                pdlConsumer,
+                uttaksgradConsumer,
+                endringPensjonsbeholdningCalculator,
+                merknadHandler);
     }
 
     @Test
-    void When_Fnr_is_not_in_proper_number_format_and_no_pdl_response_then_calculateOpptjeningForFnr_throws_NumberFormatException() {
+    void when_Fnr_is_not_in_proper_number_format_and_no_pdl_response_then_calculateOpptjeningForFnr_throws_NumberFormatException() {
         String fnr = "fnr";
         PdlResponse pdlResponse = new PdlResponse();
         PdlData pdlData = new PdlData();
@@ -111,7 +103,7 @@ class OpptjeningProviderTest {
     }
 
     @Test
-    void When_Uttaksgrad_is_not_set_then_calculateOpptjeningForFnr_throws_NullPointerException() {
+    void when_Uttaksgrad_is_not_set_then_calculateOpptjeningForFnr_throws_NullPointerException() {
         String fnr = "06076323304";
         List<Uttaksgrad> uttaksgradList = List.of(new Uttaksgrad());
         AfpHistorikk afphistorikk = new AfpHistorikk();
@@ -126,7 +118,7 @@ class OpptjeningProviderTest {
     }
 
     @Test
-    void When_Fnr_UserGroup5_with_beholdning_and_FomDato_1980_then_calculateOpptjeningForFnr_returns_1_OpptjeningDto_with_Pensjonsbeholdning() {
+    void when_Fnr_UserGroup5_with_beholdning_and_FomDato_1980_then_calculateOpptjeningForFnr_returns_1_OpptjeningDto_with_Pensjonsbeholdning() {
         String fnr = "06076323304";
 
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
@@ -155,7 +147,7 @@ class OpptjeningProviderTest {
     }
 
     @Test
-    void When_UserGroup5_with_and_FomDato_1983_then_calculateOpptjeningForFnr_returns_1_OpptjeningDto_with_Pensjonsbeholdning_and_3_OpptjeningDto_WithNoOpptjening() {
+    void when_UserGroup5_with_and_FomDato_1983_then_calculateOpptjeningForFnr_returns_1_OpptjeningDto_with_Pensjonsbeholdning_and_3_OpptjeningDto_WithNoOpptjening() {
         String fnr = "06076323304";
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
         Beholdning beholdning = new Beholdning();
@@ -183,7 +175,7 @@ class OpptjeningProviderTest {
     }
 
     @Test
-    void When_UserGroup4_with_Beholdning_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Pensjonsbeholdning() {
+    void when_UserGroup4_with_Beholdning_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Pensjonsbeholdning() {
         String fnr = "06076023304";
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
         Beholdning beholdning = new Beholdning();
@@ -212,7 +204,7 @@ class OpptjeningProviderTest {
 
     /*  Tests with pensjonspoeng for user group 123 and 4 */
     @Test
-    void When_UserGroup4_with_PensjonspoengType_OSFE_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Omsorgspoeng() {
+    void when_UserGroup4_with_PensjonspoengType_OSFE_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Omsorgspoeng() {
         String fnr = "06076023304";
 
         Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
@@ -243,7 +235,7 @@ class OpptjeningProviderTest {
     }
 
     @Test
-    void When_UserGroup4_with_PensjonspoengType_PPI_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_PensjonsgivendeInntekt() {
+    void when_UserGroup4_with_PensjonspoengType_PPI_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_PensjonsgivendeInntekt() {
         String fnr = "06076023304";
 
         Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
@@ -278,7 +270,7 @@ class OpptjeningProviderTest {
     }
 
     @Test
-    void When_UserGroup4_with_2_Pensjonspoeng_then_calculateOpptjeningForFnr_returns_NumberOfYearsWithPensjonpoeng_2() {
+    void when_UserGroup4_with_2_Pensjonspoeng_then_calculateOpptjeningForFnr_returns_NumberOfYearsWithPensjonpoeng_2() {
         String fnr = "06076023304";
 
         Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
@@ -311,7 +303,7 @@ class OpptjeningProviderTest {
     }
 
     @Test
-    void When_UserGroup123_with_PensjonspoengType_OSFE_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Omsorgspoeng() {
+    void when_UserGroup123_with_PensjonspoengType_OSFE_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Omsorgspoeng() {
         String fnr = "06075023304";
 
         Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
@@ -340,7 +332,7 @@ class OpptjeningProviderTest {
     }
 
     @Test
-    void When_UserGroup123_with_PensjonspoengType_PPI_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_PensjonsgivendeInntekt() {
+    void when_UserGroup123_with_PensjonspoengType_PPI_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_PensjonsgivendeInntekt() {
         String fnr = "06074423304";
 
         Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
@@ -373,7 +365,7 @@ class OpptjeningProviderTest {
     }
 
     @Test
-    void When_UserGroup123_with_2_Pensjonspoeng_then_calculateOpptjeningForFnr_returns_NumberOfYearsWithPensjonpoeng_2() {
+    void when_UserGroup123_with_2_Pensjonspoeng_then_calculateOpptjeningForFnr_returns_NumberOfYearsWithPensjonpoeng_2() {
         String fnr = "06074023304";
 
         Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
@@ -405,7 +397,7 @@ class OpptjeningProviderTest {
 
     /*  Restpensjon tests */
     @Test
-    void When_Fnr_UserGroup5_with_Restpensjon_and_no_Uttaksgrad_then_calculateOpptjeningForFnr_returns_no_OpptjeningDto() {
+    void when_Fnr_UserGroup5_with_Restpensjon_and_no_Uttaksgrad_then_calculateOpptjeningForFnr_returns_no_OpptjeningDto() {
         String fnr = "06076323304";
 
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
@@ -417,7 +409,6 @@ class OpptjeningProviderTest {
         UforeHistorikk uforehistorikk = new UforeHistorikk();
         List<Beholdning> beholdningList = new ArrayList<>();
         List<Inntekt> inntektList = new ArrayList<>();
-        List<Restpensjon> restpensjonList = Collections.singletonList(restpensjon);
 
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(uttaksgradList);
         when(personConsumer.getAfpHistorikkForPerson(fnr)).thenReturn(afphistorikk);
@@ -433,7 +424,7 @@ class OpptjeningProviderTest {
     }
 
     @Test
-    void When_Fnr_UserGroup5_with_RestGrunnPensjon_and_Uttaksgrad_less_than_100_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Restpensjon() {
+    void when_Fnr_UserGroup5_with_RestGrunnPensjon_and_Uttaksgrad_less_than_100_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Restpensjon() {
         String fnr = "06076323304";
 
         Uttaksgrad uttaksgrad = new Uttaksgrad();
@@ -465,7 +456,7 @@ class OpptjeningProviderTest {
     }
 
     @Test
-    void When_Fnr_UserGroup5_with_RestPensjonstillegg_and_Uttaksgrad_less_than_100_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Restpensjon() {
+    void when_Fnr_UserGroup5_with_RestPensjonstillegg_and_Uttaksgrad_less_than_100_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Restpensjon() {
         String fnr = "06076323304";
 
         Uttaksgrad uttaksgrad = new Uttaksgrad();
@@ -497,7 +488,7 @@ class OpptjeningProviderTest {
     }
 
     @Test
-    void When_Fnr_UserGroup5_with_RestTilleggspensjon_and_Uttaksgrad_less_than_100_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Restpensjon() {
+    void when_Fnr_UserGroup5_with_RestTilleggspensjon_and_Uttaksgrad_less_than_100_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Restpensjon() {
         String fnr = "06076323304";
 
         Uttaksgrad uttaksgrad = new Uttaksgrad();
@@ -529,7 +520,7 @@ class OpptjeningProviderTest {
     }
 
     @Test
-    void When_Fnr_UserGroup5_with_RestPensjonstillegg_and_RestGrunnpensjon_and_Uttaksgrad_less_than_100_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Restpensjon() {
+    void when_Fnr_UserGroup5_with_RestPensjonstillegg_and_RestGrunnpensjon_and_Uttaksgrad_less_than_100_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Restpensjon() {
         String fnr = "06076323304";
 
         Uttaksgrad uttaksgrad = new Uttaksgrad();
@@ -562,7 +553,7 @@ class OpptjeningProviderTest {
     }
 
     @Test
-    void When_Fnr_UserGroup4_with_RestGrunnPensjon_and_Uttaksgrad_less_than_100_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Restpensjon() {
+    void when_Fnr_UserGroup4_with_RestGrunnPensjon_and_Uttaksgrad_less_than_100_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Restpensjon() {
         String fnr = "06076023304";
 
         Uttaksgrad uttaksgrad = new Uttaksgrad();
@@ -592,7 +583,7 @@ class OpptjeningProviderTest {
     }
 
     @Test
-    void When_Fnr_UserGroup123_with_RestGrunnPensjon_and_Uttaksgrad_less_than_100_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Restpensjon() {
+    void when_Fnr_UserGroup123_with_RestGrunnPensjon_and_Uttaksgrad_less_than_100_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Restpensjon() {
         String fnr = "06075023304";
 
         Uttaksgrad uttaksgrad = new Uttaksgrad();
@@ -621,7 +612,7 @@ class OpptjeningProviderTest {
 
     /* Tests for inntekt for user group 5 */
     @Test
-    void When_Fnr_UserGroup5_with_InntektOpptjeningBelop_and_FomDato_1980_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_PensjonsgivendeInntekt() {
+    void when_Fnr_UserGroup5_with_InntektOpptjeningBelop_and_FomDato_1980_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_PensjonsgivendeInntekt() {
         String fnr = "06076323304";
 
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
@@ -655,7 +646,7 @@ class OpptjeningProviderTest {
     }
 
     @Test
-    void When_Fnr_UserGroup5_with_Inntekt_without_InntektType_then_calculateOpptjeningForFnr_returns_no_OpptjeningData() {
+    void when_Fnr_UserGroup5_with_Inntekt_without_InntektType_then_calculateOpptjeningForFnr_returns_no_OpptjeningData() {
         String fnr = "06076323304";
 
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
@@ -683,7 +674,7 @@ class OpptjeningProviderTest {
     }
 
     @Test
-    void When_Fnr_UserGroup5_with_Inntekt_and_InntektType_without_Beholdning_then_calculateOpptjeningForFnr_returns_no_OpptjeningData() {
+    void when_Fnr_UserGroup5_with_Inntekt_and_InntektType_without_Beholdning_then_calculateOpptjeningForFnr_returns_no_OpptjeningData() {
         String fnr = "06076323304";
 
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
@@ -711,7 +702,7 @@ class OpptjeningProviderTest {
     }
 
     @Test
-    void When_Fnr_UserGroup5_with_Inntekt_and_InntektType_SUM_PI_and_Beholdning_then_calculateOpptjeningForFnr_returns_OpptjeningData_with_PensjonsgivendeInntekt() {
+    void when_Fnr_UserGroup5_with_Inntekt_and_InntektType_SUM_PI_and_Beholdning_then_calculateOpptjeningForFnr_returns_OpptjeningData_with_PensjonsgivendeInntekt() {
         String fnr = "06076323304";
 
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
@@ -745,7 +736,7 @@ class OpptjeningProviderTest {
 
     /* Tests for beholdning with inntekt  for user group 4 */
     @Test
-    void When_Fnr_UserGroup4_with_InntektOpptjeningBelop_and_FomDato_1980_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_PensjonsgivendeInntekt() {
+    void when_Fnr_UserGroup4_with_InntektOpptjeningBelop_and_FomDato_1980_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_PensjonsgivendeInntekt() {
         String fnr = "06076023304";
 
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
@@ -778,7 +769,7 @@ class OpptjeningProviderTest {
 
     /* Tests for PDL Respose */
     @Test
-    public void When_PdlResponse_not_contains_foedselsdato_then_use_foedselsaar_from_pdl_instead() {
+    void when_PdlResponse_not_contains_foedselsdato_then_use_foedselsaar_from_pdl_instead() {
         String fnr = "06076023304";
         Integer expectedFoedselsaar = 1970;
 
@@ -796,7 +787,7 @@ class OpptjeningProviderTest {
     }
 
     @Test
-    public void When_PdlResponse_contains_foedselsdato_then_use_foedselsaar_from_pdl_foedselsdato() {
+    void when_PdlResponse_contains_foedselsdato_then_use_foedselsaar_from_pdl_foedselsdato() {
         String fnr = "06076023304";
         int expectedFoedselsaar = 1970;
 
@@ -814,11 +805,11 @@ class OpptjeningProviderTest {
     }
 
     @Test
-    public void When_Call_to_PDL_fails_then_use_foedselsaar_from_fnr_instead() {
+    void when_Call_to_PDL_fails_then_use_foedselsaar_from_fnr_instead() {
         String fnr = "06076423304";
         Integer expectedFoedselsaar = 1964;
 
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenThrow(new FailedCallingExternalServiceException("",""));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenThrow(new FailedCallingExternalServiceException("", ""));
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(new ArrayList<>());
         when(personConsumer.getAfpHistorikkForPerson(fnr)).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(fnr)).thenReturn(new UforeHistorikk());
@@ -831,18 +822,16 @@ class OpptjeningProviderTest {
         assertThat(yearCaptor.getValue() - 13, is(expectedFoedselsaar));
     }
 
-    private PdlResponse createPdlResponseForFoedselsdato(LocalDate foedselsdato, Integer foedselsaar) {
-        PdlResponse pdlResponse = new PdlResponse();
-        PdlData pdlData = new PdlData();
-        HentPersonResponse hentPersonResponse = new HentPersonResponse();
-        Foedsel foedsel = new Foedsel();
+    private static PdlResponse createPdlResponseForFoedselsdato(LocalDate foedselsdato, Integer foedselsaar) {
+        var pdlResponse = new PdlResponse();
+        var pdlData = new PdlData();
+        var hentPersonResponse = new HentPersonResponse();
+        var foedsel = new Foedsel();
         foedsel.setFoedselsdato(foedselsdato);
         foedsel.setFoedselsaar(foedselsaar);
-
         hentPersonResponse.setFoedsel(List.of(foedsel));
         pdlData.setHentPerson(hentPersonResponse);
         pdlResponse.setData(pdlData);
-
         return pdlResponse;
     }
 }

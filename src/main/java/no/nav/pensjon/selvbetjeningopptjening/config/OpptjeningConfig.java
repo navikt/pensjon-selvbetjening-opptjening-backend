@@ -1,15 +1,19 @@
 package no.nav.pensjon.selvbetjeningopptjening.config;
 
-import java.time.LocalDate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-
+import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.OidcAuthTokenInterceptor;
+import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.EndringPensjonsbeholdningCalculator;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.MerknadHandler;
 import no.nav.pensjon.selvbetjeningopptjening.util.FnrExtractor;
+import no.nav.pensjon.selvbetjeningopptjening.util.LocalDateTimeFromEpochDeserializer;
 import no.nav.pensjon.selvbetjeningopptjening.util.SimpleStringExtractor;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,17 +24,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.OidcAuthTokenInterceptor;
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.opptjening.EndringPensjonsbeholdningCalculator;
-import no.nav.pensjon.selvbetjeningopptjening.opptjening.MerknadHandler;
-import no.nav.pensjon.selvbetjeningopptjening.opptjening.OpptjeningProvider;
-import no.nav.pensjon.selvbetjeningopptjening.util.LocalDateTimeFromEpochDeserializer;
+import java.time.LocalDate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Configuration
 public class OpptjeningConfig {
@@ -48,11 +44,6 @@ public class OpptjeningConfig {
         restTemplate.getMessageConverters().add(0, createCustomMessageConverterForLocalDate());
         restTemplate.setInterceptors(Stream.of(new OidcAuthTokenInterceptor(tokenGetter)).collect(Collectors.toList()));
         return restTemplate;
-    }
-
-    @Bean
-    public OpptjeningProvider opptjeningProvider(UttaksgradGetter uttaksgradGetter) {
-        return new OpptjeningProvider(uttaksgradGetter);
     }
 
     @Bean
