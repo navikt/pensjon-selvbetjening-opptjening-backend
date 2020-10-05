@@ -5,7 +5,6 @@ import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.ISSUER;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,11 +21,12 @@ import no.nav.security.token.support.core.api.ProtectedWithClaims;
 @ProtectedWithClaims(issuer = ISSUER) // Use @Unprotected when running with laptop/uimage profile
 public class OpptjeningEndpoint {
 
-    private static final Log LOGGER = LogFactory.getLog(OpptjeningEndpoint.class);
+    private final Log log = LogFactory.getLog(getClass());
     private OpptjeningProvider provider;
     private StringExtractor fnrExtractor;
 
-    public OpptjeningEndpoint(StringExtractor fnrExtractor) {
+    public OpptjeningEndpoint(OpptjeningProvider provider, StringExtractor fnrExtractor) {
+        this.provider = provider;
         this.fnrExtractor = fnrExtractor;
     }
 
@@ -39,13 +39,8 @@ public class OpptjeningEndpoint {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The service is not made available for the specified user yet");
             }
         } catch (FailedCallingExternalServiceException e) {
-            LOGGER.error(e);
+            log.error(e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
-    }
-
-    @Autowired
-    public void setProvider(OpptjeningProvider provider) {
-        this.provider = provider;
     }
 }
