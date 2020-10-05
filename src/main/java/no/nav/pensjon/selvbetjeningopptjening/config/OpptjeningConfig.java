@@ -57,8 +57,10 @@ public class OpptjeningConfig {
     }
 
     @Bean
-    public PensjonsbeholdningConsumer pensjonsbeholdningConsumer(@Value("${popp.endpoint.url}") String endpoint) {
-        return new PensjonsbeholdningConsumer(endpoint);
+    public PensjonsbeholdningConsumer pensjonsbeholdningConsumer(
+            @Value("${popp.endpoint.url}") String endpoint,
+            @Qualifier("conf.opptjening.resttemplate.oidc") RestTemplate restTemplate) {
+        return new PensjonsbeholdningConsumer(endpoint, restTemplate);
     }
 
     @Bean

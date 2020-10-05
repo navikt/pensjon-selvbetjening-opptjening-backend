@@ -2,8 +2,6 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.model.Beholdning;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -22,8 +20,9 @@ public class PensjonsbeholdningConsumer {
     private final String endpoint;
     private RestTemplate restTemplate;
 
-    public PensjonsbeholdningConsumer(String endpoint) {
+    public PensjonsbeholdningConsumer(String endpoint, RestTemplate restTemplate) {
         this.endpoint = endpoint;
+        this.restTemplate = restTemplate;
     }
 
     public List<Beholdning> getPensjonsbeholdning(String fnr) {
@@ -48,12 +47,6 @@ public class PensjonsbeholdningConsumer {
                 .fromHttpUrl(endpoint)
                 .path("/beholdning")
                 .toUriString();
-    }
-
-    @Autowired
-    @Qualifier("conf.opptjening.resttemplate.oidc")
-    public void setRestTemplate(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
     }
 
     private static HttpEntity<BeholdningListeRequest> newRequestEntity(String fnr) {
