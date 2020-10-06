@@ -1,31 +1,39 @@
 package no.nav.pensjon.selvbetjeningopptjening.util;
 
+import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup;
+
 import java.time.LocalDate;
 import java.time.Month;
 
-import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup;
+import static java.time.Month.DECEMBER;
+import static no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup.*;
+import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.*;
 
 public class UserGroupUtil {
-    public static UserGroup findUserGroup(LocalDate fodselsdato) {
-        int fodselsar = fodselsdato.getYear();
-        int fodselsmonth = fodselsdato.getMonth().getValue();
 
-        if (fodselsar < Constants.FIRST_BIRTHYEAR_WITH_NEW_ALDER) {
-            return UserGroup.USER_GROUP_1;
-        } else if (fodselsar <= Constants.FIRST_BIRTHYEAR_WITH_NEW_AFP) {
-            /**
-             * user belongs to userGroup 3 if user is borned in december 1948
-             */
-            if (fodselsar == Constants.FIRST_BIRTHYEAR_WITH_NEW_AFP && fodselsmonth > Month.NOVEMBER.getValue()) {
-                return UserGroup.USER_GROUP_3;
-            }
-            return UserGroup.USER_GROUP_2;
-        } else if (fodselsar < Constants.FIRST_BIRTHYEAR_WITH_OVERGANGSREGLER) {
-            return UserGroup.USER_GROUP_3;
-        } else if (fodselsar <= Constants.LAST_BIRTHYEAR_WITH_OVERGANGSREGLER) {
-            return UserGroup.USER_GROUP_4;
-        } else {
-            return UserGroup.USER_GROUP_5;
+    public static UserGroup findUserGroup(LocalDate birthDate) {
+        return findUserGroup(birthDate.getYear(), birthDate.getMonth());
+    }
+
+    private static UserGroup findUserGroup(int year, Month month) {
+        if (year < FIRST_BIRTHYEAR_WITH_NEW_ALDER) {
+            return USER_GROUP_1;
         }
+
+        if (year <= FIRST_BIRTHYEAR_WITH_NEW_AFP) {
+            return year == FIRST_BIRTHYEAR_WITH_NEW_AFP && month.equals(DECEMBER)
+                    ? USER_GROUP_3
+                    : USER_GROUP_2;
+        }
+
+        if (year < FIRST_BIRTHYEAR_WITH_OVERGANGSREGLER) {
+            return USER_GROUP_3;
+        }
+
+        if (year <= LAST_BIRTHYEAR_WITH_OVERGANGSREGLER) {
+            return USER_GROUP_4;
+        }
+
+        return USER_GROUP_5;
     }
 }

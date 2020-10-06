@@ -17,12 +17,12 @@
     <properties>
         <java.version>11</java.version>
         <token-validation-version>1.1.6</token-validation-version>
-
         <asciidoctor-maven-plugin.version>1.5.8</asciidoctor-maven-plugin.version>
         <asciidoctorj-diagram.version>1.5.18</asciidoctorj-diagram.version>
         <graphviz-java.version>0.14.1</graphviz-java.version>
         <unleash-client-java.version>3.3.3</unleash-client-java.version>
         <spring-security.version>5.3.4.RELEASE</spring-security.version>
+        <okhttp3.version>4.0.1</okhttp3.version>
     </properties>
 
     <dependencies>
@@ -129,6 +129,19 @@
             <artifactId>reactor-spring</artifactId>
             <version>1.0.1.RELEASE</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>${okhttp3.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver</artifactId>
+            <version>${okhttp3.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -184,5 +197,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

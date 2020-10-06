@@ -31,31 +31,26 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServ
 import no.nav.pensjon.selvbetjeningopptjening.model.Beholdning;
 
 @ExtendWith(MockitoExtension.class)
-public class PensjonsbeholdningConsumerTest {
-    private final String endpoint = "http://poppEndpoint.test";
+class PensjonsbeholdningConsumerTest {
 
+    private static final String ENDPOINT = "http://poppEndpoint.test";
+    private PensjonsbeholdningConsumer consumer;
     @Mock
     private RestTemplate restTemplateMock;
-
-    private PensjonsbeholdningConsumer consumer;
-
     @Captor
     private ArgumentCaptor<String> urlCaptor;
-
     @Captor
     private ArgumentCaptor<HttpEntity<BeholdningListeRequest>> httpEntityCaptor;
-
     @Captor
     private ArgumentCaptor<HttpMethod> httpMethodCaptor;
 
     @BeforeEach
-    public void setup() {
-        consumer = new PensjonsbeholdningConsumer(endpoint);
-        consumer.setRestTemplate(restTemplateMock);
+    void setup() {
+        consumer = new PensjonsbeholdningConsumer(ENDPOINT, restTemplateMock);
     }
 
     @Test
-    public void should_return_list_of_Beholdning_when_getPensjonsbeholdning() {
+    void should_return_list_of_Beholdning_when_getPensjonsbeholdning() {
         BeholdningListeResponse expectedResponse = new BeholdningListeResponse();
         List<Beholdning> expectedBeholdningList = List.of(new Beholdning());
         expectedResponse.setBeholdninger(expectedBeholdningList);
@@ -70,7 +65,7 @@ public class PensjonsbeholdningConsumerTest {
     }
 
     @Test
-    public void should_add_fnr_as_headerparam_when_POST_getPensjonsbeholdning() {
+    void should_add_fnr_as_headerparam_when_POST_getPensjonsbeholdning() {
         String expectedFnr = "fnrValue";
 
         when(restTemplateMock.exchange(urlCaptor.capture(), httpMethodCaptor.capture(), httpEntityCaptor.capture(), eq(BeholdningListeResponse.class)))
@@ -79,12 +74,12 @@ public class PensjonsbeholdningConsumerTest {
         consumer.getPensjonsbeholdning(expectedFnr);
 
         assertThat(httpMethodCaptor.getValue(), is(HttpMethod.POST));
-        assertThat(urlCaptor.getValue(), is(endpoint + "/beholdning"));
+        assertThat(urlCaptor.getValue(), is(ENDPOINT + "/beholdning"));
         assertThat(Objects.requireNonNull(httpEntityCaptor.getValue().getBody()).getFnr(), is(expectedFnr));
     }
 
     @Test
-    public void should_return_FailedCallingExternalServiceException_when_401() {
+    void should_return_FailedCallingExternalServiceException_when_401() {
         when(restTemplateMock.exchange(eq("http://poppEndpoint.test/beholdning"),
                 eq(HttpMethod.POST),
                 httpEntityCaptor.capture(),
@@ -98,7 +93,7 @@ public class PensjonsbeholdningConsumerTest {
     }
 
     @Test
-    public void should_return_FailedCallingExternalServiceException_when_512() {
+    void should_return_FailedCallingExternalServiceException_when_512() {
         when(restTemplateMock.exchange(eq("http://poppEndpoint.test/beholdning"),
                 eq(HttpMethod.POST),
                 httpEntityCaptor.capture(),
@@ -112,7 +107,7 @@ public class PensjonsbeholdningConsumerTest {
     }
 
     @Test
-    public void should_return_FailedCallingExternalServiceException_when_500() {
+    void should_return_FailedCallingExternalServiceException_when_500() {
         when(restTemplateMock.exchange(eq("http://poppEndpoint.test/beholdning"),
                 eq(HttpMethod.POST),
                 httpEntityCaptor.capture(),
@@ -128,7 +123,7 @@ public class PensjonsbeholdningConsumerTest {
     }
 
     @Test
-    public void should_return_FailedCallingExternalServiceException_when_RuntimeException() {
+    void should_return_FailedCallingExternalServiceException_when_RuntimeException() {
         when(restTemplateMock.exchange(eq("http://poppEndpoint.test/beholdning"),
                 eq(HttpMethod.POST),
                 httpEntityCaptor.capture(),

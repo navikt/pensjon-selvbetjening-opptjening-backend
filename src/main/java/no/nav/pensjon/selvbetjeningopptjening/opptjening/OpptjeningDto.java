@@ -6,6 +6,7 @@ import java.util.List;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
 
 public class OpptjeningDto {
+
     private Integer pensjonsgivendeInntekt;
     private Long pensjonsbeholdning;
     private Double omsorgspoeng;
@@ -88,7 +89,7 @@ public class OpptjeningDto {
         this.endringOpptjening = endringOpptjening;
     }
 
-    public void addMerknader(List<MerknadCode> merknader){
+    public void addMerknader(List<MerknadCode> merknader) {
         this.merknader.addAll(merknader);
     }
 }

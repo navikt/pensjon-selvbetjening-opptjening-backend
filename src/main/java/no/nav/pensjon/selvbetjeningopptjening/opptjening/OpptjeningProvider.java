@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
@@ -23,7 +22,7 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.Pensjo
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.model.Beholdning;
 import no.nav.pensjon.selvbetjeningopptjening.model.Inntekt;
@@ -35,8 +34,11 @@ import no.nav.pensjon.selvbetjeningopptjening.model.code.OpptjeningTypeCode;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup;
 import no.nav.pensjon.selvbetjeningopptjening.util.FnrUtil;
 import no.nav.pensjon.selvbetjeningopptjening.util.UserGroupUtil;
+import org.springframework.stereotype.Component;
 
+@Component
 public class OpptjeningProvider {
+
     private static final Log LOGGER = LogFactory.getLog(OpptjeningProvider.class);
     private PensjonsbeholdningConsumer pensjonsbeholdningConsumer;
     private OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer;
@@ -44,16 +46,36 @@ public class OpptjeningProvider {
     private RestpensjonConsumer restpensjonConsumer;
     private PersonConsumer personConsumer;
     private PdlConsumer pdlConsumer;
-    private UttaksgradConsumer uttaksgradConsumer;
+    private UttaksgradGetter uttaksgradGetter;
     private EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator;
     private MerknadHandler merknadHandler;
 
-    public OpptjeningResponse calculateOpptjeningForFnr(String fnr) {
+    public OpptjeningProvider(PensjonsbeholdningConsumer pensjonsbeholdningConsumer,
+                              OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer,
+                              PensjonspoengConsumer pensjonspoengConsumer,
+                              RestpensjonConsumer restpensjonConsumer,
+                              PersonConsumer personConsumer,
+                              PdlConsumer pdlConsumer,
+                              UttaksgradGetter uttaksgradGetter,
+                              EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator,
+                              MerknadHandler merknadHandler) {
+        this.pensjonsbeholdningConsumer = pensjonsbeholdningConsumer;
+        this.opptjeningsgrunnlagConsumer = opptjeningsgrunnlagConsumer;
+        this.pensjonspoengConsumer = pensjonspoengConsumer;
+        this.restpensjonConsumer = restpensjonConsumer;
+        this.personConsumer = personConsumer;
+        this.pdlConsumer = pdlConsumer;
+        this.uttaksgradGetter = uttaksgradGetter;
+        this.endringPensjonsbeholdningCalculator = endringPensjonsbeholdningCalculator;
+        this.merknadHandler = merknadHandler;
+    }
+
+    OpptjeningResponse calculateOpptjeningForFnr(String fnr) {
         LocalDate fodselsdato = getFodselsdato(fnr);
         UserGroup userGroup = UserGroupUtil.findUserGroup(fodselsdato);
         List<Restpensjon> restpensjonList = new ArrayList<>();
 
-        List<Uttaksgrad> uttaksgradhistorikk = uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr);
+        List<Uttaksgrad> uttaksgradhistorikk = uttaksgradGetter.getAlderSakUttaksgradhistorikkForPerson(fnr);
         AfpHistorikk afphistorikk = personConsumer.getAfpHistorikkForPerson(fnr);
         UforeHistorikk uforehistorikk = personConsumer.getUforeHistorikkForPerson(fnr);
 
@@ -130,7 +152,7 @@ public class OpptjeningProvider {
     }
 
     private OpptjeningResponse createResponseForUserGroup5(LocalDate fodselsdato, List<Beholdning> pensjonsbeholdningList, List<Restpensjon> restpensjonListe,
-            List<Inntekt> inntektsopptjeningListe, List<Uttaksgrad> uttaksgradhistorikk, AfpHistorikk afphistorikk, UforeHistorikk uforeHistorikk) {
+                                                           List<Inntekt> inntektsopptjeningListe, List<Uttaksgrad> uttaksgradhistorikk, AfpHistorikk afphistorikk, UforeHistorikk uforeHistorikk) {
         OpptjeningResponse response = new OpptjeningResponse();
         Map<Integer, OpptjeningDto> opptjeningMap = createOpptjeningMap(new ArrayList<>(), restpensjonListe);
         Map<Integer, Long> aarSumPensjonsgivendeInntektMap = createAarSumPensjonsgivendeInntektMap(inntektsopptjeningListe);
@@ -156,7 +178,7 @@ public class OpptjeningProvider {
     }
 
     private OpptjeningResponse createResponseForUserGroup4(LocalDate fodselsdato, List<Pensjonspoeng> pensjonspoengList, List<Beholdning> pensjonsbeholdningList,
-            List<Restpensjon> restpensjonListe, List<Uttaksgrad> uttaksgradhistorikk, AfpHistorikk afphistorikk, UforeHistorikk uforeHistorikk) {
+                                                           List<Restpensjon> restpensjonListe, List<Uttaksgrad> uttaksgradhistorikk, AfpHistorikk afphistorikk, UforeHistorikk uforeHistorikk) {
         OpptjeningResponse response = new OpptjeningResponse();
         Map<Integer, OpptjeningDto> opptjeningMap = createOpptjeningMap(pensjonspoengList, restpensjonListe);
         populatePensjonspoeng(opptjeningMap, pensjonspoengList);
@@ -182,7 +204,7 @@ public class OpptjeningProvider {
     }
 
     private OpptjeningResponse createResponseForUserGroups123(LocalDate fodselsdato, List<Pensjonspoeng> pensjonspoengList, List<Restpensjon> restpensjonListe,
-            List<Uttaksgrad> uttaksgradhistorikk, AfpHistorikk afphistorikk, UforeHistorikk uforeHistorikk) {
+                                                              List<Uttaksgrad> uttaksgradhistorikk, AfpHistorikk afphistorikk, UforeHistorikk uforeHistorikk) {
         OpptjeningResponse response = new OpptjeningResponse();
         Map<Integer, OpptjeningDto> opptjeningMap = createOpptjeningMap(pensjonspoengList, restpensjonListe);
         populatePensjonspoeng(opptjeningMap, pensjonspoengList);
@@ -245,7 +267,7 @@ public class OpptjeningProvider {
     }
 
     private void addInntektToCorrespondingYear(Map<Integer, OpptjeningDto> opptjeningMap,
-            Map<Integer, Beholdning> pensjonsbeholdningMap) {
+                                               Map<Integer, Beholdning> pensjonsbeholdningMap) {
         for (Beholdning beholdning : pensjonsbeholdningMap.values()) {
             if (beholdning.getInntektOpptjeningBelop() != null) {
                 Integer ar = beholdning.getInntektOpptjeningBelop().getAr();
@@ -264,7 +286,7 @@ public class OpptjeningProvider {
     }
 
     private void populateRestpensjon(Map<Integer, OpptjeningDto> opptjeningMap,
-            List<Restpensjon> restpensjonListe) {
+                                     List<Restpensjon> restpensjonListe) {
         for (Restpensjon restpensjon : restpensjonListe) {
             OpptjeningDto opptjening = opptjeningMap.get(restpensjon.getFomDato().getYear());
             Double belop = calculateBelopFromRestpensjon(restpensjon);
@@ -334,7 +356,7 @@ public class OpptjeningProvider {
      * Method for adding opptjening to opptjeningMap for years with inntekt but no beholdning
      */
     private void populateAdditionalInntektsaar(Map<Integer, Long> aarInntektMap,
-            Map<Integer, OpptjeningDto> opptjeningMap, int firstYearWithOpptjening, int lastYearWithOpptjening) {
+                                               Map<Integer, OpptjeningDto> opptjeningMap, int firstYearWithOpptjening, int lastYearWithOpptjening) {
         for (int year = firstYearWithOpptjening; year <= lastYearWithOpptjening; year++) {
             if (!opptjeningMap.containsKey(year) && aarInntektMap.containsKey(year)) {
                 OpptjeningDto opptjening = createOpptjening(opptjeningMap, year);
@@ -366,7 +388,7 @@ public class OpptjeningProvider {
     }
 
     private void populateOpptjeningMapWithPensjonspoeng(OpptjeningDto opptjening,
-            Pensjonspoeng pensjonspoeng) {
+                                                        Pensjonspoeng pensjonspoeng) {
         if (isOpptjeningTypeInntekt(pensjonspoeng.getPensjonspoengType())) {
             populatePensjonspoengInntekt(pensjonspoeng, opptjening);
         }
@@ -430,7 +452,7 @@ public class OpptjeningProvider {
                 .filter(beholdning -> beholdning.getVedtakId() != null && beholdning.getFomDato().getYear() >= REFORM_2010 - 1)
                 .map(Beholdning::getVedtakId).collect(Collectors.toList());
 
-        List<Uttaksgrad> uttaksgradForBeholdningAfter2009 = uttaksgradConsumer.getUttaksgradForVedtak(vedtakIdForBeholdningAfter2009);
+        List<Uttaksgrad> uttaksgradForBeholdningAfter2009 = uttaksgradGetter.getUttaksgradForVedtak(vedtakIdForBeholdningAfter2009);
 
         opptjeningMap.entrySet().stream()
                 .filter(entry -> entry.getKey() >= REFORM_2010)
@@ -439,52 +461,7 @@ public class OpptjeningProvider {
     }
 
     private void populateMerknadForOpptjening(Map<Integer, OpptjeningDto> opptjeningMap, List<Beholdning> pensjonsbeholdningList, List<Uttaksgrad> uttaksgradhistorikk,
-            AfpHistorikk afphistorikk, UforeHistorikk uforehistorikk) {
+                                              AfpHistorikk afphistorikk, UforeHistorikk uforehistorikk) {
         opptjeningMap.forEach((key, value) -> merknadHandler.addMerknaderOnOpptjening(key, value, pensjonsbeholdningList, uttaksgradhistorikk, afphistorikk, uforehistorikk));
-    }
-
-    @Autowired
-    public void setPensjonsbeholdningConsumer(PensjonsbeholdningConsumer pensjonsbeholdningConsumer) {
-        this.pensjonsbeholdningConsumer = pensjonsbeholdningConsumer;
-    }
-
-    @Autowired
-    public void setOpptjeningsgrunnlagConsumer(OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer) {
-        this.opptjeningsgrunnlagConsumer = opptjeningsgrunnlagConsumer;
-    }
-
-    @Autowired
-    public void setPensjonspoengConsumer(PensjonspoengConsumer pensjonspoengConsumer) {
-        this.pensjonspoengConsumer = pensjonspoengConsumer;
-    }
-
-    @Autowired
-    public void setRestpensjonConsumer(RestpensjonConsumer restpensjonConsumer) {
-        this.restpensjonConsumer = restpensjonConsumer;
-    }
-
-    @Autowired
-    public void setPersonConsumer(PersonConsumer personConsumer) {
-        this.personConsumer = personConsumer;
-    }
-
-    @Autowired
-    public void setUttaksgradConsumer(UttaksgradConsumer uttaksgradConsumer) {
-        this.uttaksgradConsumer = uttaksgradConsumer;
-    }
-
-    @Autowired
-    public void setPdlConsumer(PdlConsumer pdlConsumer) {
-        this.pdlConsumer = pdlConsumer;
-    }
-
-    @Autowired
-    public void setEndringPensjonsbeholdningCalculator(EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator) {
-        this.endringPensjonsbeholdningCalculator = endringPensjonsbeholdningCalculator;
-    }
-
-    @Autowired
-    public void setMerknadHandler(MerknadHandler merknadHandler) {
-        this.merknadHandler = merknadHandler;
     }
 }

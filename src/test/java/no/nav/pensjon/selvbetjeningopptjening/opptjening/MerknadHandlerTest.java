@@ -26,15 +26,15 @@ import no.nav.pensjon.selvbetjeningopptjening.model.code.UforeTypeCode;
 
 class MerknadHandlerTest {
 
-    MerknadHandler merknadHandler;
+    private MerknadHandler merknadHandler;
 
     @BeforeEach
-    public void setUp(){
+    void setUp() {
         merknadHandler = new MerknadHandler();
     }
 
     @Test
-    void when_Omsorg_in_Pensjonspoeng_is_Null_then_setMerknadOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList(){
+    void when_Omsorg_in_Pensjonspoeng_is_Null_then_setMerknadOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
 
@@ -44,7 +44,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_Omsorgspoeng_and_Pensjonspoeng_in_OpptjeningDto_is_Null_then_setMerknadOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList(){
+    void when_Omsorgspoeng_and_Pensjonspoeng_in_OpptjeningDto_is_Null_then_setMerknadOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
         pensjonspoeng.setOmsorg(new Omsorg());
@@ -55,7 +55,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_Omsorgspoeng_is_greater_than_Pensjonspoeng_in_OpptjeningDto_then_setMerknadOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList(){
+    void when_Omsorgspoeng_is_greater_than_Pensjonspoeng_in_OpptjeningDto_then_setMerknadOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList() {
         Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
         pensjonspoeng.setOmsorg(new Omsorg());
 
@@ -69,7 +69,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_Omsorgspoeng_is_less_than_Pensjonspoeng_in_OpptjeningDto_then_setMerknadOmsorgsopptjeningPensjonspoeng_returns_MerknadCode_OMSORGSOPPTJENING(){
+    void when_Omsorgspoeng_is_less_than_Pensjonspoeng_in_OpptjeningDto_then_setMerknadOmsorgsopptjeningPensjonspoeng_returns_MerknadCode_OMSORGSOPPTJENING() {
         Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
         pensjonspoeng.setOmsorg(new Omsorg());
 
@@ -84,7 +84,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_Omsorg_in_Pensjonspoeng_is_Null_then_setMerknadOverforOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList(){
+    void when_Omsorg_in_Pensjonspoeng_is_Null_then_setMerknadOverforOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
 
@@ -94,7 +94,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_OmsorgType_is_not_OBU6_or_OBU7_then_setMerknadOverforOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList(){
+    void when_OmsorgType_is_not_OBU6_or_OBU7_then_setMerknadOverforOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
 
         Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
@@ -108,7 +108,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_OmsorgType_is_OBU6_then_setMerknadOverforOmsorgsopptjeningPensjonspoeng_returns_MerknadCode_OVERFORE_OMSORGSOPPTJENING(){
+    void when_OmsorgType_is_OBU6_then_setMerknadOverforOmsorgsopptjeningPensjonspoeng_returns_MerknadCode_OVERFORE_OMSORGSOPPTJENING() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
 
         Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
@@ -123,7 +123,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_OmsorgType_is_OBU7_then_setMerknadOverforOmsorgsopptjeningPensjonspoeng_returns_MerknadCode_OVERFORE_OMSORGSOPPTJENING(){
+    void when_OmsorgType_is_OBU7_then_setMerknadOverforOmsorgsopptjeningPensjonspoeng_returns_MerknadCode_OVERFORE_OMSORGSOPPTJENING() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
 
         Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
@@ -138,7 +138,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_Opptjening_without_PensjonsBeholdning_and_Inntekt_then_addMerknaderOnOpptjening_returns_MerknadCode_INGEN_OPPTJENING(){
+    void when_Opptjening_without_PensjonsBeholdning_and_Inntekt_then_addMerknaderOnOpptjening_returns_MerknadCode_INGEN_OPPTJENING() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
 
@@ -149,7 +149,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_Opptjening_with_AfpHistorikk_and_without_PensjonsBeholdning_then_addMerknaderOnOpptjening_returns_MerknadCode_AFP_and_INGEN_OPPTJENING(){
+    void when_Opptjening_with_AfpHistorikk_and_without_PensjonsBeholdning_then_addMerknaderOnOpptjening_returns_MerknadCode_AFP_and_INGEN_OPPTJENING() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
 
@@ -165,7 +165,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_UforeHistorikk_with_Uforetype_UFORE_Year_mellom_UfgFom_and_UfgTom_and_Uforegrad_then_addMerknaderOnOpptjening_returns_MerknadCode_UFOREGRAD(){
+    void when_UforeHistorikk_with_Uforetype_UFORE_Year_mellom_UfgFom_and_UfgTom_and_Uforegrad_then_addMerknaderOnOpptjening_returns_MerknadCode_UFOREGRAD() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         opptjeningDto.setPensjonsbeholdning(100L);
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
@@ -186,7 +186,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_UforeHistorikk_with_Uforetype_UFORE_Year_mellom_UfgFom_and_UfgTom_and_no_Uforegrad_then_addMerknaderOnOpptjening_returns_empty_MerknandList(){
+    void when_UforeHistorikk_with_Uforetype_UFORE_Year_mellom_UfgFom_and_UfgTom_and_no_Uforegrad_then_addMerknaderOnOpptjening_returns_empty_MerknandList() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         opptjeningDto.setPensjonsbeholdning(100L);
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
@@ -204,7 +204,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_UforeHistorikk_with_Uforetype_UF_M_YRKE_Year_mellom_UfgFom_and_UfgTom_and_Uforegrad_then_addMerknaderOnOpptjening_returns_MerknadCode_UFOREGRAD(){
+    void when_UforeHistorikk_with_Uforetype_UF_M_YRKE_Year_mellom_UfgFom_and_UfgTom_and_Uforegrad_then_addMerknaderOnOpptjening_returns_MerknadCode_UFOREGRAD() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         opptjeningDto.setPensjonsbeholdning(100L);
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
@@ -225,7 +225,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_Opptjening_with_Uttaksgrad_100_then_addMerknaderOnOpptjening_returns_MerknadCode_HELT_UTTAK(){
+    void when_Opptjening_with_Uttaksgrad_100_then_addMerknaderOnOpptjening_returns_MerknadCode_HELT_UTTAK() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         opptjeningDto.setPensjonsbeholdning(100L);
 
@@ -242,7 +242,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_Opptjening_with_Uttaksgrad_less_than_100_then_addMerknaderOnOpptjening_returns_MerknadCode_GRADERT_UTTAK(){
+    void when_Opptjening_with_Uttaksgrad_less_than_100_then_addMerknaderOnOpptjening_returns_MerknadCode_GRADERT_UTTAK() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         opptjeningDto.setPensjonsbeholdning(100L);
 
@@ -259,7 +259,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_Opptjening_with_Uttaksgrad_less_than_100_and_Year_not_mellom_Fomdato_andTomdato_then_addMerknaderOnOpptjening_returns_empty_MerknandList(){
+    void when_Opptjening_with_Uttaksgrad_less_than_100_and_Year_not_mellom_Fomdato_andTomdato_then_addMerknaderOnOpptjening_returns_empty_MerknandList() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         opptjeningDto.setPensjonsbeholdning(100L);
 
@@ -275,7 +275,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_PensjonsBeholdning_with_year_2010_then_addMerknaderOnOpptjening_returns_MerknadCode_REFORM(){
+    void when_PensjonsBeholdning_with_year_2010_then_addMerknaderOnOpptjening_returns_MerknadCode_REFORM() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
 
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
@@ -290,7 +290,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_DagpengerOpptjeningBelop_with_BelopFiskere_more_than_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_DAGPENGER(){
+    void when_DagpengerOpptjeningBelop_with_BelopFiskere_more_than_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_DAGPENGER() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         opptjeningDto.setPensjonsbeholdning(100L);
 
@@ -310,7 +310,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_DagpengerOpptjeningBelop_with_BelopOrdinar_more_than_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_DAGPENGER(){
+    void when_DagpengerOpptjeningBelop_with_BelopOrdinar_more_than_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_DAGPENGER() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         opptjeningDto.setPensjonsbeholdning(100L);
 
@@ -330,7 +330,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_ForstegangstjenesteOpptjeningBelop_with_Belop_more_than_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_FORSTEGANGSTJENESTE(){
+    void when_ForstegangstjenesteOpptjeningBelop_with_Belop_more_than_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_FORSTEGANGSTJENESTE() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         opptjeningDto.setPensjonsbeholdning(100L);
 
@@ -350,7 +350,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_ForstegangstjenesteOpptjeningBelop_with_Belop_value_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_empty_MerknandList(){
+    void when_ForstegangstjenesteOpptjeningBelop_with_Belop_value_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_empty_MerknandList() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         opptjeningDto.setPensjonsbeholdning(100L);
 
@@ -369,7 +369,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_OmsorgOpptjeningBelop_with_Belop_value_more_than_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_OMSORGSOPPTJENING(){
+    void when_OmsorgOpptjeningBelop_with_Belop_value_more_than_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_OMSORGSOPPTJENING() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         opptjeningDto.setPensjonsbeholdning(100L);
 
@@ -389,7 +389,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_OmsorgOpptjeningBelop_with_BelopType_OBU7_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_OVERFORE_OMSORGSOPPTJENING(){
+    void when_OmsorgOpptjeningBelop_with_BelopType_OBU7_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_OVERFORE_OMSORGSOPPTJENING() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         opptjeningDto.setPensjonsbeholdning(100L);
 
@@ -411,7 +411,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_OmsorgOpptjeningBelop_with_BelopType_OBU6_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_OVERFORE_OMSORGSOPPTJENING(){
+    void when_OmsorgOpptjeningBelop_with_BelopType_OBU6_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_OVERFORE_OMSORGSOPPTJENING() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         opptjeningDto.setPensjonsbeholdning(100L);
 
@@ -433,7 +433,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_OmsorgOpptjeningBelop_without_BelopType_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_empty_MerknadList(){
+    void when_OmsorgOpptjeningBelop_without_BelopType_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_empty_MerknadList() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         opptjeningDto.setPensjonsbeholdning(100L);
 

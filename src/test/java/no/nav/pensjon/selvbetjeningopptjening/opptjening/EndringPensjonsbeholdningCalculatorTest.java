@@ -29,7 +29,9 @@ class EndringPensjonsbeholdningCalculatorTest {
     EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator;
 
     @BeforeEach
-    public void setUp(){ endringPensjonsbeholdningCalculator = new EndringPensjonsbeholdningCalculator(); }
+    public void setUp() {
+        endringPensjonsbeholdningCalculator = new EndringPensjonsbeholdningCalculator();
+    }
 
     @Test
     void when_empty_input_then_calculateEndringPensjonsbeholdning_returns_null_list() {
@@ -71,7 +73,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     void when_beholdning_list_has_one_element_with_FomDato_1JanGivenYear_and_TomDato_31DecGivenYear_then_calculateEndringPensjonsbeholdning_returns_3_elements() {
         Beholdning beholdning = new Beholdning();
         beholdning.setFomDato(LocalDate.of(2020, 1, 1));
-        beholdning.setTomDato(LocalDate.of(2020,12,31));
+        beholdning.setTomDato(LocalDate.of(2020, 12, 31));
         beholdning.setBelop(1d);
 
         List<Beholdning> list = Collections.singletonList(beholdning);
@@ -93,9 +95,9 @@ class EndringPensjonsbeholdningCalculatorTest {
 
         assertEquals(2, dtos.size());
         assertNull(dtos.get(0).getEndringBelop());
-        assertEquals(0,dtos.get(0).getPensjonsbeholdningBelop());
-        assertEquals(beholdning.getBelop(),dtos.get(1).getEndringBelop());
-        assertEquals(beholdning.getBelop(),dtos.get(1).getPensjonsbeholdningBelop());
+        assertEquals(0, dtos.get(0).getPensjonsbeholdningBelop());
+        assertEquals(beholdning.getBelop(), dtos.get(1).getEndringBelop());
+        assertEquals(beholdning.getBelop(), dtos.get(1).getPensjonsbeholdningBelop());
     }
 
     @Test
@@ -113,11 +115,11 @@ class EndringPensjonsbeholdningCalculatorTest {
 
         assertEquals(3, dtos.size());
         assertNull(dtos.get(0).getEndringBelop());
-        assertEquals(0,dtos.get(0).getPensjonsbeholdningBelop());
-        assertEquals(0,dtos.get(1).getPensjonsbeholdningBelop());
-        assertEquals(0,dtos.get(1).getEndringBelop());
-        assertEquals(beholdning.getBelop(),dtos.get(2).getEndringBelop());
-        assertEquals(beholdning.getBelop(),dtos.get(2).getPensjonsbeholdningBelop());
+        assertEquals(0, dtos.get(0).getPensjonsbeholdningBelop());
+        assertEquals(0, dtos.get(1).getPensjonsbeholdningBelop());
+        assertEquals(0, dtos.get(1).getEndringBelop());
+        assertEquals(beholdning.getBelop(), dtos.get(2).getEndringBelop());
+        assertEquals(beholdning.getBelop(), dtos.get(2).getPensjonsbeholdningBelop());
     }
 
     @Test
@@ -136,11 +138,11 @@ class EndringPensjonsbeholdningCalculatorTest {
 
         assertEquals(3, dtos.size());
         assertNull(dtos.get(0).getEndringBelop());
-        assertEquals(0,dtos.get(0).getPensjonsbeholdningBelop());
-        assertEquals(beholdning.getBeholdningInnskudd(),dtos.get(1).getPensjonsbeholdningBelop());
-        assertEquals(beholdning.getBeholdningInnskudd(),dtos.get(1).getEndringBelop());
-        assertEquals(beholdning.getBelop() - beholdning.getBeholdningInnskudd(),dtos.get(2).getEndringBelop());
-        assertEquals(beholdning.getBelop(),dtos.get(2).getPensjonsbeholdningBelop());
+        assertEquals(0, dtos.get(0).getPensjonsbeholdningBelop());
+        assertEquals(beholdning.getBeholdningInnskudd(), dtos.get(1).getPensjonsbeholdningBelop());
+        assertEquals(beholdning.getBeholdningInnskudd(), dtos.get(1).getEndringBelop());
+        assertEquals(beholdning.getBelop() - beholdning.getBeholdningInnskudd(), dtos.get(2).getEndringBelop());
+        assertEquals(beholdning.getBelop(), dtos.get(2).getPensjonsbeholdningBelop());
     }
 
     @Test
@@ -161,13 +163,13 @@ class EndringPensjonsbeholdningCalculatorTest {
 
         assertEquals(4, dtos.size());
         assertNull(dtos.get(0).getEndringBelop());
-        assertEquals(0,dtos.get(0).getPensjonsbeholdningBelop());
-        assertEquals(0,dtos.get(1).getPensjonsbeholdningBelop());
-        assertEquals(0,dtos.get(1).getEndringBelop());
-        assertEquals(beholdning.getBelop(),dtos.get(2).getEndringBelop());
-        assertEquals(beholdning.getBelop(),dtos.get(2).getPensjonsbeholdningBelop());
+        assertEquals(0, dtos.get(0).getPensjonsbeholdningBelop());
+        assertEquals(0, dtos.get(1).getPensjonsbeholdningBelop());
+        assertEquals(0, dtos.get(1).getEndringBelop());
+        assertEquals(beholdning.getBelop(), dtos.get(2).getEndringBelop());
+        assertEquals(beholdning.getBelop(), dtos.get(2).getPensjonsbeholdningBelop());
         assertNull(dtos.get(3).getEndringBelop());
-        assertEquals(beholdning.getBelop(),dtos.get(3).getPensjonsbeholdningBelop());
+        assertEquals(beholdning.getBelop(), dtos.get(3).getPensjonsbeholdningBelop());
     }
 
     @Test
@@ -189,11 +191,11 @@ class EndringPensjonsbeholdningCalculatorTest {
 
         assertEquals(3, dtos.size());
         assertNull(dtos.get(0).getEndringBelop());
-        assertEquals(0,dtos.get(0).getPensjonsbeholdningBelop());
-        assertEquals(beholdning.getLonnsvekstregulering().getReguleringsbelop(),dtos.get(1).getPensjonsbeholdningBelop());
-        assertEquals(beholdning.getLonnsvekstregulering().getReguleringsbelop(),dtos.get(1).getEndringBelop());
-        assertEquals(beholdning.getBelop() - beholdning.getLonnsvekstregulering().getReguleringsbelop(),dtos.get(2).getEndringBelop());
-        assertEquals(beholdning.getBelop(),dtos.get(2).getPensjonsbeholdningBelop());
+        assertEquals(0, dtos.get(0).getPensjonsbeholdningBelop());
+        assertEquals(beholdning.getLonnsvekstregulering().getReguleringsbelop(), dtos.get(1).getPensjonsbeholdningBelop());
+        assertEquals(beholdning.getLonnsvekstregulering().getReguleringsbelop(), dtos.get(1).getEndringBelop());
+        assertEquals(beholdning.getBelop() - beholdning.getLonnsvekstregulering().getReguleringsbelop(), dtos.get(2).getEndringBelop());
+        assertEquals(beholdning.getBelop(), dtos.get(2).getPensjonsbeholdningBelop());
     }
 
     @Test
@@ -206,16 +208,16 @@ class EndringPensjonsbeholdningCalculatorTest {
         Uttaksgrad uttaksgrad = new Uttaksgrad();
         uttaksgrad.setVedtakId(1L);
         uttaksgrad.setUttaksgrad(100);
-        uttaksgrad.setFomDato(LocalDate.of(2019,1,1));
-        uttaksgrad.setTomDato(LocalDate.of(2020,12,31));
+        uttaksgrad.setFomDato(LocalDate.of(2019, 1, 1));
+        uttaksgrad.setTomDato(LocalDate.of(2020, 12, 31));
 
         List<Beholdning> list = Collections.singletonList(beholdning);
 
         List<EndringPensjonsopptjeningDto> dtos =
-                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list,Collections.singletonList(uttaksgrad));
+                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, Collections.singletonList(uttaksgrad));
 
         assertEquals(DetailsArsakCode.OPPTJENING_HEL, dtos.get(1).getArsakDetails().get(0));
-        assertEquals(OPPTJENING,dtos.get(1).getArsakType());
+        assertEquals(OPPTJENING, dtos.get(1).getArsakType());
     }
 
     @Test
@@ -228,16 +230,16 @@ class EndringPensjonsbeholdningCalculatorTest {
         Uttaksgrad uttaksgrad = new Uttaksgrad();
         uttaksgrad.setVedtakId(1L);
         uttaksgrad.setUttaksgrad(50);
-        uttaksgrad.setFomDato(LocalDate.of(2019,1,1));
-        uttaksgrad.setTomDato(LocalDate.of(2020,12,31));
+        uttaksgrad.setFomDato(LocalDate.of(2019, 1, 1));
+        uttaksgrad.setTomDato(LocalDate.of(2020, 12, 31));
 
         List<Beholdning> list = Collections.singletonList(beholdning);
 
         List<EndringPensjonsopptjeningDto> dtos =
-                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list,Collections.singletonList(uttaksgrad));
+                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, Collections.singletonList(uttaksgrad));
 
         assertEquals(OPPTJENING_GRADERT, dtos.get(1).getArsakDetails().get(0));
-        assertEquals(OPPTJENING,dtos.get(1).getArsakType());
+        assertEquals(OPPTJENING, dtos.get(1).getArsakType());
     }
 
     @Test
@@ -250,16 +252,16 @@ class EndringPensjonsbeholdningCalculatorTest {
         Uttaksgrad uttaksgrad = new Uttaksgrad();
         uttaksgrad.setVedtakId(1L);
         uttaksgrad.setUttaksgrad(0);
-        uttaksgrad.setFomDato(LocalDate.of(2019,1,1));
-        uttaksgrad.setTomDato(LocalDate.of(2020,12,31));
+        uttaksgrad.setFomDato(LocalDate.of(2019, 1, 1));
+        uttaksgrad.setTomDato(LocalDate.of(2020, 12, 31));
 
         List<Beholdning> list = Collections.singletonList(beholdning);
 
         List<EndringPensjonsopptjeningDto> dtos =
-                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list,Collections.singletonList(uttaksgrad));
+                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, Collections.singletonList(uttaksgrad));
 
         assertEquals(OPPTJENING_2012, dtos.get(1).getArsakDetails().get(0));
-        assertEquals(OPPTJENING,dtos.get(1).getArsakType());
+        assertEquals(OPPTJENING, dtos.get(1).getArsakType());
     }
 
     @Test
@@ -276,7 +278,7 @@ class EndringPensjonsbeholdningCalculatorTest {
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
 
         assertEquals(DetailsArsakCode.REGULERING, dtos.get(1).getArsakDetails().get(0));
-        assertEquals(REGULERING,dtos.get(1).getArsakType());
+        assertEquals(REGULERING, dtos.get(1).getArsakType());
     }
 
     @Test
@@ -291,7 +293,7 @@ class EndringPensjonsbeholdningCalculatorTest {
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
 
         assertEquals(INNGAENDE, dtos.get(0).getArsakType());
-        assertEquals(OPPTJENING,dtos.get(1).getArsakType());
+        assertEquals(OPPTJENING, dtos.get(1).getArsakType());
     }
 
     @Test
@@ -306,14 +308,14 @@ class EndringPensjonsbeholdningCalculatorTest {
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2010, list, new ArrayList<>());
 
         assertEquals(INNGAENDE, dtos.get(0).getArsakType());
-        assertEquals(INNGAENDE_2010,dtos.get(1).getArsakType());
+        assertEquals(INNGAENDE_2010, dtos.get(1).getArsakType());
     }
 
     @Test
     void when_FomDato_1JanGivenYear_and_TomDato_31DecGivenYear_then_addInngaendeBeholdning_and_addNyOpptjening_and_addUtgaendeBeholdning_returns_3_ArsakType_values() {
         Beholdning beholdning = new Beholdning();
         beholdning.setFomDato(LocalDate.of(2020, 1, 1));
-        beholdning.setTomDato(LocalDate.of(2020,12,31));
+        beholdning.setTomDato(LocalDate.of(2020, 12, 31));
         beholdning.setBelop(1d);
 
         List<Beholdning> list = Collections.singletonList(beholdning);
@@ -322,8 +324,8 @@ class EndringPensjonsbeholdningCalculatorTest {
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
 
         assertEquals(INNGAENDE, dtos.get(0).getArsakType());
-        assertEquals(OPPTJENING,dtos.get(1).getArsakType());
-        assertEquals(UTGAENDE,dtos.get(2).getArsakType());
+        assertEquals(OPPTJENING, dtos.get(1).getArsakType());
+        assertEquals(UTGAENDE, dtos.get(2).getArsakType());
     }
 
     @Test
@@ -338,7 +340,7 @@ class EndringPensjonsbeholdningCalculatorTest {
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
 
         assertEquals(INNGAENDE, dtos.get(0).getArsakType());
-        assertEquals(UTTAK,dtos.get(1).getArsakType());
+        assertEquals(UTTAK, dtos.get(1).getArsakType());
     }
 
     @Test
@@ -353,7 +355,7 @@ class EndringPensjonsbeholdningCalculatorTest {
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
 
         assertEquals(INNGAENDE, dtos.get(0).getArsakType());
-        assertEquals(UTTAK,dtos.get(1).getArsakType());
+        assertEquals(UTTAK, dtos.get(1).getArsakType());
     }
 
     @Test
@@ -371,6 +373,6 @@ class EndringPensjonsbeholdningCalculatorTest {
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
 
         assertEquals(INNGAENDE, dtos.get(0).getArsakType());
-        assertEquals(REGULERING,dtos.get(1).getArsakType());
+        assertEquals(REGULERING, dtos.get(1).getArsakType());
     }
 }
