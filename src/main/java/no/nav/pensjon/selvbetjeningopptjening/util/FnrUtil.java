@@ -12,7 +12,15 @@ public class FnrUtil {
         // Adjust bnr or dnr (for fnr return value will be equal to pid)
         String adjustedFnr = makeDnrOrBostnrAdjustments(fnr);
 
-        String dateString = adjustedFnr.substring(0, 4) + get4DigitYearOfBirthWithAdjustedFnr(adjustedFnr, isDnummer(fnr));
+        if(adjustedFnr.isEmpty())
+            return null;
+
+        int fourDigitYear = get4DigitYearOfBirthWithAdjustedFnr(adjustedFnr, isDnummer(fnr));
+
+        if(fourDigitYear < 0)
+            return null;
+
+        String dateString = adjustedFnr.substring(0, 4) + fourDigitYear;
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
         return LocalDate.parse(dateString, formatter);

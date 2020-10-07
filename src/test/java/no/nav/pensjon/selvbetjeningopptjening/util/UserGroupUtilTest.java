@@ -28,7 +28,7 @@ class UserGroupUtilTest {
     }
 
     @Test
-    void findUserGroup_3__when_birthYear_is_beforeOvergangsregler() {
+    void findUserGroup_3_when_birthYear_is_beforeOvergangsregler() {
         var beforeOvergangsregler = LocalDate.of(1953, 12, 31);
         assertEquals(USER_GROUP_3, UserGroupUtil.findUserGroup(beforeOvergangsregler));
     }
