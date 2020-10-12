@@ -80,7 +80,7 @@ class OpptjeningEndpointTest {
     }
 
     private static OpptjeningResponse response() {
-        var response = new OpptjeningResponse();
+        var response = new OpptjeningResponse(1950);
         response.setNumberOfYearsWithPensjonspoeng(1);
         return response;
     }

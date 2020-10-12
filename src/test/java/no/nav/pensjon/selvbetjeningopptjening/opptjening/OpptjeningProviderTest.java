@@ -89,6 +89,56 @@ class OpptjeningProviderTest {
     }
 
     @Test
+    void when_UserGroup5_then_set_fodselsaar_on_response(){
+        int expectedFodselsaar = 1968;
+        String fnr = "";
+
+        when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(new ArrayList<>());
+        when(personConsumer.getAfpHistorikkForPerson(fnr)).thenReturn(new AfpHistorikk());
+        when(personConsumer.getUforeHistorikkForPerson(fnr)).thenReturn(new UforeHistorikk());
+        when(pensjonsbeholdningConsumer.getPensjonsbeholdning(fnr)).thenReturn(new ArrayList<>());
+        when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(new ArrayList<>());
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(LocalDate.of(expectedFodselsaar, 7, 6), null));
+
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(fnr);
+
+        assertThat(opptjeningResponse.getFodselsaar(), is(expectedFodselsaar));
+    }
+
+    @Test
+    void when_UserGroup4_then_set_fodselsaar_on_response(){
+        int expectedFodselsaar = 1956;
+        String fnr = "";
+
+        when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(new ArrayList<>());
+        when(personConsumer.getAfpHistorikkForPerson(fnr)).thenReturn(new AfpHistorikk());
+        when(personConsumer.getUforeHistorikkForPerson(fnr)).thenReturn(new UforeHistorikk());
+        when(pensjonsbeholdningConsumer.getPensjonsbeholdning(fnr)).thenReturn(new ArrayList<>());
+        when(pensjonspoengConsumer.getPensjonspoengListe(fnr)).thenReturn(new ArrayList<>());
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(LocalDate.of(expectedFodselsaar, 7, 6), null));
+
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(fnr);
+
+        assertThat(opptjeningResponse.getFodselsaar(), is(expectedFodselsaar));
+    }
+
+    @Test
+    void when_UserGroup123_then_set_fodselsaar_on_response(){
+        int expectedFodselsaar = 1950;
+        String fnr = "";
+
+        when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(new ArrayList<>());
+        when(personConsumer.getAfpHistorikkForPerson(fnr)).thenReturn(new AfpHistorikk());
+        when(personConsumer.getUforeHistorikkForPerson(fnr)).thenReturn(new UforeHistorikk());
+        when(pensjonspoengConsumer.getPensjonspoengListe(fnr)).thenReturn(new ArrayList<>());
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(LocalDate.of(expectedFodselsaar, 7, 6), null));
+
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(fnr);
+
+        assertThat(opptjeningResponse.getFodselsaar(), is(expectedFodselsaar));
+    }
+
+    @Test
     void when_Fnr_is_not_in_proper_number_format_and_no_pdl_response_then_calculateOpptjeningForFnr_throws_NumberFormatException() {
         String fnr = "fnr";
         PdlResponse pdlResponse = new PdlResponse();

@@ -153,7 +153,7 @@ public class OpptjeningProvider {
 
     private OpptjeningResponse createResponseForUserGroup5(LocalDate fodselsdato, List<Beholdning> pensjonsbeholdningList, List<Restpensjon> restpensjonListe,
                                                            List<Inntekt> inntektsopptjeningListe, List<Uttaksgrad> uttaksgradhistorikk, AfpHistorikk afphistorikk, UforeHistorikk uforeHistorikk) {
-        OpptjeningResponse response = new OpptjeningResponse();
+        OpptjeningResponse response = new OpptjeningResponse(fodselsdato.getYear());
         Map<Integer, OpptjeningDto> opptjeningMap = createOpptjeningMap(new ArrayList<>(), restpensjonListe);
         Map<Integer, Long> aarSumPensjonsgivendeInntektMap = createAarSumPensjonsgivendeInntektMap(inntektsopptjeningListe);
 
@@ -179,7 +179,7 @@ public class OpptjeningProvider {
 
     private OpptjeningResponse createResponseForUserGroup4(LocalDate fodselsdato, List<Pensjonspoeng> pensjonspoengList, List<Beholdning> pensjonsbeholdningList,
                                                            List<Restpensjon> restpensjonListe, List<Uttaksgrad> uttaksgradhistorikk, AfpHistorikk afphistorikk, UforeHistorikk uforeHistorikk) {
-        OpptjeningResponse response = new OpptjeningResponse();
+        OpptjeningResponse response = new OpptjeningResponse(fodselsdato.getYear());
         Map<Integer, OpptjeningDto> opptjeningMap = createOpptjeningMap(pensjonspoengList, restpensjonListe);
         populatePensjonspoeng(opptjeningMap, pensjonspoengList);
         populatePensjonsbeholdning(opptjeningMap, createBeholdningMap(pensjonsbeholdningList));
@@ -205,7 +205,7 @@ public class OpptjeningProvider {
 
     private OpptjeningResponse createResponseForUserGroups123(LocalDate fodselsdato, List<Pensjonspoeng> pensjonspoengList, List<Restpensjon> restpensjonListe,
                                                               List<Uttaksgrad> uttaksgradhistorikk, AfpHistorikk afphistorikk, UforeHistorikk uforeHistorikk) {
-        OpptjeningResponse response = new OpptjeningResponse();
+        OpptjeningResponse response = new OpptjeningResponse(fodselsdato.getYear());
         Map<Integer, OpptjeningDto> opptjeningMap = createOpptjeningMap(pensjonspoengList, restpensjonListe);
         populatePensjonspoeng(opptjeningMap, pensjonspoengList);
 
