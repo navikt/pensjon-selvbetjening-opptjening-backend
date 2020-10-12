@@ -112,7 +112,7 @@ public class OpptjeningProvider {
                     return LocalDate.of(foedsel.getFoedselsaar(), 1, 1);
                 }
             }
-        } catch (FailedCallingExternalServiceException e) {
+        } catch (Exception e) {
             LOGGER.error("Call to PDL failed. Deriving fodselsdato directly from fnr instead");
             return FnrUtil.getFodselsdatoForFnr(fnr);
         }

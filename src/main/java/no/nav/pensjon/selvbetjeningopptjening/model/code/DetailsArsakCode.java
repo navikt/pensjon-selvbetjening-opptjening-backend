@@ -18,9 +18,7 @@ public enum DetailsArsakCode {
     OPPTJENING_HEL,
 
     /**
-     * Pensjonsbeholdningen reguleres årlig i samsvar med lønnsveksten (&lt;a href="https://lovdata.no/nav/folketrygdloven/kap20/%C2%A720-18" target="_blank" title="åpne § 20-18
-     * i folketrygdloven"&gt;se § 20-18 i folketrygdloven &lt;img src="/pselv/images/nytt_vindu.gif" alt="åpnes i nytt vindu" title="åpne § 20-18 folketrygdloven"/&gt;&lt;/a&gt;
-     * ). (FOTNOTE_REGULERING)
+     * Pensjonsbeholdningen reguleres årlig i samsvar med lønnsveksten. (FOTNOTE_REGULERING)
      */
     REGULERING,
 
@@ -30,24 +28,64 @@ public enum DetailsArsakCode {
     UTTAK,
 
     /**
-     * Pensjonsopptjeningen for et kalenderår oppreguleres med lønnsvekst og tilføres pensjonsbeholdningen ved utløpet av året ligningen for det aktuelle året er ferdig (&lt;a
-     * href="https://lovdata.no/nav/folketrygdloven/kap20" target="_blank" title="åpne § 20-4 i
-     * folketrygdloven"&gt;se § 20-4 i folketrygdloven &lt;img src="/pselv/images/nytt_vindu.gif" alt="åpnes i nytt vindu" title="åpne § 20-4 folketrygdloven"/&gt;&lt;/a&gt;)
-     * .(FOTNOTE_OPPTJENING_2012)
+     * Pensjonsopptjeningen for et kalenderår oppreguleres med lønnsvekst og tilføres pensjonsbeholdningen ved utløpet av året ligningen for det aktuelle året er ferdig.
+     * (FOTNOTE_OPPTJENING_2012)
      */
     OPPTJENING_2012,
 
     /**
      * Fram til 1. mai 2011 er det ikke fastsatt en egen lønnsvekstfaktor. Endringen i folketrygdens grunnbeløp denne årlige lønnsveksten. Beholdningen er i 2010 derfor regulert
-     * med
-     * forholdet mellom folketrygdens grunnbeløp 1. mai 2010 (75 641) og grunnbeløpet 1. januar 2010 (72 881).(FOTNOTE_REGULERING_2010)
+     * med forholdet mellom folketrygdens grunnbeløp 1. mai 2010 (75 641) og grunnbeløpet 1. januar 2010 (72 881).(FOTNOTE_REGULERING_2010)
      */
     REGULERING_2010,
 
     /**
-     * Pensjonsopptjeningen for 2009 oppreguleres med grunnbeløpet på beregningstidspunktet (75 641) og gjennomsnittlig grunnbeløp for 2009 ( &lt;a href="https://lovdata
-     * .no/nav/folketrygdloven/kap20/%C2%A720-21" target="_blank" title="åpne § 20-21 i folketrygdloven"&gt;se tilhørende forskrift til § 20-21 i folketrygdloven &lt;img
-     * src="/pselv/images/nytt_vindu.gif" alt="åpnes i nytt vindu" title="åpne § 20-11 folketrygdloven"/&gt;&lt;/a&gt; ).(FOTNOTE_OPPTJENING_2011)
+     * Pensjonsopptjeningen for 2009 oppreguleres med grunnbeløpet på beregningstidspunktet (75 641) og gjennomsnittlig grunnbeløp for 2009..(FOTNOTE_OPPTJENING_2011)
      */
-    OPPTJENING_2011;
+    OPPTJENING_2011,
+
+    /**
+     * Grunnlaget som beholdningsendringen er regnet ut fra er lønnsinntekt.
+     */
+    INNTEKT_GRUNNLAG,
+
+    /**
+     * Grunnlaget som beholdningsendringen er regnet ut fra er antatt inntekt i forbindelse med uføretrygd.
+     */
+    UFORE_GRUNNLAG,
+
+    /**
+     * Bruker hadde gradert uføretrygd. Grunnlaget for beholdningsendringen avgjøres dermed ut fra både det man fikk i uføretrygd, men også eventuelle inntekter og andre ytelser
+     * man hadde det året.
+     */
+    GRADERT_UFORE_GRUNNLAG,
+
+    /**
+     * Grunnlaget som beholdningsendringen er regnet ut fra er 2,5 ganger G, som er standard grunnlag ved førstegangstjeneste.
+     */
+    FORSTEGANGSTJENESTE_GRUNNLAG,
+
+    /**
+     * Grunnlaget som beholdningsendringen er regnet ut fra er den inntekten dagpengene er satt ut fra.
+     */
+    DAGPENGER_GRUNNLAG,
+
+    /**
+     * Grunnlaget som beholdningsendringen er regnet ut fra er X ganger grunnbeløpet, som er standard grunnlag i tilfeller hvor inntekt man har samtidig med omsorgsopptjening er
+     * lavere
+     * enn X ganger grunnbeløpet. (X kan variere fra år til år)
+     */
+    OMSORGSOPPTJENING_GRUNNLAG,
+
+    /**
+     * Grunnlaget som beholdningsendringen er regnet ut fra matcher ingen enkeltstående ytelse/inntekt brukeren har hatt og antas derfor å være en kombinasjon av flere ytelser
+     * og inntekt bruker har hatt.
+     */
+    KOMBINERT_GRUNNLAG,
+
+    /**
+     * Det var ikke mulig å konstatere hva slags grunnlag opptjeningen skyldtes. Dette fordi beløpet som utgjør grunnlaget for beholdningen forekommer på flere typer
+     * opptjening, eller grunnlagsinformasjon mangler.
+     */
+    UNDETERMINED_GRUNNLAG
 }

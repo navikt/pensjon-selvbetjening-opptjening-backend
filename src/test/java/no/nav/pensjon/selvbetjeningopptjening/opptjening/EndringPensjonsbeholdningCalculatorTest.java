@@ -1,9 +1,18 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import static no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode.DAGPENGER_GRUNNLAG;
+import static no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode.FORSTEGANGSTJENESTE_GRUNNLAG;
+import static no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode.GRADERT_UFORE_GRUNNLAG;
+import static no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode.INNTEKT_GRUNNLAG;
+import static no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode.OMSORGSOPPTJENING_GRUNNLAG;
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode.OPPTJENING_2012;
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode.OPPTJENING_GRADERT;
+import static no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode.UFORE_GRUNNLAG;
+import static no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode.UNDETERMINED_GRUNNLAG;
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.TypeArsakCode.INNGAENDE;
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.TypeArsakCode.INNGAENDE_2010;
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.TypeArsakCode.OPPTJENING;
@@ -20,7 +29,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.pensjon.selvbetjeningopptjening.model.Beholdning;
+import no.nav.pensjon.selvbetjeningopptjening.model.DagpengerOpptjeningBelop;
+import no.nav.pensjon.selvbetjeningopptjening.model.ForstegangstjenesteOpptjeningBelop;
+import no.nav.pensjon.selvbetjeningopptjening.model.InntektOpptjeningBelop;
 import no.nav.pensjon.selvbetjeningopptjening.model.Lonnsvekstregulering;
+import no.nav.pensjon.selvbetjeningopptjening.model.OmsorgOpptjeningBelop;
+import no.nav.pensjon.selvbetjeningopptjening.model.UforeOpptjeningBelop;
 import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode;
 
@@ -374,5 +388,154 @@ class EndringPensjonsbeholdningCalculatorTest {
 
         assertEquals(INNGAENDE, dtos.get(0).getArsakType());
         assertEquals(REGULERING, dtos.get(1).getArsakType());
+    }
+
+    @Test
+    void when_beholdningGrunnlag_is_inntekt_then_add_arsakDetailsCode_INNTEKT_GRUNNLAG() {
+        double inntekt = 1d;
+
+        List<Beholdning> list = Collections.singletonList(
+                constructBeholdningWithOpptjeningBelop(inntekt, inntekt, 2d, 3d, 4d, 5d));
+
+        List<EndringPensjonsopptjeningDto> dtos =
+                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
+
+        assertEquals(OPPTJENING, dtos.get(1).getArsakType());
+        assertTrue(dtos.get(1).getArsakDetails().contains(INNTEKT_GRUNNLAG));
+        assertEquals(dtos.get(1).getGrunnlag(), inntekt);
+    }
+
+    @Test
+    void when_beholdningGrunnlag_is_omsorg_then_add_arsakDetailsCode_OMSORGSOPPTJENING_GRUNNLAG() {
+        double omsorg = 1d;
+
+        List<Beholdning> list = Collections.singletonList(
+                constructBeholdningWithOpptjeningBelop(omsorg, 2d, omsorg, 3d, 4d, 5d));
+
+        List<EndringPensjonsopptjeningDto> dtos =
+                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
+
+        assertEquals(OPPTJENING, dtos.get(1).getArsakType());
+        assertTrue(dtos.get(1).getArsakDetails().contains(OMSORGSOPPTJENING_GRUNNLAG));
+        assertEquals(dtos.get(1).getGrunnlag(), omsorg);
+    }
+
+    @Test
+    void when_beholdningGrunnlag_is_forstegangstjeneste_then_add_arsakDetailsCode_FORSTEGANGSTJENESTE_GRUNNLAG() {
+        double forstegangstjeneste = 1d;
+
+        List<Beholdning> list = Collections.singletonList(
+                constructBeholdningWithOpptjeningBelop(forstegangstjeneste, 2d, 3d, forstegangstjeneste, 4d, 5d));
+
+        List<EndringPensjonsopptjeningDto> dtos =
+                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
+
+        assertEquals(OPPTJENING, dtos.get(1).getArsakType());
+        assertTrue(dtos.get(1).getArsakDetails().contains(FORSTEGANGSTJENESTE_GRUNNLAG));
+        assertEquals(dtos.get(1).getGrunnlag(), forstegangstjeneste);
+    }
+
+    @Test
+    void when_beholdningGrunnlag_is_dagpenger_then_add_arsakDetailsCode_DAGPENGER_GRUNNLAG() {
+        double dagpenger = 1d;
+
+        List<Beholdning> list = Collections.singletonList(
+                constructBeholdningWithOpptjeningBelop(dagpenger, 2d, 3d, 4d, dagpenger, 5d));
+
+        List<EndringPensjonsopptjeningDto> dtos =
+                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
+
+        assertEquals(OPPTJENING, dtos.get(1).getArsakType());
+        assertTrue(dtos.get(1).getArsakDetails().contains(DAGPENGER_GRUNNLAG));
+        assertEquals(dtos.get(1).getGrunnlag(), dagpenger);
+    }
+
+    @Test
+    void when_beholdningGrunnlag_is_ufore_then_add_arsakDetailsCode_UFORE_GRUNNLAG() {
+        double ufore = 1d;
+
+        Beholdning beholdning = constructBeholdningWithOpptjeningBelop(ufore, 2d, 3d, 4d, 5d, ufore);
+        beholdning.getUforeOpptjeningBelop().setUforegrad(100);
+        List<Beholdning> list = Collections.singletonList(beholdning);
+
+        List<EndringPensjonsopptjeningDto> dtos =
+                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
+
+        assertEquals(OPPTJENING, dtos.get(1).getArsakType());
+        assertTrue(dtos.get(1).getArsakDetails().contains(UFORE_GRUNNLAG));
+        assertEquals(dtos.get(1).getGrunnlag(), ufore);
+    }
+
+    @Test
+    void when_beholdningGrunnlag_is_ufore_and_uforegrad_less_than_100_then_add_arsakDetailsCode_UFORE_GRUNNLAG() {
+        double ufore = 1d;
+
+        Beholdning beholdning = constructBeholdningWithOpptjeningBelop(ufore, 2d, 3d, 4d, 5d, ufore);
+        beholdning.getUforeOpptjeningBelop().setUforegrad(50);
+        List<Beholdning> list = Collections.singletonList(beholdning);
+
+        List<EndringPensjonsopptjeningDto> dtos =
+                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
+
+        assertEquals(OPPTJENING, dtos.get(1).getArsakType());
+        assertTrue(dtos.get(1).getArsakDetails().contains(GRADERT_UFORE_GRUNNLAG));
+        assertEquals(dtos.get(1).getGrunnlag(), ufore);
+    }
+
+    @Test
+    void when_multiple_opptjeningBelop_match_beholdningGrunnlag_then_add_arsakDetailsCode_UNDETERMINED_GRUNNLAG() {
+        double grunnlag = 1d;
+
+        List<Beholdning> list = Collections.singletonList(
+                constructBeholdningWithOpptjeningBelop(grunnlag, 2d, grunnlag, 4d, 5d, grunnlag));
+
+        List<EndringPensjonsopptjeningDto> dtos =
+                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
+
+        assertEquals(OPPTJENING, dtos.get(1).getArsakType());
+        assertTrue(dtos.get(1).getArsakDetails().contains(UNDETERMINED_GRUNNLAG));
+        assertEquals(dtos.get(1).getGrunnlag(), grunnlag);
+    }
+
+    @Test
+    void when_beholdningGrunnlag_is_null_then_add_arsakDetailsCode_UNDETERMINED_GRUNNLAG() {
+        List<Beholdning> list = Collections.singletonList(
+                constructBeholdningWithOpptjeningBelop(null, 2d, 3d, 4d, 5d, 6d));
+
+        List<EndringPensjonsopptjeningDto> dtos =
+                endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
+
+        assertEquals(OPPTJENING, dtos.get(1).getArsakType());
+        assertTrue(dtos.get(1).getArsakDetails().contains(UNDETERMINED_GRUNNLAG));
+    }
+
+    private Beholdning constructBeholdningWithOpptjeningBelop(Double grunnlag, Double inntekt, Double omsorg, Double forstegangstjeneste, Double dagpenger, Double ufore) {
+        Beholdning beholdning = new Beholdning();
+        beholdning.setFomDato(LocalDate.of(2020, 1, 1));
+        beholdning.setLonnsvekstregulering(new Lonnsvekstregulering());
+        beholdning.setBelop(100d);
+        beholdning.setBeholdningGrunnlag(grunnlag);
+
+        InntektOpptjeningBelop inntektOpptjeningBelop = new InntektOpptjeningBelop();
+        inntektOpptjeningBelop.setBelop(inntekt);
+        beholdning.setInntektOpptjeningBelop(inntektOpptjeningBelop);
+
+        OmsorgOpptjeningBelop omsorgOpptjeningBelop = new OmsorgOpptjeningBelop();
+        omsorgOpptjeningBelop.setBelop(omsorg);
+        beholdning.setOmsorgOpptjeningBelop(omsorgOpptjeningBelop);
+
+        ForstegangstjenesteOpptjeningBelop forstegangstjenesteOpptjeningBelop = new ForstegangstjenesteOpptjeningBelop();
+        forstegangstjenesteOpptjeningBelop.setBelop(forstegangstjeneste);
+        beholdning.setForstegangstjenesteOpptjeningBelop(forstegangstjenesteOpptjeningBelop);
+
+        DagpengerOpptjeningBelop dagpengerOpptjeningBelop = new DagpengerOpptjeningBelop();
+        dagpengerOpptjeningBelop.setBelopOrdinar(dagpenger);
+        beholdning.setDagpengerOpptjeningBelop(dagpengerOpptjeningBelop);
+
+        UforeOpptjeningBelop uforeOpptjeningBelop = new UforeOpptjeningBelop();
+        uforeOpptjeningBelop.setBelop(ufore);
+        beholdning.setUforeOpptjeningBelop(uforeOpptjeningBelop);
+
+        return beholdning;
     }
 }

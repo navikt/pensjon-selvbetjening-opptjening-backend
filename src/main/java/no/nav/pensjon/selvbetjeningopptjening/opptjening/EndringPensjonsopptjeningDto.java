@@ -27,6 +27,11 @@ public class EndringPensjonsopptjeningDto {
     private Double endringBelop;
 
     /**
+     * Grunnlagsbeløpet endringen i beholdning er regnet ut fra. Feltet brukesi i tilfeller hvor arsakType=OPPTJENING
+     */
+    private Double grunnlag;
+
+    /**
      * Beløpet for pensjonsbeholdning for den gitte datoen.
      */
     private Double pensjonsbeholdningBelop;
@@ -66,6 +71,14 @@ public class EndringPensjonsopptjeningDto {
 
     public void setEndringBelop(Double endringBelop) {
         this.endringBelop = endringBelop;
+    }
+
+    public Double getGrunnlag() {
+        return grunnlag;
+    }
+
+    public void setGrunnlag(Double grunnlag) {
+        this.grunnlag = grunnlag;
     }
 
     public Double getPensjonsbeholdningBelop() {
