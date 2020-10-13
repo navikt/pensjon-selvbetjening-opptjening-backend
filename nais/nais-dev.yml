@@ -36,6 +36,8 @@ spec:
       value: http://webproxy-nais.nav.no:8088
     - name: UNLEASH_ENDPOINT_URL
       value: https://unleash.nais.adeo.no/api
+    - name: NAIS_NAMESPACE
+      value: q2
   prometheus:
     enabled: true
     path: /api/mgmt/prom
