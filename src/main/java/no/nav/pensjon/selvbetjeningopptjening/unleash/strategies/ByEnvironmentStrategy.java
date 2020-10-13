@@ -9,7 +9,7 @@ import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 public class ByEnvironmentStrategy extends PropertyStrategy {
 
     private static final String ENVIRONMENT_PROPERTY = "environment.name";
-    private static final String NAIS_PROPERTY = "NAIS_NAMESPACE";
+    private static final String APP_ENVIRONMENT = "APP_ENVIRONMENT";
 
     @Override
     public String getName() {
@@ -29,6 +29,6 @@ public class ByEnvironmentStrategy extends PropertyStrategy {
 
     private boolean isCurrentEnvironment(String environment) {
         return getProperty(ENVIRONMENT_PROPERTY, "local").equals(environment) ||
-                equalsIgnoreCase(environment, getEnvironmentVariable(NAIS_PROPERTY));
+                equalsIgnoreCase(environment, getEnvironmentVariable(APP_ENVIRONMENT));
     }
 }

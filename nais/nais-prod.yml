@@ -45,7 +45,7 @@ spec:
       value: https://pdl-api.nais.adeo.no/graphql
     - name: UNLEASH_ENDPOINT_URL
       value: https://unleash.nais.adeo.no/api
-    - name: NAIS_NAMESPACE
+    - name: APP_ENVIRONMENT
       value: p
   prometheus:
     enabled: true
