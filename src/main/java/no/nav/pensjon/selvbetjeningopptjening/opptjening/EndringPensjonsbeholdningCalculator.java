@@ -1,17 +1,23 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
+import static no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode.DAGPENGER_GRUNNLAG;
+import static no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode.FORSTEGANGSTJENESTE_GRUNNLAG;
+import static no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode.INNTEKT_GRUNNLAG;
+import static no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode.NO_GRUNNLAG;
+import static no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode.OMSORGSOPPTJENING_GRUNNLAG;
+import static no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode.UFORE_GRUNNLAG;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
 
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import no.nav.pensjon.selvbetjeningopptjening.model.Beholdning;
 import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode;
+import no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.TypeArsakCode;
 
 public class EndringPensjonsbeholdningCalculator {
@@ -141,12 +147,14 @@ public class EndringPensjonsbeholdningCalculator {
                                 beholdning.getBeholdningGrunnlag());
 
                 addDetailsToNyOpptjeningEndring(endringNyOpptjening, givenYear, beholdning);
+                endringNyOpptjening.setGrunnlagTypes(getOpptjeningGrunnlagTypes(beholdning));
                 endringListe.add(endringNyOpptjening);
             } else {
                 EndringPensjonsopptjeningDto endringNyOpptjening = createEndring(arsakTypeForNyOpptjening, jan1GivenYear, innskudd, pensjonsbeholdningBelop,
                         fetchUttaksgrad(dec31PreviousYear, beholdning, uttaksgradList), null);
 
                 addDetailsToNyOpptjeningEndring(endringNyOpptjening, givenYear, beholdning);
+                endringNyOpptjening.setGrunnlagTypes(getOpptjeningGrunnlagTypes(beholdning));
                 endringListe.add(endringNyOpptjening);
 
                 EndringPensjonsopptjeningDto endringUttak = createEndring(TypeArsakCode.UTTAK, jan1GivenYear, beholdning.getBelop() - pensjonsbeholdningBelop,
@@ -192,59 +200,48 @@ public class EndringPensjonsbeholdningCalculator {
             }
         }
 
-        if (endring.getArsakType().equals(TypeArsakCode.OPPTJENING) || endring.getArsakType().equals(TypeArsakCode.INNGAENDE_2010)) {
-            arsakDetailsList.add(identifyOpptjeningGrunnlagType(beholdning));
-        }
-
         endring.setArsakDetails(arsakDetailsList);
     }
 
-    private DetailsArsakCode identifyOpptjeningGrunnlagType(Beholdning beholdning) {
-        Double grunnlag = beholdning.getBeholdningGrunnlag();
+    private List<GrunnlagTypeCode> getOpptjeningGrunnlagTypes(Beholdning beholdning) {
+        List<GrunnlagTypeCode> presentGrunnlagTypes = new ArrayList<>();
 
-        if (grunnlag == null || !isGrunnlagUnique(beholdning)) {
-            return DetailsArsakCode.UNDETERMINED_GRUNNLAG;
-        } else if (beholdning.getInntektOpptjeningBelop() != null && beholdning.getInntektOpptjeningBelop().getBelop().equals(grunnlag)) {
-            return DetailsArsakCode.INNTEKT_GRUNNLAG;
-        } else if (beholdning.getOmsorgOpptjeningBelop() != null && beholdning.getOmsorgOpptjeningBelop().getBelop().equals(grunnlag)) {
-            return DetailsArsakCode.OMSORGSOPPTJENING_GRUNNLAG;
-        } else if (beholdning.getUforeOpptjeningBelop() != null && beholdning.getUforeOpptjeningBelop().getBelop().equals(grunnlag)) {
-            if (beholdning.getUforeOpptjeningBelop().getUforegrad() != null && beholdning.getUforeOpptjeningBelop().getUforegrad() < 100) {
-                return DetailsArsakCode.GRADERT_UFORE_GRUNNLAG;
-            }
-            return DetailsArsakCode.UFORE_GRUNNLAG;
-        } else if (beholdning.getForstegangstjenesteOpptjeningBelop() != null && beholdning.getForstegangstjenesteOpptjeningBelop().getBelop().equals(grunnlag)) {
-            return DetailsArsakCode.FORSTEGANGSTJENESTE_GRUNNLAG;
-        } else if (beholdning.getDagpengerOpptjeningBelop() != null && (beholdning.getDagpengerOpptjeningBelop().getBelopOrdinar().equals(grunnlag) || beholdning
-                .getDagpengerOpptjeningBelop().getBelopFiskere().equals(grunnlag))) {
-            return DetailsArsakCode.DAGPENGER_GRUNNLAG;
+        if (beholdning.getInntektOpptjeningBelop() != null && beholdning.getInntektOpptjeningBelop().getBelop() > 0) {
+            presentGrunnlagTypes.add(INNTEKT_GRUNNLAG);
         }
-        return DetailsArsakCode.KOMBINERT_GRUNNLAG;
+        if (beholdning.getOmsorgOpptjeningBelop() != null && beholdning.getOmsorgOpptjeningBelop().getBelop() > 0) {
+            presentGrunnlagTypes.add(OMSORGSOPPTJENING_GRUNNLAG);
+        }
+        if (beholdning.getUforeOpptjeningBelop() != null && beholdning.getUforeOpptjeningBelop().getBelop() > 0) {
+            presentGrunnlagTypes.add(UFORE_GRUNNLAG);
+        }
+        if (beholdning.getForstegangstjenesteOpptjeningBelop() != null && beholdning.getForstegangstjenesteOpptjeningBelop().getBelop() > 0) {
+            presentGrunnlagTypes.add(FORSTEGANGSTJENESTE_GRUNNLAG);
+        }
+        if (beholdning.getDagpengerOpptjeningBelop() != null && (
+                beholdning.getDagpengerOpptjeningBelop().getBelopOrdinar() != null && beholdning.getDagpengerOpptjeningBelop().getBelopOrdinar() > 0
+                        || beholdning.getDagpengerOpptjeningBelop().getBelopFiskere() != null && beholdning.getDagpengerOpptjeningBelop().getBelopFiskere() > 0)) {
+            presentGrunnlagTypes.add(DAGPENGER_GRUNNLAG);
+        }
+
+        return filterGrunnlagOnlyThoseThatApply(presentGrunnlagTypes, beholdning);
     }
 
-    private boolean isGrunnlagUnique(Beholdning beholdning) {
-        List<Double> grunnlagBelopList = new ArrayList<>();
-
-        if (beholdning.getInntektOpptjeningBelop() != null) {
-            grunnlagBelopList.add(beholdning.getInntektOpptjeningBelop().getBelop());
+    private List<GrunnlagTypeCode> filterGrunnlagOnlyThoseThatApply(List<GrunnlagTypeCode> presentGrunnlagTypes, Beholdning beholdning) {
+        Double grunnlag = beholdning.getBeholdningGrunnlag();
+        if (grunnlag == null || grunnlag.equals(0.0)) {
+            return List.of(NO_GRUNNLAG);
+        } else if (presentGrunnlagTypes.contains(OMSORGSOPPTJENING_GRUNNLAG) && grunnlag.equals(beholdning.getOmsorgOpptjeningBelop().getBelop())) {
+            return List.of(OMSORGSOPPTJENING_GRUNNLAG);
+        } else if (presentGrunnlagTypes.contains(UFORE_GRUNNLAG) ||
+                presentGrunnlagTypes.contains(FORSTEGANGSTJENESTE_GRUNNLAG) ||
+                presentGrunnlagTypes.contains(DAGPENGER_GRUNNLAG)) {
+            presentGrunnlagTypes.remove(OMSORGSOPPTJENING_GRUNNLAG);
+            return presentGrunnlagTypes;
+        } else if (presentGrunnlagTypes.contains(INNTEKT_GRUNNLAG) && grunnlag.equals(beholdning.getInntektOpptjeningBelop().getBelop())) {
+            return List.of(INNTEKT_GRUNNLAG);
         }
-        if (beholdning.getOmsorgOpptjeningBelop() != null) {
-            grunnlagBelopList.add(beholdning.getOmsorgOpptjeningBelop().getBelop());
-        }
-        if (beholdning.getUforeOpptjeningBelop() != null) {
-            grunnlagBelopList.add(beholdning.getUforeOpptjeningBelop().getBelop());
-        }
-        if (beholdning.getForstegangstjenesteOpptjeningBelop() != null) {
-            grunnlagBelopList.add(beholdning.getForstegangstjenesteOpptjeningBelop().getBelop());
-        }
-        if (beholdning.getDagpengerOpptjeningBelop() != null) {
-            grunnlagBelopList.add(beholdning.getDagpengerOpptjeningBelop().getBelopOrdinar());
-        }
-        if (beholdning.getDagpengerOpptjeningBelop() != null) {
-            grunnlagBelopList.add(beholdning.getDagpengerOpptjeningBelop().getBelopFiskere());
-        }
-
-        return Collections.frequency(grunnlagBelopList, beholdning.getBeholdningGrunnlag()) < 2;
+        return presentGrunnlagTypes.isEmpty() ? List.of(NO_GRUNNLAG) : presentGrunnlagTypes;
     }
 
     /**

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode;
+import no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.TypeArsakCode;
 
 public class EndringPensjonsopptjeningDto {
@@ -30,6 +31,8 @@ public class EndringPensjonsopptjeningDto {
      * Grunnlagsbeløpet endringen i beholdning er regnet ut fra. Feltet brukesi i tilfeller hvor arsakType=OPPTJENING
      */
     private Double grunnlag;
+
+    private List<GrunnlagTypeCode> grunnlagTypes;
 
     /**
      * Beløpet for pensjonsbeholdning for den gitte datoen.
@@ -79,6 +82,14 @@ public class EndringPensjonsopptjeningDto {
 
     public void setGrunnlag(Double grunnlag) {
         this.grunnlag = grunnlag;
+    }
+
+    public List<GrunnlagTypeCode> getGrunnlagTypes() {
+        return grunnlagTypes;
+    }
+
+    public void setGrunnlagTypes(List<GrunnlagTypeCode> grunnlagTypes) {
+        this.grunnlagTypes = grunnlagTypes;
     }
 
     public Double getPensjonsbeholdningBelop() {

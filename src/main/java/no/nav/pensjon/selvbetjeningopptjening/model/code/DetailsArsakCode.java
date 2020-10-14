@@ -42,50 +42,5 @@ public enum DetailsArsakCode {
     /**
      * Pensjonsopptjeningen for 2009 oppreguleres med grunnbeløpet på beregningstidspunktet (75 641) og gjennomsnittlig grunnbeløp for 2009..(FOTNOTE_OPPTJENING_2011)
      */
-    OPPTJENING_2011,
-
-    /**
-     * Grunnlaget som beholdningsendringen er regnet ut fra er lønnsinntekt.
-     */
-    INNTEKT_GRUNNLAG,
-
-    /**
-     * Grunnlaget som beholdningsendringen er regnet ut fra er antatt inntekt i forbindelse med uføretrygd.
-     */
-    UFORE_GRUNNLAG,
-
-    /**
-     * Bruker hadde gradert uføretrygd. Grunnlaget for beholdningsendringen avgjøres dermed ut fra både det man fikk i uføretrygd, men også eventuelle inntekter og andre ytelser
-     * man hadde det året.
-     */
-    GRADERT_UFORE_GRUNNLAG,
-
-    /**
-     * Grunnlaget som beholdningsendringen er regnet ut fra er 2,5 ganger G, som er standard grunnlag ved førstegangstjeneste.
-     */
-    FORSTEGANGSTJENESTE_GRUNNLAG,
-
-    /**
-     * Grunnlaget som beholdningsendringen er regnet ut fra er den inntekten dagpengene er satt ut fra.
-     */
-    DAGPENGER_GRUNNLAG,
-
-    /**
-     * Grunnlaget som beholdningsendringen er regnet ut fra er X ganger grunnbeløpet, som er standard grunnlag i tilfeller hvor inntekt man har samtidig med omsorgsopptjening er
-     * lavere
-     * enn X ganger grunnbeløpet. (X kan variere fra år til år)
-     */
-    OMSORGSOPPTJENING_GRUNNLAG,
-
-    /**
-     * Grunnlaget som beholdningsendringen er regnet ut fra matcher ingen enkeltstående ytelse/inntekt brukeren har hatt og antas derfor å være en kombinasjon av flere ytelser
-     * og inntekt bruker har hatt.
-     */
-    KOMBINERT_GRUNNLAG,
-
-    /**
-     * Det var ikke mulig å konstatere hva slags grunnlag opptjeningen skyldtes. Dette fordi beløpet som utgjør grunnlaget for beholdningen forekommer på flere typer
-     * opptjening, eller grunnlagsinformasjon mangler.
-     */
-    UNDETERMINED_GRUNNLAG
+    OPPTJENING_2011
 }
