@@ -8,7 +8,6 @@ import static no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode.OPPTJENING_GRADERT;
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode.DAGPENGER_GRUNNLAG;
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode.FORSTEGANGSTJENESTE_GRUNNLAG;
-import static no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode.GRADERT_UFORE_GRUNNLAG;
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode.INNTEKT_GRUNNLAG;
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode.NO_GRUNNLAG;
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode.OMSORGSOPPTJENING_GRUNNLAG;

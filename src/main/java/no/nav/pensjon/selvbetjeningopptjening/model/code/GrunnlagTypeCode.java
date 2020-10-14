@@ -12,12 +12,6 @@ public enum GrunnlagTypeCode {
     UFORE_GRUNNLAG,
 
     /**
-     * Bruker hadde gradert uføretrygd. Grunnlaget for beholdningsendringen avgjøres dermed ut fra både det man fikk i uføretrygd, men også eventuelle inntekter og andre ytelser
-     * man hadde det året.
-     */
-    GRADERT_UFORE_GRUNNLAG,
-
-    /**
      * Grunnlaget som beholdningsendringen er regnet ut fra er 2,5 ganger G, som er standard grunnlag ved førstegangstjeneste.
      */
     FORSTEGANGSTJENESTE_GRUNNLAG,
