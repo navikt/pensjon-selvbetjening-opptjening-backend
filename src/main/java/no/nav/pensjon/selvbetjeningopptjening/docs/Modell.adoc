@@ -10,6 +10,7 @@ Opptjeningresponse-objektet inneholder et map som lister opptjeningsdata for hve
 |Element |Type |Beskrivelse
 |opptjeningData|Map<Integer, <<index.adoc#opptjening,Opptjening>>>|Map som holder opptjeningsdata. Hvert opptjening-objekt inneholder data for ett år. Key i mapet representerer år.
 |numberOfYearsWithPensjonspoeng|int|Antall av årene i opptjeningData hvor brukeren har opptjening i form av pensjonspoeng.
+|fodselsaar|Integer|Året den aktuelle brukeren er født.
 |=======================
 
 === Opptjening
@@ -26,12 +27,12 @@ Opptjening-objektet inneholder alle opptjeningsdata for et bestemt år for bruke
 |merknader|List<<<index.adoc#merknadCode,MerknadCode>>>|Merknader forbundet med det aktuelle året
 |restpensjon|Double|Brukerens restpensjons det aktuelle året
 |maksUforegrad|int|Uføregrad, hvis bruker har uføretrygd det aktuelle året.
-|endringOpptjening|List<<<index.adoc#endringPensjonsopptjening,EndringPensjonsopptjening>>>|Liste med endringer som skjedde på brukerens pensjonsbeholdning det aktuelle året.
+|endringOpptjening|List<<<index.adoc#endringOpptjening,EndringPensjonsopptjening>>>|Liste med endringer som skjedde på brukerens pensjonsbeholdning det aktuelle året.
 |=======================
 
 === EndringPensjonsopptjening
 EndringPensjonsopptjening-objektet beskriver en enkelt endring som har skjedd på pensjonsbeholdningen til brukeren.
-[#endringPensjonsopptjening, options="header,footer"]
+[#endringOopptjening, options="header,footer"]
 
 |=======================
 |Element |Type |Beskrivelse
@@ -96,7 +97,7 @@ Informasjonskoder som brukes til å gi utfyllende informasjon om en <<index.adoc
 |=======================
 
 ==== GrunnlagTypeCode
-Informasjonskoder som brukes til å gi informasjon om hva slags grunnlag opptjeningen i en <<index.adoc#endringOpptjening,endring>> i pensjonsbeholdningen skyldes.
+Informasjonskoder som brukes til å gi informasjon om hva slags grunnlag opptjeningen i en <<index.adoc#endringOpptjening,endring>> av pensjonsbeholdningen skyldes.
 Disse kodene er kun aktuelle for <<index.adoc#endringOpptjening,endringer>> som er av <<index.adoc#typeArsakCode,TypeArsakCode>> OPPTJENING eller INNGAENDE_2010
 [#grunnlagTypeCode, options="header,footer"]
 
