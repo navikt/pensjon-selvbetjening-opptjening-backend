@@ -1,5 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.config;
 
 public class OpptjeningFeature {
-    public static final String PEN_PL1441 = "pesys.pen.PL-1441";
+    public static final String PL1441 = "pensjon.selvbetjening.opptjening.PL-1441";
 }
