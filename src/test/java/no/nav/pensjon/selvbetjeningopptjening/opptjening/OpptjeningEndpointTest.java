@@ -1,6 +1,8 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import no.finn.unleash.FakeUnleash;
+
+import no.nav.pensjon.selvbetjeningopptjening.config.OpptjeningFeature;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.unleash.UnleashProvider;
 import no.nav.pensjon.selvbetjeningopptjening.util.FnrExtractor;
@@ -23,7 +25,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(OpptjeningEndpoint.class)
 class OpptjeningEndpointTest {
 
-    private static final String FEATURE = "pesys.pen.PL-1441";
     private static final String URI = "/api/opptjening";
     private static final String FNR = "foo";
     private static FakeUnleash featureToggler;
@@ -48,7 +49,7 @@ class OpptjeningEndpointTest {
 
     @Test
     void getOpptjeningForFnr_returns_opptjeningJson_when_feature_enabled() throws Exception {
-        featureToggler.enable(FEATURE);
+        featureToggler.enable(OpptjeningFeature.PL1441);
         when(provider.calculateOpptjeningForFnr(FNR)).thenReturn(response());
 
         mvc.perform(get(URI))
@@ -58,7 +59,7 @@ class OpptjeningEndpointTest {
 
     @Test
     void getOpptjeningForFnr_returns_statusForbidden_when_feature_disabled() throws Exception {
-        featureToggler.disable(FEATURE);
+        featureToggler.disable(OpptjeningFeature.PL1441);
         when(provider.calculateOpptjeningForFnr(FNR)).thenReturn(response());
 
         mvc.perform(get(URI))
@@ -70,7 +71,7 @@ class OpptjeningEndpointTest {
 
     @Test
     void getOpptjeningForFnr_returns_statusInternalServerError_when_failedCallingExternalService() throws Exception {
-        featureToggler.enable(FEATURE);
+        featureToggler.enable(OpptjeningFeature.PL1441);
         when(provider.calculateOpptjeningForFnr(FNR)).thenThrow(new FailedCallingExternalServiceException("sp", "sid", "details", new Exception("cause")));
 
         mvc.perform(get(URI))
