@@ -32,7 +32,7 @@ Opptjening-objektet inneholder alle opptjeningsdata for et bestemt år for bruke
 
 === EndringPensjonsopptjening
 EndringPensjonsopptjening-objektet beskriver en enkelt endring som har skjedd på pensjonsbeholdningen til brukeren.
-[#endringOopptjening, options="header,footer"]
+[#endringOpptjening, options="header,footer"]
 
 |=======================
 |Element |Type |Beskrivelse
