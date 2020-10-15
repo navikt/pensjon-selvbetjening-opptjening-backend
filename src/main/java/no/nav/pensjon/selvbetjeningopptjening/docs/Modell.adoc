@@ -40,6 +40,8 @@ EndringPensjonsopptjening-objektet beskriver en enkelt endring som har skjedd p�
 |arsakDetails|List<<<index.adoc#detailsArsakCode,DetailsArsakCode>>>|Liste med koder som beskriver ytterligere informasjon om endringen.
 |endringBelop|Double|Beløpet pensjonsbeholdningen har økt/minket med. (negativt hvis redusert pensjonsbeholdning)
 |pensjonsbeholdningBelop|Double|Total pensjonsbeholdning etter endringen.
+|grunnlag|Double|For endringer som har arsakType lik OPPTJENING eller INNGAENDE_2010 vil denne inneholde grunnlaget endringen er regnet ut fra.
+|grunnlagTypes|List<<<index.adoc#grunnlagTypeCode,GrunnlagTypeCode>>>|GrunnlagTypes-lista inneholder en liste av koder som beskriver hvilke ytelser eller inntekt som har påvirket grunnlagstallet i grunnlag-feltet.
 |uttaksgrad|int|Hvis bruker har uttak av alderspensjon, viser denne uttaksgrad på tidspunktet hvor endringen skjedde.
 
 |=======================
@@ -92,6 +94,24 @@ Informasjonskoder som brukes til å gi utfyllende informasjon om en <<index.adoc
 |OPPTJENING_2011|Pensjonsopptjeningen for 2009 oppreguleres med grunnbeløpet på beregningstidspunktet (75 641) og gjennomsnittlig grunnbeløp for 2009.
 |BEHOLDNING_2010|Pensjonsbeholdningen ble etablert med virkning 1. januar 2010 i forbindelse med at pensjonsreformen trådte i kraft. Da ble den opptjeningen bruker hadde i kalenderår frem til og med 2008 (siste ferdiglignede år) summert til beholdningsstørrelse.
 |=======================
+
+==== GrunnlagTypeCode
+Informasjonskoder som brukes til å gi informasjon om hva slags grunnlag opptjeningen i en <<index.adoc#endringOpptjening,endring>> i pensjonsbeholdningen skyldes.
+Disse kodene er kun aktuelle for <<index.adoc#endringOpptjening,endringer>> som er av <<index.adoc#typeArsakCode,TypeArsakCode>> OPPTJENING eller INNGAENDE_2010
+[#grunnlagTypeCode, options="header,footer"]
+
+|=======================
+|Kode|Beskrivelse
+|INNTEKT_GRUNNLAG|Grunnlaget som beholdningsendringen er regnet ut fra er lønnsinntekt.
+|UFORE_GRUNNLAG|Grunnlaget som beholdningsendringen er regnet ut fra er antatt inntekt i forbindelse med uføretrygd.
+|FORSTEGANGSTJENESTE_GRUNNLAG|Grunnlaget som beholdningsendringen er regnet ut fra er 2,5 ganger grunnbeløpet i folketrygden, som er standard grunnlag ved førstegangstjeneste.
+|DAGPENGER_GRUNNLAG|Grunnlaget som beholdningsendringen er regnet ut fra er den inntekten dagpengene er satt ut fra.
+|OMSORGSOPPTJENING_GRUNNLAG|Grunnlaget som beholdningsendringen er regnet ut fra er en standard sats for omsorgsopptjening
+som fastsettes med utgangspunkt i grunnbeløpet i folketrygden.
+|NO_GRUNNLAG|Finnes ikke noe opptjeningsgrunnlag for det aktuelle året
+
+|=======================
+
 
 ==== UserGroup
 UserGroup-kodene er koder som brukes internt i applikasjonen til å skille de ulike brukergruppene fra hverandre. Merk at disse kodene da altså ikke er del av responsen,
