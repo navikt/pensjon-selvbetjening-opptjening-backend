@@ -26,7 +26,7 @@ spec:
     timeout: 1
   env:
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_DISCOVERYURL
-      value: https://login.microsoftonline.com/navnob2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten
+      value: https://navnob2c.b2clogin.com/navnob2c.onmicrosoft.com/b2c_1a_idporten/v2.0/.well-known/openid-configuration
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
       value: selvbetjening-idtoken
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_ACCEPTED_AUDIENCE
