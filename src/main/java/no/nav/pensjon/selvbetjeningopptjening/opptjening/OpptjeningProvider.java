@@ -1,19 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
-
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlRequest;
@@ -23,18 +9,24 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.Pensjonspoe
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
-import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikk;
-import no.nav.pensjon.selvbetjeningopptjening.model.Beholdning;
-import no.nav.pensjon.selvbetjeningopptjening.model.Inntekt;
-import no.nav.pensjon.selvbetjeningopptjening.model.Pensjonspoeng;
-import no.nav.pensjon.selvbetjeningopptjening.model.Restpensjon;
-import no.nav.pensjon.selvbetjeningopptjening.model.UforeHistorikk;
-import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
+import no.nav.pensjon.selvbetjeningopptjening.model.*;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.OpptjeningTypeCode;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup;
 import no.nav.pensjon.selvbetjeningopptjening.util.FnrUtil;
 import no.nav.pensjon.selvbetjeningopptjening.util.UserGroupUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
 
 @Component
 public class OpptjeningProvider {
