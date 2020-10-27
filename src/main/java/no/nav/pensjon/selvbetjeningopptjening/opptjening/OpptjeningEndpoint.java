@@ -19,8 +19,7 @@ import no.nav.security.token.support.core.api.ProtectedWithClaims;
 
 @RestController
 @RequestMapping("api")
-//@ProtectedWithClaims(issuer = ISSUER) // Use @Unprotected when running with laptop/uimage profile
-@Unprotected
+@ProtectedWithClaims(issuer = ISSUER) // Use @Unprotected when running with laptop/uimage profile
 public class OpptjeningEndpoint {
 
     private final Log log = LogFactory.getLog(getClass());
@@ -35,13 +34,11 @@ public class OpptjeningEndpoint {
     @GetMapping("/opptjening")
     public OpptjeningResponse getOpptjeningForFnr() {
         try {
-            return provider.calculateOpptjeningForFnr(fnrExtractor.extract());
-
-           // if (toggle(OpptjeningFeature.PL1441).isEnabled()) {
-           //     return provider.calculateOpptjeningForFnr(fnrExtractor.extract());
-           // } else {
-           //     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The service is not made available for the specified user yet");
-           // }
+            if (toggle(OpptjeningFeature.PL1441).isEnabled()) {
+                return provider.calculateOpptjeningForFnr(fnrExtractor.extract());
+            } else {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The service is not made available for the specified user yet");
+            }
         } catch (FailedCallingExternalServiceException e) {
             log.error(e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
