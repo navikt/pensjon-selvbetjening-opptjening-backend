@@ -3,6 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 import static no.nav.pensjon.selvbetjeningopptjening.unleash.UnleashProvider.toggle;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.ISSUER;
 
+import no.nav.security.token.support.core.api.Unprotected;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,8 @@ import no.nav.security.token.support.core.api.ProtectedWithClaims;
 
 @RestController
 @RequestMapping("api")
-@ProtectedWithClaims(issuer = ISSUER) // Use @Unprotected when running with laptop/uimage profile
+//@ProtectedWithClaims(issuer = ISSUER) // Use @Unprotected when running with laptop/uimage profile
+@Unprotected
 public class OpptjeningEndpoint {
 
     private final Log log = LogFactory.getLog(getClass());
@@ -33,11 +35,13 @@ public class OpptjeningEndpoint {
     @GetMapping("/opptjening")
     public OpptjeningResponse getOpptjeningForFnr() {
         try {
-            if (toggle(OpptjeningFeature.PL1441).isEnabled()) {
-                return provider.calculateOpptjeningForFnr(fnrExtractor.extract());
-            } else {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The service is not made available for the specified user yet");
-            }
+            return provider.calculateOpptjeningForFnr(fnrExtractor.extract());
+
+           // if (toggle(OpptjeningFeature.PL1441).isEnabled()) {
+           //     return provider.calculateOpptjeningForFnr(fnrExtractor.extract());
+           // } else {
+           //     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The service is not made available for the specified user yet");
+           // }
         } catch (FailedCallingExternalServiceException e) {
             log.error(e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);

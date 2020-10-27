@@ -28,7 +28,7 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.pensjon.selvbetjeningopptjening.model.Beholdning;
+import no.nav.pensjon.selvbetjeningopptjening.model.BeholdningDto;
 
 @ExtendWith(MockitoExtension.class)
 class PensjonsbeholdningConsumerTest {
@@ -52,14 +52,14 @@ class PensjonsbeholdningConsumerTest {
     @Test
     void should_return_list_of_Beholdning_when_getPensjonsbeholdning() {
         BeholdningListeResponse expectedResponse = new BeholdningListeResponse();
-        List<Beholdning> expectedBeholdningList = List.of(new Beholdning());
+        List<BeholdningDto> expectedBeholdningList = List.of(new BeholdningDto());
         expectedResponse.setBeholdninger(expectedBeholdningList);
 
         ResponseEntity<BeholdningListeResponse> expectedResponseEntity = new ResponseEntity<>(expectedResponse, null, HttpStatus.OK);
 
         when(restTemplateMock.exchange(urlCaptor.capture(), any(), any(), eq(BeholdningListeResponse.class))).thenReturn(expectedResponseEntity);
 
-        List<Beholdning> actualBeholdningList = consumer.getPensjonsbeholdning("fnr");
+        List<BeholdningDto> actualBeholdningList = consumer.getPensjonsbeholdning("fnr");
 
         assertThat(actualBeholdningList, is(expectedBeholdningList));
     }

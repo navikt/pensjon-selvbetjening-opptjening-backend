@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikk;
-import no.nav.pensjon.selvbetjeningopptjening.model.Beholdning;
+import no.nav.pensjon.selvbetjeningopptjening.model.BeholdningDto;
 import no.nav.pensjon.selvbetjeningopptjening.model.Omsorg;
 import no.nav.pensjon.selvbetjeningopptjening.model.Pensjonspoeng;
 import no.nav.pensjon.selvbetjeningopptjening.model.UforeHistorikk;
@@ -38,8 +38,8 @@ public class MerknadHandler {
         return omsorg != null && ("OBU6".equals(omsorg.getOmsorgType()) || "OBU7".equals(omsorg.getOmsorgType()));
     }
 
-    public void addMerknaderOnOpptjening(int year, OpptjeningDto opptjening, List<Beholdning> pensjonsbeholdningList, List<Uttaksgrad> uttaksgradhistorikk,
-            AfpHistorikk afpHistorikk, UforeHistorikk uforehistorikk) {
+    public void addMerknaderOnOpptjening(int year, OpptjeningDto opptjening, List<BeholdningDto> pensjonsbeholdningList, List<Uttaksgrad> uttaksgradhistorikk,
+                                         AfpHistorikk afpHistorikk, UforeHistorikk uforehistorikk) {
 
         List<MerknadCode> merknadList = new ArrayList<>();
 
@@ -137,7 +137,7 @@ public class MerknadHandler {
         return opptjening.getPensjonspoeng() == null || opptjening.getPensjonspoeng() <= 0;
     }
 
-    private void addMerknadDagpengerAndForstegangsteneste(int year, List<MerknadCode> merknadList, List<Beholdning> pensjonsbeholdningList) {
+    private void addMerknadDagpengerAndForstegangsteneste(int year, List<MerknadCode> merknadList, List<BeholdningDto> pensjonsbeholdningList) {
         pensjonsbeholdningList.stream().filter(beholdning ->
                 (mottattDagpengerFiskere(beholdning) || mottattDagpenger(beholdning)) && year == beholdning.getDagpengerOpptjeningBelop().getAr())
                 .findFirst().ifPresent(beholdning -> merknadList.add(MerknadCode.DAGPENGER));
@@ -147,22 +147,22 @@ public class MerknadHandler {
                 .findFirst().ifPresent(beholdning -> merknadList.add(MerknadCode.FORSTEGANGSTJENESTE));
     }
 
-    private boolean mottattDagpengerFiskere(Beholdning beholdning) {
+    private boolean mottattDagpengerFiskere(BeholdningDto beholdning) {
         return beholdning.getDagpengerOpptjeningBelop() != null
                 && beholdning.getDagpengerOpptjeningBelop().getBelopFiskere() != null
                 && beholdning.getDagpengerOpptjeningBelop().getBelopFiskere() > 0;
     }
 
-    private boolean mottattDagpenger(Beholdning beholdning) {
+    private boolean mottattDagpenger(BeholdningDto beholdning) {
         return beholdning.getDagpengerOpptjeningBelop() != null && beholdning.getDagpengerOpptjeningBelop().getBelopOrdinar() > 0;
     }
 
-    private boolean mottattForstegangstjenesteBelop(Beholdning beholdning) {
+    private boolean mottattForstegangstjenesteBelop(BeholdningDto beholdning) {
         return beholdning.getForstegangstjenesteOpptjeningBelop() != null
                 && beholdning.getForstegangstjenesteOpptjeningBelop().getBelop() > 0;
     }
 
-    private void addMerknadOmsorgFromPensjonsbeholdning(int year, OpptjeningDto opptjening, List<MerknadCode> merknadList, List<Beholdning> pensjonsbeholdningList) {
+    private void addMerknadOmsorgFromPensjonsbeholdning(int year, OpptjeningDto opptjening, List<MerknadCode> merknadList, List<BeholdningDto> pensjonsbeholdningList) {
         pensjonsbeholdningList.stream()
                 .filter(beholdning -> omsorgopptjeningsbelopGreaterThanZero(beholdning) && year == beholdning.getOmsorgOpptjeningBelop().getAr())
                 .findFirst().ifPresent(beholdning -> {
@@ -180,12 +180,12 @@ public class MerknadHandler {
         });
     }
 
-    private boolean omsorgopptjeningsbelopGreaterThanZero(Beholdning beholdning) {
+    private boolean omsorgopptjeningsbelopGreaterThanZero(BeholdningDto beholdning) {
         return beholdning.getOmsorgOpptjeningBelop() != null && beholdning.getOmsorgOpptjeningBelop().getBelop() != null
                 && beholdning.getOmsorgOpptjeningBelop().getBelop() > 0;
     }
 
-    private Boolean beholdningHarOpptjeningOBU7EllerOBU6(Beholdning beholdning) {
+    private Boolean beholdningHarOpptjeningOBU7EllerOBU6(BeholdningDto beholdning) {
         if (beholdning.getOmsorgOpptjeningBelop() != null) {
             for (Omsorg omsorg : beholdning.getOmsorgOpptjeningBelop().getOmsorgListe()) {
                 if ("OBU7".equals(omsorg.getOmsorgType()) || "OBU6".equals(omsorg.getOmsorgType())) {

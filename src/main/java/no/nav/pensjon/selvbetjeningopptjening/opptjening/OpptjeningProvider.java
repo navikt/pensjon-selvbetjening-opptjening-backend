@@ -76,12 +76,12 @@ public class OpptjeningProvider {
         }
 
         if (UserGroup.USER_GROUP_5.equals(userGroup)) {
-            List<Beholdning> pensjonsbeholdningList = pensjonsbeholdningConsumer.getPensjonsbeholdning(fnr);
+            List<BeholdningDto> pensjonsbeholdningList = pensjonsbeholdningConsumer.getPensjonsbeholdning(fnr);
             List<Inntekt> inntektList = createInntektList(fodselsdato, fnr);
 
             return createResponseForUserGroup5(fodselsdato, pensjonsbeholdningList, restpensjonList, inntektList, uttaksgradhistorikk, afphistorikk, uforehistorikk);
         } else if (UserGroup.USER_GROUP_4.equals(userGroup)) {
-            List<Beholdning> pensjonsbeholdningList = pensjonsbeholdningConsumer.getPensjonsbeholdning(fnr);
+            List<BeholdningDto> pensjonsbeholdningList = pensjonsbeholdningConsumer.getPensjonsbeholdning(fnr);
             List<Pensjonspoeng> pensjonspoengList = pensjonspoengConsumer.getPensjonspoengListe(fnr);
 
             return createResponseForUserGroup4(fodselsdato, pensjonspoengList, pensjonsbeholdningList, restpensjonList, uttaksgradhistorikk, afphistorikk, uforehistorikk);
@@ -112,10 +112,10 @@ public class OpptjeningProvider {
         return FnrUtil.getFodselsdatoForFnr(fnr);
     }
 
-    private Map<Integer, Beholdning> createBeholdningMap(List<Beholdning> beholdningList) {
-        Map<Integer, Beholdning> beholdningMap = new HashMap<>();
+    private Map<Integer, BeholdningDto> createBeholdningMap(List<BeholdningDto> beholdningList) {
+        Map<Integer, BeholdningDto> beholdningMap = new HashMap<>();
         if (beholdningList != null) {
-            for (Beholdning beholdning : beholdningList) {
+            for (BeholdningDto beholdning : beholdningList) {
                 if (beholdning.getFomDato() != null) {
                     beholdningMap.put(beholdning.getFomDato().getYear(), beholdning);
                 }
@@ -143,7 +143,7 @@ public class OpptjeningProvider {
         return opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(fnr, firstPossibleInntektsaar, LocalDate.now().getYear());
     }
 
-    private OpptjeningResponse createResponseForUserGroup5(LocalDate fodselsdato, List<Beholdning> pensjonsbeholdningList, List<Restpensjon> restpensjonListe,
+    private OpptjeningResponse createResponseForUserGroup5(LocalDate fodselsdato, List<BeholdningDto> pensjonsbeholdningList, List<Restpensjon> restpensjonListe,
                                                            List<Inntekt> inntektsopptjeningListe, List<Uttaksgrad> uttaksgradhistorikk, AfpHistorikk afphistorikk, UforeHistorikk uforeHistorikk) {
         OpptjeningResponse response = new OpptjeningResponse(fodselsdato.getYear());
         Map<Integer, OpptjeningDto> opptjeningMap = createOpptjeningMap(new ArrayList<>(), restpensjonListe);
@@ -169,7 +169,7 @@ public class OpptjeningProvider {
         return response;
     }
 
-    private OpptjeningResponse createResponseForUserGroup4(LocalDate fodselsdato, List<Pensjonspoeng> pensjonspoengList, List<Beholdning> pensjonsbeholdningList,
+    private OpptjeningResponse createResponseForUserGroup4(LocalDate fodselsdato, List<Pensjonspoeng> pensjonspoengList, List<BeholdningDto> pensjonsbeholdningList,
                                                            List<Restpensjon> restpensjonListe, List<Uttaksgrad> uttaksgradhistorikk, AfpHistorikk afphistorikk, UforeHistorikk uforeHistorikk) {
         OpptjeningResponse response = new OpptjeningResponse(fodselsdato.getYear());
         Map<Integer, OpptjeningDto> opptjeningMap = createOpptjeningMap(pensjonspoengList, restpensjonListe);
@@ -245,10 +245,10 @@ public class OpptjeningProvider {
         return opptjening;
     }
 
-    private void populatePensjonsbeholdning(Map<Integer, OpptjeningDto> opptjeningMap, Map<Integer, Beholdning> pensjonsbeholdningMap) {
-        for (Map.Entry<Integer, Beholdning> entry : pensjonsbeholdningMap.entrySet()) {
+    private void populatePensjonsbeholdning(Map<Integer, OpptjeningDto> opptjeningMap, Map<Integer, BeholdningDto> pensjonsbeholdningMap) {
+        for (Map.Entry<Integer, BeholdningDto> entry : pensjonsbeholdningMap.entrySet()) {
             Integer year = entry.getKey();
-            Beholdning beholdning = entry.getValue();
+            BeholdningDto beholdning = entry.getValue();
             OpptjeningDto opptjening = createOpptjening(opptjeningMap, year);
             opptjening.setPensjonsbeholdning(Math.round(beholdning.getBelop()));
             if (!opptjeningMap.containsKey(year)) {
@@ -259,8 +259,8 @@ public class OpptjeningProvider {
     }
 
     private void addInntektToCorrespondingYear(Map<Integer, OpptjeningDto> opptjeningMap,
-                                               Map<Integer, Beholdning> pensjonsbeholdningMap) {
-        for (Beholdning beholdning : pensjonsbeholdningMap.values()) {
+                                               Map<Integer, BeholdningDto> pensjonsbeholdningMap) {
+        for (BeholdningDto beholdning : pensjonsbeholdningMap.values()) {
             if (beholdning.getInntektOpptjeningBelop() != null) {
                 Integer ar = beholdning.getInntektOpptjeningBelop().getAr();
                 OpptjeningDto opptjening = opptjeningMap.get(ar);
@@ -439,10 +439,10 @@ public class OpptjeningProvider {
         return numberOfYearsWithPensjonspoeng;
     }
 
-    private void populateEndringOpptjening(Map<Integer, OpptjeningDto> opptjeningMap, List<Beholdning> beholdningList) {
+    private void populateEndringOpptjening(Map<Integer, OpptjeningDto> opptjeningMap, List<BeholdningDto> beholdningList) {
         List<Long> vedtakIdForBeholdningAfter2009 = beholdningList.stream()
                 .filter(beholdning -> beholdning.getVedtakId() != null && beholdning.getFomDato().getYear() >= REFORM_2010 - 1)
-                .map(Beholdning::getVedtakId).collect(Collectors.toList());
+                .map(BeholdningDto::getVedtakId).collect(Collectors.toList());
 
         List<Uttaksgrad> uttaksgradForBeholdningAfter2009 = uttaksgradGetter.getUttaksgradForVedtak(vedtakIdForBeholdningAfter2009);
 
@@ -452,7 +452,7 @@ public class OpptjeningProvider {
                         endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(entry.getKey(), beholdningList, uttaksgradForBeholdningAfter2009)));
     }
 
-    private void populateMerknadForOpptjening(Map<Integer, OpptjeningDto> opptjeningMap, List<Beholdning> pensjonsbeholdningList, List<Uttaksgrad> uttaksgradhistorikk,
+    private void populateMerknadForOpptjening(Map<Integer, OpptjeningDto> opptjeningMap, List<BeholdningDto> pensjonsbeholdningList, List<Uttaksgrad> uttaksgradhistorikk,
                                               AfpHistorikk afphistorikk, UforeHistorikk uforehistorikk) {
         opptjeningMap.forEach((key, value) -> merknadHandler.addMerknaderOnOpptjening(key, value, pensjonsbeholdningList, uttaksgradhistorikk, afphistorikk, uforehistorikk));
     }

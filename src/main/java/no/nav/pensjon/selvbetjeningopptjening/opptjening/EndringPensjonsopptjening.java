@@ -5,6 +5,7 @@ import no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.TypeArsakCode;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class EndringPensjonsopptjening {
@@ -65,5 +66,25 @@ public class EndringPensjonsopptjening {
 
     List<GrunnlagTypeCode> getGrunnlagsTypes() {
         return grunnlagsTypes;
+    }
+
+    void addDetailsToNyOpptjeningEndring(Integer givenYear) {
+        arsaksDetails = new ArrayList<>();
+
+        if (givenYear == 2011) {
+            arsaksDetails.add(DetailsArsakCode.OPPTJENING_2011);
+        }
+
+        if (uttaksgrad == null) {
+            return;
+        }
+
+        if (uttaksgrad > 0 && uttaksgrad < 100) {
+            arsaksDetails.add(DetailsArsakCode.OPPTJENING_GRADERT);
+        } else if (uttaksgrad == 100) {
+            arsaksDetails.add(DetailsArsakCode.OPPTJENING_HEL);
+        } else if (givenYear >= 2012) {
+            arsaksDetails.add(DetailsArsakCode.OPPTJENING_2012);
+        }
     }
 }

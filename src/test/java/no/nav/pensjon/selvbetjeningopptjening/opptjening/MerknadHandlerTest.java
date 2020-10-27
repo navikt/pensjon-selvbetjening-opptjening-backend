@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikk;
-import no.nav.pensjon.selvbetjeningopptjening.model.Beholdning;
+import no.nav.pensjon.selvbetjeningopptjening.model.BeholdningDto;
 import no.nav.pensjon.selvbetjeningopptjening.model.DagpengerOpptjeningBelop;
 import no.nav.pensjon.selvbetjeningopptjening.model.ForstegangstjenesteOpptjeningBelop;
 import no.nav.pensjon.selvbetjeningopptjening.model.Omsorg;
@@ -280,8 +280,8 @@ class MerknadHandlerTest {
 
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
 
-        Beholdning beholdning = new Beholdning();
-        List<Beholdning> beholdningList = Collections.singletonList(beholdning);
+        BeholdningDto beholdning = new BeholdningDto();
+        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
 
         merknadHandler.addMerknaderOnOpptjening(2010, opptjeningDto, beholdningList, uttaksgradList, null, null);
 
@@ -296,12 +296,12 @@ class MerknadHandlerTest {
 
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
 
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         DagpengerOpptjeningBelop dagpengerOpptjeningBelop = new DagpengerOpptjeningBelop();
         dagpengerOpptjeningBelop.setAr(1990);
         dagpengerOpptjeningBelop.setBelopFiskere(10d);
         beholdning.setDagpengerOpptjeningBelop(dagpengerOpptjeningBelop);
-        List<Beholdning> beholdningList = Collections.singletonList(beholdning);
+        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
 
         merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
 
@@ -316,12 +316,12 @@ class MerknadHandlerTest {
 
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
 
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         DagpengerOpptjeningBelop dagpengerOpptjeningBelop = new DagpengerOpptjeningBelop();
         dagpengerOpptjeningBelop.setAr(1990);
         dagpengerOpptjeningBelop.setBelopOrdinar(10d);
         beholdning.setDagpengerOpptjeningBelop(dagpengerOpptjeningBelop);
-        List<Beholdning> beholdningList = Collections.singletonList(beholdning);
+        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
 
         merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
 
@@ -336,12 +336,12 @@ class MerknadHandlerTest {
 
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
 
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         ForstegangstjenesteOpptjeningBelop fgtOpptjeningBelop = new ForstegangstjenesteOpptjeningBelop();
         fgtOpptjeningBelop.setAr(1990);
         fgtOpptjeningBelop.setBelop(100d);
         beholdning.setForstegangstjenesteOpptjeningBelop(fgtOpptjeningBelop);
-        List<Beholdning> beholdningList = Collections.singletonList(beholdning);
+        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
 
         merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
 
@@ -356,12 +356,12 @@ class MerknadHandlerTest {
 
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
 
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         ForstegangstjenesteOpptjeningBelop fgtOpptjeningBelop = new ForstegangstjenesteOpptjeningBelop();
         fgtOpptjeningBelop.setAr(1990);
         fgtOpptjeningBelop.setBelop(0d);
         beholdning.setForstegangstjenesteOpptjeningBelop(fgtOpptjeningBelop);
-        List<Beholdning> beholdningList = Collections.singletonList(beholdning);
+        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
 
         merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
 
@@ -375,12 +375,12 @@ class MerknadHandlerTest {
 
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
 
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         OmsorgOpptjeningBelop omsorgOpptjeningBelop = new OmsorgOpptjeningBelop();
         omsorgOpptjeningBelop.setAr(1990);
         omsorgOpptjeningBelop.setBelop(10d);
         beholdning.setOmsorgOpptjeningBelop(omsorgOpptjeningBelop);
-        List<Beholdning> beholdningList = Collections.singletonList(beholdning);
+        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
 
         merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
 
@@ -395,14 +395,14 @@ class MerknadHandlerTest {
 
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
 
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         OmsorgOpptjeningBelop omsorgOpptjeningBelop = new OmsorgOpptjeningBelop();
         omsorgOpptjeningBelop.setAr(1990);
         Omsorg omsorg = new Omsorg();
         omsorg.setOmsorgType("OBU7");
         omsorgOpptjeningBelop.setOmsorgListe(Collections.singletonList(omsorg));
         beholdning.setOmsorgOpptjeningBelop(omsorgOpptjeningBelop);
-        List<Beholdning> beholdningList = Collections.singletonList(beholdning);
+        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
 
         merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
 
@@ -417,14 +417,14 @@ class MerknadHandlerTest {
 
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
 
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         OmsorgOpptjeningBelop omsorgOpptjeningBelop = new OmsorgOpptjeningBelop();
         omsorgOpptjeningBelop.setAr(1990);
         Omsorg omsorg = new Omsorg();
         omsorg.setOmsorgType("OBU6");
         omsorgOpptjeningBelop.setOmsorgListe(Collections.singletonList(omsorg));
         beholdning.setOmsorgOpptjeningBelop(omsorgOpptjeningBelop);
-        List<Beholdning> beholdningList = Collections.singletonList(beholdning);
+        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
 
         merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
 
@@ -439,13 +439,13 @@ class MerknadHandlerTest {
 
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
 
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         OmsorgOpptjeningBelop omsorgOpptjeningBelop = new OmsorgOpptjeningBelop();
         omsorgOpptjeningBelop.setAr(1990);
         Omsorg omsorg = new Omsorg();
         omsorgOpptjeningBelop.setOmsorgListe(Collections.singletonList(omsorg));
         beholdning.setOmsorgOpptjeningBelop(omsorgOpptjeningBelop);
-        List<Beholdning> beholdningList = Collections.singletonList(beholdning);
+        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
 
         merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
 

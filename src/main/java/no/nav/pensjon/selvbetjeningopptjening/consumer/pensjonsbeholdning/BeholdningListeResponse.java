@@ -3,16 +3,16 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning;
 import java.util.ArrayList;
 import java.util.List;
 
-import no.nav.pensjon.selvbetjeningopptjening.model.Beholdning;
+import no.nav.pensjon.selvbetjeningopptjening.model.BeholdningDto;
 
 public class BeholdningListeResponse {
-    private List<Beholdning> beholdninger = new ArrayList<>();
+    private List<BeholdningDto> beholdninger = new ArrayList<>();
 
-    public List<Beholdning> getBeholdninger() {
+    public List<BeholdningDto> getBeholdninger() {
         return beholdninger;
     }
 
-    public void setBeholdninger(List<Beholdning> beholdninger) {
+    public void setBeholdninger(List<BeholdningDto> beholdninger) {
         this.beholdninger = beholdninger;
     }
 }

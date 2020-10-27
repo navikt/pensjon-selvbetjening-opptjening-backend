@@ -1,48 +1,30 @@
 package no.nav.pensjon.selvbetjeningopptjening.model;
 
-import java.time.LocalDate;
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.time.LocalDate;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Beholdning {
+public class BeholdningDto {
+
     private Long beholdningId;
-
     private String fnr;
-
     private String status;
-
     private String beholdningType;
-
     private Double belop;
-
     private Long vedtakId;
-
     private LocalDate fomDato;
-
     private LocalDate tomDato;
-
     private Double beholdningGrunnlag;
-
     private Double beholdningGrunnlagAvkortet;
-
     private Double beholdningInnskudd;
-
     private Double beholdningInnskuddUtenOmsorg;
-
     private String oppdateringArsak;
-
     private Lonnsvekstregulering lonnsvekstregulering;
-
     private InntektOpptjeningBelop inntektOpptjeningBelop;
-
     private OmsorgOpptjeningBelop omsorgOpptjeningBelop;
-
     private DagpengerOpptjeningBelop dagpengerOpptjeningBelop;
-
     private ForstegangstjenesteOpptjeningBelop forstegangstjenesteOpptjeningBelop;
-
     private UforeOpptjeningBelop uforeOpptjeningBelop;
 
     public Long getBeholdningId() {

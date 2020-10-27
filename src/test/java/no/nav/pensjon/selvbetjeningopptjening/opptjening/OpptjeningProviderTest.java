@@ -40,7 +40,7 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikk;
-import no.nav.pensjon.selvbetjeningopptjening.model.Beholdning;
+import no.nav.pensjon.selvbetjeningopptjening.model.BeholdningDto;
 import no.nav.pensjon.selvbetjeningopptjening.model.Inntekt;
 import no.nav.pensjon.selvbetjeningopptjening.model.InntektOpptjeningBelop;
 import no.nav.pensjon.selvbetjeningopptjening.model.Pensjonspoeng;
@@ -173,13 +173,13 @@ class OpptjeningProviderTest {
 
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
 
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(1980, 1, 1));
         beholdning.setBelop(100d);
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
         UforeHistorikk uforehistorikk = new UforeHistorikk();
-        List<Beholdning> beholdningList = Collections.singletonList(beholdning);
+        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
         List<Inntekt> inntektList = new ArrayList<>();
 
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(uttaksgradList);
@@ -200,13 +200,13 @@ class OpptjeningProviderTest {
     void when_UserGroup5_with_and_FomDato_1983_then_calculateOpptjeningForFnr_returns_1_OpptjeningDto_with_Pensjonsbeholdning_and_3_OpptjeningDto_WithNoOpptjening() {
         String fnr = "";
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(1983, 1, 1));
         beholdning.setBelop(100d);
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
         UforeHistorikk uforehistorikk = new UforeHistorikk();
-        List<Beholdning> beholdningList = Collections.singletonList(beholdning);
+        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
         List<Inntekt> inntektList = new ArrayList<>();
 
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(uttaksgradList);
@@ -228,13 +228,13 @@ class OpptjeningProviderTest {
     void when_UserGroup4_with_Beholdning_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Pensjonsbeholdning() {
         String fnr = "";
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(1983, 1, 1));
         beholdning.setBelop(100d);
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
         UforeHistorikk uforehistorikk = new UforeHistorikk();
-        List<Beholdning> beholdningList = Collections.singletonList(beholdning);
+        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
         List<Pensjonspoeng> pensjonspoengList = new ArrayList<>();
 
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(uttaksgradList);
@@ -265,7 +265,7 @@ class OpptjeningProviderTest {
         AfpHistorikk afphistorikk = new AfpHistorikk();
         UforeHistorikk uforehistorikk = new UforeHistorikk();
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
-        List<Beholdning> beholdningList = new ArrayList<>();
+        List<BeholdningDto> beholdningList = new ArrayList<>();
         List<Pensjonspoeng> pensjonspoengList = Collections.singletonList(pensjonspoeng);
 
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(uttaksgradList);
@@ -299,7 +299,7 @@ class OpptjeningProviderTest {
         AfpHistorikk afphistorikk = new AfpHistorikk();
         UforeHistorikk uforehistorikk = new UforeHistorikk();
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
-        List<Beholdning> beholdningList = new ArrayList<>();
+        List<BeholdningDto> beholdningList = new ArrayList<>();
 
         List<Pensjonspoeng> pensjonspoengList = Collections.singletonList(pensjonspoeng);
 
@@ -336,7 +336,7 @@ class OpptjeningProviderTest {
         AfpHistorikk afphistorikk = new AfpHistorikk();
         UforeHistorikk uforehistorikk = new UforeHistorikk();
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
-        List<Beholdning> beholdningList = new ArrayList<>();
+        List<BeholdningDto> beholdningList = new ArrayList<>();
         List<Pensjonspoeng> pensjonspoengList = Arrays.asList(pensjonspoeng, pensjonspoeng1);
 
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(uttaksgradList);
@@ -457,7 +457,7 @@ class OpptjeningProviderTest {
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
         UforeHistorikk uforehistorikk = new UforeHistorikk();
-        List<Beholdning> beholdningList = new ArrayList<>();
+        List<BeholdningDto> beholdningList = new ArrayList<>();
         List<Inntekt> inntektList = new ArrayList<>();
 
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(uttaksgradList);
@@ -486,7 +486,7 @@ class OpptjeningProviderTest {
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
         UforeHistorikk uforehistorikk = new UforeHistorikk();
-        List<Beholdning> beholdningList = new ArrayList<>();
+        List<BeholdningDto> beholdningList = new ArrayList<>();
         List<Inntekt> inntektList = new ArrayList<>();
         List<Restpensjon> restpensjonList = Collections.singletonList(restpensjon);
         List<Uttaksgrad> uttaksgradList = Collections.singletonList(uttaksgrad);
@@ -518,7 +518,7 @@ class OpptjeningProviderTest {
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
         UforeHistorikk uforehistorikk = new UforeHistorikk();
-        List<Beholdning> beholdningList = new ArrayList<>();
+        List<BeholdningDto> beholdningList = new ArrayList<>();
         List<Inntekt> inntektList = new ArrayList<>();
         List<Restpensjon> restpensjonList = Collections.singletonList(restpensjon);
         List<Uttaksgrad> uttaksgradList = Collections.singletonList(uttaksgrad);
@@ -550,7 +550,7 @@ class OpptjeningProviderTest {
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
         UforeHistorikk uforehistorikk = new UforeHistorikk();
-        List<Beholdning> beholdningList = new ArrayList<>();
+        List<BeholdningDto> beholdningList = new ArrayList<>();
         List<Inntekt> inntektList = new ArrayList<>();
         List<Restpensjon> restpensjonList = Collections.singletonList(restpensjon);
         List<Uttaksgrad> uttaksgradList = Collections.singletonList(uttaksgrad);
@@ -583,7 +583,7 @@ class OpptjeningProviderTest {
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
         UforeHistorikk uforehistorikk = new UforeHistorikk();
-        List<Beholdning> beholdningList = new ArrayList<>();
+        List<BeholdningDto> beholdningList = new ArrayList<>();
         List<Inntekt> inntektList = new ArrayList<>();
         List<Restpensjon> restpensjonList = Collections.singletonList(restpensjon);
         List<Uttaksgrad> uttaksgradList = Collections.singletonList(uttaksgrad);
@@ -615,7 +615,7 @@ class OpptjeningProviderTest {
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
         UforeHistorikk uforehistorikk = new UforeHistorikk();
-        List<Beholdning> beholdningList = new ArrayList<>();
+        List<BeholdningDto> beholdningList = new ArrayList<>();
         List<Restpensjon> restpensjonList = Collections.singletonList(restpensjon);
         List<Uttaksgrad> uttaksgradList = Collections.singletonList(uttaksgrad);
 
@@ -667,7 +667,7 @@ class OpptjeningProviderTest {
 
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
 
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(1980, 1, 1));
         beholdning.setBelop(100d);
         InntektOpptjeningBelop inntektOpptjeningBelop = new InntektOpptjeningBelop();
@@ -679,7 +679,7 @@ class OpptjeningProviderTest {
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
         UforeHistorikk uforehistorikk = new UforeHistorikk();
-        List<Beholdning> beholdningList = Collections.singletonList(beholdning);
+        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
         List<Inntekt> inntektList = new ArrayList<>();
 
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(uttaksgradList);
@@ -708,7 +708,7 @@ class OpptjeningProviderTest {
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
         UforeHistorikk uforehistorikk = new UforeHistorikk();
-        List<Beholdning> beholdningList = new ArrayList<>();
+        List<BeholdningDto> beholdningList = new ArrayList<>();
         List<Inntekt> inntektList = Collections.singletonList(inntekt);
 
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(uttaksgradList);
@@ -736,7 +736,7 @@ class OpptjeningProviderTest {
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
         UforeHistorikk uforehistorikk = new UforeHistorikk();
-        List<Beholdning> beholdningList = new ArrayList<>();
+        List<BeholdningDto> beholdningList = new ArrayList<>();
         List<Inntekt> inntektList = Collections.singletonList(inntekt);
 
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(uttaksgradList);
@@ -762,13 +762,13 @@ class OpptjeningProviderTest {
         inntekt.setInntektAr(1980);
         inntekt.setInntektType("SUM_PI");
 
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(1981, 1, 1));
         beholdning.setBelop(100d);
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
         UforeHistorikk uforehistorikk = new UforeHistorikk();
-        List<Beholdning> beholdningList = Collections.singletonList(beholdning);
+        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
         List<Inntekt> inntektList = Collections.singletonList(inntekt);
 
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(uttaksgradList);
@@ -791,7 +791,7 @@ class OpptjeningProviderTest {
 
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
 
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(1980, 1, 1));
         beholdning.setBelop(100d);
         InntektOpptjeningBelop inntektOpptjeningBelop = new InntektOpptjeningBelop();
@@ -803,7 +803,7 @@ class OpptjeningProviderTest {
 
         AfpHistorikk afphistorikk = new AfpHistorikk();
         UforeHistorikk uforehistorikk = new UforeHistorikk();
-        List<Beholdning> beholdningList = Collections.singletonList(beholdning);
+        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
 
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(fnr)).thenReturn(uttaksgradList);
         when(personConsumer.getAfpHistorikkForPerson(fnr)).thenReturn(afphistorikk);

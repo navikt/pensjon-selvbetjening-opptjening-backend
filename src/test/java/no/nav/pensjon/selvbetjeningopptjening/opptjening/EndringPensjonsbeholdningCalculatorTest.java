@@ -27,7 +27,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.pensjon.selvbetjeningopptjening.model.Beholdning;
+import no.nav.pensjon.selvbetjeningopptjening.model.BeholdningDto;
 import no.nav.pensjon.selvbetjeningopptjening.model.DagpengerOpptjeningBelop;
 import no.nav.pensjon.selvbetjeningopptjening.model.ForstegangstjenesteOpptjeningBelop;
 import no.nav.pensjon.selvbetjeningopptjening.model.InntektOpptjeningBelop;
@@ -56,11 +56,11 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_beholdning_list_has_one_element_with_FomDato_GivenYear_then_calculateEndringPensjonsbeholdning_returns_2_elements() {
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(2020, 3, 1));
         beholdning.setBelop(1d);
 
-        List<Beholdning> list = Collections.singletonList(beholdning);
+        List<BeholdningDto> list = Collections.singletonList(beholdning);
 
         List<EndringPensjonsopptjeningDto> dtos =
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
@@ -70,11 +70,11 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_beholdning_list_has_one_element_with_FomDato_1JanGivenYear_then_calculateEndringPensjonsbeholdning_returns_2_elements() {
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(2020, 1, 1));
         beholdning.setBelop(1d);
 
-        List<Beholdning> list = Collections.singletonList(beholdning);
+        List<BeholdningDto> list = Collections.singletonList(beholdning);
 
         List<EndringPensjonsopptjeningDto> dtos =
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
@@ -84,12 +84,12 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_beholdning_list_has_one_element_with_FomDato_1JanGivenYear_and_TomDato_31DecGivenYear_then_calculateEndringPensjonsbeholdning_returns_3_elements() {
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(2020, 1, 1));
         beholdning.setTomDato(LocalDate.of(2020, 12, 31));
         beholdning.setBelop(1d);
 
-        List<Beholdning> list = Collections.singletonList(beholdning);
+        List<BeholdningDto> list = Collections.singletonList(beholdning);
 
         List<EndringPensjonsopptjeningDto> dtos =
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
@@ -99,7 +99,7 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_beholdning_with_FomDato_GivenYear_then_calculateEndringPensjonsbeholdning_returns_2_elements_med_endringBelop_og_pensjonsbeholdningBelop() {
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(2020, 2, 1));
         beholdning.setBelop(10d);
 
@@ -116,7 +116,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_beholdning_with_FomDato_1JanGivenYear_and_uttak_then_calculateEndringPensjonsbeholdning_returns_3_elements_med_endringBelop_og_pensjonsbeholdningBelop() {
         LocalDate fomDato = LocalDate.of(2020, 1, 1);
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(fomDato);
         beholdning.setBelop(10d);
 
@@ -138,7 +138,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_beholdning_with_FomDato_1JanGivenYear_with_BeholdningInnskudd_and_uttak_then_calculateEndringPensjonsbeholdning_returns_3_elements_med_endringBelop_og_pensjonsbeholdningBelop() {
         LocalDate fomDato = LocalDate.of(2020, 1, 1);
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(fomDato);
         beholdning.setBelop(100d);
         beholdning.setBeholdningInnskudd(10d);
@@ -162,7 +162,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     void when_beholdning_with_FomDato_1JanGivenYear_and_TomDato_31DecGivenYear_and_uttak_then_calculateEndringPensjonsbeholdning_returns_4_elements_med_endringBelop_og_pensjonsbeholdningBelop() {
         LocalDate fomDato = LocalDate.of(2020, 1, 1);
         LocalDate tomDato = LocalDate.of(2020, 12, 31);
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(fomDato);
         beholdning.setTomDato(tomDato);
         beholdning.setBelop(10d);
@@ -188,13 +188,13 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_beholdning_list_has_one_element_with_FomDato_1MayGivenYear_with_Lonnsvekstregulering_and_uttak_then_calculateEndringPensjonsbeholdning_returns_3_elements() {
         LocalDate fomDato = LocalDate.of(2020, 5, 1);
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(fomDato);
         beholdning.setBelop(100d);
         beholdning.setLonnsvekstregulering(new Lonnsvekstregulering());
         beholdning.getLonnsvekstregulering().setReguleringsbelop(10d);
 
-        List<Beholdning> list = Collections.singletonList(beholdning);
+        List<BeholdningDto> list = Collections.singletonList(beholdning);
 
         Uttaksgrad uttaksgrad = new Uttaksgrad();
         uttaksgrad.setFomDato(fomDato);
@@ -213,7 +213,7 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_GivenYear_2020_with_uttaksgrad_value_100_then_addNyOpptjening_returns_ArsakDetailCode_OPPTJENING_HEL() {
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(2020, 1, 1));
         beholdning.setBelop(1d);
         beholdning.setVedtakId(1L);
@@ -224,7 +224,7 @@ class EndringPensjonsbeholdningCalculatorTest {
         uttaksgrad.setFomDato(LocalDate.of(2019, 1, 1));
         uttaksgrad.setTomDato(LocalDate.of(2020, 12, 31));
 
-        List<Beholdning> list = Collections.singletonList(beholdning);
+        List<BeholdningDto> list = Collections.singletonList(beholdning);
 
         List<EndringPensjonsopptjeningDto> dtos =
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, Collections.singletonList(uttaksgrad));
@@ -235,7 +235,7 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_GivenYear_2020_with_uttaksgrad_value_lessthan100_then_addNyOpptjening_returns_ArsakDetailCode_OPPTJENING_GRADERT() {
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(2020, 1, 1));
         beholdning.setBelop(1d);
         beholdning.setVedtakId(1L);
@@ -246,7 +246,7 @@ class EndringPensjonsbeholdningCalculatorTest {
         uttaksgrad.setFomDato(LocalDate.of(2019, 1, 1));
         uttaksgrad.setTomDato(LocalDate.of(2020, 12, 31));
 
-        List<Beholdning> list = Collections.singletonList(beholdning);
+        List<BeholdningDto> list = Collections.singletonList(beholdning);
 
         List<EndringPensjonsopptjeningDto> dtos =
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, Collections.singletonList(uttaksgrad));
@@ -257,7 +257,7 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_FomDato_1Jan2020_with_uttaksgrad_value_0_then_addNyOpptjening_returns_ArsakDetailCode_OPPTJENING_2012() {
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(2020, 1, 1));
         beholdning.setBelop(1d);
         beholdning.setVedtakId(1L);
@@ -268,7 +268,7 @@ class EndringPensjonsbeholdningCalculatorTest {
         uttaksgrad.setFomDato(LocalDate.of(2019, 1, 1));
         uttaksgrad.setTomDato(LocalDate.of(2020, 12, 31));
 
-        List<Beholdning> list = Collections.singletonList(beholdning);
+        List<BeholdningDto> list = Collections.singletonList(beholdning);
 
         List<EndringPensjonsopptjeningDto> dtos =
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, Collections.singletonList(uttaksgrad));
@@ -279,13 +279,13 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_FomDato_1MayGivenYear_with_Lonnsvekstregulering_then_addRegulering_returns_ArsakDetailCode_REGULERING() {
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(2020, 5, 1));
         beholdning.setLonnsvekstregulering(new Lonnsvekstregulering());
         beholdning.getLonnsvekstregulering().setReguleringsbelop(2d);
         beholdning.setBelop(1d);
 
-        List<Beholdning> list = Collections.singletonList(beholdning);
+        List<BeholdningDto> list = Collections.singletonList(beholdning);
 
         List<EndringPensjonsopptjeningDto> dtos =
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
@@ -296,11 +296,11 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_FomDato_1JanGivenYear_then_addInngaendeBeholdning_and_addNyOpptjening_returns_2_ArsakType_values() {
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(2020, 1, 1));
         beholdning.setBelop(1d);
 
-        List<Beholdning> list = Collections.singletonList(beholdning);
+        List<BeholdningDto> list = Collections.singletonList(beholdning);
 
         List<EndringPensjonsopptjeningDto> dtos =
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
@@ -311,11 +311,11 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_FomDato_1JanGivenYear_and_GivenYear_2010_then_addInngaendeBeholdning_and_addNyOpptjening_returns_2_ArsakType_values() {
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(2010, 1, 1));
         beholdning.setBelop(1d);
 
-        List<Beholdning> list = Collections.singletonList(beholdning);
+        List<BeholdningDto> list = Collections.singletonList(beholdning);
 
         List<EndringPensjonsopptjeningDto> dtos =
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2010, list, new ArrayList<>());
@@ -326,12 +326,12 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_FomDato_1JanGivenYear_and_TomDato_31DecGivenYear_then_addInngaendeBeholdning_and_addNyOpptjening_and_addUtgaendeBeholdning_returns_3_ArsakType_values() {
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(2020, 1, 1));
         beholdning.setTomDato(LocalDate.of(2020, 12, 31));
         beholdning.setBelop(1d);
 
-        List<Beholdning> list = Collections.singletonList(beholdning);
+        List<BeholdningDto> list = Collections.singletonList(beholdning);
 
         List<EndringPensjonsopptjeningDto> dtos =
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
@@ -343,11 +343,11 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_FomDato_Before_1st_May_GivenYear_then_addInngaendeBeholdning_and_addChangesUttaksgradBeforeReguleringAtMay1th_returns_2_ArsakType_values() {
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(2020, 3, 1));
         beholdning.setBelop(1d);
 
-        List<Beholdning> list = Collections.singletonList(beholdning);
+        List<BeholdningDto> list = Collections.singletonList(beholdning);
 
         List<EndringPensjonsopptjeningDto> dtos =
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
@@ -358,11 +358,11 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_FomDato_After_1st_May_GivenYear_then_addInngaendeBeholdning_and_addChangesUttaksgradAfterReguleringAtMay1th_returns_2_ArsakType_values() {
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(2020, 6, 1));
         beholdning.setBelop(1d);
 
-        List<Beholdning> list = Collections.singletonList(beholdning);
+        List<BeholdningDto> list = Collections.singletonList(beholdning);
 
         List<EndringPensjonsopptjeningDto> dtos =
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
@@ -373,14 +373,14 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_FomDato_1MayGivenYear_with_Lonnsvekstregulering_then_addInngaendeBeholdning_and_addRegulering_returns_2_ArsakType_values() {
-        Beholdning beholdning = new Beholdning();
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(2020, 5, 1));
         beholdning.setLonnsvekstregulering(new Lonnsvekstregulering());
         beholdning.getLonnsvekstregulering().setReguleringsbelop(10d);
         beholdning.setBelop(1d);
         beholdning.setBeholdningInnskudd(10d);
 
-        List<Beholdning> list = Collections.singletonList(beholdning);
+        List<BeholdningDto> list = Collections.singletonList(beholdning);
 
         List<EndringPensjonsopptjeningDto> dtos =
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
@@ -393,7 +393,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     void when_beholdningGrunnlag_is_inntekt_then_add_grunnlagTypeCode_INNTEKT_GRUNNLAG() {
         double inntekt = 1d;
 
-        List<Beholdning> list = Collections.singletonList(
+        List<BeholdningDto> list = Collections.singletonList(
                 constructBeholdningWithOpptjeningBelop(inntekt, inntekt, 2d, 0d, 0d, 0d));
 
         List<EndringPensjonsopptjeningDto> dtos =
@@ -409,7 +409,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     void when_beholdningGrunnlag_is_omsorg_then_add_grunnlagTypeCode_OMSORGSOPPTJENING_GRUNNLAG() {
         double omsorg = 1d;
 
-        List<Beholdning> list = Collections.singletonList(
+        List<BeholdningDto> list = Collections.singletonList(
                 constructBeholdningWithOpptjeningBelop(omsorg, 2d, omsorg, 0d, 0d, 0d));
 
         List<EndringPensjonsopptjeningDto> dtos =
@@ -425,7 +425,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     void when_beholdningGrunnlag_is_forstegangstjeneste_then_add_grunnlagTypeCode_FORSTEGANGSTJENESTE_GRUNNLAG() {
         double forstegangstjeneste = 1d;
 
-        List<Beholdning> list = Collections.singletonList(
+        List<BeholdningDto> list = Collections.singletonList(
                 constructBeholdningWithOpptjeningBelop(forstegangstjeneste, 0d, 0d, forstegangstjeneste, 0d, 0d));
 
         List<EndringPensjonsopptjeningDto> dtos =
@@ -441,7 +441,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     void when_beholdningGrunnlag_is_dagpenger_then_add_grunnlagTypeCode_DAGPENGER_GRUNNLAG() {
         double dagpenger = 1d;
 
-        List<Beholdning> list = Collections.singletonList(
+        List<BeholdningDto> list = Collections.singletonList(
                 constructBeholdningWithOpptjeningBelop(dagpenger, 0d, 0d, 0d, dagpenger, 0d));
 
         List<EndringPensjonsopptjeningDto> dtos =
@@ -457,9 +457,9 @@ class EndringPensjonsbeholdningCalculatorTest {
     void when_beholdningGrunnlag_is_ufore_then_add_grunnlagTypeCode_UFORE_GRUNNLAG() {
         double ufore = 1d;
 
-        Beholdning beholdning = constructBeholdningWithOpptjeningBelop(ufore, 0d, 0d, 0d, 0d, ufore);
+        BeholdningDto beholdning = constructBeholdningWithOpptjeningBelop(ufore, 0d, 0d, 0d, 0d, ufore);
         beholdning.getUforeOpptjeningBelop().setUforegrad(100);
-        List<Beholdning> list = Collections.singletonList(beholdning);
+        List<BeholdningDto> list = Collections.singletonList(beholdning);
 
         List<EndringPensjonsopptjeningDto> dtos =
                 endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(2020, list, new ArrayList<>());
@@ -474,7 +474,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     void when_forstegangstjeneste_ufore_or_dagpenger_is_among_more_than_one_possible_grunnlag_then_add_all_grunnlagTypes_present_except_OMSORGSOPPTJENING() {
         double grunnlag = 7d;
 
-        List<Beholdning> list = Collections.singletonList(
+        List<BeholdningDto> list = Collections.singletonList(
                 constructBeholdningWithOpptjeningBelop(grunnlag, 2d, 3d, 1d, 4d, 5d));
 
         List<EndringPensjonsopptjeningDto> dtos =
@@ -488,7 +488,7 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_beholdningGrunnlag_is_null_then_add_grunnlagTypeCode_NO_GRUNNLAG() {
-        List<Beholdning> list = Collections.singletonList(
+        List<BeholdningDto> list = Collections.singletonList(
                 constructBeholdningWithOpptjeningBelop(null, 0d, 0d, 0d, 0d, 0d));
 
         List<EndringPensjonsopptjeningDto> dtos =
@@ -500,7 +500,7 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_beholdningGrunnlag_is_0_then_add_grunnlagTypeCode_NO_GRUNNLAG() {
-        List<Beholdning> list = Collections.singletonList(
+        List<BeholdningDto> list = Collections.singletonList(
                 constructBeholdningWithOpptjeningBelop(0.0, 0d, 0d, 0d, 0d, 0d));
 
         List<EndringPensjonsopptjeningDto> dtos =
@@ -510,8 +510,8 @@ class EndringPensjonsbeholdningCalculatorTest {
         assertTrue(dtos.get(1).getGrunnlagTypes().contains(NO_GRUNNLAG));
     }
 
-    private Beholdning constructBeholdningWithOpptjeningBelop(Double grunnlag, Double inntekt, Double omsorg, Double forstegangstjeneste, Double dagpenger, Double ufore) {
-        Beholdning beholdning = new Beholdning();
+    private BeholdningDto constructBeholdningWithOpptjeningBelop(Double grunnlag, Double inntekt, Double omsorg, Double forstegangstjeneste, Double dagpenger, Double ufore) {
+        BeholdningDto beholdning = new BeholdningDto();
         beholdning.setFomDato(LocalDate.of(2020, 1, 1));
         beholdning.setLonnsvekstregulering(new Lonnsvekstregulering());
         beholdning.setBelop(100d);
