@@ -1,21 +1,19 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import no.nav.pensjon.selvbetjeningopptjening.model.BeholdningDto;
-import no.nav.pensjon.selvbetjeningopptjening.model.Lonnsvekstregulering;
 import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
-import no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode;
-import no.nav.pensjon.selvbetjeningopptjening.model.code.TypeArsakCode;
 
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import static no.nav.pensjon.selvbetjeningopptjening.util.BeholdningUtil.isBeholdningWithinPeriode;
-import static no.nav.pensjon.selvbetjeningopptjening.util.BeholdningUtil.sortBeholdningerByDate;
+import static no.nav.pensjon.selvbetjeningopptjening.opptjening.BeholdningMapper.fromDto;
+import static no.nav.pensjon.selvbetjeningopptjening.opptjening.EndringPensjonsopptjeningMapper.toDto;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
 import static no.nav.pensjon.selvbetjeningopptjening.util.DateUtil.isDateInPeriod;
+import static no.nav.pensjon.selvbetjeningopptjening.util.PeriodeUtil.isPeriodeWithinInterval;
+import static no.nav.pensjon.selvbetjeningopptjening.util.PeriodeUtil.sortPerioderByFomDate;
 
 public class EndringPensjonsbeholdningCalculator {
 
@@ -26,7 +24,7 @@ public class EndringPensjonsbeholdningCalculator {
     private LocalDate lastDayOfGivenYear;
 
     List<EndringPensjonsopptjeningDto> calculateEndringPensjonsbeholdning(int year, List<BeholdningDto> beholdninger, List<Uttaksgrad> uttaksgrader) {
-        List<Beholdning> sortedBeholdninger = sortBeholdningerByDate(BeholdningMapper.fromDto(beholdninger));
+        List<Beholdning> sortedBeholdninger = sortPerioderByFomDate(fromDto(beholdninger));
 
         firstDayOfGivenYear = LocalDate.of(year, Month.JANUARY, 1);
         dayBeforeReguleringGivenYear = LocalDate.of(year, Month.APRIL, 30);
@@ -36,24 +34,24 @@ public class EndringPensjonsbeholdningCalculator {
 
         return sortedBeholdninger.isEmpty()
                 ? null
-                : EndringPensjonsopptjeningMapper.toDto(createPensjonsbeholdningEndringListe(sortedBeholdninger, year, uttaksgrader));
+                : toDto(createPensjonsbeholdningEndringListe(sortedBeholdninger, year, uttaksgrader));
     }
 
-    private List<EndringPensjonsopptjening> createPensjonsbeholdningEndringListe(List<Beholdning> sortedBeholdninger, Integer year, List<Uttaksgrad> uttaksgrader) {
+    private List<EndringPensjonsopptjening> createPensjonsbeholdningEndringListe(List<Beholdning> sortedBeholdninger, int year, List<Uttaksgrad> uttaksgrader) {
         List<EndringPensjonsopptjening> beholdningsendringer = new ArrayList<>();
 
         Beholdning forrigeBeholdning = addInngaendeBeholdning(sortedBeholdninger, beholdningsendringer, uttaksgrader, year);
         forrigeBeholdning = addNyOpptjening(sortedBeholdninger, beholdningsendringer, forrigeBeholdning, year, uttaksgrader);
         forrigeBeholdning = addChangesUttaksgradBeforeRegulering(sortedBeholdninger, beholdningsendringer, forrigeBeholdning, uttaksgrader);
         forrigeBeholdning = addRegulering(sortedBeholdninger, beholdningsendringer, forrigeBeholdning, uttaksgrader, year);
-        addChangesUttaksgradAfterReguleringAtMay1th(sortedBeholdninger, beholdningsendringer, forrigeBeholdning, uttaksgrader);
-        addUtgaendeBeholdning(sortedBeholdninger, beholdningsendringer, uttaksgrader);
+        addChangesUttaksgradAfterRegulering(sortedBeholdninger, beholdningsendringer, forrigeBeholdning, uttaksgrader);
+        addUtgaendeBeholdning(sortedBeholdninger, beholdningsendringer, uttaksgrader, year);
 
         return beholdningsendringer;
     }
 
-    private Beholdning addInngaendeBeholdning(List<Beholdning> beholdninger, List<EndringPensjonsopptjening> beholdningsendringer, List<Uttaksgrad> uttaksgrader, Integer year) {
-        Double pensjonsbeholdningBelop = 0D;
+    private Beholdning addInngaendeBeholdning(List<Beholdning> beholdninger, List<EndringPensjonsopptjening> beholdningsendringer, List<Uttaksgrad> uttaksgrader, int year) {
+        double pensjonsbeholdningBelop = 0D;
         Beholdning beholdningUsed = null;
         Integer uttaksgrad = 0;
 
@@ -61,99 +59,94 @@ public class EndringPensjonsbeholdningCalculator {
             if (beholdning.getTomDato() != null && beholdning.getTomDato().isEqual(lastDayOfPreviousYear)) {
                 pensjonsbeholdningBelop = beholdning.getBelop();
                 beholdningUsed = beholdning;
-                uttaksgrad = fetchUttaksgrad(lastDayOfPreviousYear, beholdningUsed, uttaksgrader);
+                uttaksgrad = findUttaksgrad(lastDayOfPreviousYear, beholdningUsed, uttaksgrader);
             }
         }
 
-        var endring = new EndringPensjonsopptjening(TypeArsakCode.INNGAENDE, lastDayOfPreviousYear, null, pensjonsbeholdningBelop, uttaksgrad, null);
-
-        if (year == REFORM_2010) {
-            endring.setArsakDetails(List.of(DetailsArsakCode.BEHOLDNING_2010));
-        }
-
-        beholdningsendringer.add(endring);
+        beholdningsendringer.add(EndringPensjonsopptjening.inngaende(year, pensjonsbeholdningBelop, uttaksgrad));
         return beholdningUsed;
     }
 
-    private Integer fetchUttaksgrad(LocalDate date, Beholdning beholdning, List<Uttaksgrad> uttaksgrader) {
-        if (beholdning == null || beholdning.getVedtakId() == null) {
+    private static Integer findUttaksgrad(LocalDate date, Beholdning beholdning, List<Uttaksgrad> uttaksgrader) {
+        if (beholdning == null || !beholdning.hasVedtak()) {
             return 0;
         }
 
-        Optional<Uttaksgrad> uttaksgradForBeholdning = uttaksgrader.stream()
-                .filter(uttaksgrad -> uttaksgrad.getVedtakId().equals(beholdning.getVedtakId()))
-                .filter(uttaksgrad -> isDateInPeriod(date, uttaksgrad.getFomDato(), uttaksgrad.getTomDato()))
-                .findFirst();
-
-        return uttaksgradForBeholdning.isPresent() ? uttaksgradForBeholdning.get().getUttaksgrad() : 0;
+        return uttaksgrader.stream()
+                .filter(uttaksgrad -> uttaksgrad.getVedtakId().equals(beholdning.getVedtakId())
+                        && isDateInPeriod(date, uttaksgrad.getFomDato(), uttaksgrad.getTomDato()))
+                .findFirst()
+                .map(Uttaksgrad::getUttaksgrad)
+                .orElse(0);
     }
 
     private Beholdning addNyOpptjening(List<Beholdning> beholdninger, List<EndringPensjonsopptjening> beholdningsendringer,
-                                       Beholdning forrigeBeholdning, Integer year, List<Uttaksgrad> uttaksgrader) {
-        Double inngaendeBelop = beholdningsendringer.get(0).getPensjonsbeholdningBelop();
+                                       Beholdning forrigeBeholdning, int year, List<Uttaksgrad> uttaksgrader) {
+        Double inngaendeBelop = beholdningsendringer.get(0).getBeholdningsbelop();
         Beholdning beholdning = findBeholdningAtStartOfYear(beholdninger);
 
         if (beholdning == null) {
             return forrigeBeholdning;
         }
 
-        Double innskudd = calculateInnskudd(year, beholdning);
-        Double pensjonsbeholdningBelop = inngaendeBelop + innskudd;
-        TypeArsakCode arsakTypeForNyOpptjening = year == REFORM_2010 ? TypeArsakCode.INNGAENDE_2010 : TypeArsakCode.OPPTJENING;
+        double innskudd = calculateInnskudd(year, beholdning);
+        double pensjonsbeholdningBelop = inngaendeBelop + innskudd;
 
         if (isBeholdningWithinUttaksgradPeriodeIncludeSameDay(beholdning, uttaksgrader)) {
-            addNyOpptjeningWhenBeholdningWithinUttaksgradPeriode(beholdningsendringer, year, uttaksgrader, beholdning, innskudd, pensjonsbeholdningBelop, arsakTypeForNyOpptjening);
+            addNyOpptjeningWhenBeholdningWithinUttaksgradPeriode(beholdningsendringer, year, uttaksgrader, beholdning, innskudd, pensjonsbeholdningBelop);
         } else {
-            addNyOpptjeningWhenBeholdningOutsideUttaksgradPeriode(beholdningsendringer, year, uttaksgrader, beholdning, innskudd, pensjonsbeholdningBelop, arsakTypeForNyOpptjening);
+            addNyOpptjeningWhenBeholdningOutsideUttaksgradPeriode(beholdningsendringer, year, uttaksgrader, beholdning, innskudd, pensjonsbeholdningBelop);
         }
 
         forrigeBeholdning = beholdning;
         return forrigeBeholdning;
     }
 
-    private void addNyOpptjeningWhenBeholdningOutsideUttaksgradPeriode(List<EndringPensjonsopptjening> beholdningsendringer, Integer year, List<Uttaksgrad> uttaksgrader, Beholdning beholdning, Double innskudd, Double pensjonsbeholdningBelop, TypeArsakCode arsakTypeForNyOpptjening) {
-        Integer uttaksgrad = fetchUttaksgrad(firstDayOfGivenYear, beholdning, uttaksgrader);
+    private void addNyOpptjeningWhenBeholdningOutsideUttaksgradPeriode(List<EndringPensjonsopptjening> beholdningsendringer,
+                                                                       int year,
+                                                                       List<Uttaksgrad> uttaksgrader,
+                                                                       Beholdning beholdning,
+                                                                       double innskudd,
+                                                                       double pensjonsbeholdningBelop) {
+        Integer uttaksgrad = findUttaksgrad(firstDayOfGivenYear, beholdning, uttaksgrader);
 
-        EndringPensjonsopptjening endring =
-                new EndringPensjonsopptjening(arsakTypeForNyOpptjening, firstDayOfGivenYear, innskudd,
-                        pensjonsbeholdningBelop, uttaksgrad, beholdning.getBeholdningGrunnlag());
-
-        endring.addDetailsToNyOpptjeningEndring(year);
-        endring.setGrunnlagTypes(beholdning.getOpptjeningGrunnlagTypes());
-        beholdningsendringer.add(endring);
+        beholdningsendringer.add(
+                EndringPensjonsopptjening.nyOpptjening(
+                        year,
+                        pensjonsbeholdningBelop,
+                        innskudd,
+                        uttaksgrad,
+                        beholdning.getGrunnlag(),
+                        beholdning.getOpptjeningGrunnlagTypes()));
     }
 
     private void addNyOpptjeningWhenBeholdningWithinUttaksgradPeriode(List<EndringPensjonsopptjening> beholdningsendringer,
-                                                                      Integer givenYear,
+                                                                      int year,
                                                                       List<Uttaksgrad> uttaksgrader,
                                                                       Beholdning beholdning,
-                                                                      Double innskudd,
-                                                                      Double pensjonsbeholdningBelop,
-                                                                      TypeArsakCode arsakTypeForNyOpptjening) {
-        addNyOpptjeningWhenBeholdningOutsideUttaksgradPeriode(beholdningsendringer, givenYear, uttaksgrader, beholdning, innskudd, pensjonsbeholdningBelop, arsakTypeForNyOpptjening);
+                                                                      double innskudd,
+                                                                      double beholdningsbelop) {
+        addNyOpptjeningWhenBeholdningOutsideUttaksgradPeriode(beholdningsendringer, year, uttaksgrader, beholdning, innskudd, beholdningsbelop);
+        Integer uttaksgrad = findUttaksgrad(firstDayOfGivenYear, beholdning, uttaksgrader);
+        double endringsbelop = beholdning.getBelop() - beholdningsbelop;
 
-        var endringUttak = new EndringPensjonsopptjening(TypeArsakCode.UTTAK, firstDayOfGivenYear, beholdning.getBelop() - pensjonsbeholdningBelop,
-                beholdning.getBelop(), fetchUttaksgrad(firstDayOfGivenYear, beholdning, uttaksgrader), null);
-
-        endringUttak.setArsakDetails(List.of(DetailsArsakCode.UTTAK));
-        beholdningsendringer.add(endringUttak);
+        beholdningsendringer.add(
+                EndringPensjonsopptjening.uttakAtStartOfYear(year, beholdning.getBelop(), endringsbelop, uttaksgrad));
     }
 
     /**
      * Det kan hende at ny opptjening ennå ikke har blitt oppdatert, men det eksisterer likevel en beholdning 01.01 hvis
      * har endret uttaksgrad.
      */
-    private double calculateInnskudd(Integer givenYear, Beholdning beholdning) {
-        if (beholdning.getBeholdningInnskudd() == null) {
+    private double calculateInnskudd(int year, Beholdning beholdning) {
+        if (!beholdning.hasInnskudd()) {
             return 0D;
         }
 
-        double innskudd = beholdning.getBeholdningInnskudd();
-        Lonnsvekstregulering lonnsvekstregulering = beholdning.getLonnsvekstregulering();
+        double innskudd = beholdning.getInnskudd();
 
-        if (givenYear.equals(REFORM_2010) && lonnsvekstregulering != null
-                && lonnsvekstregulering.getReguleringsbelop() != null) {
-            innskudd += lonnsvekstregulering.getReguleringsbelop();
+        if (year == REFORM_2010) {
+            innskudd += beholdning.getLonnsvekstreguleringsbelop();
         }
 
         return innskudd;
@@ -177,19 +170,25 @@ public class EndringPensjonsbeholdningCalculator {
      * @return forrigeBeholdning
      */
     private Beholdning addChangesUttaksgradBeforeRegulering(List<Beholdning> beholdninger,
-                                                            List<EndringPensjonsopptjening> beholdningsendringer, Beholdning forrigeBeholdning, List<Uttaksgrad> uttaksgrader) {
-        Double previousBeholdningBelop = 0.0;
+                                                            List<EndringPensjonsopptjening> beholdningsendringer,
+                                                            Beholdning forrigeBeholdning,
+                                                            List<Uttaksgrad> uttaksgrader) {
+        double previousBeholdningBelop = 0D;
 
         for (Beholdning beholdning : beholdninger) {
             if (beholdning.getFomDato().isEqual(firstDayOfGivenYear)) {
                 previousBeholdningBelop = beholdning.getBelop();
                 forrigeBeholdning = beholdning;
-            } else if (isBeholdningWithinPeriode(beholdning, firstDayOfGivenYear, reguleringDayGivenYear)) {
-                EndringPensjonsopptjening endringUttak = new EndringPensjonsopptjening(TypeArsakCode.UTTAK, beholdning.getFomDato(),
-                        beholdning.getBelop() - previousBeholdningBelop, beholdning.getBelop(), fetchUttaksgrad(beholdning.getFomDato(), beholdning, uttaksgrader), null);
+            } else if (isPeriodeWithinInterval(beholdning, firstDayOfGivenYear, reguleringDayGivenYear)) {
+                Integer uttaksgrad = findUttaksgrad(beholdning.getFomDato(), beholdning, uttaksgrader);
+                double endringsbelop = beholdning.getBelop() - previousBeholdningBelop;
 
-                endringUttak.setArsakDetails(List.of(DetailsArsakCode.UTTAK));
-                beholdningsendringer.add(endringUttak);
+                beholdningsendringer.add(
+                        EndringPensjonsopptjening.uttak(
+                                beholdning.getFomDato(),
+                                beholdning.getBelop(),
+                                endringsbelop,
+                                uttaksgrad));
 
                 previousBeholdningBelop = beholdning.getBelop();
                 forrigeBeholdning = beholdning;
@@ -207,55 +206,50 @@ public class EndringPensjonsbeholdningCalculator {
     }
 
     private Beholdning addRegulering(List<Beholdning> beholdninger, List<EndringPensjonsopptjening> beholdningsendringer,
-                                     Beholdning forrigeBeholdning, List<Uttaksgrad> uttaksgrader, Integer givenYear) {
-        Double tempBelop = beholdningsendringer.get(beholdningsendringer.size() - 1).getPensjonsbeholdningBelop();
+                                     Beholdning forrigeBeholdning, List<Uttaksgrad> uttaksgrader, int year) {
+        Double tempBelop = beholdningsendringer.get(beholdningsendringer.size() - 1).getBeholdningsbelop();
 
         for (Beholdning beholdning : beholdninger) {
             if (beholdning.getFomDato().isEqual(reguleringDayGivenYear)) {
                 LocalDate gyldigPaDato;
-                Double vedtakPensjonseringsBelop = null;
-                Lonnsvekstregulering lonnsvekstregulering = beholdning.getLonnsvekstregulering();
+                double vedtakPensjonseringsbelop = 0D;
 
-                if (lonnsvekstregulering != null && lonnsvekstregulering.getReguleringsbelop() != null) {
-                    vedtakPensjonseringsBelop = lonnsvekstregulering.getReguleringsbelop() + tempBelop;
+                if (beholdning.hasLonnsvekstreguleringsbelop()) {
+                    double lonnsvekstreguleringsbelop = beholdning.getLonnsvekstreguleringsbelop();
+                    vedtakPensjonseringsbelop = lonnsvekstreguleringsbelop + tempBelop;
 
-                    gyldigPaDato = beholdning.getBelop().equals(vedtakPensjonseringsBelop)
+                    gyldigPaDato = beholdning.getBelop() == vedtakPensjonseringsbelop
                             ? reguleringDayGivenYear
                             : dayBeforeReguleringGivenYear;
 
-                    EndringPensjonsopptjening endringRegulering = new EndringPensjonsopptjening(TypeArsakCode.REGULERING, reguleringDayGivenYear, lonnsvekstregulering
-                            .getReguleringsbelop(), vedtakPensjonseringsBelop, fetchUttaksgrad(gyldigPaDato, beholdning, uttaksgrader), null);
+                    Integer uttaksgrad = findUttaksgrad(gyldigPaDato, beholdning, uttaksgrader);
 
-                    addDetailsToReguleringEndring(endringRegulering, givenYear);
-                    beholdningsendringer.add(endringRegulering);
+                    beholdningsendringer.add(
+                            EndringPensjonsopptjening.regulering(
+                                    year,
+                                    vedtakPensjonseringsbelop,
+                                    lonnsvekstreguleringsbelop,
+                                    uttaksgrad));
 
                     forrigeBeholdning = beholdning;
                 }
 
                 if (isBeholdningWithinUttaksgradPeriodeIncludeSameDay(beholdning, uttaksgrader)) {
-                    Double belop = beholdning.getBelop();
-                    if (vedtakPensjonseringsBelop != null) {
-                        belop -= vedtakPensjonseringsBelop;
-                    }
-                    EndringPensjonsopptjening endringUttak = new EndringPensjonsopptjening(TypeArsakCode.UTTAK, reguleringDayGivenYear, belop, beholdning.getBelop(), fetchUttaksgrad(
-                            reguleringDayGivenYear, beholdning, uttaksgrader), null);
+                    double endringsbelop = beholdning.getBelop() - vedtakPensjonseringsbelop;
+                    Integer uttaksgrad = findUttaksgrad(reguleringDayGivenYear, beholdning, uttaksgrader);
 
-                    endringUttak.setArsakDetails(List.of(DetailsArsakCode.UTTAK));
-                    beholdningsendringer.add(endringUttak);
+                    beholdningsendringer.add(
+                            EndringPensjonsopptjening.uttakAtReguleringDate(
+                                    year,
+                                    beholdning.getBelop(),
+                                    endringsbelop,
+                                    uttaksgrad));
 
                     forrigeBeholdning = beholdning;
                 }
             }
         }
         return forrigeBeholdning;
-    }
-
-    private void addDetailsToReguleringEndring(EndringPensjonsopptjening endring, Integer givenYear) {
-        if (givenYear == REFORM_2010) {
-            endring.setArsakDetails(List.of(DetailsArsakCode.REGULERING_2010));
-        } else if (givenYear > REFORM_2010) {
-            endring.setArsakDetails(List.of(DetailsArsakCode.REGULERING));
-        }
     }
 
     /**
@@ -266,32 +260,61 @@ public class EndringPensjonsbeholdningCalculator {
      * @param beholdningsendringer the PensjonsbeholdningEndring
      * @param forrigeBeholdning    the previous beholdning
      */
-    private void addChangesUttaksgradAfterReguleringAtMay1th(List<Beholdning> beholdninger,
-                                                             List<EndringPensjonsopptjening> beholdningsendringer, Beholdning forrigeBeholdning, List<Uttaksgrad> uttaksgrader) {
+    private void addChangesUttaksgradAfterRegulering(List<Beholdning> beholdninger,
+                                                     List<EndringPensjonsopptjening> beholdningsendringer,
+                                                     Beholdning forrigeBeholdning,
+                                                     List<Uttaksgrad> uttaksgrader) {
         Beholdning prevBeholdning = forrigeBeholdning;
 
         for (Beholdning beholdning : beholdninger) {
-            if (beholdning.getFomDato().isEqual(reguleringDayGivenYear)) {
-                prevBeholdning = beholdning;
-            } else if (isBeholdningWithinPeriode(beholdning, reguleringDayGivenYear, lastDayOfGivenYear)) {
-                Double prevBelop = prevBeholdning != null ? prevBeholdning.getBelop() : 0D;
-                Double endringBelop = beholdning.getBelop() - prevBelop;
-
-                EndringPensjonsopptjening endringUttak = new EndringPensjonsopptjening(TypeArsakCode.UTTAK, beholdning.getFomDato(), endringBelop, beholdning.getBelop(),
-                        fetchUttaksgrad(beholdning.getFomDato(), beholdning, uttaksgrader), null);
-                endringUttak.setArsakDetails(List.of(DetailsArsakCode.UTTAK));
-                beholdningsendringer.add(endringUttak);
-
-                prevBeholdning = beholdning;
-            }
+            prevBeholdning = addUttaksopptjening(beholdningsendringer, uttaksgrader, prevBeholdning, beholdning);
         }
     }
 
-    private void addUtgaendeBeholdning(List<Beholdning> sortedBeholdningListe, List<EndringPensjonsopptjening> beholdningsendringer, List<Uttaksgrad> sakLuttaksgradList) {
-        Beholdning lastBeholdning = sortedBeholdningListe.get(sortedBeholdningListe.size() - 1);
-        if (lastBeholdning.getTomDato() != null && lastBeholdning.getTomDato().isEqual(lastDayOfGivenYear)) {
-            beholdningsendringer.add(new EndringPensjonsopptjening(TypeArsakCode.UTGAENDE, lastDayOfGivenYear, null, lastBeholdning.getBelop(), fetchUttaksgrad(
-                    lastDayOfGivenYear, lastBeholdning, sakLuttaksgradList), null));
+    private Beholdning addUttaksopptjening(List<EndringPensjonsopptjening> beholdningsendringer,
+                                           List<Uttaksgrad> uttaksgrader,
+                                           Beholdning previousBeholdning,
+                                           Beholdning beholdning) {
+        LocalDate fomDato = beholdning.getFomDato();
+
+        if (fomDato.isEqual(reguleringDayGivenYear)) {
+            return beholdning;
         }
+
+        if (!isPeriodeWithinInterval(beholdning, reguleringDayGivenYear, lastDayOfGivenYear)) {
+            return previousBeholdning;
+        }
+
+        double prevBelop = previousBeholdning == null ? 0D : previousBeholdning.getBelop();
+        double belop = beholdning.getBelop();
+        double endringsbelop = belop - prevBelop;
+        Integer uttaksgrad = findUttaksgrad(fomDato, beholdning, uttaksgrader);
+
+        beholdningsendringer.add(
+                EndringPensjonsopptjening.uttak(
+                        fomDato,
+                        belop,
+                        endringsbelop,
+                        uttaksgrad));
+
+        return beholdning;
+    }
+
+    private void addUtgaendeBeholdning(List<Beholdning> sortedBeholdninger,
+                                       List<EndringPensjonsopptjening> beholdningsendringer,
+                                       List<Uttaksgrad> uttaksgrader,
+                                       int year) {
+        Beholdning lastBeholdning = getLast(sortedBeholdninger);
+
+        if (lastBeholdning.getTomDato() == null || !lastBeholdning.getTomDato().isEqual(lastDayOfGivenYear)) {
+            return;
+        }
+
+        Integer uttaksgrad = findUttaksgrad(lastDayOfGivenYear, lastBeholdning, uttaksgrader);
+        beholdningsendringer.add(EndringPensjonsopptjening.utgaende(year, lastBeholdning.getBelop(), uttaksgrad));
+    }
+
+    private static Beholdning getLast(List<Beholdning> beholdninger) {
+        return beholdninger.get(beholdninger.size() - 1);
     }
 }

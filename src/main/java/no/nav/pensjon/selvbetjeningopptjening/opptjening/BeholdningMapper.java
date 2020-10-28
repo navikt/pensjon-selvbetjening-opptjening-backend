@@ -48,18 +48,18 @@ public class BeholdningMapper {
 
     private static BeholdningDto toDto(Beholdning domain) {
         var dto = new BeholdningDto();
-        dto.setBeholdningId(domain.getBeholdningId());
+        dto.setBeholdningId(domain.getId());
         dto.setFnr(domain.getFnr());
         dto.setStatus(domain.getStatus());
-        dto.setBeholdningType(domain.getBeholdningType());
+        dto.setBeholdningType(domain.getType());
         dto.setBelop(domain.getBelop());
         dto.setVedtakId(domain.getVedtakId());
         dto.setFomDato(domain.getFomDato());
         dto.setTomDato(domain.getTomDato());
-        dto.setBeholdningGrunnlag(domain.getBeholdningGrunnlag());
-        dto.setBeholdningGrunnlagAvkortet(domain.getBeholdningGrunnlagAvkortet());
-        dto.setBeholdningInnskudd(domain.getBeholdningInnskudd());
-        dto.setBeholdningInnskuddUtenOmsorg(domain.getBeholdningInnskuddUtenOmsorg());
+        dto.setBeholdningGrunnlag(domain.getGrunnlag());
+        dto.setBeholdningGrunnlagAvkortet(domain.getGrunnlagAvkortet());
+        dto.setBeholdningInnskudd(domain.getInnskudd());
+        dto.setBeholdningInnskuddUtenOmsorg(domain.getInnskuddUtenOmsorg());
         dto.setOppdateringArsak(domain.getOppdateringArsak());
         dto.setLonnsvekstregulering(domain.getLonnsvekstregulering());
         dto.setInntektOpptjeningBelop(domain.getInntektOpptjeningBelop());

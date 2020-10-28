@@ -1,15 +1,15 @@
 package no.nav.pensjon.selvbetjeningopptjening.util;
 
-import no.nav.pensjon.selvbetjeningopptjening.opptjening.Beholdning;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Periode;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BeholdningUtil {
+public class PeriodeUtil {
 
-    public static List<Beholdning> sortBeholdningerByDate(List<Beholdning> unsortedBeholdninger) {
-        List<Beholdning> copy = new ArrayList<>(unsortedBeholdninger);
+    public static <T extends Periode> List<T> sortPerioderByFomDate(List<T> unsortedPerioder) {
+        List<T> copy = new ArrayList<>(unsortedPerioder);
 
         if (copy.size() <= 1) {
             return copy;
@@ -24,9 +24,10 @@ public class BeholdningUtil {
         return copy;
     }
 
-    public static boolean isBeholdningWithinPeriode(Beholdning beholdning, LocalDate start, LocalDate end) {
-        LocalDate fom = beholdning.getFomDato();
-        LocalDate tom = beholdning.getTomDato();
+
+    public static boolean isPeriodeWithinInterval(Periode periode, LocalDate start, LocalDate end) {
+        LocalDate fom = periode.getFomDato();
+        LocalDate tom = periode.getTomDato();
 
         return fom.isAfter(start)
                 && (tom == null && (end == null || end.isAfter(fom))

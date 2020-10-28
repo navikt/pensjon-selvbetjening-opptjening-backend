@@ -9,40 +9,42 @@ import java.util.List;
 
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode.*;
 
-public class Beholdning {
+public class Beholdning implements Periode {
 
-    private Long beholdningId;
-    private String fnr;
-    private String status;
-    private String beholdningType;
-    private double belop;
-    private Long vedtakId;
-    private LocalDate fomDato;
-    private LocalDate tomDato;
-    private double beholdningGrunnlag;
-    private Double beholdningGrunnlagAvkortet;
-    private Double beholdningInnskudd;
-    private Double beholdningInnskuddUtenOmsorg;
-    private String oppdateringArsak;
-    private Lonnsvekstregulering lonnsvekstregulering;
-    private InntektOpptjeningBelop inntektOpptjeningBelop;
-    private OmsorgOpptjeningBelop omsorgOpptjeningBelop;
-    private DagpengerOpptjeningBelop dagpengerOpptjeningBelop;
-    private ForstegangstjenesteOpptjeningBelop forstegangstjenesteOpptjeningBelop;
-    private UforeOpptjeningBelop uforeOpptjeningBelop;
+    private final boolean hasInnskudd;
+    private final boolean hasVedtak;
+    private final long id;
+    private final String fnr;
+    private final String status;
+    private final String type;
+    private final double belop;
+    private final long vedtakId;
+    private final LocalDate fomDato;
+    private final LocalDate tomDato;
+    private final double grunnlag;
+    private final double grunnlagAvkortet;
+    private final double innskudd;
+    private final double innskuddUtenOmsorg;
+    private final String oppdateringArsak;
+    private final Lonnsvekstregulering lonnsvekstregulering;
+    private final InntektOpptjeningBelop inntektOpptjeningBelop;
+    private final OmsorgOpptjeningBelop omsorgOpptjeningBelop;
+    private final DagpengerOpptjeningBelop dagpengerOpptjeningBelop;
+    private final ForstegangstjenesteOpptjeningBelop forstegangstjenesteOpptjeningBelop;
+    private final UforeOpptjeningBelop uforeOpptjeningBelop;
 
-    public Beholdning(Long beholdningId,
+    public Beholdning(Long id,
                       String fnr,
                       String status,
-                      String beholdningType,
+                      String type,
                       Double belop,
                       Long vedtakId,
                       LocalDate fomDato,
                       LocalDate tomDato,
-                      Double beholdningGrunnlag,
-                      Double beholdningGrunnlagAvkortet,
-                      Double beholdningInnskudd,
-                      Double beholdningInnskuddUtenOmsorg,
+                      Double grunnlag,
+                      Double grunnlagAvkortet,
+                      Double innskudd,
+                      Double innskuddUtenOmsorg,
                       String oppdateringArsak,
                       Lonnsvekstregulering lonnsvekstregulering,
                       InntektOpptjeningBelop inntektOpptjeningBelop,
@@ -50,18 +52,20 @@ public class Beholdning {
                       DagpengerOpptjeningBelop dagpengerOpptjeningBelop,
                       ForstegangstjenesteOpptjeningBelop forstegangstjenesteOpptjeningBelop,
                       UforeOpptjeningBelop uforeOpptjeningBelop) {
-        this.beholdningId = beholdningId;
+        this.id = id == null ? 0L : id;
         this.fnr = fnr;
         this.status = status;
-        this.beholdningType = beholdningType;
+        this.type = type;
         this.belop = belop == null ? 0D : belop;
-        this.vedtakId = vedtakId;
+        this.vedtakId = vedtakId == null ? 0L : vedtakId;
+        this.hasVedtak = vedtakId != null;
         this.fomDato = fomDato;
         this.tomDato = tomDato;
-        this.beholdningGrunnlag = beholdningGrunnlag == null ? 0D : beholdningGrunnlag;
-        this.beholdningGrunnlagAvkortet = beholdningGrunnlagAvkortet;
-        this.beholdningInnskudd = beholdningInnskudd;
-        this.beholdningInnskuddUtenOmsorg = beholdningInnskuddUtenOmsorg;
+        this.grunnlag = grunnlag == null ? 0D : grunnlag;
+        this.grunnlagAvkortet = grunnlagAvkortet == null ? 0D : grunnlagAvkortet;
+        this.innskudd = innskudd == null ? 0D : innskudd;
+        this.hasInnskudd = innskudd != null;
+        this.innskuddUtenOmsorg = innskuddUtenOmsorg == null ? 0D : innskuddUtenOmsorg;
         this.oppdateringArsak = oppdateringArsak;
         this.lonnsvekstregulering = lonnsvekstregulering;
         this.inntektOpptjeningBelop = inntektOpptjeningBelop;
@@ -71,33 +75,32 @@ public class Beholdning {
         this.uforeOpptjeningBelop = uforeOpptjeningBelop;
     }
 
-    public Beholdning(LocalDate fomDato, double belop) {
-        this.fomDato = fomDato;
-        this.belop = belop;
-    }
-
-    public Long getBeholdningId() {
-        return beholdningId;
+    long getId() {
+        return id;
     }
 
     public String getFnr() {
         return fnr;
     }
 
-    public String getStatus() {
+    String getStatus() {
         return status;
     }
 
-    public String getBeholdningType() {
-        return beholdningType;
+    String getType() {
+        return type;
     }
 
-    public Double getBelop() {
+    public double getBelop() {
         return belop;
     }
 
-    public Long getVedtakId() {
+    long getVedtakId() {
         return vedtakId;
+    }
+
+    boolean hasVedtak() {
+        return hasVedtak;
     }
 
     public LocalDate getFomDato() {
@@ -108,88 +111,110 @@ public class Beholdning {
         return tomDato;
     }
 
-    public Double getBeholdningGrunnlag() {
-        return beholdningGrunnlag;
+    double getGrunnlag() {
+        return grunnlag;
     }
 
-    public Double getBeholdningGrunnlagAvkortet() {
-        return beholdningGrunnlagAvkortet;
+    double getGrunnlagAvkortet() {
+        return grunnlagAvkortet;
     }
 
-    public Double getBeholdningInnskudd() {
-        return beholdningInnskudd;
+    double getInnskudd() {
+        return innskudd;
     }
 
-    public Double getBeholdningInnskuddUtenOmsorg() {
-        return beholdningInnskuddUtenOmsorg;
+    boolean hasInnskudd() {
+        return hasInnskudd;
     }
 
-    public String getOppdateringArsak() {
+    double getInnskuddUtenOmsorg() {
+        return innskuddUtenOmsorg;
+    }
+
+    String getOppdateringArsak() {
         return oppdateringArsak;
     }
 
-    public Lonnsvekstregulering getLonnsvekstregulering() {
+    Lonnsvekstregulering getLonnsvekstregulering() {
         return lonnsvekstregulering;
     }
 
-    public InntektOpptjeningBelop getInntektOpptjeningBelop() {
+    double getLonnsvekstreguleringsbelop() {
+        return hasLonnsvekstreguleringsbelop() ? lonnsvekstregulering.getReguleringsbelop() : 0D;
+    }
+
+    boolean hasLonnsvekstreguleringsbelop() {
+        return lonnsvekstregulering != null && lonnsvekstregulering.getReguleringsbelop() != null;
+    }
+
+    InntektOpptjeningBelop getInntektOpptjeningBelop() {
         return inntektOpptjeningBelop;
     }
 
-    public OmsorgOpptjeningBelop getOmsorgOpptjeningBelop() {
+    OmsorgOpptjeningBelop getOmsorgOpptjeningBelop() {
         return omsorgOpptjeningBelop;
     }
 
-    public DagpengerOpptjeningBelop getDagpengerOpptjeningBelop() {
+    DagpengerOpptjeningBelop getDagpengerOpptjeningBelop() {
         return dagpengerOpptjeningBelop;
     }
 
-    public ForstegangstjenesteOpptjeningBelop getForstegangstjenesteOpptjeningBelop() {
+    ForstegangstjenesteOpptjeningBelop getForstegangstjenesteOpptjeningBelop() {
         return forstegangstjenesteOpptjeningBelop;
     }
 
-    public UforeOpptjeningBelop getUforeOpptjeningBelop() {
+    UforeOpptjeningBelop getUforeOpptjeningBelop() {
         return uforeOpptjeningBelop;
     }
 
     List<GrunnlagTypeCode> getOpptjeningGrunnlagTypes() {
-        List<GrunnlagTypeCode> presentGrunnlagTypes = new ArrayList<>();
+        List<GrunnlagTypeCode> grunnlagTypes = new ArrayList<>();
 
-        if (getInntektOpptjeningBelop() != null && getInntektOpptjeningBelop().getBelop() > 0) {
-            presentGrunnlagTypes.add(INNTEKT_GRUNNLAG);
-        }
-        if (getOmsorgOpptjeningBelop() != null && getOmsorgOpptjeningBelop().getBelop() > 0) {
-            presentGrunnlagTypes.add(OMSORGSOPPTJENING_GRUNNLAG);
-        }
-        if (getUforeOpptjeningBelop() != null && getUforeOpptjeningBelop().getBelop() > 0) {
-            presentGrunnlagTypes.add(UFORE_GRUNNLAG);
-        }
-        if (getForstegangstjenesteOpptjeningBelop() != null && getForstegangstjenesteOpptjeningBelop().getBelop() > 0) {
-            presentGrunnlagTypes.add(FORSTEGANGSTJENESTE_GRUNNLAG);
-        }
-        if (getDagpengerOpptjeningBelop() != null && (
-                getDagpengerOpptjeningBelop().getBelopOrdinar() != null && getDagpengerOpptjeningBelop().getBelopOrdinar() > 0
-                        || getDagpengerOpptjeningBelop().getBelopFiskere() != null && getDagpengerOpptjeningBelop().getBelopFiskere() > 0)) {
-            presentGrunnlagTypes.add(DAGPENGER_GRUNNLAG);
+        if (inntektOpptjeningBelop != null && inntektOpptjeningBelop.getBelop() > 0) {
+            grunnlagTypes.add(INNTEKT_GRUNNLAG);
         }
 
-        return filterGrunnlagOnlyThoseThatApply(presentGrunnlagTypes);
+        if (omsorgOpptjeningBelop != null && omsorgOpptjeningBelop.getBelop() > 0) {
+            grunnlagTypes.add(OMSORGSOPPTJENING_GRUNNLAG);
+        }
+
+        if (uforeOpptjeningBelop != null && uforeOpptjeningBelop.getBelop() > 0) {
+            grunnlagTypes.add(UFORE_GRUNNLAG);
+        }
+
+        if (forstegangstjenesteOpptjeningBelop != null && forstegangstjenesteOpptjeningBelop.getBelop() > 0) {
+            grunnlagTypes.add(FORSTEGANGSTJENESTE_GRUNNLAG);
+        }
+
+        if (dagpengerOpptjeningBelop != null && (
+                dagpengerOpptjeningBelop.getBelopOrdinar() != null && dagpengerOpptjeningBelop.getBelopOrdinar() > 0
+                        || dagpengerOpptjeningBelop.getBelopFiskere() != null && dagpengerOpptjeningBelop.getBelopFiskere() > 0)) {
+            grunnlagTypes.add(DAGPENGER_GRUNNLAG);
+        }
+
+        return filterGrunnlagOnlyThoseThatApply(grunnlagTypes);
     }
 
-    private List<GrunnlagTypeCode> filterGrunnlagOnlyThoseThatApply(List<GrunnlagTypeCode> presentGrunnlagTypes) {
-        Double grunnlag = getBeholdningGrunnlag();
-        if (grunnlag == null || grunnlag.equals(0.0)) {
+    private List<GrunnlagTypeCode> filterGrunnlagOnlyThoseThatApply(List<GrunnlagTypeCode> grunnlagTypes) {
+        if (grunnlag == 0D) {
             return List.of(NO_GRUNNLAG);
-        } else if (presentGrunnlagTypes.contains(OMSORGSOPPTJENING_GRUNNLAG) && grunnlag.equals(getOmsorgOpptjeningBelop().getBelop())) {
+        }
+
+        if (grunnlagTypes.contains(OMSORGSOPPTJENING_GRUNNLAG) && grunnlag == omsorgOpptjeningBelop.getBelop()) {
             return List.of(OMSORGSOPPTJENING_GRUNNLAG);
-        } else if (presentGrunnlagTypes.contains(UFORE_GRUNNLAG) ||
-                presentGrunnlagTypes.contains(FORSTEGANGSTJENESTE_GRUNNLAG) ||
-                presentGrunnlagTypes.contains(DAGPENGER_GRUNNLAG)) {
-            presentGrunnlagTypes.remove(OMSORGSOPPTJENING_GRUNNLAG);
-            return presentGrunnlagTypes;
-        } else if (presentGrunnlagTypes.contains(INNTEKT_GRUNNLAG) && grunnlag.equals(getInntektOpptjeningBelop().getBelop())) {
+        }
+
+        if (grunnlagTypes.contains(UFORE_GRUNNLAG) ||
+                grunnlagTypes.contains(FORSTEGANGSTJENESTE_GRUNNLAG) ||
+                grunnlagTypes.contains(DAGPENGER_GRUNNLAG)) {
+            grunnlagTypes.remove(OMSORGSOPPTJENING_GRUNNLAG);
+            return grunnlagTypes;
+        }
+
+        if (grunnlagTypes.contains(INNTEKT_GRUNNLAG) && grunnlag == inntektOpptjeningBelop.getBelop()) {
             return List.of(INNTEKT_GRUNNLAG);
         }
-        return presentGrunnlagTypes.isEmpty() ? List.of(NO_GRUNNLAG) : presentGrunnlagTypes;
+
+        return grunnlagTypes.isEmpty() ? List.of(NO_GRUNNLAG) : grunnlagTypes;
     }
 }

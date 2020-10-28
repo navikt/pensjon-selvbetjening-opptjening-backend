@@ -17,10 +17,10 @@ class EndringPensjonsopptjeningMapper {
         dto.setArsakDetails(opptjening.getArsakDetails());
         dto.setArsakType(opptjening.getArsakType());
         dto.setDato(opptjening.getDato());
-        dto.setEndringBelop(opptjening.getEndringBelop());
+        dto.setEndringBelop(opptjening.getEndringsbelop());
         dto.setGrunnlag(opptjening.getGrunnlag());
-        dto.setGrunnlagTypes(opptjening.getGrunnlagsTypes());
-        dto.setPensjonsbeholdningBelop(opptjening.getPensjonsbeholdningBelop());
+        dto.setGrunnlagTypes(opptjening.getGrunnlagTypes());
+        dto.setPensjonsbeholdningBelop(opptjening.getBeholdningsbelop());
         dto.setUttaksgrad(opptjening.getUttaksgrad());
         return dto;
     }
