@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode.*;
+import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
 
 public class Beholdning implements Periode {
 
@@ -123,10 +124,6 @@ public class Beholdning implements Periode {
         return innskudd;
     }
 
-    boolean hasInnskudd() {
-        return hasInnskudd;
-    }
-
     double getInnskuddUtenOmsorg() {
         return innskuddUtenOmsorg;
     }
@@ -165,6 +162,16 @@ public class Beholdning implements Periode {
 
     UforeOpptjeningBelop getUforeOpptjeningBelop() {
         return uforeOpptjeningBelop;
+    }
+
+    double getEffectiveInnskudd(int year) {
+        if (!hasInnskudd) {
+            return 0D;
+        }
+
+        return year == REFORM_2010
+                ? innskudd + getLonnsvekstreguleringsbelop()
+                : innskudd;
     }
 
     List<GrunnlagTypeCode> getOpptjeningGrunnlagTypes() {
@@ -217,4 +224,25 @@ public class Beholdning implements Periode {
 
         return grunnlagTypes.isEmpty() ? List.of(NO_GRUNNLAG) : grunnlagTypes;
     }
+
+    static final Beholdning NULL = new Beholdning(
+            null,
+            "",
+            "",
+            "",
+            null,
+            null, // use null (not 0), so that hasVedtak is set correctly
+            LocalDate.MIN,
+            LocalDate.MIN,
+            null,
+            null,
+            null, // use null (not 0), so that hasInnskudd is set correctly
+            null,
+            "",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 }
