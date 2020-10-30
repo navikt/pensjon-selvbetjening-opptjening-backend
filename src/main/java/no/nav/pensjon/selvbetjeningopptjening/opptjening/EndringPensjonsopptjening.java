@@ -70,13 +70,13 @@ class EndringPensjonsopptjening {
                 null);
     }
 
-    static EndringPensjonsopptjening uttak(LocalDate fomDato,
+    static EndringPensjonsopptjening uttak(LocalDate fomDate,
                                            double beholdningsbelop,
                                            double endringsbelop,
                                            Integer uttaksgrad) {
         return new EndringPensjonsopptjening(
                 TypeArsakCode.UTTAK,
-                fomDato,
+                fomDate,
                 beholdningsbelop,
                 endringsbelop,
                 uttaksgrad,
@@ -100,7 +100,7 @@ class EndringPensjonsopptjening {
                 null);
     }
 
-    static EndringPensjonsopptjening uttakAtReguleringDate(int year,
+    static EndringPensjonsopptjening uttakOnReguleringDate(int year,
                                                            double beholdningsbelop,
                                                            double endringsbelop,
                                                            Integer uttaksgrad) {
@@ -115,11 +115,11 @@ class EndringPensjonsopptjening {
                 null);
     }
 
-    static EndringPensjonsopptjening utgaende(int year, double lastBeholdningsbelop, Integer uttaksgrad) {
+    static EndringPensjonsopptjening utgaende(int year, double beholdningsbelop, Integer uttaksgrad) {
         return new EndringPensjonsopptjening(
                 TypeArsakCode.UTGAENDE,
                 lastDayOf(year),
-                lastBeholdningsbelop,
+                beholdningsbelop,
                 null,
                 uttaksgrad,
                 null,
