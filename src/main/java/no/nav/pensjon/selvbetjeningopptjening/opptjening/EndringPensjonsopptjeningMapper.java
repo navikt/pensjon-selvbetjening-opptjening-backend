@@ -1,15 +1,17 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 class EndringPensjonsopptjeningMapper {
 
     static List<EndringPensjonsopptjeningDto> toDto(List<EndringPensjonsopptjening> list) {
-        return list
+        return list == null ? null
+                : list
                 .stream()
                 .map(EndringPensjonsopptjeningMapper::toDto)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     private static EndringPensjonsopptjeningDto toDto(EndringPensjonsopptjening opptjening) {

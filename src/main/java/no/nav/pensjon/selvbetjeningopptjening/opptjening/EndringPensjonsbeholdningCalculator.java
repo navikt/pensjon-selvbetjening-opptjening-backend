@@ -1,6 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.model.BeholdningDto;
 import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
 
 import java.time.LocalDate;
@@ -8,8 +7,6 @@ import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 
-import static no.nav.pensjon.selvbetjeningopptjening.opptjening.BeholdningMapper.fromDto;
-import static no.nav.pensjon.selvbetjeningopptjening.opptjening.EndringPensjonsopptjeningMapper.toDto;
 import static no.nav.pensjon.selvbetjeningopptjening.util.DateUtil.isDateInPeriod;
 import static no.nav.pensjon.selvbetjeningopptjening.util.PeriodeUtil.isPeriodeWithinInterval;
 import static no.nav.pensjon.selvbetjeningopptjening.util.PeriodeUtil.sortPerioderByFomDate;
@@ -22,10 +19,10 @@ public class EndringPensjonsbeholdningCalculator {
     private LocalDate reguleringDayGivenYear;
     private LocalDate lastDayOfGivenYear;
 
-    List<EndringPensjonsopptjeningDto> calculateEndringPensjonsbeholdning(int year,
-                                                                          List<BeholdningDto> beholdninger,
+    List<EndringPensjonsopptjening> calculatePensjonsbeholdningsendringer(int year,
+                                                                          List<Beholdning> beholdninger,
                                                                           List<Uttaksgrad> uttaksgrader) {
-        List<Beholdning> sortedBeholdninger = sortPerioderByFomDate(fromDto(beholdninger));
+        List<Beholdning> sortedBeholdninger = sortPerioderByFomDate(beholdninger);
 
         firstDayOfGivenYear = LocalDate.of(year, Month.JANUARY, 1);
         dayBeforeReguleringGivenYear = LocalDate.of(year, Month.APRIL, 30);
@@ -35,7 +32,7 @@ public class EndringPensjonsbeholdningCalculator {
 
         return sortedBeholdninger.isEmpty()
                 ? null
-                : toDto(getPensjonsbeholdningsendringer(year, sortedBeholdninger, uttaksgrader));
+                : getPensjonsbeholdningsendringer(year, sortedBeholdninger, uttaksgrader);
     }
 
     private List<EndringPensjonsopptjening> getPensjonsbeholdningsendringer(int year,
@@ -55,11 +52,7 @@ public class EndringPensjonsbeholdningCalculator {
                                               List<Beholdning> beholdninger,
                                               List<EndringPensjonsopptjening> beholdningsendringer,
                                               List<Uttaksgrad> uttaksgrader) {
-        Beholdning beholdning = beholdninger
-                .stream()
-                .filter(this::endsLastDayOfPreviousYear)
-                .findFirst()
-                .orElse(Beholdning.NULL);
+        Beholdning beholdning = beholdningAtEndOfPreviousYear(beholdninger);
 
         beholdningsendringer.add(
                 EndringPensjonsopptjening.inngaende(
@@ -86,9 +79,10 @@ public class EndringPensjonsbeholdningCalculator {
         double beholdningsbelop = inngaendeBelop + innskudd;
 
         if (isBeholdningWithinUttaksgradsperiodeIncludeSameDay(beholdning, uttaksgrader)) {
-            addNyOpptjeningAndUttakAtStartOfYear(year, beholdningsendringer, uttaksgrader, beholdning, innskudd, beholdningsbelop);
+            addNyOpptjening(year, beholdning, beholdningsendringer, uttaksgrader, innskudd, beholdningsbelop);
+            addUttakAtStartOfYear(year, beholdning, beholdningsendringer, uttaksgrader, beholdningsbelop);
         } else {
-            addNyOpptjening(year, beholdningsendringer, uttaksgrader, beholdning, innskudd, beholdningsbelop);
+            addNyOpptjening(year, beholdning, beholdningsendringer, uttaksgrader, innskudd, beholdningsbelop);
         }
 
         return beholdning;
@@ -179,28 +173,26 @@ public class EndringPensjonsbeholdningCalculator {
     }
 
     private void addNyOpptjening(int year,
+                                 Beholdning beholdning,
                                  List<EndringPensjonsopptjening> endringer,
                                  List<Uttaksgrad> uttaksgrader,
-                                 Beholdning beholdning,
                                  double innskudd,
-                                 double pensjonsbeholdningBelop) {
+                                 double beholdningsbelop) {
         endringer.add(
                 EndringPensjonsopptjening.nyOpptjening(
                         year,
-                        pensjonsbeholdningBelop,
+                        beholdningsbelop,
                         innskudd,
                         uttaksgradAtStartOfYear(uttaksgrader, beholdning),
                         beholdning.getGrunnlag(),
                         beholdning.getOpptjeningGrunnlagTypes()));
     }
 
-    private void addNyOpptjeningAndUttakAtStartOfYear(int year,
-                                                      List<EndringPensjonsopptjening> endringer,
-                                                      List<Uttaksgrad> uttaksgrader,
-                                                      Beholdning beholdning,
-                                                      double innskudd,
-                                                      double beholdningsbelop) {
-        addNyOpptjening(year, endringer, uttaksgrader, beholdning, innskudd, beholdningsbelop);
+    private void addUttakAtStartOfYear(int year,
+                                       Beholdning beholdning,
+                                       List<EndringPensjonsopptjening> endringer,
+                                       List<Uttaksgrad> uttaksgrader,
+                                       double beholdningsbelop) {
         double endringsbelop = beholdning.getBelop() - beholdningsbelop;
 
         endringer.add(
@@ -305,6 +297,14 @@ public class EndringPensjonsbeholdningCalculator {
                 : dayBeforeReguleringGivenYear;
 
         return uttaksgradAtDate(uttaksgrader, beholdning, validityDate);
+    }
+
+    private Beholdning beholdningAtEndOfPreviousYear(List<Beholdning> beholdninger) {
+        return beholdninger
+                .stream()
+                .filter(this::endsLastDayOfPreviousYear)
+                .findFirst()
+                .orElse(Beholdning.NULL);
     }
 
     private Beholdning beholdningAtStartOfYear(List<Beholdning> beholdninger) {

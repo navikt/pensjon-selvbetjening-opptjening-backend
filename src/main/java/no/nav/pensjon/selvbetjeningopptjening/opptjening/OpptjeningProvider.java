@@ -1,5 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
+import static no.nav.pensjon.selvbetjeningopptjening.opptjening.BeholdningMapper.fromDto;
+import static no.nav.pensjon.selvbetjeningopptjening.opptjening.EndringPensjonsopptjeningMapper.toDto;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
 
 import java.time.LocalDate;
@@ -434,33 +436,45 @@ public class OpptjeningProvider {
         opptjening.setPensjonsgivendeInntekt(pensjonspoeng.getInntekt().getBelop().intValue());
     }
 
-    private int findNumberOfYearsWithPensjonspoeng(Map<Integer, OpptjeningDto> opptjeningMap) {
-
+    private int findNumberOfYearsWithPensjonspoeng(Map<Integer, OpptjeningDto> opptjeningerByYear) {
         int numberOfYearsWithPensjonspoeng = 0;
 
-        for (OpptjeningDto opptjening : opptjeningMap.values()) {
+        for (OpptjeningDto opptjening : opptjeningerByYear.values()) {
             if (opptjening.getPensjonspoeng() != null && opptjening.getPensjonspoeng() > 0) {
                 numberOfYearsWithPensjonspoeng++;
             }
         }
+
         return numberOfYearsWithPensjonspoeng;
     }
 
-    private void populateEndringOpptjening(Map<Integer, OpptjeningDto> opptjeningMap, List<BeholdningDto> beholdningList) {
-        List<Long> vedtakIdForBeholdningAfter2009 = beholdningList.stream()
+    private void populateEndringOpptjening(Map<Integer, OpptjeningDto> opptjeningerByYear,
+                                           List<BeholdningDto> beholdninger) {
+        List<Long> vedtakIdForBeholdningAfter2009 = beholdninger.stream()
                 .filter(beholdning -> beholdning.getVedtakId() != null && beholdning.getFomDato().getYear() >= REFORM_2010 - 1)
-                .map(BeholdningDto::getVedtakId).collect(Collectors.toList());
+                .map(BeholdningDto::getVedtakId)
+                .collect(Collectors.toList());
 
         List<Uttaksgrad> uttaksgradForBeholdningAfter2009 = uttaksgradGetter.getUttaksgradForVedtak(vedtakIdForBeholdningAfter2009);
 
-        opptjeningMap.entrySet().stream()
+        opptjeningerByYear.entrySet().stream()
                 .filter(entry -> entry.getKey() >= REFORM_2010)
-                .forEach(entry -> entry.getValue().setEndringOpptjening(
-                        endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(entry.getKey(), beholdningList, uttaksgradForBeholdningAfter2009)));
+                .forEach(entry -> setEndring(beholdninger, uttaksgradForBeholdningAfter2009, entry.getKey(), entry.getValue()));
     }
 
-    private void populateMerknadForOpptjening(Map<Integer, OpptjeningDto> opptjeningMap, List<BeholdningDto> pensjonsbeholdningList, List<Uttaksgrad> uttaksgradhistorikk,
-                                              AfpHistorikk afphistorikk, UforeHistorikk uforehistorikk) {
-        opptjeningMap.forEach((key, value) -> merknadHandler.addMerknaderOnOpptjening(key, value, pensjonsbeholdningList, uttaksgradhistorikk, afphistorikk, uforehistorikk));
+    private void setEndring(List<BeholdningDto> beholdninger, List<Uttaksgrad> uttaksgrader, int year, OpptjeningDto opptjening) {
+        List<EndringPensjonsopptjening> endring =
+                endringPensjonsbeholdningCalculator.calculatePensjonsbeholdningsendringer(year, fromDto(beholdninger), uttaksgrader);
+
+        opptjening.setEndringOpptjening(toDto(endring));
+    }
+
+    private void populateMerknadForOpptjening(Map<Integer, OpptjeningDto> opptjeningerByYear,
+                                              List<BeholdningDto> beholdninger,
+                                              List<Uttaksgrad> uttaksgradHistorikk,
+                                              AfpHistorikk afpHistorikk,
+                                              UforeHistorikk uforeHistorikk) {
+        opptjeningerByYear.forEach(
+                (key, value) -> merknadHandler.addMerknaderOnOpptjening(key, value, beholdninger, uttaksgradHistorikk, afpHistorikk, uforeHistorikk));
     }
 }
