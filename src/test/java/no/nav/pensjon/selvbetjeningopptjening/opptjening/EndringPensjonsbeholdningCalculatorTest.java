@@ -2,13 +2,12 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import no.nav.pensjon.selvbetjeningopptjening.model.*;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode.OPPTJENING_2012;
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode.OPPTJENING_GRADERT;
@@ -18,27 +17,20 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class EndringPensjonsbeholdningCalculatorTest {
 
-    private EndringPensjonsbeholdningCalculator calculator;
-
-    @BeforeEach
-    void setUp() {
-        calculator = new EndringPensjonsbeholdningCalculator();
-    }
-
     @Test
-    void when_empty_input_then_calculator_returns_null() {
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, new ArrayList<>(), new ArrayList<>());
+    void when_empty_input_then_calculator_returns_empty_list() {
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, emptyList(), emptyList());
 
-        assertNull(endringer);
+        assertTrue(endringer.isEmpty());
     }
 
     @Test
     void when_beholdning_list_has_one_element_with_fomDate_GivenYear_then_calculator_returns_2_elements() {
         Beholdning beholdning = newBeholdning(1D, LocalDate.of(2020, 3, 1));
 
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), new ArrayList<>());
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
 
         assertEquals(2, endringer.size());
     }
@@ -48,7 +40,8 @@ class EndringPensjonsbeholdningCalculatorTest {
         Beholdning beholdning = newBeholdning(1D, LocalDate.of(2020, 1, 1));
 
         List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), new ArrayList<>());
+                EndringPensjonsbeholdningCalculator
+                        .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
 
         assertEquals(2, endringer.size());
     }
@@ -57,8 +50,8 @@ class EndringPensjonsbeholdningCalculatorTest {
     void when_beholdning_list_has_one_element_with_fomDate_1JanGivenYear_and_TomDato_31DecGivenYear_then_calculator_returns_3_elements() {
         Beholdning beholdning = newBeholdning(1D, LocalDate.of(2020, 1, 1), LocalDate.of(2020, 12, 31));
 
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), new ArrayList<>());
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
 
         assertEquals(3, endringer.size());
     }
@@ -67,8 +60,8 @@ class EndringPensjonsbeholdningCalculatorTest {
     void when_beholdning_with_fomDate_GivenYear_then_calculator_returns_2_elements_med_endringBelop_og_pensjonsbeholdningBelop() {
         Beholdning beholdning = newBeholdning(10D, LocalDate.of(2020, 2, 1));
 
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), new ArrayList<>());
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
 
         assertEquals(2, endringer.size());
         assertNull(endringer.get(0).getEndringsbelop());
@@ -81,11 +74,10 @@ class EndringPensjonsbeholdningCalculatorTest {
     void when_beholdning_with_fomDate_1JanGivenYear_and_uttak_then_calculator_returns_3_elements_med_endringBelop_og_pensjonsbeholdningBelop() {
         LocalDate fomDato = LocalDate.of(2020, 1, 1);
         Beholdning beholdning = newBeholdning(10D, fomDato);
-        Uttaksgrad uttaksgrad = new Uttaksgrad();
-        uttaksgrad.setFomDato(fomDato);
+        Uttaksgrad uttaksgrad = uttaksgradFom(fomDato);
 
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), singletonList(uttaksgrad));
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), singletonList(uttaksgrad));
 
         assertEquals(3, endringer.size());
         assertNull(endringer.get(0).getEndringsbelop());
@@ -100,11 +92,10 @@ class EndringPensjonsbeholdningCalculatorTest {
     void when_beholdning_with_fomDate_1JanGivenYear_with_BeholdningInnskudd_and_uttak_then_calculator_returns_3_elements_med_endringBelop_og_pensjonsbeholdningBelop() {
         LocalDate fomDato = LocalDate.of(2020, 1, 1);
         Beholdning beholdning = newBeholdningWithInnskudd(fomDato);
-        Uttaksgrad uttaksgrad = new Uttaksgrad();
-        uttaksgrad.setFomDato(fomDato);
+        Uttaksgrad uttaksgrad = uttaksgradFom(fomDato);
 
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), singletonList(uttaksgrad));
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), singletonList(uttaksgrad));
 
         assertEquals(3, endringer.size());
         assertNull(endringer.get(0).getEndringsbelop());
@@ -120,12 +111,11 @@ class EndringPensjonsbeholdningCalculatorTest {
         LocalDate fomDato = LocalDate.of(2020, 1, 1);
         LocalDate tomDato = LocalDate.of(2020, 12, 31);
         Beholdning beholdning = newBeholdning(10D, fomDato, tomDato);
-        Uttaksgrad uttaksgrad = new Uttaksgrad();
-        uttaksgrad.setFomDato(fomDato);
+        Uttaksgrad uttaksgrad = uttaksgradFom(fomDato);
         uttaksgrad.setTomDato(tomDato);
 
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), singletonList(uttaksgrad));
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), singletonList(uttaksgrad));
 
         assertEquals(4, endringer.size());
         assertNull(endringer.get(0).getEndringsbelop());
@@ -142,32 +132,31 @@ class EndringPensjonsbeholdningCalculatorTest {
     void when_beholdning_list_has_one_element_with_fomDateOnRegulationDate_with_lonnsvekstregulering_and_uttak_then_calculator_returns_3_elements() {
         LocalDate fomDato = LocalDate.of(2020, 5, 1);
         Beholdning beholdning = newBeholdning(100D, fomDato, lonnsvekstregulering(10D));
-        Uttaksgrad uttaksgrad = new Uttaksgrad();
-        uttaksgrad.setFomDato(fomDato);
+        Uttaksgrad uttaksgrad = uttaksgradFom(fomDato);
 
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), singletonList(uttaksgrad));
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), singletonList(uttaksgrad));
 
+        double reguleringsbelop = beholdning.getLonnsvekstreguleringsbelop();
         assertEquals(3, endringer.size());
         assertNull(endringer.get(0).getEndringsbelop());
         assertEquals(0, endringer.get(0).getBeholdningsbelop());
-        assertEquals(beholdning.getLonnsvekstregulering().getReguleringsbelop(), endringer.get(1).getBeholdningsbelop());
-        assertEquals(beholdning.getLonnsvekstregulering().getReguleringsbelop(), endringer.get(1).getEndringsbelop());
-        assertEquals(beholdning.getBelop() - beholdning.getLonnsvekstregulering().getReguleringsbelop(), endringer.get(2).getEndringsbelop());
+        assertEquals(reguleringsbelop, endringer.get(1).getBeholdningsbelop());
+        assertEquals(reguleringsbelop, endringer.get(1).getEndringsbelop());
+        assertEquals(beholdning.getBelop() - reguleringsbelop, endringer.get(2).getEndringsbelop());
         assertEquals(beholdning.getBelop(), endringer.get(2).getBeholdningsbelop());
     }
 
     @Test
     void when_GivenYear_2020_with_uttaksgrad_value_100_then_calculator_returns_ArsakDetailCode_OPPTJENING_HEL() {
         Beholdning beholdning = newBeholdningWithVedtak(LocalDate.of(2020, 1, 1));
-        Uttaksgrad uttaksgrad = new Uttaksgrad();
+        Uttaksgrad uttaksgrad = uttaksgradFom(LocalDate.of(2019, 1, 1));
         uttaksgrad.setVedtakId(beholdning.getVedtakId());
         uttaksgrad.setUttaksgrad(100);
-        uttaksgrad.setFomDato(LocalDate.of(2019, 1, 1));
         uttaksgrad.setTomDato(LocalDate.of(2020, 12, 31));
 
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), singletonList(uttaksgrad));
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), singletonList(uttaksgrad));
 
         assertEquals(DetailsArsakCode.OPPTJENING_HEL, endringer.get(1).getArsakDetails().get(0));
         assertEquals(OPPTJENING, endringer.get(1).getArsakType());
@@ -176,52 +165,53 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_GivenYear_2020_with_uttaksgrad_value_lessthan100_then_calculator_returns_ArsakDetailCode_OPPTJENING_GRADERT() {
         Beholdning beholdning = newBeholdningWithVedtak(LocalDate.of(2020, 1, 1));
-        Uttaksgrad uttaksgrad = new Uttaksgrad();
+        Uttaksgrad uttaksgrad = uttaksgradFom(LocalDate.of(2019, 1, 1));
         uttaksgrad.setVedtakId(beholdning.getVedtakId());
         uttaksgrad.setUttaksgrad(50);
-        uttaksgrad.setFomDato(LocalDate.of(2019, 1, 1));
         uttaksgrad.setTomDato(LocalDate.of(2020, 12, 31));
 
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), singletonList(uttaksgrad));
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), singletonList(uttaksgrad));
 
-        assertEquals(OPPTJENING_GRADERT, endringer.get(1).getArsakDetails().get(0));
-        assertEquals(OPPTJENING, endringer.get(1).getArsakType());
+        EndringPensjonsopptjening endring = endringer.get(1);
+        assertEquals(OPPTJENING_GRADERT, endring.getArsakDetails().get(0));
+        assertEquals(OPPTJENING, endring.getArsakType());
     }
 
     @Test
     void when_fomDate_1Jan2020_with_uttaksgrad_value_0_then_calculator_returns_ArsakDetailCode_OPPTJENING_2012() {
         Beholdning beholdning = newBeholdningWithVedtak(LocalDate.of(2020, 1, 1));
-        Uttaksgrad uttaksgrad = new Uttaksgrad();
+        Uttaksgrad uttaksgrad = uttaksgradFom(LocalDate.of(2019, 1, 1));
         uttaksgrad.setVedtakId(beholdning.getVedtakId());
         uttaksgrad.setUttaksgrad(0);
-        uttaksgrad.setFomDato(LocalDate.of(2019, 1, 1));
         uttaksgrad.setTomDato(LocalDate.of(2020, 12, 31));
 
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), singletonList(uttaksgrad));
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), singletonList(uttaksgrad));
 
-        assertEquals(OPPTJENING_2012, endringer.get(1).getArsakDetails().get(0));
-        assertEquals(OPPTJENING, endringer.get(1).getArsakType());
+        EndringPensjonsopptjening endring = endringer.get(1);
+        assertEquals(OPPTJENING_2012, endring.getArsakDetails().get(0));
+        assertEquals(OPPTJENING, endring.getArsakType());
     }
 
     @Test
     void when_fomDate_1MayGivenYear_with_Lonnsvekstregulering_then_calculator_returns_ArsakDetailCode_REGULERING() {
         Beholdning beholdning = newBeholdning(1D, LocalDate.of(2020, 5, 1), lonnsvekstregulering(2D));
 
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), new ArrayList<>());
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
 
-        assertEquals(DetailsArsakCode.REGULERING, endringer.get(1).getArsakDetails().get(0));
-        assertEquals(REGULERING, endringer.get(1).getArsakType());
+        EndringPensjonsopptjening endring = endringer.get(1);
+        assertEquals(DetailsArsakCode.REGULERING, endring.getArsakDetails().get(0));
+        assertEquals(REGULERING, endring.getArsakType());
     }
 
     @Test
     void when_fomDate_1JanGivenYear_then_calculator_returns_2_ArsakType_values() {
         Beholdning beholdning = newBeholdning(1D, LocalDate.of(2020, 1, 1));
 
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), new ArrayList<>());
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
 
         assertEquals(INNGAENDE, endringer.get(0).getArsakType());
         assertEquals(OPPTJENING, endringer.get(1).getArsakType());
@@ -231,8 +221,8 @@ class EndringPensjonsbeholdningCalculatorTest {
     void when_fomDate_1JanGivenYear_and_GivenYear_2010_then_calculator_returns_2_ArsakType_values() {
         Beholdning beholdning = newBeholdning(1D, LocalDate.of(2010, 1, 1));
 
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2010, singletonList(beholdning), new ArrayList<>());
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2010, singletonList(beholdning), emptyList());
 
         assertEquals(INNGAENDE, endringer.get(0).getArsakType());
         assertEquals(INNGAENDE_2010, endringer.get(1).getArsakType());
@@ -244,8 +234,8 @@ class EndringPensjonsbeholdningCalculatorTest {
                 LocalDate.of(2020, 1, 1),
                 LocalDate.of(2020, 12, 31));
 
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), new ArrayList<>());
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
 
         assertEquals(INNGAENDE, endringer.get(0).getArsakType());
         assertEquals(OPPTJENING, endringer.get(1).getArsakType());
@@ -256,8 +246,8 @@ class EndringPensjonsbeholdningCalculatorTest {
     void when_fomDate_before_1st_May_GivenYear_then_calculator_returns_2_ArsakType_values() {
         Beholdning beholdning = newBeholdning(1D, LocalDate.of(2020, 3, 1));
 
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), new ArrayList<>());
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
 
         assertEquals(INNGAENDE, endringer.get(0).getArsakType());
         assertEquals(UTTAK, endringer.get(1).getArsakType());
@@ -267,8 +257,8 @@ class EndringPensjonsbeholdningCalculatorTest {
     void when_fomDate_After_1st_May_GivenYear_then_calculator_returns_2_ArsakType_values() {
         Beholdning beholdning = newBeholdning(1D, LocalDate.of(2020, 6, 1));
 
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), new ArrayList<>());
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
 
         assertEquals(INNGAENDE, endringer.get(0).getArsakType());
         assertEquals(UTTAK, endringer.get(1).getArsakType());
@@ -279,8 +269,8 @@ class EndringPensjonsbeholdningCalculatorTest {
         Beholdning beholdning = newBeholdningWithInnskudd(
                 LocalDate.of(2020, 5, 1), lonnsvekstregulering(10D));
 
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), new ArrayList<>());
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
 
         assertEquals(INNGAENDE, endringer.get(0).getArsakType());
         assertEquals(REGULERING, endringer.get(1).getArsakType());
@@ -289,12 +279,10 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_beholdningGrunnlag_is_inntekt_then_calculator_returns_grunnlagTypeCode_INNTEKT_GRUNNLAG() {
         double inntekt = 1D;
+        Beholdning beholdning = newBeholdningFom1Jan2020(1D, inntekt, 2D, 0D, 0D, 0D);
 
-        List<Beholdning> list = singletonList(
-                newBeholdningFom1Jan2020(1D, inntekt, 2D, 0D, 0D, 0D));
-
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, list, new ArrayList<>());
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
 
         EndringPensjonsopptjening endring = endringer.get(1);
         assertEquals(OPPTJENING, endring.getArsakType());
@@ -306,12 +294,10 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_beholdningGrunnlag_is_omsorg_then_calculator_returns_grunnlagTypeCode_OMSORGSOPPTJENING_GRUNNLAG() {
         double omsorg = 1d;
+        Beholdning beholdning = newBeholdningFom1Jan2020(omsorg, 2d, omsorg, 0D, 0D, 0D);
 
-        List<Beholdning> list = singletonList(
-                newBeholdningFom1Jan2020(omsorg, 2d, omsorg, 0D, 0D, 0D));
-
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, list, new ArrayList<>());
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
 
         EndringPensjonsopptjening endring = endringer.get(1);
         assertEquals(OPPTJENING, endring.getArsakType());
@@ -323,12 +309,10 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_beholdningGrunnlag_is_forstegangstjeneste_then_calculator_returns_grunnlagTypeCode_FORSTEGANGSTJENESTE_GRUNNLAG() {
         double forstegangstjeneste = 1d;
+        Beholdning beholdning = newBeholdningFom1Jan2020(forstegangstjeneste, 0D, 0D, forstegangstjeneste, 0D, 0D);
 
-        List<Beholdning> list = singletonList(
-                newBeholdningFom1Jan2020(forstegangstjeneste, 0D, 0D, forstegangstjeneste, 0D, 0D));
-
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, list, new ArrayList<>());
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
 
         EndringPensjonsopptjening endring = endringer.get(1);
         assertEquals(OPPTJENING, endring.getArsakType());
@@ -340,12 +324,10 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_beholdningGrunnlag_is_dagpenger_then_calculator_returns_grunnlagTypeCode_DAGPENGER_GRUNNLAG() {
         double dagpenger = 1d;
+        Beholdning beholdning = newBeholdningFom1Jan2020(dagpenger, 0D, 0D, 0D, dagpenger, 0D);
 
-        List<Beholdning> list = singletonList(
-                newBeholdningFom1Jan2020(dagpenger, 0D, 0D, 0D, dagpenger, 0D));
-
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, list, new ArrayList<>());
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
 
         EndringPensjonsopptjening endring = endringer.get(1);
         assertEquals(OPPTJENING, endring.getArsakType());
@@ -357,13 +339,11 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_beholdningGrunnlag_is_ufore_then_calculator_returns_grunnlagTypeCode_UFORE_GRUNNLAG() {
         double ufore = 1d;
-
         Beholdning beholdning = newBeholdningFom1Jan2020(ufore, 0D, 0D, 0D, 0D, ufore);
         beholdning.getUforeOpptjeningBelop().setUforegrad(100);
-        List<Beholdning> list = singletonList(beholdning);
 
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, list, new ArrayList<>());
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
 
         EndringPensjonsopptjening endring = endringer.get(1);
         assertEquals(OPPTJENING, endring.getArsakType());
@@ -375,12 +355,10 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_forstegangstjeneste_ufore_or_dagpenger_is_among_more_than_one_possible_grunnlag_then_calculator_returns_all_grunnlagTypes_present_except_OMSORGSOPPTJENING() {
         double grunnlag = 7d;
+        Beholdning beholdning = newBeholdningFom1Jan2020(grunnlag, 2d, 3d, 1d, 4d, 5d);
 
-        List<Beholdning> list = singletonList(
-                newBeholdningFom1Jan2020(grunnlag, 2d, 3d, 1d, 4d, 5d));
-
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, list, new ArrayList<>());
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
 
         EndringPensjonsopptjening endring = endringer.get(1);
         assertEquals(OPPTJENING, endring.getArsakType());
@@ -391,11 +369,10 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_beholdningGrunnlag_is_null_then_calculator_returns_grunnlagTypeCode_NO_GRUNNLAG() {
-        List<Beholdning> list = singletonList(
-                newBeholdningFom1Jan2020(null, 0D, 0D, 0D, 0D, 0D));
+        Beholdning beholdning = newBeholdningFom1Jan2020(null, 0D, 0D, 0D, 0D, 0D);
 
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, list, new ArrayList<>());
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
 
         EndringPensjonsopptjening endring = endringer.get(1);
         assertEquals(OPPTJENING, endring.getArsakType());
@@ -404,11 +381,10 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_beholdningGrunnlag_is_0_then_calculator_returns_grunnlagTypeCode_NO_GRUNNLAG() {
-        List<Beholdning> list = singletonList(
-                newBeholdningFom1Jan2020(0D, 0D, 0D, 0D, 0D, 0D));
+        Beholdning beholdning = newBeholdningFom1Jan2020(0D, 0D, 0D, 0D, 0D, 0D);
 
-        List<EndringPensjonsopptjening> endringer =
-                calculator.calculatePensjonsbeholdningsendringer(2020, list, new ArrayList<>());
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
 
         EndringPensjonsopptjening endring = endringer.get(1);
         assertEquals(OPPTJENING, endring.getArsakType());
@@ -424,8 +400,8 @@ class EndringPensjonsbeholdningCalculatorTest {
                 LocalDate.of(2020, 6, 1),
                 LocalDate.of(2020, 6, 30));
 
-        List<EndringPensjonsopptjening> endringer = calculator.calculatePensjonsbeholdningsendringer(
-                2020, List.of(inngaende, uttakAfterRegulation), new ArrayList<>());
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2020, List.of(inngaende, uttakAfterRegulation), emptyList());
 
         Double actualEndring = endringer
                 .stream()
@@ -543,6 +519,12 @@ class EndringPensjonsbeholdningCalculatorTest {
                 null, null, null, null, "",
                 null, null, null, null,
                 null, null);
+    }
+
+    private static Uttaksgrad uttaksgradFom(LocalDate fomDato) {
+        Uttaksgrad uttaksgrad = new Uttaksgrad();
+        uttaksgrad.setFomDato(fomDato);
+        return uttaksgrad;
     }
 
     private static Lonnsvekstregulering lonnsvekstregulering(double belop) {

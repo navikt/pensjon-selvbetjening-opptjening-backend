@@ -1,6 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import static no.nav.pensjon.selvbetjeningopptjening.opptjening.BeholdningMapper.fromDto;
+import static no.nav.pensjon.selvbetjeningopptjening.opptjening.EndringPensjonsbeholdningCalculator.calculatePensjonsbeholdningsendringer;
 import static no.nav.pensjon.selvbetjeningopptjening.opptjening.EndringPensjonsopptjeningMapper.toDto;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
 
@@ -47,7 +48,6 @@ public class OpptjeningProvider {
     private PersonConsumer personConsumer;
     private PdlConsumer pdlConsumer;
     private UttaksgradGetter uttaksgradGetter;
-    private EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator;
     private MerknadHandler merknadHandler;
 
     public OpptjeningProvider(PensjonsbeholdningConsumer pensjonsbeholdningConsumer,
@@ -57,7 +57,6 @@ public class OpptjeningProvider {
                               PersonConsumer personConsumer,
                               PdlConsumer pdlConsumer,
                               UttaksgradGetter uttaksgradGetter,
-                              EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator,
                               MerknadHandler merknadHandler) {
         this.pensjonsbeholdningConsumer = pensjonsbeholdningConsumer;
         this.opptjeningsgrunnlagConsumer = opptjeningsgrunnlagConsumer;
@@ -66,7 +65,6 @@ public class OpptjeningProvider {
         this.personConsumer = personConsumer;
         this.pdlConsumer = pdlConsumer;
         this.uttaksgradGetter = uttaksgradGetter;
-        this.endringPensjonsbeholdningCalculator = endringPensjonsbeholdningCalculator;
         this.merknadHandler = merknadHandler;
     }
 
@@ -463,8 +461,10 @@ public class OpptjeningProvider {
     }
 
     private void setEndring(List<BeholdningDto> beholdninger, List<Uttaksgrad> uttaksgrader, int year, OpptjeningDto opptjening) {
-        List<EndringPensjonsopptjening> endring =
-                endringPensjonsbeholdningCalculator.calculatePensjonsbeholdningsendringer(year, fromDto(beholdninger), uttaksgrader);
+        List<EndringPensjonsopptjening> endring = calculatePensjonsbeholdningsendringer(
+                year,
+                fromDto(beholdninger),
+                uttaksgrader);
 
         opptjening.setEndringOpptjening(toDto(endring));
     }

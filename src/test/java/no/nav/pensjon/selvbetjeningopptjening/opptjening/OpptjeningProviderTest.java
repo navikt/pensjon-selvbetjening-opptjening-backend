@@ -67,8 +67,6 @@ class OpptjeningProviderTest {
     @Mock
     private PdlConsumer pdlConsumer;
     @Mock
-    private EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator;
-    @Mock
     private MerknadHandler merknadHandler;
     @Captor
     private ArgumentCaptor<Integer> yearCaptor;
@@ -85,7 +83,6 @@ class OpptjeningProviderTest {
                 personConsumer,
                 pdlConsumer,
                 uttaksgradConsumer,
-                endringPensjonsbeholdningCalculator,
                 merknadHandler);
     }
 

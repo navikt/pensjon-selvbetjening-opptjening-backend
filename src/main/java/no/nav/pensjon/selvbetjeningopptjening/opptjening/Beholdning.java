@@ -7,13 +7,17 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.Objects.requireNonNull;
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode.*;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
+import static no.nav.pensjon.selvbetjeningopptjening.util.DateUtil.firstDayOf;
+import static no.nav.pensjon.selvbetjeningopptjening.util.DateUtil.lastDayOf;
 
 public class Beholdning implements Periode {
 
     private final boolean hasInnskudd;
     private final boolean hasVedtak;
+    private final boolean hasTomDato;
     private final long id;
     private final String fnr;
     private final String status;
@@ -60,8 +64,9 @@ public class Beholdning implements Periode {
         this.belop = belop == null ? 0D : belop;
         this.vedtakId = vedtakId == null ? 0L : vedtakId;
         this.hasVedtak = vedtakId != null;
-        this.fomDato = fomDato;
+        this.fomDato = requireNonNull(fomDato);
         this.tomDato = tomDato;
+        this.hasTomDato = tomDato != null;
         this.grunnlag = grunnlag == null ? 0D : grunnlag;
         this.grunnlagAvkortet = grunnlagAvkortet == null ? 0D : grunnlagAvkortet;
         this.innskudd = innskudd == null ? 0D : innskudd;
@@ -162,6 +167,20 @@ public class Beholdning implements Periode {
 
     UforeOpptjeningBelop getUforeOpptjeningBelop() {
         return uforeOpptjeningBelop;
+    }
+
+    boolean startsFirstDayOf(int year) {
+        return fomDato.isEqual(firstDayOf(year));
+    }
+
+    boolean endsLastDayOf(int year) {
+        return hasTomDato && tomDato.isEqual(lastDayOf(year));
+    }
+
+    boolean isWithinInclusive(LocalDate from, LocalDate to) {
+        return fomDato.compareTo(from) > -1
+                && (!hasTomDato && (to == null || to.compareTo(fomDato) > -1)
+                || (hasTomDato && (to == null || tomDato.compareTo(to) < 1)));
     }
 
     double getEffectiveInnskudd(int year) {
