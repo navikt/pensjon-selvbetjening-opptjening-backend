@@ -85,7 +85,7 @@ class ByProfileStrategyTest {
 
     private class TestByProfileStrategy extends ByProfileStrategy {
 
-        private String fnr = "01029312345";
+        private String fnr = "03029119367";
 
         @Override
         @SuppressWarnings("unchecked")
