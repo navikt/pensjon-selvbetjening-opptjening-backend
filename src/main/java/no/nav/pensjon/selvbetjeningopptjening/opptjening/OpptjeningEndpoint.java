@@ -3,7 +3,6 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 import static no.nav.pensjon.selvbetjeningopptjening.unleash.UnleashProvider.toggle;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.ISSUER;
 
-import no.nav.security.token.support.core.api.Unprotected;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
@@ -35,10 +34,13 @@ public class OpptjeningEndpoint {
     public OpptjeningResponse getOpptjeningForFnr() {
         try {
             if (toggle(OpptjeningFeature.PL1441).isEnabled()) {
-                return provider.calculateOpptjeningForFnr(fnrExtractor.extract());
+                return provider.calculateOpptjeningForFnr(new Pid(fnrExtractor.extract(), true));
             } else {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The service is not made available for the specified user yet");
-            }
+        }
+        } catch (PidValidationException e) {
+            log.error(e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         } catch (FailedCallingExternalServiceException e) {
             log.error(e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);

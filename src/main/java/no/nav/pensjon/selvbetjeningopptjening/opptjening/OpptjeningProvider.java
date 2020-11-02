@@ -1,22 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlRequest;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedsel;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
-import no.nav.pensjon.selvbetjeningopptjening.model.*;
-import no.nav.pensjon.selvbetjeningopptjening.model.code.OpptjeningTypeCode;
-import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup;
-import no.nav.pensjon.selvbetjeningopptjening.util.FnrUtil;
-import no.nav.pensjon.selvbetjeningopptjening.util.UserGroupUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.stereotype.Component;
+import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -26,7 +10,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Component;
+
+import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlRequest;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedsel;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
+import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikk;
+import no.nav.pensjon.selvbetjeningopptjening.model.BeholdningDto;
+import no.nav.pensjon.selvbetjeningopptjening.model.Inntekt;
+import no.nav.pensjon.selvbetjeningopptjening.model.Pensjonspoeng;
+import no.nav.pensjon.selvbetjeningopptjening.model.Restpensjon;
+import no.nav.pensjon.selvbetjeningopptjening.model.UforeHistorikk;
+import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
+import no.nav.pensjon.selvbetjeningopptjening.model.code.OpptjeningTypeCode;
+import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup;
+import no.nav.pensjon.selvbetjeningopptjening.util.UserGroupUtil;
 
 @Component
 public class OpptjeningProvider {
@@ -62,8 +68,9 @@ public class OpptjeningProvider {
         this.merknadHandler = merknadHandler;
     }
 
-    OpptjeningResponse calculateOpptjeningForFnr(String fnr) {
-        LocalDate fodselsdato = getFodselsdato(fnr);
+    OpptjeningResponse calculateOpptjeningForFnr(Pid pid) {
+        LocalDate fodselsdato = getFodselsdato(pid);
+        String fnr = pid.getPid();
         UserGroup userGroup = UserGroupUtil.findUserGroup(fodselsdato);
         List<Restpensjon> restpensjonList = new ArrayList<>();
 
@@ -92,9 +99,9 @@ public class OpptjeningProvider {
         }
     }
 
-    private LocalDate getFodselsdato(String fnr) {
+    private LocalDate getFodselsdato(Pid pid) {
         try {
-            List<Foedsel> pdlFoedselDataList = pdlConsumer.getPdlResponse(new PdlRequest(fnr)).getData().getHentPerson().getFoedsel();
+            List<Foedsel> pdlFoedselDataList = pdlConsumer.getPdlResponse(new PdlRequest(pid.getPid())).getData().getHentPerson().getFoedsel();
             if (pdlFoedselDataList != null && !pdlFoedselDataList.isEmpty()) {
                 Foedsel foedsel = pdlFoedselDataList.get(0);
                 if (foedsel.getFoedselsdato() != null) {
@@ -106,10 +113,10 @@ public class OpptjeningProvider {
             }
         } catch (Exception e) {
             LOGGER.error("Call to PDL failed. Deriving fodselsdato directly from fnr instead");
-            return FnrUtil.getFodselsdatoForFnr(fnr);
+            return pid.getFodselsdato();
         }
         LOGGER.warn("No fodselsdato found in PDL for fnr. Deriving fodselsdato directly from fnr instead");
-        return FnrUtil.getFodselsdatoForFnr(fnr);
+        return pid.getFodselsdato();
     }
 
     private Map<Integer, BeholdningDto> createBeholdningMap(List<BeholdningDto> beholdningList) {

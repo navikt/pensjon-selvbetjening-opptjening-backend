@@ -1,13 +1,12 @@
 package no.nav.pensjon.selvbetjeningopptjening.unleash.strategies;
 
-import no.nav.pensjon.selvbetjeningopptjening.config.StringExtractor;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
-import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
-
 import java.util.List;
 import java.util.Map;
 
-import static no.nav.pensjon.selvbetjeningopptjening.util.FnrUtil.getFodselsdatoForFnr;
+import no.nav.pensjon.selvbetjeningopptjening.config.StringExtractor;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
+import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 
 public class ByProfileStrategy extends BeanStrategy {
 
@@ -31,7 +30,7 @@ public class ByProfileStrategy extends BeanStrategy {
         }
 
         String fnr = getBean(StringExtractor.class).extract();
-        return uttaksgrader(fnr).isEmpty() && getFodselsdatoForFnr(fnr).getYear() > TIPPING_POINT;
+        return Pid.isValidPid(fnr) && uttaksgrader(fnr).isEmpty() && new Pid(fnr).getFodselsdato().getYear() > TIPPING_POINT;
     }
 
     private List<Uttaksgrad> uttaksgrader(String fnr) {
