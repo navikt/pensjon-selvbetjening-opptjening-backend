@@ -48,7 +48,6 @@ public class OpptjeningProvider {
     private PersonConsumer personConsumer;
     private PdlConsumer pdlConsumer;
     private UttaksgradGetter uttaksgradGetter;
-    private MerknadHandler merknadHandler;
 
     public OpptjeningProvider(PensjonsbeholdningConsumer pensjonsbeholdningConsumer,
                               OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer,
@@ -56,8 +55,7 @@ public class OpptjeningProvider {
                               RestpensjonConsumer restpensjonConsumer,
                               PersonConsumer personConsumer,
                               PdlConsumer pdlConsumer,
-                              UttaksgradGetter uttaksgradGetter,
-                              MerknadHandler merknadHandler) {
+                              UttaksgradGetter uttaksgradGetter) {
         this.pensjonsbeholdningConsumer = pensjonsbeholdningConsumer;
         this.opptjeningsgrunnlagConsumer = opptjeningsgrunnlagConsumer;
         this.pensjonspoengConsumer = pensjonspoengConsumer;
@@ -65,7 +63,6 @@ public class OpptjeningProvider {
         this.personConsumer = personConsumer;
         this.pdlConsumer = pdlConsumer;
         this.uttaksgradGetter = uttaksgradGetter;
-        this.merknadHandler = merknadHandler;
     }
 
     OpptjeningResponse calculateOpptjeningForFnr(Pid pid) {
@@ -394,14 +391,14 @@ public class OpptjeningProvider {
 
         if (isOpptjeningTypeOmsorgspoeng(pensjonspoeng.getPensjonspoengType())) {
             populateOmsorgspoeng(pensjonspoeng, opptjening);
-            merknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng);
+            MerknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng);
         }
 
         if (isOmsorgspoengGreaterThanPensjonspoeng(opptjening)) {
             opptjening.setPensjonspoeng(opptjening.getOmsorgspoeng());
         }
 
-        merknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng);
+        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng);
     }
 
     private boolean isOpptjeningTypeInntekt(String opptjeningType) {
@@ -475,6 +472,12 @@ public class OpptjeningProvider {
                                               AfpHistorikk afpHistorikk,
                                               UforeHistorikk uforeHistorikk) {
         opptjeningerByYear.forEach(
-                (key, value) -> merknadHandler.addMerknaderOnOpptjening(key, value, beholdninger, uttaksgradHistorikk, afpHistorikk, uforeHistorikk));
+                (key, value) -> addMerknaderOnOpptjening(beholdninger, uttaksgradHistorikk, afpHistorikk, uforeHistorikk, key, value));
+    }
+
+    protected void addMerknaderOnOpptjening(List<BeholdningDto> beholdninger, List<Uttaksgrad> uttaksgrader,
+                                            AfpHistorikk afpHistorikk, UforeHistorikk uforeHistorikk,
+                                            Integer key, OpptjeningDto opptjening) {
+        MerknadHandler.addMerknaderOnOpptjening(key, opptjening, beholdninger, uttaksgrader, afpHistorikk, uforeHistorikk);
     }
 }

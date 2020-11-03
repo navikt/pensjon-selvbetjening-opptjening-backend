@@ -1,44 +1,25 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import static no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode.*;
+import no.nav.pensjon.selvbetjeningopptjening.model.*;
+import no.nav.pensjon.selvbetjeningopptjening.model.code.UforeTypeCode;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikk;
-import no.nav.pensjon.selvbetjeningopptjening.model.BeholdningDto;
-import no.nav.pensjon.selvbetjeningopptjening.model.DagpengerOpptjeningBelop;
-import no.nav.pensjon.selvbetjeningopptjening.model.ForstegangstjenesteOpptjeningBelop;
-import no.nav.pensjon.selvbetjeningopptjening.model.Omsorg;
-import no.nav.pensjon.selvbetjeningopptjening.model.OmsorgOpptjeningBelop;
-import no.nav.pensjon.selvbetjeningopptjening.model.Pensjonspoeng;
-import no.nav.pensjon.selvbetjeningopptjening.model.UforeHistorikk;
-import no.nav.pensjon.selvbetjeningopptjening.model.Uforeperiode;
-import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
-import no.nav.pensjon.selvbetjeningopptjening.model.code.UforeTypeCode;
+import static no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MerknadHandlerTest {
-
-    private MerknadHandler merknadHandler;
-
-    @BeforeEach
-    void setUp() {
-        merknadHandler = new MerknadHandler();
-    }
 
     @Test
     void when_Omsorg_in_Pensjonspoeng_is_Null_then_setMerknadOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList() {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
 
-        merknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
+        MerknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
 
         assertEquals(0, opptjeningDto.getMerknader().size());
     }
@@ -49,7 +30,7 @@ class MerknadHandlerTest {
         Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
         pensjonspoeng.setOmsorg(new Omsorg());
 
-        merknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
+        MerknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
 
         assertEquals(0, opptjeningDto.getMerknader().size());
     }
@@ -63,7 +44,7 @@ class MerknadHandlerTest {
         opptjeningDto.setOmsorgspoeng(100d);
         opptjeningDto.setPensjonspoeng(10d);
 
-        merknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
+        MerknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
 
         assertEquals(0, opptjeningDto.getMerknader().size());
     }
@@ -77,7 +58,7 @@ class MerknadHandlerTest {
         opptjeningDto.setOmsorgspoeng(10d);
         opptjeningDto.setPensjonspoeng(100d);
 
-        merknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
+        MerknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
 
         assertEquals(1, opptjeningDto.getMerknader().size());
         assertEquals(OMSORGSOPPTJENING, opptjeningDto.getMerknader().get(0));
@@ -88,7 +69,7 @@ class MerknadHandlerTest {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
 
-        merknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
+        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
 
         assertEquals(0, opptjeningDto.getMerknader().size());
     }
@@ -102,7 +83,7 @@ class MerknadHandlerTest {
         omsorg.setOmsorgType("");
         pensjonspoeng.setOmsorg(omsorg);
 
-        merknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
+        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
 
         assertEquals(0, opptjeningDto.getMerknader().size());
     }
@@ -116,7 +97,7 @@ class MerknadHandlerTest {
         omsorg.setOmsorgType("OBU6");
         pensjonspoeng.setOmsorg(omsorg);
 
-        merknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
+        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
 
         assertEquals(1, opptjeningDto.getMerknader().size());
         assertEquals(OVERFORE_OMSORGSOPPTJENING, opptjeningDto.getMerknader().get(0));
@@ -131,7 +112,7 @@ class MerknadHandlerTest {
         omsorg.setOmsorgType("OBU7");
         pensjonspoeng.setOmsorg(omsorg);
 
-        merknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
+        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
 
         assertEquals(1, opptjeningDto.getMerknader().size());
         assertEquals(OVERFORE_OMSORGSOPPTJENING, opptjeningDto.getMerknader().get(0));
@@ -142,7 +123,7 @@ class MerknadHandlerTest {
         OpptjeningDto opptjeningDto = new OpptjeningDto();
         List<Uttaksgrad> uttaksgradList = new ArrayList<>();
 
-        merknadHandler.addMerknaderOnOpptjening(0, opptjeningDto, null, uttaksgradList, null, null);
+        MerknadHandler.addMerknaderOnOpptjening(0, opptjeningDto, null, uttaksgradList, null, null);
 
         assertEquals(1, opptjeningDto.getMerknader().size());
         assertEquals(INGEN_OPPTJENING, opptjeningDto.getMerknader().get(0));
@@ -157,7 +138,7 @@ class MerknadHandlerTest {
         afpHistorikk.setVirkFom(LocalDate.of(1980, 1, 1));
         afpHistorikk.setVirkTom(LocalDate.of(2000, 1, 1));
 
-        merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, null, uttaksgradList, afpHistorikk, null);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, null, uttaksgradList, afpHistorikk, null);
 
         assertEquals(2, opptjeningDto.getMerknader().size());
         assertEquals(AFP, opptjeningDto.getMerknader().get(0));
@@ -178,7 +159,7 @@ class MerknadHandlerTest {
         uforeperiode.setUforegrad(100);
         uforeHistorikk.setUforeperiodeListe(Collections.singletonList(uforeperiode));
 
-        merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, null, uttaksgradList, null, uforeHistorikk);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, null, uttaksgradList, null, uforeHistorikk);
 
         assertEquals(1, opptjeningDto.getMerknader().size());
         assertEquals(UFOREGRAD, opptjeningDto.getMerknader().get(0));
@@ -198,7 +179,7 @@ class MerknadHandlerTest {
         uforeperiode.setUforetype(UforeTypeCode.UFORE);
         uforeHistorikk.setUforeperiodeListe(Collections.singletonList(uforeperiode));
 
-        merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, null, uttaksgradList, null, uforeHistorikk);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, null, uttaksgradList, null, uforeHistorikk);
 
         assertEquals(0, opptjeningDto.getMerknader().size());
     }
@@ -217,7 +198,7 @@ class MerknadHandlerTest {
         uforeperiode.setUforegrad(100);
         uforeHistorikk.setUforeperiodeListe(Collections.singletonList(uforeperiode));
 
-        merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, null, uttaksgradList, null, uforeHistorikk);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, null, uttaksgradList, null, uforeHistorikk);
 
         assertEquals(1, opptjeningDto.getMerknader().size());
         assertEquals(UFOREGRAD, opptjeningDto.getMerknader().get(0));
@@ -235,7 +216,7 @@ class MerknadHandlerTest {
         uttaksgrad.setUttaksgrad(100);
         List<Uttaksgrad> uttaksgradList = Collections.singletonList(uttaksgrad);
 
-        merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, null, uttaksgradList, null, null);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, null, uttaksgradList, null, null);
 
         assertEquals(1, opptjeningDto.getMerknader().size());
         assertEquals(HELT_UTTAK, opptjeningDto.getMerknader().get(0));
@@ -252,7 +233,7 @@ class MerknadHandlerTest {
         uttaksgrad.setUttaksgrad(40);
         List<Uttaksgrad> uttaksgradList = Collections.singletonList(uttaksgrad);
 
-        merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, null, uttaksgradList, null, null);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, null, uttaksgradList, null, null);
 
         assertEquals(1, opptjeningDto.getMerknader().size());
         assertEquals(GRADERT_UTTAK, opptjeningDto.getMerknader().get(0));
@@ -269,7 +250,7 @@ class MerknadHandlerTest {
         uttaksgrad.setUttaksgrad(40);
         List<Uttaksgrad> uttaksgradList = Collections.singletonList(uttaksgrad);
 
-        merknadHandler.addMerknaderOnOpptjening(2012, opptjeningDto, null, uttaksgradList, null, null);
+        MerknadHandler.addMerknaderOnOpptjening(2012, opptjeningDto, null, uttaksgradList, null, null);
 
         assertEquals(0, opptjeningDto.getMerknader().size());
     }
@@ -283,7 +264,7 @@ class MerknadHandlerTest {
         BeholdningDto beholdning = new BeholdningDto();
         List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
 
-        merknadHandler.addMerknaderOnOpptjening(2010, opptjeningDto, beholdningList, uttaksgradList, null, null);
+        MerknadHandler.addMerknaderOnOpptjening(2010, opptjeningDto, beholdningList, uttaksgradList, null, null);
 
         assertEquals(1, opptjeningDto.getMerknader().size());
         assertEquals(REFORM, opptjeningDto.getMerknader().get(0));
@@ -303,7 +284,7 @@ class MerknadHandlerTest {
         beholdning.setDagpengerOpptjeningBelop(dagpengerOpptjeningBelop);
         List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
 
-        merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
 
         assertEquals(1, opptjeningDto.getMerknader().size());
         assertEquals(DAGPENGER, opptjeningDto.getMerknader().get(0));
@@ -323,7 +304,7 @@ class MerknadHandlerTest {
         beholdning.setDagpengerOpptjeningBelop(dagpengerOpptjeningBelop);
         List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
 
-        merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
 
         assertEquals(1, opptjeningDto.getMerknader().size());
         assertEquals(DAGPENGER, opptjeningDto.getMerknader().get(0));
@@ -343,7 +324,7 @@ class MerknadHandlerTest {
         beholdning.setForstegangstjenesteOpptjeningBelop(fgtOpptjeningBelop);
         List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
 
-        merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
 
         assertEquals(1, opptjeningDto.getMerknader().size());
         assertEquals(FORSTEGANGSTJENESTE, opptjeningDto.getMerknader().get(0));
@@ -363,7 +344,7 @@ class MerknadHandlerTest {
         beholdning.setForstegangstjenesteOpptjeningBelop(fgtOpptjeningBelop);
         List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
 
-        merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
 
         assertEquals(0, opptjeningDto.getMerknader().size());
     }
@@ -382,7 +363,7 @@ class MerknadHandlerTest {
         beholdning.setOmsorgOpptjeningBelop(omsorgOpptjeningBelop);
         List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
 
-        merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
 
         assertEquals(1, opptjeningDto.getMerknader().size());
         assertEquals(OMSORGSOPPTJENING, opptjeningDto.getMerknader().get(0));
@@ -404,7 +385,7 @@ class MerknadHandlerTest {
         beholdning.setOmsorgOpptjeningBelop(omsorgOpptjeningBelop);
         List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
 
-        merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
 
         assertEquals(1, opptjeningDto.getMerknader().size());
         assertEquals(OVERFORE_OMSORGSOPPTJENING, opptjeningDto.getMerknader().get(0));
@@ -426,7 +407,7 @@ class MerknadHandlerTest {
         beholdning.setOmsorgOpptjeningBelop(omsorgOpptjeningBelop);
         List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
 
-        merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
 
         assertEquals(1, opptjeningDto.getMerknader().size());
         assertEquals(OVERFORE_OMSORGSOPPTJENING, opptjeningDto.getMerknader().get(0));
@@ -447,7 +428,7 @@ class MerknadHandlerTest {
         beholdning.setOmsorgOpptjeningBelop(omsorgOpptjeningBelop);
         List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
 
-        merknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
 
         assertEquals(0, opptjeningDto.getMerknader().size());
     }
