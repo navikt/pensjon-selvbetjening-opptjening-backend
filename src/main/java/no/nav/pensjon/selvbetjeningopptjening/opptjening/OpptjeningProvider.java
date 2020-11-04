@@ -478,6 +478,6 @@ public class OpptjeningProvider {
     protected void addMerknaderOnOpptjening(List<BeholdningDto> beholdninger, List<Uttaksgrad> uttaksgrader,
                                             AfpHistorikk afpHistorikk, UforeHistorikk uforeHistorikk,
                                             Integer key, OpptjeningDto opptjening) {
-        MerknadHandler.addMerknaderOnOpptjening(key, opptjening, beholdninger, uttaksgrader, afpHistorikk, uforeHistorikk);
+        MerknadHandler.addMerknaderOnOpptjening(key, opptjening, fromDto(beholdninger), uttaksgrader, afpHistorikk, uforeHistorikk);
     }
 }
