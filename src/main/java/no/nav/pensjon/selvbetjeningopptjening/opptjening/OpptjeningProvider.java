@@ -1,22 +1,9 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlRequest;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedsel;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
-import no.nav.pensjon.selvbetjeningopptjening.model.*;
-import no.nav.pensjon.selvbetjeningopptjening.model.code.OpptjeningTypeCode;
-import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup;
-import no.nav.pensjon.selvbetjeningopptjening.util.FnrUtil;
-import no.nav.pensjon.selvbetjeningopptjening.util.UserGroupUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.stereotype.Component;
+import static no.nav.pensjon.selvbetjeningopptjening.opptjening.BeholdningMapper.fromDto;
+import static no.nav.pensjon.selvbetjeningopptjening.opptjening.EndringPensjonsbeholdningCalculator.calculatePensjonsbeholdningsendringer;
+import static no.nav.pensjon.selvbetjeningopptjening.opptjening.EndringPensjonsopptjeningMapper.toDto;
+import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -26,7 +13,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Component;
+
+import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlRequest;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedsel;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
+import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikk;
+import no.nav.pensjon.selvbetjeningopptjening.model.BeholdningDto;
+import no.nav.pensjon.selvbetjeningopptjening.model.Inntekt;
+import no.nav.pensjon.selvbetjeningopptjening.model.Pensjonspoeng;
+import no.nav.pensjon.selvbetjeningopptjening.model.Restpensjon;
+import no.nav.pensjon.selvbetjeningopptjening.model.UforeHistorikk;
+import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
+import no.nav.pensjon.selvbetjeningopptjening.model.code.OpptjeningTypeCode;
+import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup;
+import no.nav.pensjon.selvbetjeningopptjening.util.UserGroupUtil;
 
 @Component
 public class OpptjeningProvider {
@@ -39,8 +48,6 @@ public class OpptjeningProvider {
     private PersonConsumer personConsumer;
     private PdlConsumer pdlConsumer;
     private UttaksgradGetter uttaksgradGetter;
-    private EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator;
-    private MerknadHandler merknadHandler;
 
     public OpptjeningProvider(PensjonsbeholdningConsumer pensjonsbeholdningConsumer,
                               OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer,
@@ -48,9 +55,7 @@ public class OpptjeningProvider {
                               RestpensjonConsumer restpensjonConsumer,
                               PersonConsumer personConsumer,
                               PdlConsumer pdlConsumer,
-                              UttaksgradGetter uttaksgradGetter,
-                              EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator,
-                              MerknadHandler merknadHandler) {
+                              UttaksgradGetter uttaksgradGetter) {
         this.pensjonsbeholdningConsumer = pensjonsbeholdningConsumer;
         this.opptjeningsgrunnlagConsumer = opptjeningsgrunnlagConsumer;
         this.pensjonspoengConsumer = pensjonspoengConsumer;
@@ -58,12 +63,11 @@ public class OpptjeningProvider {
         this.personConsumer = personConsumer;
         this.pdlConsumer = pdlConsumer;
         this.uttaksgradGetter = uttaksgradGetter;
-        this.endringPensjonsbeholdningCalculator = endringPensjonsbeholdningCalculator;
-        this.merknadHandler = merknadHandler;
     }
 
-    OpptjeningResponse calculateOpptjeningForFnr(String fnr) {
-        LocalDate fodselsdato = getFodselsdato(fnr);
+    OpptjeningResponse calculateOpptjeningForFnr(Pid pid) {
+        LocalDate fodselsdato = getFodselsdato(pid);
+        String fnr = pid.getPid();
         UserGroup userGroup = UserGroupUtil.findUserGroup(fodselsdato);
         List<Restpensjon> restpensjonList = new ArrayList<>();
 
@@ -92,9 +96,9 @@ public class OpptjeningProvider {
         }
     }
 
-    private LocalDate getFodselsdato(String fnr) {
+    private LocalDate getFodselsdato(Pid pid) {
         try {
-            List<Foedsel> pdlFoedselDataList = pdlConsumer.getPdlResponse(new PdlRequest(fnr)).getData().getHentPerson().getFoedsel();
+            List<Foedsel> pdlFoedselDataList = pdlConsumer.getPdlResponse(new PdlRequest(pid.getPid())).getData().getHentPerson().getFoedsel();
             if (pdlFoedselDataList != null && !pdlFoedselDataList.isEmpty()) {
                 Foedsel foedsel = pdlFoedselDataList.get(0);
                 if (foedsel.getFoedselsdato() != null) {
@@ -106,10 +110,10 @@ public class OpptjeningProvider {
             }
         } catch (Exception e) {
             LOGGER.error("Call to PDL failed. Deriving fodselsdato directly from fnr instead");
-            return FnrUtil.getFodselsdatoForFnr(fnr);
+            return pid.getFodselsdato();
         }
         LOGGER.warn("No fodselsdato found in PDL for fnr. Deriving fodselsdato directly from fnr instead");
-        return FnrUtil.getFodselsdatoForFnr(fnr);
+        return pid.getFodselsdato();
     }
 
     private Map<Integer, BeholdningDto> createBeholdningMap(List<BeholdningDto> beholdningList) {
@@ -387,14 +391,14 @@ public class OpptjeningProvider {
 
         if (isOpptjeningTypeOmsorgspoeng(pensjonspoeng.getPensjonspoengType())) {
             populateOmsorgspoeng(pensjonspoeng, opptjening);
-            merknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng);
+            MerknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng);
         }
 
         if (isOmsorgspoengGreaterThanPensjonspoeng(opptjening)) {
             opptjening.setPensjonspoeng(opptjening.getOmsorgspoeng());
         }
 
-        merknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng);
+        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng);
     }
 
     private boolean isOpptjeningTypeInntekt(String opptjeningType) {
@@ -427,33 +431,53 @@ public class OpptjeningProvider {
         opptjening.setPensjonsgivendeInntekt(pensjonspoeng.getInntekt().getBelop().intValue());
     }
 
-    private int findNumberOfYearsWithPensjonspoeng(Map<Integer, OpptjeningDto> opptjeningMap) {
-
+    private int findNumberOfYearsWithPensjonspoeng(Map<Integer, OpptjeningDto> opptjeningerByYear) {
         int numberOfYearsWithPensjonspoeng = 0;
 
-        for (OpptjeningDto opptjening : opptjeningMap.values()) {
+        for (OpptjeningDto opptjening : opptjeningerByYear.values()) {
             if (opptjening.getPensjonspoeng() != null && opptjening.getPensjonspoeng() > 0) {
                 numberOfYearsWithPensjonspoeng++;
             }
         }
+
         return numberOfYearsWithPensjonspoeng;
     }
 
-    private void populateEndringOpptjening(Map<Integer, OpptjeningDto> opptjeningMap, List<BeholdningDto> beholdningList) {
-        List<Long> vedtakIdForBeholdningAfter2009 = beholdningList.stream()
+    private void populateEndringOpptjening(Map<Integer, OpptjeningDto> opptjeningerByYear,
+                                           List<BeholdningDto> beholdninger) {
+        List<Long> vedtakIdForBeholdningAfter2009 = beholdninger.stream()
                 .filter(beholdning -> beholdning.getVedtakId() != null && beholdning.getFomDato().getYear() >= REFORM_2010 - 1)
-                .map(BeholdningDto::getVedtakId).collect(Collectors.toList());
+                .map(BeholdningDto::getVedtakId)
+                .collect(Collectors.toList());
 
         List<Uttaksgrad> uttaksgradForBeholdningAfter2009 = uttaksgradGetter.getUttaksgradForVedtak(vedtakIdForBeholdningAfter2009);
 
-        opptjeningMap.entrySet().stream()
+        opptjeningerByYear.entrySet().stream()
                 .filter(entry -> entry.getKey() >= REFORM_2010)
-                .forEach(entry -> entry.getValue().setEndringOpptjening(
-                        endringPensjonsbeholdningCalculator.calculateEndringPensjonsbeholdning(entry.getKey(), beholdningList, uttaksgradForBeholdningAfter2009)));
+                .forEach(entry -> setEndring(beholdninger, uttaksgradForBeholdningAfter2009, entry.getKey(), entry.getValue()));
     }
 
-    private void populateMerknadForOpptjening(Map<Integer, OpptjeningDto> opptjeningMap, List<BeholdningDto> pensjonsbeholdningList, List<Uttaksgrad> uttaksgradhistorikk,
-                                              AfpHistorikk afphistorikk, UforeHistorikk uforehistorikk) {
-        opptjeningMap.forEach((key, value) -> merknadHandler.addMerknaderOnOpptjening(key, value, pensjonsbeholdningList, uttaksgradhistorikk, afphistorikk, uforehistorikk));
+    private void setEndring(List<BeholdningDto> beholdninger, List<Uttaksgrad> uttaksgrader, int year, OpptjeningDto opptjening) {
+        List<EndringPensjonsopptjening> endring = calculatePensjonsbeholdningsendringer(
+                year,
+                fromDto(beholdninger),
+                uttaksgrader);
+
+        opptjening.setEndringOpptjening(toDto(endring));
+    }
+
+    private void populateMerknadForOpptjening(Map<Integer, OpptjeningDto> opptjeningerByYear,
+                                              List<BeholdningDto> beholdninger,
+                                              List<Uttaksgrad> uttaksgradHistorikk,
+                                              AfpHistorikk afpHistorikk,
+                                              UforeHistorikk uforeHistorikk) {
+        opptjeningerByYear.forEach(
+                (key, value) -> addMerknaderOnOpptjening(beholdninger, uttaksgradHistorikk, afpHistorikk, uforeHistorikk, key, value));
+    }
+
+    protected void addMerknaderOnOpptjening(List<BeholdningDto> beholdninger, List<Uttaksgrad> uttaksgrader,
+                                            AfpHistorikk afpHistorikk, UforeHistorikk uforeHistorikk,
+                                            Integer key, OpptjeningDto opptjening) {
+        MerknadHandler.addMerknaderOnOpptjening(key, opptjening, beholdninger, uttaksgrader, afpHistorikk, uforeHistorikk);
     }
 }

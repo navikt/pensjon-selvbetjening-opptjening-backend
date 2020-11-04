@@ -1,95 +1,114 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
+import static no.nav.pensjon.selvbetjeningopptjening.opptjening.OmsorgTypes.OMSORG_BARN_UNDER_6;
+import static no.nav.pensjon.selvbetjeningopptjening.opptjening.OmsorgTypes.OMSORG_BARN_UNDER_7;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikk;
-import no.nav.pensjon.selvbetjeningopptjening.model.BeholdningDto;
-import no.nav.pensjon.selvbetjeningopptjening.model.Omsorg;
-import no.nav.pensjon.selvbetjeningopptjening.model.Pensjonspoeng;
-import no.nav.pensjon.selvbetjeningopptjening.model.UforeHistorikk;
-import no.nav.pensjon.selvbetjeningopptjening.model.Uforeperiode;
-import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
+import no.nav.pensjon.selvbetjeningopptjening.model.*;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UforeTypeCode;
 
 public class MerknadHandler {
 
-    public void setMerknadOmsorgsopptjeningPensjonspoeng(OpptjeningDto opptjening, Pensjonspoeng pensjonspoeng) {
-        if (!opptjening.getMerknader().contains(MerknadCode.OMSORGSOPPTJENING) && pensjonspoeng.getOmsorg() != null && isOmsorgspoengLessOrEqualThanPensjonspoeng(opptjening)) {
+    static void setMerknadOmsorgsopptjeningPensjonspoeng(OpptjeningDto opptjening, Pensjonspoeng pensjonspoeng) {
+        if (opptjening.getMerknader().contains(MerknadCode.OMSORGSOPPTJENING)
+                || pensjonspoeng.getOmsorg() == null) {
+            return;
+        }
+
+        if (isOmsorgspoengLessThanOrEqualToPensjonspoeng(opptjening)) {
             opptjening.addMerknader(List.of(MerknadCode.OMSORGSOPPTJENING));
         }
     }
 
-    private boolean isOmsorgspoengLessOrEqualThanPensjonspoeng(OpptjeningDto opptjening) {
-        return opptjening.getOmsorgspoeng() != null && opptjening.getPensjonspoeng() != null && opptjening.getPensjonspoeng() >= opptjening.getOmsorgspoeng();
-    }
+    static void setMerknadOverforOmsorgsopptjeningPensjonspoeng(OpptjeningDto opptjening, Pensjonspoeng pensjonspoeng) {
+        if (opptjening.getMerknader().contains(MerknadCode.OVERFORE_OMSORGSOPPTJENING)) {
+            return;
+        }
 
-    public void setMerknadOverforOmsorgsopptjeningPensjonspoeng(OpptjeningDto opptjening, Pensjonspoeng pensjonspoeng) {
-        if (!opptjening.getMerknader().contains(MerknadCode.OVERFORE_OMSORGSOPPTJENING) && isOmsorgspoengTypeOBU7OrOBU6(pensjonspoeng.getOmsorg())) {
+        if (isOmsorgspoengTypeOBU7OrOBU6(pensjonspoeng.getOmsorg())) {
             opptjening.addMerknader(List.of(MerknadCode.OVERFORE_OMSORGSOPPTJENING));
         }
     }
 
-    private boolean isOmsorgspoengTypeOBU7OrOBU6(Omsorg omsorg) {
-        return omsorg != null && ("OBU6".equals(omsorg.getOmsorgType()) || "OBU7".equals(omsorg.getOmsorgType()));
-    }
+    static void addMerknaderOnOpptjening(int year, OpptjeningDto opptjening,
+                                         List<BeholdningDto> beholdninger,
+                                         List<Uttaksgrad> uttaksgradhistorikk,
+                                         AfpHistorikk afpHistorikk,
+                                         UforeHistorikk uforehistorikk) {
+        List<MerknadCode> merknader = new ArrayList<>();
+        addMerknadAfp(year, merknader, afpHistorikk);
+        addMerknadUforegrad(year, uforehistorikk, opptjening, merknader);
 
-    public void addMerknaderOnOpptjening(int year, OpptjeningDto opptjening, List<BeholdningDto> pensjonsbeholdningList, List<Uttaksgrad> uttaksgradhistorikk,
-                                         AfpHistorikk afpHistorikk, UforeHistorikk uforehistorikk) {
-
-        List<MerknadCode> merknadList = new ArrayList<>();
-
-        addMerknadAFP(year, merknadList, afpHistorikk);
-        addMerknadUforegrad(year, uforehistorikk, opptjening, merknadList);
-
-        //When pensjonsbeholdningList is null the user is not in Usergroup 4 or 5 and these merknads do not apply
-        if (pensjonsbeholdningList != null) {
-            addMerknadReform2010(year, merknadList);
-            addMerknadDagpengerAndForstegangsteneste(year, merknadList, pensjonsbeholdningList);
-            addMerknadOmsorgFromPensjonsbeholdning(year, opptjening, merknadList, pensjonsbeholdningList);
+        //When beholdninger is null the user is not in Usergroup 4 or 5 and these merknads do not apply
+        if (beholdninger != null) {
+            addMerknadReform2010(year, merknader);
+            addMerknadDagpengerAndForstegangstjeneste(year, merknader, beholdninger);
+            addMerknadOmsorgFromPensjonsbeholdning(year, opptjening, merknader, beholdninger);
         }
 
-        addMerknadGradertAlderspensjon(year, uttaksgradhistorikk, merknadList);
-        addMerknadIngenOpptjening(opptjening, merknadList);
-        opptjening.addMerknader(merknadList);
+        addMerknadGradertAlderspensjon(year, uttaksgradhistorikk, merknader);
+        addMerknadIngenOpptjening(opptjening, merknader);
+        opptjening.addMerknader(merknader);
     }
 
-    private void addMerknadAFP(int year, List<MerknadCode> merknadList, AfpHistorikk afpHistorikk) {
-        if (afpHistorikk != null) {
-            int firstYearToBeMarkedWithAfp = afpHistorikk.getVirkFom().getYear();
-            int lastYearToBeMarkedWithAFP = afpHistorikk.getVirkTom() == null ? LocalDate.now().getYear() - 1 : afpHistorikk.getVirkTom().getYear();
+    private static boolean isOmsorgspoengLessThanOrEqualToPensjonspoeng(OpptjeningDto opptjening) {
+        return opptjening.getOmsorgspoeng() != null
+                && opptjening.getPensjonspoeng() != null
+                && opptjening.getOmsorgspoeng() <= opptjening.getPensjonspoeng();
+    }
 
-            if (firstYearToBeMarkedWithAfp <= year && year <= lastYearToBeMarkedWithAFP) {
-                merknadList.add(MerknadCode.AFP);
-            }
+    private static boolean isOmsorgspoengTypeOBU7OrOBU6(Omsorg omsorg) {
+        return omsorg != null && isTypeOmsorgBarn(omsorg);
+    }
+
+    private static void addMerknadAfp(int year, List<MerknadCode> merknader, AfpHistorikk afpHistorikk) {
+        if (afpHistorikk == null) {
+            return;
+        }
+
+        int firstYearToBeMarkedWithAfp = afpHistorikk.getVirkFom().getYear();
+        int lastYearToBeMarkedWithAfp = afpHistorikk.getVirkTom() == null ? LocalDate.now().getYear() - 1 : afpHistorikk.getVirkTom().getYear();
+
+        if (firstYearToBeMarkedWithAfp <= year && year <= lastYearToBeMarkedWithAfp) {
+            merknader.add(MerknadCode.AFP);
         }
     }
 
-    private void addMerknadUforegrad(int year, UforeHistorikk uforehistorikk, OpptjeningDto opptjening, List<MerknadCode> merknadList) {
-        if (uforehistorikk != null) {
-            Integer maxUforegrad = null;
+    private static void addMerknadUforegrad(int year, UforeHistorikk uforehistorikk, OpptjeningDto opptjening, List<MerknadCode> merknader) {
+        if (uforehistorikk == null) {
+            return;
+        }
 
-            for (Uforeperiode periode : uforehistorikk.getUforeperiodeListe()) {
-                if (isRealUforeperiode(periode) && (periode.getUforetype().equals(UforeTypeCode.UFORE) || periode.getUforetype().equals(UforeTypeCode.UF_M_YRKE))) {
-                    if (isUforeperiodeVirkFomBeforeGrunnlagsAr(year, periode)) {
-                        if (maxUforegrad == null || periode.getUforegrad() > maxUforegrad) {
-                            maxUforegrad = periode.getUforegrad();
-                        }
-                    }
+        Integer maxUforegrad = getMaxUforegrad(year, uforehistorikk);
+
+        if (maxUforegrad == null || maxUforegrad <= 0) {
+            return;
+        }
+
+        opptjening.setMaksUforegrad(maxUforegrad);
+        merknader.add(MerknadCode.UFOREGRAD);
+    }
+
+    private static Integer getMaxUforegrad(int year, UforeHistorikk uforehistorikk) {
+        Integer maxUforegrad = null;
+
+        for (Uforeperiode periode : uforehistorikk.getUforeperiodeListe()) {
+            //TODO: isRealUforeperiode seems superfluous in next line
+            if (isRealUforeperiode(periode) && isStrictRealUforeperiode(periode) && isUforeperiodeVirkFomBeforeGrunnlagsAr(year, periode)) {
+                if (maxUforegrad == null || periode.getUforegrad() > maxUforegrad) {
+                    maxUforegrad = periode.getUforegrad();
                 }
             }
-            if (maxUforegrad != null && maxUforegrad > 0) {
-                opptjening.setMaksUforegrad(maxUforegrad);
-                merknadList.add(MerknadCode.UFOREGRAD);
-            }
         }
+        return maxUforegrad;
     }
 
-    private boolean isUforeperiodeVirkFomBeforeGrunnlagsAr(int grunnlagsar, Uforeperiode periode) {
+    private static boolean isUforeperiodeVirkFomBeforeGrunnlagsAr(int grunnlagsar, Uforeperiode periode) {
         LocalDate firstDayInGrunnlagsar = LocalDate.of(grunnlagsar, 1, 1);
         LocalDate virkFom = periode.getUfgFom();
 
@@ -98,113 +117,187 @@ public class MerknadHandler {
                         (periode.getUfgTom() == null || grunnlagsArBeforeUforeTom(firstDayInGrunnlagsar, periode.getUfgTom()));
     }
 
-    private boolean grunnlagsArBeforeUforeTom(LocalDate firstDayInGrunnlagsar, LocalDate tom) {
+    private static boolean grunnlagsArBeforeUforeTom(LocalDate firstDayInGrunnlagsar, LocalDate tom) {
         return firstDayInGrunnlagsar.getYear() == tom.getYear() || isDateBeforeOrEqual(firstDayInGrunnlagsar, tom);
     }
 
-    private boolean isDateBeforeOrEqual(LocalDate date, LocalDate otherDate) {
+    private static boolean isDateBeforeOrEqual(LocalDate date, LocalDate otherDate) {
         return date.isBefore(otherDate) || date.isEqual(otherDate);
     }
 
-    private boolean isRealUforeperiode(Uforeperiode uforeperiode) {
-        UforeTypeCode uforeType = uforeperiode.getUforetype();
-        return uforeType != null && (uforeType.equals(UforeTypeCode.UF_M_YRKE) || uforeType.equals(UforeTypeCode.UFORE) || uforeType.equals(UforeTypeCode.YRKE));
+    private static boolean isRealUforeperiode(Uforeperiode periode) {
+        UforeTypeCode type = periode.getUforetype();
+
+        return UforeTypeCode.UF_M_YRKE.equals(type) ||
+                UforeTypeCode.UFORE.equals(type) ||
+                UforeTypeCode.YRKE.equals(type);
     }
 
-    private void addMerknadReform2010(int year, List<MerknadCode> merknadList) {
+    private static boolean isStrictRealUforeperiode(Uforeperiode periode) {
+        UforeTypeCode type = periode.getUforetype();
+
+        return UforeTypeCode.UFORE.equals(type)
+                || UforeTypeCode.UF_M_YRKE.equals(type);
+    }
+
+    private static void addMerknadReform2010(int year, List<MerknadCode> merknader) {
         if (year == REFORM_2010) {
-            merknadList.add(MerknadCode.REFORM);
+            merknader.add(MerknadCode.REFORM);
         }
     }
 
-    private void addMerknadIngenOpptjening(OpptjeningDto opptjening, List<MerknadCode> merknadList) {
-        if (pensjonsgivendeInntektErNull(opptjening) && pensjonsbeholdningErNull(opptjening)
-                && pensjonspoengErNull(opptjening) && !merknadList.contains(MerknadCode.REFORM)) {
-            merknadList.add(MerknadCode.INGEN_OPPTJENING);
+    private static void addMerknadIngenOpptjening(OpptjeningDto opptjening, List<MerknadCode> merknader) {
+        if (merknader.contains(MerknadCode.REFORM)) {
+            return;
+        }
+
+        if (pensjonsgivendeInntektErNull(opptjening) &&
+                pensjonsbeholdningErNull(opptjening) &&
+                pensjonspoengErNull(opptjening)) {
+            merknader.add(MerknadCode.INGEN_OPPTJENING);
         }
     }
 
-    private boolean pensjonsgivendeInntektErNull(OpptjeningDto opptjening) {
-        return opptjening.getPensjonsgivendeInntekt() == null
-                || opptjening.getPensjonsgivendeInntekt() <= 0;
+    private static boolean pensjonsgivendeInntektErNull(OpptjeningDto opptjening) {
+        return opptjening.getPensjonsgivendeInntekt() == null || opptjening.getPensjonsgivendeInntekt() <= 0;
     }
 
-    private boolean pensjonsbeholdningErNull(OpptjeningDto opptjening) {
+    private static boolean pensjonsbeholdningErNull(OpptjeningDto opptjening) {
         return opptjening.getPensjonsbeholdning() == null || opptjening.getPensjonsbeholdning() <= 0;
     }
 
-    private boolean pensjonspoengErNull(OpptjeningDto opptjening) {
+    private static boolean pensjonspoengErNull(OpptjeningDto opptjening) {
         return opptjening.getPensjonspoeng() == null || opptjening.getPensjonspoeng() <= 0;
     }
 
-    private void addMerknadDagpengerAndForstegangsteneste(int year, List<MerknadCode> merknadList, List<BeholdningDto> pensjonsbeholdningList) {
-        pensjonsbeholdningList.stream().filter(beholdning ->
-                (mottattDagpengerFiskere(beholdning) || mottattDagpenger(beholdning)) && year == beholdning.getDagpengerOpptjeningBelop().getAr())
-                .findFirst().ifPresent(beholdning -> merknadList.add(MerknadCode.DAGPENGER));
+    private static void addMerknadDagpengerAndForstegangstjeneste(int year, List<MerknadCode> merknader, List<BeholdningDto> beholdninger) {
+        beholdninger
+                .stream()
+                .filter(beholdning -> mottattDagpenger(year, beholdning))
+                .findFirst()
+                .ifPresent(beholdning -> merknader.add(MerknadCode.DAGPENGER));
 
-        pensjonsbeholdningList.stream().filter(beholdning ->
-                mottattForstegangstjenesteBelop(beholdning) && year == beholdning.getForstegangstjenesteOpptjeningBelop().getAr())
-                .findFirst().ifPresent(beholdning -> merknadList.add(MerknadCode.FORSTEGANGSTJENESTE));
+        beholdninger
+                .stream()
+                .filter(beholdning -> mottattForstegangstjeneste(year, beholdning))
+                .findFirst()
+                .ifPresent(beholdning -> merknader.add(MerknadCode.FORSTEGANGSTJENESTE));
     }
 
-    private boolean mottattDagpengerFiskere(BeholdningDto beholdning) {
-        return beholdning.getDagpengerOpptjeningBelop() != null
-                && beholdning.getDagpengerOpptjeningBelop().getBelopFiskere() != null
-                && beholdning.getDagpengerOpptjeningBelop().getBelopFiskere() > 0;
+    private static boolean mottattDagpenger(int year, BeholdningDto beholdning) {
+        return (mottattDagpengerFiskere(beholdning) || mottattDagpenger(beholdning))
+                && year == beholdning.getDagpengerOpptjeningBelop().getAr();
     }
 
-    private boolean mottattDagpenger(BeholdningDto beholdning) {
-        return beholdning.getDagpengerOpptjeningBelop() != null && beholdning.getDagpengerOpptjeningBelop().getBelopOrdinar() > 0;
+    private static boolean mottattDagpengerFiskere(BeholdningDto beholdning) {
+        DagpengerOpptjeningBelop belop = beholdning.getDagpengerOpptjeningBelop();
+
+        return belop != null
+                && belop.getBelopFiskere() != null
+                && belop.getBelopFiskere() > 0;
     }
 
-    private boolean mottattForstegangstjenesteBelop(BeholdningDto beholdning) {
-        return beholdning.getForstegangstjenesteOpptjeningBelop() != null
-                && beholdning.getForstegangstjenesteOpptjeningBelop().getBelop() > 0;
+    private static boolean mottattDagpenger(BeholdningDto beholdning) {
+        DagpengerOpptjeningBelop belop = beholdning.getDagpengerOpptjeningBelop();
+        return belop != null && belop.getBelopOrdinar() > 0;
     }
 
-    private void addMerknadOmsorgFromPensjonsbeholdning(int year, OpptjeningDto opptjening, List<MerknadCode> merknadList, List<BeholdningDto> pensjonsbeholdningList) {
-        pensjonsbeholdningList.stream()
-                .filter(beholdning -> omsorgopptjeningsbelopGreaterThanZero(beholdning) && year == beholdning.getOmsorgOpptjeningBelop().getAr())
-                .findFirst().ifPresent(beholdning -> {
-            if (!opptjening.getMerknader().contains(MerknadCode.OMSORGSOPPTJENING)) {
-                merknadList.add(MerknadCode.OMSORGSOPPTJENING);
-            }
-        });
+    private static boolean mottattForstegangstjeneste(int year, BeholdningDto beholdning) {
+        ForstegangstjenesteOpptjeningBelop belop = beholdning.getForstegangstjenesteOpptjeningBelop();
 
-        pensjonsbeholdningList.stream()
-                .filter(beholdning -> beholdningHarOpptjeningOBU7EllerOBU6(beholdning) && year == beholdning.getOmsorgOpptjeningBelop().getAr())
-                .findFirst().ifPresent(beholdning -> {
-            if (!opptjening.getMerknader().contains(MerknadCode.OVERFORE_OMSORGSOPPTJENING)) {
-                merknadList.add(MerknadCode.OVERFORE_OMSORGSOPPTJENING);
-            }
-        });
+        return belop != null
+                && belop.getBelop() > 0
+                && belop.getAr() == year;
     }
 
-    private boolean omsorgopptjeningsbelopGreaterThanZero(BeholdningDto beholdning) {
-        return beholdning.getOmsorgOpptjeningBelop() != null && beholdning.getOmsorgOpptjeningBelop().getBelop() != null
-                && beholdning.getOmsorgOpptjeningBelop().getBelop() > 0;
+    private static void addMerknadOmsorgFromPensjonsbeholdning(int year, OpptjeningDto opptjening, List<MerknadCode> merknader, List<BeholdningDto> beholdninger) {
+        beholdninger
+                .stream()
+                .filter(beholdning -> hasOmsorgsopptjening(year, beholdning))
+                .findFirst()
+                .ifPresent(beholdning -> addOmsorgsopptjeningMerknad(opptjening, merknader));
+
+        beholdninger
+                .stream()
+                .filter(beholdning -> hasOverforeOmsorgsopptjening(year, beholdning))
+                .findFirst()
+                .ifPresent(beholdning -> addOverforeOmsorgsopptjeningMerknad(opptjening, merknader));
     }
 
-    private Boolean beholdningHarOpptjeningOBU7EllerOBU6(BeholdningDto beholdning) {
-        if (beholdning.getOmsorgOpptjeningBelop() != null) {
-            for (Omsorg omsorg : beholdning.getOmsorgOpptjeningBelop().getOmsorgListe()) {
-                if ("OBU7".equals(omsorg.getOmsorgType()) || "OBU6".equals(omsorg.getOmsorgType())) {
-                    return true;
-                }
-            }
+    private static boolean hasOmsorgsopptjening(int year, BeholdningDto beholdning) {
+        OmsorgOpptjeningBelop belop = beholdning.getOmsorgOpptjeningBelop();
+
+        return belop != null
+                && belop.getBelop() != null
+                && belop.getBelop() > 0
+                && belop.getAr() == year;
+    }
+
+    private static boolean hasOverforeOmsorgsopptjening(int year, BeholdningDto beholdning) {
+        OmsorgOpptjeningBelop belop = beholdning.getOmsorgOpptjeningBelop();
+        return beholdningHarOpptjeningOBU7EllerOBU6(belop) && belop.getAr() == year;
+    }
+
+    private static void addOmsorgsopptjeningMerknad(OpptjeningDto opptjening, List<MerknadCode> merknader) {
+        if (opptjening.getMerknader().contains(MerknadCode.OMSORGSOPPTJENING)) {
+            return;
         }
-        return false;
+
+        merknader.add(MerknadCode.OMSORGSOPPTJENING);
     }
 
-    private void addMerknadGradertAlderspensjon(int year, List<Uttaksgrad> uttaksgradList, List<MerknadCode> merknadList) {
-        uttaksgradList.stream()
-                .filter(uttaksgrad -> year >= uttaksgrad.getFomDato().getYear() && (uttaksgrad.getTomDato() == null || year <= uttaksgrad.getTomDato().getYear()))
-                .forEach(uttaksgrad -> {
-                    if (uttaksgrad.getUttaksgrad() < 100 && uttaksgrad.getUttaksgrad() > 0 && !merknadList.contains(MerknadCode.GRADERT_UTTAK)) {
-                        merknadList.add(MerknadCode.GRADERT_UTTAK);
-                    } else if (!merknadList.contains(MerknadCode.HELT_UTTAK)) {
-                        merknadList.add(MerknadCode.HELT_UTTAK);
-                    }
-                });
+    private static void addOverforeOmsorgsopptjeningMerknad(OpptjeningDto opptjening, List<MerknadCode> merknader) {
+        if (opptjening.getMerknader().contains(MerknadCode.OVERFORE_OMSORGSOPPTJENING)) {
+            return;
+        }
+
+        merknader.add(MerknadCode.OVERFORE_OMSORGSOPPTJENING);
+    }
+
+    private static Boolean beholdningHarOpptjeningOBU7EllerOBU6(OmsorgOpptjeningBelop belop) {
+        if (belop == null) {
+            return false;
+        }
+
+        return belop.getOmsorgListe()
+                .stream()
+                .anyMatch(MerknadHandler::isTypeOmsorgBarn);
+    }
+
+    private static boolean isTypeOmsorgBarn(Omsorg omsorg) {
+        String type = omsorg.getOmsorgType();
+
+        return OMSORG_BARN_UNDER_7.equals(type) ||
+                OMSORG_BARN_UNDER_6.equals(type);
+    }
+
+    private static void addMerknadGradertAlderspensjon(int year, List<Uttaksgrad> uttaksgrader, List<MerknadCode> merknader) {
+        uttaksgrader
+                .stream()
+                .filter(uttaksgrad -> uttaksgradCoversYear(year, uttaksgrad))
+                .forEach(uttaksgrad -> addUttakMerknad(merknader, uttaksgrad));
+    }
+
+    private static boolean uttaksgradCoversYear(int year, Uttaksgrad uttaksgrad) {
+        return uttaksgrad.getFomDato().getYear() <= year
+                && uttaksgradEndsAtOrAfter(year, uttaksgrad);
+    }
+
+    private static boolean uttaksgradEndsAtOrAfter(int year, Uttaksgrad uttaksgrad) {
+        LocalDate tom = uttaksgrad.getTomDato();
+        return tom == null || year <= tom.getYear();
+    }
+
+    private static void addUttakMerknad(List<MerknadCode> merknader, Uttaksgrad uttaksgrad) {
+        Integer grad = uttaksgrad.getUttaksgrad();
+
+        if (0 < grad && grad < 100 && !merknader.contains(MerknadCode.GRADERT_UTTAK)) {
+            merknader.add(MerknadCode.GRADERT_UTTAK);
+            return;
+        }
+
+        if (!merknader.contains(MerknadCode.HELT_UTTAK)) {
+            merknader.add(MerknadCode.HELT_UTTAK);
+        }
     }
 }
