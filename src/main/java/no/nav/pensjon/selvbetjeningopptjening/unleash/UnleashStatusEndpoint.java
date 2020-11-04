@@ -1,7 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.unleash;
 
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
-import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +26,7 @@ public class UnleashStatusEndpoint {
             request.getToggleList()
                     .forEach(toggleString -> unleashStatus.put(toggleString, toggle(toggleString).isEnabled()));
 
-            response.setUnleash(unleashStatus);
+            response.setToggles(unleashStatus);
         }
         return response;
     }
