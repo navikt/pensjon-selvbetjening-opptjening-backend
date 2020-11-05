@@ -5,431 +5,397 @@ import no.nav.pensjon.selvbetjeningopptjening.model.code.UforeTypeCode;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MerknadHandlerTest {
 
+    private static final int UFOREGRAD_VALUE = 100;
+
     @Test
     void when_Omsorg_in_Pensjonspoeng_is_Null_then_setMerknadOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
-
-        MerknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
-
-        assertEquals(0, opptjeningDto.getMerknader().size());
+        var opptjening = new OpptjeningDto();
+        MerknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjening, new Pensjonspoeng());
+        assertTrue(opptjening.getMerknader().isEmpty());
     }
 
     @Test
     void when_Omsorgspoeng_and_Pensjonspoeng_in_OpptjeningDto_is_Null_then_setMerknadOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
-        pensjonspoeng.setOmsorg(new Omsorg());
-
-        MerknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
-
-        assertEquals(0, opptjeningDto.getMerknader().size());
+        var opptjening = new OpptjeningDto();
+        MerknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng());
+        assertTrue(opptjening.getMerknader().isEmpty());
     }
 
     @Test
     void when_Omsorgspoeng_is_greater_than_Pensjonspoeng_in_OpptjeningDto_then_setMerknadOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList() {
-        Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
-        pensjonspoeng.setOmsorg(new Omsorg());
-
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        opptjeningDto.setOmsorgspoeng(100d);
-        opptjeningDto.setPensjonspoeng(10d);
-
-        MerknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
-
-        assertEquals(0, opptjeningDto.getMerknader().size());
+        OpptjeningDto opptjening = opptjening(100d, 10d);
+        MerknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng());
+        assertTrue(opptjening.getMerknader().isEmpty());
     }
 
     @Test
     void when_Omsorgspoeng_is_less_than_Pensjonspoeng_in_OpptjeningDto_then_setMerknadOmsorgsopptjeningPensjonspoeng_returns_MerknadCode_OMSORGSOPPTJENING() {
-        Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
-        pensjonspoeng.setOmsorg(new Omsorg());
+        OpptjeningDto opptjening = opptjening(10d, 100d);
 
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        opptjeningDto.setOmsorgspoeng(10d);
-        opptjeningDto.setPensjonspoeng(100d);
+        MerknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng());
 
-        MerknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
-
-        assertEquals(1, opptjeningDto.getMerknader().size());
-        assertEquals(OMSORGSOPPTJENING, opptjeningDto.getMerknader().get(0));
+        assertEquals(1, opptjening.getMerknader().size());
+        assertEquals(OMSORGSOPPTJENING, opptjening.getMerknader().get(0));
     }
 
     @Test
     void when_Omsorg_in_Pensjonspoeng_is_Null_then_setMerknadOverforOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
-
-        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
-
-        assertEquals(0, opptjeningDto.getMerknader().size());
+        var opptjening = new OpptjeningDto();
+        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng());
+        assertTrue(opptjening.getMerknader().isEmpty());
     }
 
     @Test
     void when_OmsorgType_is_not_OBU6_or_OBU7_then_setMerknadOverforOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
+        var opptjening = new OpptjeningDto();
+        Pensjonspoeng pensjonspoeng = pensjonspoeng("");
 
-        Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
-        Omsorg omsorg = new Omsorg();
-        omsorg.setOmsorgType("");
-        pensjonspoeng.setOmsorg(omsorg);
+        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng);
 
-        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
-
-        assertEquals(0, opptjeningDto.getMerknader().size());
+        assertTrue(opptjening.getMerknader().isEmpty());
     }
 
     @Test
     void when_OmsorgType_is_OBU6_then_setMerknadOverforOmsorgsopptjeningPensjonspoeng_returns_MerknadCode_OVERFORE_OMSORGSOPPTJENING() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
+        var opptjening = new OpptjeningDto();
+        Pensjonspoeng pensjonspoeng = pensjonspoeng("OBU6");
 
-        Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
-        Omsorg omsorg = new Omsorg();
-        omsorg.setOmsorgType("OBU6");
-        pensjonspoeng.setOmsorg(omsorg);
+        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng);
 
-        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
-
-        assertEquals(1, opptjeningDto.getMerknader().size());
-        assertEquals(OVERFORE_OMSORGSOPPTJENING, opptjeningDto.getMerknader().get(0));
+        assertEquals(1, opptjening.getMerknader().size());
+        assertEquals(OVERFORE_OMSORGSOPPTJENING, opptjening.getMerknader().get(0));
     }
 
     @Test
     void when_OmsorgType_is_OBU7_then_setMerknadOverforOmsorgsopptjeningPensjonspoeng_returns_MerknadCode_OVERFORE_OMSORGSOPPTJENING() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
+        var opptjening = new OpptjeningDto();
+        Pensjonspoeng pensjonspoeng = pensjonspoeng("OBU7");
 
-        Pensjonspoeng pensjonspoeng = new Pensjonspoeng();
-        Omsorg omsorg = new Omsorg();
-        omsorg.setOmsorgType("OBU7");
-        pensjonspoeng.setOmsorg(omsorg);
+        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng);
 
-        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjeningDto, pensjonspoeng);
-
-        assertEquals(1, opptjeningDto.getMerknader().size());
-        assertEquals(OVERFORE_OMSORGSOPPTJENING, opptjeningDto.getMerknader().get(0));
+        assertEquals(1, opptjening.getMerknader().size());
+        assertEquals(OVERFORE_OMSORGSOPPTJENING, opptjening.getMerknader().get(0));
     }
 
     @Test
     void when_Opptjening_without_PensjonsBeholdning_and_Inntekt_then_addMerknaderOnOpptjening_returns_MerknadCode_INGEN_OPPTJENING() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        List<Uttaksgrad> uttaksgradList = new ArrayList<>();
+        var opptjening = new OpptjeningDto();
 
-        MerknadHandler.addMerknaderOnOpptjening(0, opptjeningDto, null, uttaksgradList, null, null);
+        MerknadHandler.addMerknaderOnOpptjening(0, opptjening, null, emptyList(), null, null);
 
-        assertEquals(1, opptjeningDto.getMerknader().size());
-        assertEquals(INGEN_OPPTJENING, opptjeningDto.getMerknader().get(0));
+        assertEquals(1, opptjening.getMerknader().size());
+        assertEquals(INGEN_OPPTJENING, opptjening.getMerknader().get(0));
     }
 
     @Test
     void when_Opptjening_with_AfpHistorikk_and_without_PensjonsBeholdning_then_addMerknaderOnOpptjening_returns_MerknadCode_AFP_and_INGEN_OPPTJENING() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        List<Uttaksgrad> uttaksgradList = new ArrayList<>();
+        var opptjening = new OpptjeningDto();
 
-        AfpHistorikk afpHistorikk = new AfpHistorikk();
-        afpHistorikk.setVirkFom(LocalDate.of(1980, 1, 1));
-        afpHistorikk.setVirkTom(LocalDate.of(2000, 1, 1));
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjening, null, emptyList(), afpHistorikk(), null);
 
-        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, null, uttaksgradList, afpHistorikk, null);
-
-        assertEquals(2, opptjeningDto.getMerknader().size());
-        assertEquals(AFP, opptjeningDto.getMerknader().get(0));
-        assertEquals(INGEN_OPPTJENING, opptjeningDto.getMerknader().get(1));
+        assertEquals(2, opptjening.getMerknader().size());
+        assertEquals(AFP, opptjening.getMerknader().get(0));
+        assertEquals(INGEN_OPPTJENING, opptjening.getMerknader().get(1));
     }
 
     @Test
     void when_UforeHistorikk_with_Uforetype_UFORE_Year_mellom_UfgFom_and_UfgTom_and_Uforegrad_then_addMerknaderOnOpptjening_returns_MerknadCode_UFOREGRAD() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        opptjeningDto.setPensjonsbeholdning(100L);
-        List<Uttaksgrad> uttaksgradList = new ArrayList<>();
+        OpptjeningDto opptjening = opptjening();
+        UforeHistorikk uforeHistorikk = uforeHistorikk(UforeTypeCode.UFORE);
 
-        UforeHistorikk uforeHistorikk = new UforeHistorikk();
-        Uforeperiode uforeperiode = new Uforeperiode();
-        uforeperiode.setUfgFom(LocalDate.of(1980, 1, 1));
-        uforeperiode.setUfgTom(LocalDate.of(2000, 1, 1));
-        uforeperiode.setUforetype(UforeTypeCode.UFORE);
-        uforeperiode.setUforegrad(100);
-        uforeHistorikk.setUforeperiodeListe(Collections.singletonList(uforeperiode));
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjening, null, emptyList(), null, uforeHistorikk);
 
-        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, null, uttaksgradList, null, uforeHistorikk);
-
-        assertEquals(1, opptjeningDto.getMerknader().size());
-        assertEquals(UFOREGRAD, opptjeningDto.getMerknader().get(0));
-        assertEquals(uforeperiode.getUforegrad(), opptjeningDto.getMaksUforegrad());
+        assertEquals(1, opptjening.getMerknader().size());
+        assertEquals(UFOREGRAD, opptjening.getMerknader().get(0));
+        assertEquals(UFOREGRAD_VALUE, opptjening.getMaksUforegrad());
     }
 
     @Test
     void when_UforeHistorikk_with_Uforetype_UFORE_Year_mellom_UfgFom_and_UfgTom_and_no_Uforegrad_then_addMerknaderOnOpptjening_returns_empty_MerknandList() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        opptjeningDto.setPensjonsbeholdning(100L);
-        List<Uttaksgrad> uttaksgradList = new ArrayList<>();
-
+        OpptjeningDto opptjening = opptjening();
         UforeHistorikk uforeHistorikk = new UforeHistorikk();
         Uforeperiode uforeperiode = new Uforeperiode();
         uforeperiode.setUfgFom(LocalDate.of(1980, 1, 1));
         uforeperiode.setUfgTom(LocalDate.of(2000, 1, 1));
         uforeperiode.setUforetype(UforeTypeCode.UFORE);
-        uforeHistorikk.setUforeperiodeListe(Collections.singletonList(uforeperiode));
+        uforeHistorikk.setUforeperiodeListe(singletonList(uforeperiode));
 
-        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, null, uttaksgradList, null, uforeHistorikk);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjening, null, emptyList(), null, uforeHistorikk);
 
-        assertEquals(0, opptjeningDto.getMerknader().size());
+        assertTrue(opptjening.getMerknader().isEmpty());
     }
 
     @Test
     void when_UforeHistorikk_with_Uforetype_UF_M_YRKE_Year_mellom_UfgFom_and_UfgTom_and_Uforegrad_then_addMerknaderOnOpptjening_returns_MerknadCode_UFOREGRAD() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        opptjeningDto.setPensjonsbeholdning(100L);
-        List<Uttaksgrad> uttaksgradList = new ArrayList<>();
+        OpptjeningDto opptjening = opptjening();
+        UforeHistorikk uforeHistorikk = uforeHistorikk(UforeTypeCode.UF_M_YRKE);
 
-        UforeHistorikk uforeHistorikk = new UforeHistorikk();
-        Uforeperiode uforeperiode = new Uforeperiode();
-        uforeperiode.setUfgFom(LocalDate.of(1980, 1, 1));
-        uforeperiode.setUfgTom(LocalDate.of(2000, 1, 1));
-        uforeperiode.setUforetype(UforeTypeCode.UF_M_YRKE);
-        uforeperiode.setUforegrad(100);
-        uforeHistorikk.setUforeperiodeListe(Collections.singletonList(uforeperiode));
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjening, null, emptyList(), null, uforeHistorikk);
 
-        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, null, uttaksgradList, null, uforeHistorikk);
-
-        assertEquals(1, opptjeningDto.getMerknader().size());
-        assertEquals(UFOREGRAD, opptjeningDto.getMerknader().get(0));
-        assertEquals(uforeperiode.getUforegrad(), opptjeningDto.getMaksUforegrad());
+        assertEquals(1, opptjening.getMerknader().size());
+        assertEquals(UFOREGRAD, opptjening.getMerknader().get(0));
+        assertEquals(UFOREGRAD_VALUE, opptjening.getMaksUforegrad());
     }
 
     @Test
     void when_Opptjening_with_Uttaksgrad_100_then_addMerknaderOnOpptjening_returns_MerknadCode_HELT_UTTAK() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        opptjeningDto.setPensjonsbeholdning(100L);
+        OpptjeningDto opptjening = opptjening();
+        Uttaksgrad uttaksgrad = uttaksgrad(100);
 
-        Uttaksgrad uttaksgrad = new Uttaksgrad();
-        uttaksgrad.setFomDato(LocalDate.of(1980, 1, 1));
-        uttaksgrad.setTomDato(LocalDate.of(2000, 1, 1));
-        uttaksgrad.setUttaksgrad(100);
-        List<Uttaksgrad> uttaksgradList = Collections.singletonList(uttaksgrad);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjening, null, singletonList(uttaksgrad), null, null);
 
-        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, null, uttaksgradList, null, null);
-
-        assertEquals(1, opptjeningDto.getMerknader().size());
-        assertEquals(HELT_UTTAK, opptjeningDto.getMerknader().get(0));
+        assertEquals(1, opptjening.getMerknader().size());
+        assertEquals(HELT_UTTAK, opptjening.getMerknader().get(0));
     }
 
     @Test
     void when_Opptjening_with_Uttaksgrad_less_than_100_then_addMerknaderOnOpptjening_returns_MerknadCode_GRADERT_UTTAK() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        opptjeningDto.setPensjonsbeholdning(100L);
+        OpptjeningDto opptjening = opptjening();
+        Uttaksgrad uttaksgrad = uttaksgrad(40);
 
-        Uttaksgrad uttaksgrad = new Uttaksgrad();
-        uttaksgrad.setFomDato(LocalDate.of(1980, 1, 1));
-        uttaksgrad.setTomDato(LocalDate.of(2000, 1, 1));
-        uttaksgrad.setUttaksgrad(40);
-        List<Uttaksgrad> uttaksgradList = Collections.singletonList(uttaksgrad);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjening, null, singletonList(uttaksgrad), null, null);
 
-        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, null, uttaksgradList, null, null);
-
-        assertEquals(1, opptjeningDto.getMerknader().size());
-        assertEquals(GRADERT_UTTAK, opptjeningDto.getMerknader().get(0));
+        assertEquals(1, opptjening.getMerknader().size());
+        assertEquals(GRADERT_UTTAK, opptjening.getMerknader().get(0));
     }
 
     @Test
     void when_Opptjening_with_Uttaksgrad_less_than_100_and_Year_not_mellom_Fomdato_andTomdato_then_addMerknaderOnOpptjening_returns_empty_MerknandList() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        opptjeningDto.setPensjonsbeholdning(100L);
+        OpptjeningDto opptjening = opptjening();
+        Uttaksgrad uttaksgrad = uttaksgrad(40);
 
-        Uttaksgrad uttaksgrad = new Uttaksgrad();
-        uttaksgrad.setFomDato(LocalDate.of(1980, 1, 1));
-        uttaksgrad.setTomDato(LocalDate.of(2000, 1, 1));
-        uttaksgrad.setUttaksgrad(40);
-        List<Uttaksgrad> uttaksgradList = Collections.singletonList(uttaksgrad);
+        MerknadHandler.addMerknaderOnOpptjening(2012, opptjening, null, singletonList(uttaksgrad), null, null);
 
-        MerknadHandler.addMerknaderOnOpptjening(2012, opptjeningDto, null, uttaksgradList, null, null);
-
-        assertEquals(0, opptjeningDto.getMerknader().size());
+        assertTrue(opptjening.getMerknader().isEmpty());
     }
 
     @Test
     void when_PensjonsBeholdning_with_year_2010_then_addMerknaderOnOpptjening_returns_MerknadCode_REFORM() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
+        var opptjening = new OpptjeningDto();
 
-        List<Uttaksgrad> uttaksgradList = new ArrayList<>();
+        MerknadHandler.addMerknaderOnOpptjening(2010, opptjening, singletonList(beholdning()), emptyList(), null, null);
 
-        BeholdningDto beholdning = new BeholdningDto();
-        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
-
-        MerknadHandler.addMerknaderOnOpptjening(2010, opptjeningDto, beholdningList, uttaksgradList, null, null);
-
-        assertEquals(1, opptjeningDto.getMerknader().size());
-        assertEquals(REFORM, opptjeningDto.getMerknader().get(0));
+        assertEquals(1, opptjening.getMerknader().size());
+        assertEquals(REFORM, opptjening.getMerknader().get(0));
     }
 
     @Test
     void when_DagpengerOpptjeningBelop_with_BelopFiskere_more_than_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_DAGPENGER() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        opptjeningDto.setPensjonsbeholdning(100L);
-
-        List<Uttaksgrad> uttaksgradList = new ArrayList<>();
-
-        BeholdningDto beholdning = new BeholdningDto();
-        DagpengerOpptjeningBelop dagpengerOpptjeningBelop = new DagpengerOpptjeningBelop();
-        dagpengerOpptjeningBelop.setAr(1990);
+        OpptjeningDto opptjening = opptjening();
+        DagpengerOpptjeningBelop dagpengerOpptjeningBelop = dagpengerOpptjeningBelop();
         dagpengerOpptjeningBelop.setBelopFiskere(10d);
-        beholdning.setDagpengerOpptjeningBelop(dagpengerOpptjeningBelop);
-        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
+        Beholdning beholdning = beholdning(dagpengerOpptjeningBelop);
 
-        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjening, singletonList(beholdning), emptyList(), null, null);
 
-        assertEquals(1, opptjeningDto.getMerknader().size());
-        assertEquals(DAGPENGER, opptjeningDto.getMerknader().get(0));
+        assertEquals(1, opptjening.getMerknader().size());
+        assertEquals(DAGPENGER, opptjening.getMerknader().get(0));
     }
 
     @Test
     void when_DagpengerOpptjeningBelop_with_BelopOrdinar_more_than_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_DAGPENGER() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        opptjeningDto.setPensjonsbeholdning(100L);
-
-        List<Uttaksgrad> uttaksgradList = new ArrayList<>();
-
-        BeholdningDto beholdning = new BeholdningDto();
-        DagpengerOpptjeningBelop dagpengerOpptjeningBelop = new DagpengerOpptjeningBelop();
-        dagpengerOpptjeningBelop.setAr(1990);
+        OpptjeningDto opptjening = opptjening();
+        DagpengerOpptjeningBelop dagpengerOpptjeningBelop = dagpengerOpptjeningBelop();
         dagpengerOpptjeningBelop.setBelopOrdinar(10d);
-        beholdning.setDagpengerOpptjeningBelop(dagpengerOpptjeningBelop);
-        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
+        Beholdning beholdning = beholdning(dagpengerOpptjeningBelop);
 
-        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjening, singletonList(beholdning), emptyList(), null, null);
 
-        assertEquals(1, opptjeningDto.getMerknader().size());
-        assertEquals(DAGPENGER, opptjeningDto.getMerknader().get(0));
+        assertEquals(1, opptjening.getMerknader().size());
+        assertEquals(DAGPENGER, opptjening.getMerknader().get(0));
     }
 
     @Test
     void when_ForstegangstjenesteOpptjeningBelop_with_Belop_more_than_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_FORSTEGANGSTJENESTE() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        opptjeningDto.setPensjonsbeholdning(100L);
+        OpptjeningDto opptjening = opptjening();
+        Beholdning beholdning = beholdning(forstegangstjenesteOpptjeningBelop(100d));
 
-        List<Uttaksgrad> uttaksgradList = new ArrayList<>();
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjening, singletonList(beholdning), emptyList(), null, null);
 
-        BeholdningDto beholdning = new BeholdningDto();
-        ForstegangstjenesteOpptjeningBelop fgtOpptjeningBelop = new ForstegangstjenesteOpptjeningBelop();
-        fgtOpptjeningBelop.setAr(1990);
-        fgtOpptjeningBelop.setBelop(100d);
-        beholdning.setForstegangstjenesteOpptjeningBelop(fgtOpptjeningBelop);
-        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
-
-        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
-
-        assertEquals(1, opptjeningDto.getMerknader().size());
-        assertEquals(FORSTEGANGSTJENESTE, opptjeningDto.getMerknader().get(0));
+        assertEquals(1, opptjening.getMerknader().size());
+        assertEquals(FORSTEGANGSTJENESTE, opptjening.getMerknader().get(0));
     }
 
     @Test
     void when_ForstegangstjenesteOpptjeningBelop_with_Belop_value_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_empty_MerknandList() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        opptjeningDto.setPensjonsbeholdning(100L);
+        OpptjeningDto opptjening = opptjening();
+        Beholdning beholdning = beholdning(forstegangstjenesteOpptjeningBelop(0d));
 
-        List<Uttaksgrad> uttaksgradList = new ArrayList<>();
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjening, singletonList(beholdning), emptyList(), null, null);
 
-        BeholdningDto beholdning = new BeholdningDto();
-        ForstegangstjenesteOpptjeningBelop fgtOpptjeningBelop = new ForstegangstjenesteOpptjeningBelop();
-        fgtOpptjeningBelop.setAr(1990);
-        fgtOpptjeningBelop.setBelop(0d);
-        beholdning.setForstegangstjenesteOpptjeningBelop(fgtOpptjeningBelop);
-        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
-
-        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
-
-        assertEquals(0, opptjeningDto.getMerknader().size());
+        assertTrue(opptjening.getMerknader().isEmpty());
     }
 
     @Test
     void when_OmsorgOpptjeningBelop_with_Belop_value_more_than_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_OMSORGSOPPTJENING() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        opptjeningDto.setPensjonsbeholdning(100L);
-
-        List<Uttaksgrad> uttaksgradList = new ArrayList<>();
-
-        BeholdningDto beholdning = new BeholdningDto();
-        OmsorgOpptjeningBelop omsorgOpptjeningBelop = new OmsorgOpptjeningBelop();
+        OpptjeningDto opptjening = opptjening();
+        var omsorgOpptjeningBelop = new OmsorgOpptjeningBelop();
         omsorgOpptjeningBelop.setAr(1990);
         omsorgOpptjeningBelop.setBelop(10d);
-        beholdning.setOmsorgOpptjeningBelop(omsorgOpptjeningBelop);
-        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
+        Beholdning beholdning = beholdning(omsorgOpptjeningBelop);
 
-        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjening, singletonList(beholdning), emptyList(), null, null);
 
-        assertEquals(1, opptjeningDto.getMerknader().size());
-        assertEquals(OMSORGSOPPTJENING, opptjeningDto.getMerknader().get(0));
+        assertEquals(1, opptjening.getMerknader().size());
+        assertEquals(OMSORGSOPPTJENING, opptjening.getMerknader().get(0));
     }
 
     @Test
     void when_OmsorgOpptjeningBelop_with_BelopType_OBU7_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_OVERFORE_OMSORGSOPPTJENING() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        opptjeningDto.setPensjonsbeholdning(100L);
+        OpptjeningDto opptjening = opptjening();
+        Beholdning beholdning = beholdning("OBU7");
 
-        List<Uttaksgrad> uttaksgradList = new ArrayList<>();
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjening, singletonList(beholdning), emptyList(), null, null);
 
-        BeholdningDto beholdning = new BeholdningDto();
-        OmsorgOpptjeningBelop omsorgOpptjeningBelop = new OmsorgOpptjeningBelop();
-        omsorgOpptjeningBelop.setAr(1990);
-        Omsorg omsorg = new Omsorg();
-        omsorg.setOmsorgType("OBU7");
-        omsorgOpptjeningBelop.setOmsorgListe(Collections.singletonList(omsorg));
-        beholdning.setOmsorgOpptjeningBelop(omsorgOpptjeningBelop);
-        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
-
-        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
-
-        assertEquals(1, opptjeningDto.getMerknader().size());
-        assertEquals(OVERFORE_OMSORGSOPPTJENING, opptjeningDto.getMerknader().get(0));
+        assertEquals(1, opptjening.getMerknader().size());
+        assertEquals(OVERFORE_OMSORGSOPPTJENING, opptjening.getMerknader().get(0));
     }
 
     @Test
     void when_OmsorgOpptjeningBelop_with_BelopType_OBU6_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_OVERFORE_OMSORGSOPPTJENING() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        opptjeningDto.setPensjonsbeholdning(100L);
+        OpptjeningDto opptjening = opptjening();
+        Beholdning beholdning = beholdning("OBU6");
 
-        List<Uttaksgrad> uttaksgradList = new ArrayList<>();
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjening, singletonList(beholdning), emptyList(), null, null);
 
-        BeholdningDto beholdning = new BeholdningDto();
-        OmsorgOpptjeningBelop omsorgOpptjeningBelop = new OmsorgOpptjeningBelop();
-        omsorgOpptjeningBelop.setAr(1990);
-        Omsorg omsorg = new Omsorg();
-        omsorg.setOmsorgType("OBU6");
-        omsorgOpptjeningBelop.setOmsorgListe(Collections.singletonList(omsorg));
-        beholdning.setOmsorgOpptjeningBelop(omsorgOpptjeningBelop);
-        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
-
-        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
-
-        assertEquals(1, opptjeningDto.getMerknader().size());
-        assertEquals(OVERFORE_OMSORGSOPPTJENING, opptjeningDto.getMerknader().get(0));
+        assertEquals(1, opptjening.getMerknader().size());
+        assertEquals(OVERFORE_OMSORGSOPPTJENING, opptjening.getMerknader().get(0));
     }
 
     @Test
     void when_OmsorgOpptjeningBelop_without_BelopType_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_empty_MerknadList() {
-        OpptjeningDto opptjeningDto = new OpptjeningDto();
-        opptjeningDto.setPensjonsbeholdning(100L);
-
-        List<Uttaksgrad> uttaksgradList = new ArrayList<>();
-
-        BeholdningDto beholdning = new BeholdningDto();
-        OmsorgOpptjeningBelop omsorgOpptjeningBelop = new OmsorgOpptjeningBelop();
+        OpptjeningDto opptjening = opptjening();
+        var omsorgOpptjeningBelop = new OmsorgOpptjeningBelop();
         omsorgOpptjeningBelop.setAr(1990);
-        Omsorg omsorg = new Omsorg();
-        omsorgOpptjeningBelop.setOmsorgListe(Collections.singletonList(omsorg));
-        beholdning.setOmsorgOpptjeningBelop(omsorgOpptjeningBelop);
-        List<BeholdningDto> beholdningList = Collections.singletonList(beholdning);
+        omsorgOpptjeningBelop.setOmsorgListe(singletonList(new Omsorg()));
+        Beholdning beholdning = beholdning(omsorgOpptjeningBelop);
 
-        MerknadHandler.addMerknaderOnOpptjening(1990, opptjeningDto, beholdningList, uttaksgradList, null, null);
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjening, singletonList(beholdning), emptyList(), null, null);
 
-        assertEquals(0, opptjeningDto.getMerknader().size());
+        assertTrue(opptjening.getMerknader().isEmpty());
+    }
+
+    private static Beholdning beholdning() {
+        return new Beholdning(
+                null, "", "", "", null, null, LocalDate.MIN,
+                null, null, null, null, null,
+                "", null, null, null,
+                null, null, null);
+    }
+
+    private static Beholdning beholdning(String omsorgType) {
+        var belop = new OmsorgOpptjeningBelop();
+        belop.setAr(1990);
+        belop.setOmsorgListe(singletonList(omsorg(omsorgType)));
+        return beholdning(belop);
+    }
+
+    private static Beholdning beholdning(DagpengerOpptjeningBelop belop) {
+        return new Beholdning(
+                null, "", "", "", null, null, LocalDate.MIN,
+                null, null, null, null, null,
+                "", null, null, null,
+                belop, null, null);
+    }
+
+    private static Beholdning beholdning(ForstegangstjenesteOpptjeningBelop belop) {
+        return new Beholdning(
+                null, "", "", "", null, null, LocalDate.MIN,
+                null, null, null, null, null,
+                "", null, null, null,
+                null, belop, null);
+    }
+
+    private static Beholdning beholdning(OmsorgOpptjeningBelop belop) {
+        return new Beholdning(
+                null, "", "", "", null, null, LocalDate.MIN,
+                null, null, null, null, null,
+                "", null, null, belop,
+                null, null, null);
+    }
+
+    private static DagpengerOpptjeningBelop dagpengerOpptjeningBelop() {
+        var belop = new DagpengerOpptjeningBelop();
+        belop.setAr(1990);
+        return belop;
+    }
+
+    private static ForstegangstjenesteOpptjeningBelop forstegangstjenesteOpptjeningBelop(double value) {
+        var belop = new ForstegangstjenesteOpptjeningBelop();
+        belop.setAr(1990);
+        belop.setBelop(value);
+        return belop;
+    }
+
+    private static OpptjeningDto opptjening() {
+        var opptjening = new OpptjeningDto();
+        opptjening.setPensjonsbeholdning(100L);
+        return opptjening;
+    }
+
+    private static OpptjeningDto opptjening(double omsorgspoeng, double pensjonspoeng) {
+        var opptjening = new OpptjeningDto();
+        opptjening.setOmsorgspoeng(omsorgspoeng);
+        opptjening.setPensjonspoeng(pensjonspoeng);
+        return opptjening;
+    }
+
+    private static Pensjonspoeng pensjonspoeng() {
+        return pensjonspoeng(new Omsorg());
+    }
+
+    private static Pensjonspoeng pensjonspoeng(String omsorgType) {
+        return pensjonspoeng(omsorg(omsorgType));
+    }
+
+    private static Pensjonspoeng pensjonspoeng(Omsorg omsorg) {
+        var pensjonspoeng = new Pensjonspoeng();
+        pensjonspoeng.setOmsorg(omsorg);
+        return pensjonspoeng;
+    }
+
+    private static Omsorg omsorg(String omsorgType) {
+        var omsorg = new Omsorg();
+        omsorg.setOmsorgType(omsorgType);
+        return omsorg;
+    }
+
+    private static Uforeperiode uforeperiode(UforeTypeCode type) {
+        var periode = new Uforeperiode();
+        periode.setUfgFom(LocalDate.of(1980, 1, 1));
+        periode.setUfgTom(LocalDate.of(2000, 1, 1));
+        periode.setUforetype(type);
+        periode.setUforegrad(UFOREGRAD_VALUE);
+        return periode;
+    }
+
+    private static Uttaksgrad uttaksgrad(int i) {
+        var grad = new Uttaksgrad();
+        grad.setFomDato(LocalDate.of(1980, 1, 1));
+        grad.setTomDato(LocalDate.of(2000, 1, 1));
+        grad.setUttaksgrad(i);
+        return grad;
+    }
+
+    private static AfpHistorikk afpHistorikk() {
+        var historikk = new AfpHistorikk();
+        historikk.setVirkFom(LocalDate.of(1980, 1, 1));
+        historikk.setVirkTom(LocalDate.of(2000, 1, 1));
+        return historikk;
+    }
+
+    private static UforeHistorikk uforeHistorikk(UforeTypeCode type) {
+        var historikk = new UforeHistorikk();
+        historikk.setUforeperiodeListe(singletonList(uforeperiode(type)));
+        return historikk;
     }
 }

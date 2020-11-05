@@ -30,13 +30,13 @@ public class MerknadHandler {
             return;
         }
 
-        if (isOmsorgspoengTypeOBU7OrOBU6(pensjonspoeng.getOmsorg())) {
+        if (isTypeOmsorgBarn(pensjonspoeng.getOmsorg())) {
             opptjening.addMerknader(List.of(MerknadCode.OVERFORE_OMSORGSOPPTJENING));
         }
     }
 
     static void addMerknaderOnOpptjening(int year, OpptjeningDto opptjening,
-                                         List<BeholdningDto> beholdninger,
+                                         List<Beholdning> beholdninger,
                                          List<Uttaksgrad> uttaksgradhistorikk,
                                          AfpHistorikk afpHistorikk,
                                          UforeHistorikk uforehistorikk) {
@@ -60,10 +60,6 @@ public class MerknadHandler {
         return opptjening.getOmsorgspoeng() != null
                 && opptjening.getPensjonspoeng() != null
                 && opptjening.getOmsorgspoeng() <= opptjening.getPensjonspoeng();
-    }
-
-    private static boolean isOmsorgspoengTypeOBU7OrOBU6(Omsorg omsorg) {
-        return omsorg != null && isTypeOmsorgBarn(omsorg);
     }
 
     private static void addMerknadAfp(int year, List<MerknadCode> merknader, AfpHistorikk afpHistorikk) {
@@ -170,7 +166,7 @@ public class MerknadHandler {
         return opptjening.getPensjonspoeng() == null || opptjening.getPensjonspoeng() <= 0;
     }
 
-    private static void addMerknadDagpengerAndForstegangstjeneste(int year, List<MerknadCode> merknader, List<BeholdningDto> beholdninger) {
+    private static void addMerknadDagpengerAndForstegangstjeneste(int year, List<MerknadCode> merknader, List<Beholdning> beholdninger) {
         beholdninger
                 .stream()
                 .filter(beholdning -> mottattDagpenger(year, beholdning))
@@ -184,12 +180,12 @@ public class MerknadHandler {
                 .ifPresent(beholdning -> merknader.add(MerknadCode.FORSTEGANGSTJENESTE));
     }
 
-    private static boolean mottattDagpenger(int year, BeholdningDto beholdning) {
+    private static boolean mottattDagpenger(int year, Beholdning beholdning) {
         return (mottattDagpengerFiskere(beholdning) || mottattDagpenger(beholdning))
                 && year == beholdning.getDagpengerOpptjeningBelop().getAr();
     }
 
-    private static boolean mottattDagpengerFiskere(BeholdningDto beholdning) {
+    private static boolean mottattDagpengerFiskere(Beholdning beholdning) {
         DagpengerOpptjeningBelop belop = beholdning.getDagpengerOpptjeningBelop();
 
         return belop != null
@@ -197,12 +193,12 @@ public class MerknadHandler {
                 && belop.getBelopFiskere() > 0;
     }
 
-    private static boolean mottattDagpenger(BeholdningDto beholdning) {
+    private static boolean mottattDagpenger(Beholdning beholdning) {
         DagpengerOpptjeningBelop belop = beholdning.getDagpengerOpptjeningBelop();
         return belop != null && belop.getBelopOrdinar() > 0;
     }
 
-    private static boolean mottattForstegangstjeneste(int year, BeholdningDto beholdning) {
+    private static boolean mottattForstegangstjeneste(int year, Beholdning beholdning) {
         ForstegangstjenesteOpptjeningBelop belop = beholdning.getForstegangstjenesteOpptjeningBelop();
 
         return belop != null
@@ -210,7 +206,7 @@ public class MerknadHandler {
                 && belop.getAr() == year;
     }
 
-    private static void addMerknadOmsorgFromPensjonsbeholdning(int year, OpptjeningDto opptjening, List<MerknadCode> merknader, List<BeholdningDto> beholdninger) {
+    private static void addMerknadOmsorgFromPensjonsbeholdning(int year, OpptjeningDto opptjening, List<MerknadCode> merknader, List<Beholdning> beholdninger) {
         beholdninger
                 .stream()
                 .filter(beholdning -> hasOmsorgsopptjening(year, beholdning))
@@ -224,7 +220,7 @@ public class MerknadHandler {
                 .ifPresent(beholdning -> addOverforeOmsorgsopptjeningMerknad(opptjening, merknader));
     }
 
-    private static boolean hasOmsorgsopptjening(int year, BeholdningDto beholdning) {
+    private static boolean hasOmsorgsopptjening(int year, Beholdning beholdning) {
         OmsorgOpptjeningBelop belop = beholdning.getOmsorgOpptjeningBelop();
 
         return belop != null
@@ -233,9 +229,9 @@ public class MerknadHandler {
                 && belop.getAr() == year;
     }
 
-    private static boolean hasOverforeOmsorgsopptjening(int year, BeholdningDto beholdning) {
+    private static boolean hasOverforeOmsorgsopptjening(int year, Beholdning beholdning) {
         OmsorgOpptjeningBelop belop = beholdning.getOmsorgOpptjeningBelop();
-        return beholdningHarOpptjeningOBU7EllerOBU6(belop) && belop.getAr() == year;
+        return beholdningHasOpptjeningOmsorgBarn(belop) && belop.getAr() == year;
     }
 
     private static void addOmsorgsopptjeningMerknad(OpptjeningDto opptjening, List<MerknadCode> merknader) {
@@ -254,19 +250,22 @@ public class MerknadHandler {
         merknader.add(MerknadCode.OVERFORE_OMSORGSOPPTJENING);
     }
 
-    private static Boolean beholdningHarOpptjeningOBU7EllerOBU6(OmsorgOpptjeningBelop belop) {
+    private static Boolean beholdningHasOpptjeningOmsorgBarn(OmsorgOpptjeningBelop belop) {
         if (belop == null) {
             return false;
         }
 
-        return belop.getOmsorgListe()
+        return belop
+                .getOmsorgListe()
                 .stream()
                 .anyMatch(MerknadHandler::isTypeOmsorgBarn);
     }
 
     private static boolean isTypeOmsorgBarn(Omsorg omsorg) {
-        String type = omsorg.getOmsorgType();
+        return omsorg != null && isTypeOmsorgBarn(omsorg.getOmsorgType());
+    }
 
+    private static boolean isTypeOmsorgBarn(String type) {
         return OMSORG_BARN_UNDER_7.equals(type) ||
                 OMSORG_BARN_UNDER_6.equals(type);
     }
