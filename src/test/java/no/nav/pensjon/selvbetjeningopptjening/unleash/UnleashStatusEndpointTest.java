@@ -46,7 +46,7 @@ class UnleashStatusEndpointTest {
                 .contentType("application/json")
                 .content(UnleashStatusEndpointTest.request()))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{\"unleash\":{\"toggle1\":false}}"));
+                .andExpect(content().json("{\"toggles\":{\"toggle1\":false}}"));
     }
 
     @Test
@@ -57,7 +57,7 @@ class UnleashStatusEndpointTest {
                 .contentType("application/json")
                 .content(UnleashStatusEndpointTest.request()))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{\"unleash\":{\"toggle1\":true}}"));
+                .andExpect(content().json("{\"toggles\":{\"toggle1\":true}}"));
     }
 
     @Test
