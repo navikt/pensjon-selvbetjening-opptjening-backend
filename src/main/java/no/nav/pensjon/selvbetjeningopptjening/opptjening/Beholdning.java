@@ -221,6 +221,10 @@ public class Beholdning implements Periode {
         return filterGrunnlagOnlyThoseThatApply(grunnlagTypes);
     }
 
+    Integer getUforegrad(){
+        return uforeOpptjeningBelop != null ? uforeOpptjeningBelop.getUforegrad() : null;
+    }
+
     private List<GrunnlagTypeCode> filterGrunnlagOnlyThoseThatApply(List<GrunnlagTypeCode> grunnlagTypes) {
         if (grunnlag == 0D) {
             return List.of(NO_GRUNNLAG);

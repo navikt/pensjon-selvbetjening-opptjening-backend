@@ -14,6 +14,9 @@ public class OpptjeningDto {
     private Double pensjonspoeng;
     private List<MerknadCode> merknader = new ArrayList<>();
     private Double restpensjon;
+
+    //TODO: Utvidelse av MVP. Vurder fjerning av maksUforegrad-feltet og heller benytt uforegrad-feltene som ligger i Pensjonspoeng og Beholdning fra POPP.
+    // Fullstendig fjerning av dette feltet til fordel for data fra POPP mefører mulighet for fjerning av avhengighet til PROPEN2603.
     private int maksUforegrad;
     private List<EndringPensjonsopptjeningDto> endringOpptjening;
 

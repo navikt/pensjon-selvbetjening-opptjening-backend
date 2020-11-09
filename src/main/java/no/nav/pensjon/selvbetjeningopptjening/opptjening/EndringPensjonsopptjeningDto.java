@@ -44,6 +44,8 @@ public class EndringPensjonsopptjeningDto {
      */
     private Integer uttaksgrad;
 
+    private Integer uforegrad;
+
     public LocalDate getDato() {
         return dato;
     }
@@ -106,5 +108,13 @@ public class EndringPensjonsopptjeningDto {
 
     public void setUttaksgrad(Integer uttaksgrad) {
         this.uttaksgrad = uttaksgrad;
+    }
+
+    public Integer getUforegrad() {
+        return uforegrad;
+    }
+
+    public void setUforegrad(Integer uforegrad) {
+        this.uforegrad = uforegrad;
     }
 }

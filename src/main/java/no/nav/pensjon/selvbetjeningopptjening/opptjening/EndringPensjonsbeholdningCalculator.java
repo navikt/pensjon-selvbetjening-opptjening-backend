@@ -175,7 +175,8 @@ public class EndringPensjonsbeholdningCalculator {
                         innskudd,
                         uttaksgradAtStartOfYear(year, uttaksgrader, beholdning),
                         beholdning.getGrunnlag(),
-                        beholdning.getOpptjeningGrunnlagTypes()));
+                        beholdning.getOpptjeningGrunnlagTypes(),
+                        beholdning.getUforegrad()));
     }
 
     private static void addUttakAtStartOfYear(int year,

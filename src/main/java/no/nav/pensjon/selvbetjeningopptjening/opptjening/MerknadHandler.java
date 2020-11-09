@@ -75,6 +75,7 @@ public class MerknadHandler {
         }
     }
 
+    //TODO: Utvidelse av MVP. I MVP blir ikke ufore-merknaden brukt. Vurder om det samme kan gjøres i utvidelsen av MVP slik at denne koden kan fjernes fra MerknadHandler.
     private static void addMerknadUforegrad(int year, UforeHistorikk uforehistorikk, OpptjeningDto opptjening, List<MerknadCode> merknader) {
         if (uforehistorikk == null) {
             return;

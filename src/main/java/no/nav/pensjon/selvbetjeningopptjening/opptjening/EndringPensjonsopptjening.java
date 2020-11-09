@@ -21,6 +21,7 @@ class EndringPensjonsopptjening {
     private final Double grunnlag;
     private final List<DetailsArsakCode> arsakDetails;
     private final List<GrunnlagTypeCode> grunnlagTypes;
+    private final Integer uforegrad;
 
     static EndringPensjonsopptjening inngaende(int year, double pensjonsbeholdningsbelop, Integer uttaksgrad) {
         List<DetailsArsakCode> arsakDetails = year == REFORM_2010 ? List.of(DetailsArsakCode.BEHOLDNING_2010) : null;
@@ -33,6 +34,7 @@ class EndringPensjonsopptjening {
                 uttaksgrad,
                 null,
                 arsakDetails,
+                null,
                 null);
     }
 
@@ -41,7 +43,8 @@ class EndringPensjonsopptjening {
                                                   double innskudd,
                                                   Integer uttaksgrad,
                                                   double grunnlag,
-                                                  List<GrunnlagTypeCode> grunnlagTypes) {
+                                                  List<GrunnlagTypeCode> grunnlagTypes,
+                                                  Integer uforegrad) {
         TypeArsakCode opptjeningsarsak = year == REFORM_2010 ? TypeArsakCode.INNGAENDE_2010 : TypeArsakCode.OPPTJENING;
 
         return new EndringPensjonsopptjening(
@@ -52,7 +55,8 @@ class EndringPensjonsopptjening {
                 uttaksgrad,
                 grunnlag,
                 getArsakDetails(year, uttaksgrad),
-                grunnlagTypes);
+                grunnlagTypes,
+                uforegrad);
     }
 
     static EndringPensjonsopptjening uttakAtStartOfYear(int year,
@@ -67,6 +71,7 @@ class EndringPensjonsopptjening {
                 uttaksgrad,
                 null,
                 List.of(DetailsArsakCode.UTTAK),
+                null,
                 null);
     }
 
@@ -82,6 +87,7 @@ class EndringPensjonsopptjening {
                 uttaksgrad,
                 null,
                 List.of(DetailsArsakCode.UTTAK),
+                null,
                 null);
     }
 
@@ -97,6 +103,7 @@ class EndringPensjonsopptjening {
                 uttaksgrad,
                 null,
                 getReguleringsendringDetails(year),
+                null,
                 null);
     }
 
@@ -112,6 +119,7 @@ class EndringPensjonsopptjening {
                 uttaksgrad,
                 null,
                 List.of(DetailsArsakCode.UTTAK),
+                null,
                 null);
     }
 
@@ -124,6 +132,7 @@ class EndringPensjonsopptjening {
                 uttaksgrad,
                 null,
                 null,
+                null,
                 null);
     }
 
@@ -134,7 +143,8 @@ class EndringPensjonsopptjening {
                                       Integer uttaksgrad,
                                       Double grunnlag,
                                       List<DetailsArsakCode> arsakDetails,
-                                      List<GrunnlagTypeCode> grunnlagTypes) {
+                                      List<GrunnlagTypeCode> grunnlagTypes,
+                                      Integer uforegrad) {
         this.arsakType = arsakType;
         this.dato = dato;
         this.beholdningsbelop = beholdningsbelop;
@@ -143,6 +153,7 @@ class EndringPensjonsopptjening {
         this.grunnlag = grunnlag;
         this.arsakDetails = arsakDetails == null ? new ArrayList<>() : arsakDetails;
         this.grunnlagTypes = grunnlagTypes;
+        this.uforegrad = uforegrad;
     }
 
     TypeArsakCode getArsakType() {
@@ -176,6 +187,8 @@ class EndringPensjonsopptjening {
     List<GrunnlagTypeCode> getGrunnlagTypes() {
         return grunnlagTypes;
     }
+
+    Integer getUforegrad() { return uforegrad; }
 
     private static List<DetailsArsakCode> getArsakDetails(int year, Integer uttaksgrad) {
         List<DetailsArsakCode> details = new ArrayList<>();

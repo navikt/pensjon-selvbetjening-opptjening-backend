@@ -24,6 +24,7 @@ class EndringPensjonsopptjeningMapper {
         dto.setGrunnlagTypes(opptjening.getGrunnlagTypes());
         dto.setPensjonsbeholdningBelop(opptjening.getBeholdningsbelop());
         dto.setUttaksgrad(opptjening.getUttaksgrad());
+        dto.setUforegrad(opptjening.getUforegrad());
         return dto;
     }
 }
