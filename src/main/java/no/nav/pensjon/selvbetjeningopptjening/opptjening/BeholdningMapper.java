@@ -9,44 +9,52 @@ import static java.util.stream.Collectors.toList;
 public class BeholdningMapper {
 
     static List<Beholdning> fromDto(List<BeholdningDto> list) {
-        return list
-                .stream()
-                .map(BeholdningMapper::fromDto)
-                .collect(toList());
+        return list == null ? null
+                :
+                list.stream()
+                        .map(BeholdningMapper::fromDto)
+                        .collect(toList());
     }
 
     public static List<BeholdningDto> toDto(List<Beholdning> list) {
-        return list
-                .stream()
-                .map(BeholdningMapper::toDto)
-                .collect(toList());
+        return list == null ? null
+                :
+                list.stream()
+                        .map(BeholdningMapper::toDto)
+                        .collect(toList());
     }
 
     private static Beholdning fromDto(BeholdningDto dto) {
-        return new Beholdning(
-                dto.getBeholdningId(),
-                dto.getFnr(),
-                dto.getStatus(),
-                dto.getBeholdningType(),
-                dto.getBelop(),
-                dto.getVedtakId(),
-                dto.getFomDato(),
-                dto.getTomDato(),
-                dto.getBeholdningGrunnlag(),
-                dto.getBeholdningGrunnlagAvkortet(),
-                dto.getBeholdningInnskudd(),
-                dto.getBeholdningInnskuddUtenOmsorg(),
-                dto.getOppdateringArsak(),
-                dto.getLonnsvekstregulering(),
-                dto.getInntektOpptjeningBelop(),
-                dto.getOmsorgOpptjeningBelop(),
-                dto.getDagpengerOpptjeningBelop(),
-                dto.getForstegangstjenesteOpptjeningBelop(),
-                dto.getUforeOpptjeningBelop()
-        );
+        return dto == null ? null
+                :
+                new Beholdning(
+                        dto.getBeholdningId(),
+                        dto.getFnr(),
+                        dto.getStatus(),
+                        dto.getBeholdningType(),
+                        dto.getBelop(),
+                        dto.getVedtakId(),
+                        dto.getFomDato(),
+                        dto.getTomDato(),
+                        dto.getBeholdningGrunnlag(),
+                        dto.getBeholdningGrunnlagAvkortet(),
+                        dto.getBeholdningInnskudd(),
+                        dto.getBeholdningInnskuddUtenOmsorg(),
+                        dto.getOppdateringArsak(),
+                        dto.getLonnsvekstregulering(),
+                        dto.getInntektOpptjeningBelop(),
+                        dto.getOmsorgOpptjeningBelop(),
+                        dto.getDagpengerOpptjeningBelop(),
+                        dto.getForstegangstjenesteOpptjeningBelop(),
+                        dto.getUforeOpptjeningBelop()
+                );
     }
 
     private static BeholdningDto toDto(Beholdning domain) {
+        if (domain == null) {
+            return null;
+        }
+
         var dto = new BeholdningDto();
         dto.setBeholdningId(domain.getId());
         dto.setFnr(domain.getFnr());

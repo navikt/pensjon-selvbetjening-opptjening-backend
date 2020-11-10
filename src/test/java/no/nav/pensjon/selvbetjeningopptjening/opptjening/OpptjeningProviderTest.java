@@ -65,7 +65,7 @@ class OpptjeningProviderTest {
 
     @BeforeEach
     void setUp() {
-        opptjeningProvider = new TestOpptjeningProvider(
+        opptjeningProvider = new OpptjeningProvider(
                 pensjonsbeholdningConsumer,
                 opptjeningsgrunnlagConsumer,
                 pensjonspoengConsumer,
@@ -80,7 +80,6 @@ class OpptjeningProviderTest {
         int expectedFodselsaar = 1968;
         LocalDate fodselsdato = LocalDate.of(expectedFodselsaar, 7, 6);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
@@ -96,7 +95,6 @@ class OpptjeningProviderTest {
         int expectedFodselsaar = 1956;
         LocalDate fodselsdato = LocalDate.of(expectedFodselsaar, 7, 6);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(emptyList());
@@ -112,7 +110,6 @@ class OpptjeningProviderTest {
         int expectedFodselsaar = 1950;
         LocalDate fodselsdato = LocalDate.of(expectedFodselsaar, 7, 6);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(emptyList());
         when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(fodselsdato, null));
@@ -126,7 +123,6 @@ class OpptjeningProviderTest {
     void when_Uttaksgrad_is_not_set_then_calculateOpptjeningForFnr_throws_NullPointerException() {
         List<Uttaksgrad> uttaksgradList = List.of(new Uttaksgrad());
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(uttaksgradList);
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
 
@@ -139,7 +135,6 @@ class OpptjeningProviderTest {
         beholdning.setFomDato(LocalDate.of(1980, 1, 1));
         beholdning.setBelop(100d);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(singletonList(beholdning));
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
@@ -158,7 +153,6 @@ class OpptjeningProviderTest {
         beholdning.setFomDato(LocalDate.of(1983, 1, 1));
         beholdning.setBelop(100d);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(singletonList(beholdning));
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
@@ -177,7 +171,6 @@ class OpptjeningProviderTest {
         beholdning.setFomDato(LocalDate.of(1983, 1, 1));
         beholdning.setBelop(100d);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(singletonList(beholdning));
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(emptyList());
@@ -197,7 +190,6 @@ class OpptjeningProviderTest {
         pensjonspoeng.setPensjonspoengType("OSFE");
         pensjonspoeng.setPoeng(10d);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(singletonList(pensjonspoeng));
@@ -219,7 +211,6 @@ class OpptjeningProviderTest {
         Inntekt inntekt = inntekt();
         pensjonspoeng.setInntekt(inntekt);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(singletonList(pensjonspoeng));
@@ -244,7 +235,6 @@ class OpptjeningProviderTest {
         pensjonspoeng1.setPoeng(20d);
         List<Pensjonspoeng> pensjonspoengList = Arrays.asList(pensjonspoeng, pensjonspoeng1);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(pensjonspoengList);
@@ -263,7 +253,6 @@ class OpptjeningProviderTest {
         pensjonspoeng.setPensjonspoengType("OSFE");
         pensjonspoeng.setPoeng(10d);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(singletonList(pensjonspoeng));
         when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(fodselsdato, null));
@@ -285,7 +274,6 @@ class OpptjeningProviderTest {
         Inntekt inntekt = inntekt();
         pensjonspoeng.setInntekt(inntekt);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(singletonList(pensjonspoeng));
         when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(fodselsdato, null));
@@ -310,7 +298,6 @@ class OpptjeningProviderTest {
         pensjonspoeng1.setPoeng(20d);
         List<Pensjonspoeng> pensjonspoengList = Arrays.asList(pensjonspoeng, pensjonspoeng1);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(pensjonspoengList);
         when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(fodselsdato, null));
@@ -324,7 +311,6 @@ class OpptjeningProviderTest {
     @Test
     void when_Fnr_UserGroup5_with_Restpensjon_and_no_Uttaksgrad_then_calculateOpptjeningForFnr_returns_no_OpptjeningDto() {
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
@@ -340,7 +326,6 @@ class OpptjeningProviderTest {
         Restpensjon restpensjon = restpensjon(1980);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(singletonList(uttaksgrad()));
         when(restpensjonConsumer.getRestpensjonListe(any(String.class))).thenReturn(singletonList(restpensjon));
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
@@ -359,7 +344,6 @@ class OpptjeningProviderTest {
         restpensjon.setFomDato(LocalDate.of(1980, 1, 1));
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(singletonList(uttaksgrad()));
         when(restpensjonConsumer.getRestpensjonListe(any(String.class))).thenReturn(singletonList(restpensjon));
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
@@ -379,7 +363,6 @@ class OpptjeningProviderTest {
 
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(singletonList(uttaksgrad()));
         when(restpensjonConsumer.getRestpensjonListe(any(String.class))).thenReturn(singletonList(restpensjon));
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
@@ -398,7 +381,6 @@ class OpptjeningProviderTest {
 
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(singletonList(uttaksgrad()));
         when(restpensjonConsumer.getRestpensjonListe(any(String.class))).thenReturn(singletonList(restpensjon));
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
@@ -415,7 +397,6 @@ class OpptjeningProviderTest {
         Restpensjon restpensjon = restpensjon(1980);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(singletonList(uttaksgrad()));
         when(restpensjonConsumer.getRestpensjonListe(any(String.class))).thenReturn(singletonList(restpensjon));
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1960, null));
@@ -432,7 +413,6 @@ class OpptjeningProviderTest {
         Restpensjon restpensjon = restpensjon(1970);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(singletonList(uttaksgrad()));
         when(restpensjonConsumer.getRestpensjonListe(any(String.class))).thenReturn(singletonList(restpensjon));
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(fodselsdato, null));
 
@@ -454,7 +434,6 @@ class OpptjeningProviderTest {
         inntektOpptjeningBelop.setSumPensjonsgivendeInntekt(inntekt);
         beholdning.setInntektOpptjeningBelop(inntektOpptjeningBelop);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(singletonList(beholdning));
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
@@ -470,7 +449,6 @@ class OpptjeningProviderTest {
     void when_Fnr_UserGroup5_with_Inntekt_without_InntektType_then_calculateOpptjeningForFnr_returns_no_OpptjeningData() {
         Inntekt inntekt = inntekt("");
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(singletonList(inntekt));
@@ -485,7 +463,6 @@ class OpptjeningProviderTest {
     void when_Fnr_UserGroup5_with_Inntekt_and_InntektType_without_Beholdning_then_calculateOpptjeningForFnr_returns_no_OpptjeningData() {
         Inntekt inntekt = inntekt("SUM_PI");
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(singletonList(inntekt));
@@ -503,7 +480,6 @@ class OpptjeningProviderTest {
         beholdning.setFomDato(LocalDate.of(1981, 1, 1));
         beholdning.setBelop(100d);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(singletonList(beholdning));
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(singletonList(inntekt));
@@ -525,7 +501,6 @@ class OpptjeningProviderTest {
         inntektOpptjeningBelop.setSumPensjonsgivendeInntekt(inntekt());
         beholdning.setInntektOpptjeningBelop(inntektOpptjeningBelop);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(singletonList(beholdning));
         when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1960, null));
@@ -542,7 +517,6 @@ class OpptjeningProviderTest {
         Integer expectedFoedselsaar = 1970;
         when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(null, expectedFoedselsaar));
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), yearCaptor.capture(), anyInt())).thenReturn(emptyList());
@@ -557,7 +531,6 @@ class OpptjeningProviderTest {
         int expectedFoedselsaar = 1970;
         when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(LocalDate.of(expectedFoedselsaar, 8, 9), 1990));
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-        when(personConsumer.getAfpHistorikkForPerson(any(String.class))).thenReturn(new AfpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), yearCaptor.capture(), anyInt())).thenReturn(emptyList());
@@ -618,26 +591,7 @@ class OpptjeningProviderTest {
     private static Uttaksgrad uttaksgrad() {
         var uttaksgrad = new Uttaksgrad();
         uttaksgrad.setUttaksgrad(50);
+        uttaksgrad.setFomDato(LocalDate.MAX);
         return uttaksgrad;
-    }
-
-    private static class TestOpptjeningProvider extends OpptjeningProvider {
-
-        TestOpptjeningProvider(PensjonsbeholdningConsumer pensjonsbeholdningConsumer,
-                               OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer,
-                               PensjonspoengConsumer pensjonspoengConsumer,
-                               RestpensjonConsumer restpensjonConsumer,
-                               PersonConsumer personConsumer,
-                               PdlConsumer pdlConsumer,
-                               UttaksgradGetter uttaksgradGetter) {
-            super(pensjonsbeholdningConsumer, opptjeningsgrunnlagConsumer, pensjonspoengConsumer, restpensjonConsumer, personConsumer, pdlConsumer, uttaksgradGetter);
-        }
-
-        @Override
-        protected void addMerknaderOnOpptjening(List<BeholdningDto> beholdninger, List<Uttaksgrad> uttaksgrader,
-                                                AfpHistorikk afpHistorikk, UforeHistorikk uforeHistorikk,
-                                                Integer key, OpptjeningDto opptjening) {
-            // no operation
-        }
     }
 }
