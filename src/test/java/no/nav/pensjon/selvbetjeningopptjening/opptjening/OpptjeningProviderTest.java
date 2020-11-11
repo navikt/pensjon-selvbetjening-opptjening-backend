@@ -1,5 +1,33 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
+
+import static no.nav.pensjon.selvbetjeningopptjening.PidGenerator.generatePid;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
@@ -13,30 +41,14 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.Pensjonspoe
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
-import no.nav.pensjon.selvbetjeningopptjening.model.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static no.nav.pensjon.selvbetjeningopptjening.PidGenerator.generatePid;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.when;
+import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikk;
+import no.nav.pensjon.selvbetjeningopptjening.model.BeholdningDto;
+import no.nav.pensjon.selvbetjeningopptjening.model.Inntekt;
+import no.nav.pensjon.selvbetjeningopptjening.model.InntektOpptjeningBelop;
+import no.nav.pensjon.selvbetjeningopptjening.model.Pensjonspoeng;
+import no.nav.pensjon.selvbetjeningopptjening.model.Restpensjon;
+import no.nav.pensjon.selvbetjeningopptjening.model.UforeHistorikk;
+import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
 
 @ExtendWith(MockitoExtension.class)
 class OpptjeningProviderTest {
@@ -131,9 +143,7 @@ class OpptjeningProviderTest {
 
     @Test
     void when_Fnr_UserGroup5_with_beholdning_and_FomDato_1980_then_calculateOpptjeningForFnr_returns_1_OpptjeningDto_with_Pensjonsbeholdning() {
-        BeholdningDto beholdning = new BeholdningDto();
-        beholdning.setFomDato(LocalDate.of(1980, 1, 1));
-        beholdning.setBelop(100d);
+        BeholdningDto beholdning = beholdningFomFirstDayInYear(1980);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(singletonList(beholdning));
@@ -149,9 +159,7 @@ class OpptjeningProviderTest {
 
     @Test
     void when_UserGroup5_with_and_FomDato_1983_then_calculateOpptjeningForFnr_returns_1_OpptjeningDto_with_Pensjonsbeholdning_and_3_OpptjeningDto_WithNoOpptjening() {
-        BeholdningDto beholdning = new BeholdningDto();
-        beholdning.setFomDato(LocalDate.of(1983, 1, 1));
-        beholdning.setBelop(100d);
+        BeholdningDto beholdning = beholdningFomFirstDayInYear(1983);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(singletonList(beholdning));
@@ -167,9 +175,7 @@ class OpptjeningProviderTest {
 
     @Test
     void when_UserGroup4_with_Beholdning_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Pensjonsbeholdning() {
-        BeholdningDto beholdning = new BeholdningDto();
-        beholdning.setFomDato(LocalDate.of(1983, 1, 1));
-        beholdning.setBelop(100d);
+        BeholdningDto beholdning = beholdningFomFirstDayInYear(1983);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(singletonList(beholdning));
@@ -425,9 +431,7 @@ class OpptjeningProviderTest {
     /* Tests for inntekt for user group 5 */
     @Test
     void when_Fnr_UserGroup5_with_InntektOpptjeningBelop_and_FomDato_1980_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_PensjonsgivendeInntekt() {
-        BeholdningDto beholdning = new BeholdningDto();
-        beholdning.setFomDato(LocalDate.of(1980, 1, 1));
-        beholdning.setBelop(100d);
+        BeholdningDto beholdning = beholdningFomFirstDayInYear(1980);
         InntektOpptjeningBelop inntektOpptjeningBelop = new InntektOpptjeningBelop();
         inntektOpptjeningBelop.setAr(1980);
         Inntekt inntekt = inntekt();
@@ -476,9 +480,7 @@ class OpptjeningProviderTest {
     @Test
     void when_Fnr_UserGroup5_with_Inntekt_and_InntektType_SUM_PI_and_Beholdning_then_calculateOpptjeningForFnr_returns_OpptjeningData_with_PensjonsgivendeInntekt() {
         Inntekt inntekt = inntekt("SUM_PI");
-        BeholdningDto beholdning = new BeholdningDto();
-        beholdning.setFomDato(LocalDate.of(1981, 1, 1));
-        beholdning.setBelop(100d);
+        BeholdningDto beholdning = beholdningFomFirstDayInYear(1981);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(singletonList(beholdning));
@@ -490,12 +492,79 @@ class OpptjeningProviderTest {
         assertEquals(inntekt.getBelop().intValue(), opptjeningResponse.getOpptjeningData().get(1980).getPensjonsgivendeInntekt());
     }
 
+    @Test
+    void when_pid_UserGroup5_with_beholdning_years_without_inntekt_then_inntekt_should_be_default_0(){
+        int expectedInntekt2010 = 16987;
+        int expectedInntekt2012 = 1200;
+
+        Inntekt additionalInntekt2010 = inntekt(2010, expectedInntekt2010);
+
+        BeholdningDto beholdning2011 = beholdningFomFirstDayInYear(2011);
+
+        BeholdningDto beholdning2012 = beholdningFomFirstDayInYear(2012 );
+        InntektOpptjeningBelop inntektOpptjeningBelop = new InntektOpptjeningBelop();
+        Inntekt inntekt2012 = inntekt(2012, expectedInntekt2012);
+        inntektOpptjeningBelop.setSumPensjonsgivendeInntekt(inntekt2012);
+        inntektOpptjeningBelop.setBelop((double) expectedInntekt2012);
+        inntektOpptjeningBelop.setAr(2012);
+        beholdning2012.setInntektOpptjeningBelop(inntektOpptjeningBelop);
+
+        BeholdningDto beholdning2013 = beholdningFomFirstDayInYear(2013);
+
+        when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
+        when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
+        when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(List.of(beholdning2011, beholdning2012, beholdning2013));
+        when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(singletonList(additionalInntekt2010));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
+
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
+
+        assertThat(opptjeningResponse.getOpptjeningData().get(2010).getPensjonsgivendeInntekt(), is(expectedInntekt2010));
+        assertThat(opptjeningResponse.getOpptjeningData().get(2011).getPensjonsgivendeInntekt(), is(0));
+        assertThat(opptjeningResponse.getOpptjeningData().get(2012).getPensjonsgivendeInntekt(), is(expectedInntekt2012));
+        assertThat(opptjeningResponse.getOpptjeningData().get(2013).getPensjonsgivendeInntekt(), is(0));
+    }
+
+    @Test
+    void when_pid_UserGroup5_with_with_no_inntekt_on_last_two_years_then_pensjonsgivendeInntekt_should_be_null(){
+        int currentYear = LocalDate.now().getYear();
+        int lastYear = currentYear - 1;
+        int yearWithInntekt = currentYear - 2;
+        int yearWithoutInntekt = currentYear - 3;
+        int expectedInntekt = 1200;
+
+        BeholdningDto beholdningYearWithoutInntekt = beholdningFomFirstDayInYear(yearWithoutInntekt);
+
+        BeholdningDto beholdningYearWithInntekt = beholdningFomFirstDayInYear(yearWithInntekt);
+        InntektOpptjeningBelop inntektOpptjeningBelop = new InntektOpptjeningBelop();
+        Inntekt inntekt = inntekt(yearWithInntekt, expectedInntekt);
+        inntektOpptjeningBelop.setSumPensjonsgivendeInntekt(inntekt);
+        inntektOpptjeningBelop.setBelop((double) expectedInntekt);
+        inntektOpptjeningBelop.setAr(yearWithInntekt);
+        beholdningYearWithInntekt.setInntektOpptjeningBelop(inntektOpptjeningBelop);
+
+        BeholdningDto beholdningLastYear = beholdningFomFirstDayInYear(lastYear);
+        BeholdningDto beholdningThisYear = beholdningFomFirstDayInYear(currentYear);
+
+        when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
+        when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(new UforeHistorikk());
+        when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class)))
+                .thenReturn(List.of(beholdningYearWithoutInntekt, beholdningYearWithInntekt, beholdningLastYear, beholdningThisYear));
+        when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(new ArrayList<>());
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
+
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
+
+        assertThat(opptjeningResponse.getOpptjeningData().get(yearWithoutInntekt).getPensjonsgivendeInntekt(), is(0));
+        assertThat(opptjeningResponse.getOpptjeningData().get(yearWithInntekt).getPensjonsgivendeInntekt(), is(expectedInntekt));
+        assertNull(opptjeningResponse.getOpptjeningData().get(lastYear).getPensjonsgivendeInntekt());
+        assertNull(opptjeningResponse.getOpptjeningData().get(currentYear).getPensjonsgivendeInntekt());
+    }
+
     /* Tests for beholdning with inntekt for user group 4 */
     @Test
     void when_Fnr_UserGroup4_with_InntektOpptjeningBelop_and_FomDato_1980_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_PensjonsgivendeInntekt() {
-        BeholdningDto beholdning = new BeholdningDto();
-        beholdning.setFomDato(LocalDate.of(1980, 1, 1));
-        beholdning.setBelop(100d);
+        BeholdningDto beholdning = beholdningFomFirstDayInYear(1980);
         InntektOpptjeningBelop inntektOpptjeningBelop = new InntektOpptjeningBelop();
         inntektOpptjeningBelop.setAr(1980);
         inntektOpptjeningBelop.setSumPensjonsgivendeInntekt(inntekt());
@@ -566,6 +635,22 @@ class OpptjeningProviderTest {
         pdlData.setHentPerson(hentPersonResponse);
         pdlResponse.setData(pdlData);
         return pdlResponse;
+    }
+
+    private static BeholdningDto beholdningFomFirstDayInYear(int year){
+        BeholdningDto beholdning = new BeholdningDto();
+        beholdning.setBelop(100d);
+        beholdning.setFomDato(LocalDate.of(year, 1, 1));
+
+        return beholdning;
+    }
+
+    private static Inntekt inntekt(int year, long belop) {
+        Inntekt inntekt = new Inntekt();
+        inntekt.setInntektType("SUM_PI");
+        inntekt.setInntektAr(year);
+        inntekt.setBelop(belop);
+        return inntekt;
     }
 
     private static Inntekt inntekt(String type) {
