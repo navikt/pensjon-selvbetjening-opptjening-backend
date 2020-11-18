@@ -6,7 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class OmsorgOpptjeningBelop {
+public class OmsorgOpptjeningBelopDto {
 
     private Long omsorgOpptjeningBelopId;
 
@@ -16,7 +16,7 @@ public class OmsorgOpptjeningBelop {
 
     private Double omsorgOpptjeningInnskudd;
 
-    private List<Omsorg> omsorgListe = new ArrayList<Omsorg>();
+    private List<OmsorgDto> omsorgListe = new ArrayList<>();
 
     public Long getOmsorgOpptjeningBelopId() {
         return omsorgOpptjeningBelopId;
@@ -50,11 +50,11 @@ public class OmsorgOpptjeningBelop {
         this.omsorgOpptjeningInnskudd = omsorgOpptjeningInnskudd;
     }
 
-    public List<Omsorg> getOmsorgListe() {
+    public List<OmsorgDto> getOmsorgListe() {
         return omsorgListe;
     }
 
-    public void setOmsorgListe(List<Omsorg> omsorgListe) {
+    public void setOmsorgListe(List<OmsorgDto> omsorgListe) {
         this.omsorgListe = omsorgListe;
     }
 }

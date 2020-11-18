@@ -1,18 +1,16 @@
-package no.nav.pensjon.selvbetjeningopptjening.opptjening;
+package no.nav.pensjon.selvbetjeningopptjening.opptjening.dto;
 
 import java.util.Map;
 
 public class OpptjeningResponse {
 
+    private Map<Integer, OpptjeningDto> opptjeningData;
+    private Integer numberOfYearsWithPensjonspoeng;
+    private Integer fodselsaar;
+
     public OpptjeningResponse(Integer fodselsaar) {
         this.fodselsaar = fodselsaar;
     }
-
-    private Map<Integer, OpptjeningDto> opptjeningData;
-
-    private Integer numberOfYearsWithPensjonspoeng;
-
-    private Integer fodselsaar;
 
     public Map<Integer, OpptjeningDto> getOpptjeningData() {
         return opptjeningData;

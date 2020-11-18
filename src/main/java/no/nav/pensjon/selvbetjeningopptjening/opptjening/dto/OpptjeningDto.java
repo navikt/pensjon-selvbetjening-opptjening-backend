@@ -1,4 +1,4 @@
-package no.nav.pensjon.selvbetjeningopptjening.opptjening;
+package no.nav.pensjon.selvbetjeningopptjening.opptjening.dto;
 
 import java.util.ArrayList;
 import java.util.List;

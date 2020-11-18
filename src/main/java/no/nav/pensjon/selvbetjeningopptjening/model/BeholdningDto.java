@@ -20,12 +20,12 @@ public class BeholdningDto {
     private Double beholdningInnskudd;
     private Double beholdningInnskuddUtenOmsorg;
     private String oppdateringArsak;
-    private Lonnsvekstregulering lonnsvekstregulering;
-    private InntektOpptjeningBelop inntektOpptjeningBelop;
-    private OmsorgOpptjeningBelop omsorgOpptjeningBelop;
-    private DagpengerOpptjeningBelop dagpengerOpptjeningBelop;
-    private ForstegangstjenesteOpptjeningBelop forstegangstjenesteOpptjeningBelop;
-    private UforeOpptjeningBelop uforeOpptjeningBelop;
+    private LonnsvekstreguleringDto lonnsvekstregulering;
+    private InntektOpptjeningBelopDto inntektOpptjeningBelop;
+    private OmsorgOpptjeningBelopDto omsorgOpptjeningBelop;
+    private DagpengerOpptjeningBelopDto dagpengerOpptjeningBelop;
+    private ForstegangstjenesteOpptjeningBelopDto forstegangstjenesteOpptjeningBelop;
+    private UforeOpptjeningBelopDto uforeOpptjeningBelop;
 
     public Long getBeholdningId() {
         return beholdningId;
@@ -131,51 +131,51 @@ public class BeholdningDto {
         this.oppdateringArsak = oppdateringArsak;
     }
 
-    public Lonnsvekstregulering getLonnsvekstregulering() {
+    public LonnsvekstreguleringDto getLonnsvekstregulering() {
         return lonnsvekstregulering;
     }
 
-    public void setLonnsvekstregulering(Lonnsvekstregulering lonnsvekstregulering) {
+    public void setLonnsvekstregulering(LonnsvekstreguleringDto lonnsvekstregulering) {
         this.lonnsvekstregulering = lonnsvekstregulering;
     }
 
-    public InntektOpptjeningBelop getInntektOpptjeningBelop() {
+    public InntektOpptjeningBelopDto getInntektOpptjeningBelop() {
         return inntektOpptjeningBelop;
     }
 
-    public void setInntektOpptjeningBelop(InntektOpptjeningBelop inntektOpptjeningBelop) {
+    public void setInntektOpptjeningBelop(InntektOpptjeningBelopDto inntektOpptjeningBelop) {
         this.inntektOpptjeningBelop = inntektOpptjeningBelop;
     }
 
-    public OmsorgOpptjeningBelop getOmsorgOpptjeningBelop() {
+    public OmsorgOpptjeningBelopDto getOmsorgOpptjeningBelop() {
         return omsorgOpptjeningBelop;
     }
 
-    public void setOmsorgOpptjeningBelop(OmsorgOpptjeningBelop omsorgOpptjeningBelop) {
+    public void setOmsorgOpptjeningBelop(OmsorgOpptjeningBelopDto omsorgOpptjeningBelop) {
         this.omsorgOpptjeningBelop = omsorgOpptjeningBelop;
     }
 
-    public DagpengerOpptjeningBelop getDagpengerOpptjeningBelop() {
+    public DagpengerOpptjeningBelopDto getDagpengerOpptjeningBelop() {
         return dagpengerOpptjeningBelop;
     }
 
-    public void setDagpengerOpptjeningBelop(DagpengerOpptjeningBelop dagpengerOpptjeningBelop) {
+    public void setDagpengerOpptjeningBelop(DagpengerOpptjeningBelopDto dagpengerOpptjeningBelop) {
         this.dagpengerOpptjeningBelop = dagpengerOpptjeningBelop;
     }
 
-    public ForstegangstjenesteOpptjeningBelop getForstegangstjenesteOpptjeningBelop() {
+    public ForstegangstjenesteOpptjeningBelopDto getForstegangstjenesteOpptjeningBelop() {
         return forstegangstjenesteOpptjeningBelop;
     }
 
-    public void setForstegangstjenesteOpptjeningBelop(ForstegangstjenesteOpptjeningBelop forstegangstjenesteOpptjeningBelop) {
+    public void setForstegangstjenesteOpptjeningBelop(ForstegangstjenesteOpptjeningBelopDto forstegangstjenesteOpptjeningBelop) {
         this.forstegangstjenesteOpptjeningBelop = forstegangstjenesteOpptjeningBelop;
     }
 
-    public UforeOpptjeningBelop getUforeOpptjeningBelop() {
+    public UforeOpptjeningBelopDto getUforeOpptjeningBelop() {
         return uforeOpptjeningBelop;
     }
 
-    public void setUforeOpptjeningBelop(UforeOpptjeningBelop uforeOpptjeningBelop) {
+    public void setUforeOpptjeningBelop(UforeOpptjeningBelopDto uforeOpptjeningBelop) {
         this.uforeOpptjeningBelop = uforeOpptjeningBelop;
     }
 }

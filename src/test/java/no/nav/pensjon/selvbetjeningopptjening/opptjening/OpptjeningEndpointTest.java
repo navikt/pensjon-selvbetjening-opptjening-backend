@@ -5,6 +5,7 @@ import no.finn.unleash.FakeUnleash;
 import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
 import no.nav.pensjon.selvbetjeningopptjening.config.OpptjeningFeature;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.unleash.UnleashProvider;
 import no.nav.pensjon.selvbetjeningopptjening.util.FnrExtractor;
 

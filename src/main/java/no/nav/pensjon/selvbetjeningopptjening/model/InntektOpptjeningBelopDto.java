@@ -6,7 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class InntektOpptjeningBelop {
+public class InntektOpptjeningBelopDto {
 
     private Long inntektOpptjeningBelopId;
 
@@ -16,7 +16,7 @@ public class InntektOpptjeningBelop {
 
     private Inntekt sumPensjonsgivendeInntekt;
 
-    private List<Inntekt> inntektListe = new ArrayList<Inntekt>();
+    private List<Inntekt> inntektListe = new ArrayList<>();
 
     public Long getInntektOpptjeningBelopId() {
         return inntektOpptjeningBelopId;

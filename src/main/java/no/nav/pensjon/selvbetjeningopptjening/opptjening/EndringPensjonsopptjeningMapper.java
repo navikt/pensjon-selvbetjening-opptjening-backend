@@ -1,5 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.EndringPensjonsopptjeningDto;
+
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;

@@ -9,25 +9,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class Pensjonspoeng implements Serializable {
 
     private Long pensjonspoengId;
-
     private String fnr;
-
     private String fnrOmsorgFor;
-
     private String kilde;
-
     private String pensjonspoengType;
-
     private Inntekt inntekt;
-
-    private Omsorg omsorg;
-
+    private OmsorgDto omsorg;
     private Integer ar;
-
     private Integer anvendtPi;
-
     private Double poeng;
-
     private Integer maxUforegrad;
 
     public String getFnr() {
@@ -78,11 +68,11 @@ public class Pensjonspoeng implements Serializable {
         this.maxUforegrad = maxUforegrad;
     }
 
-    public Omsorg getOmsorg() {
+    public OmsorgDto getOmsorg() {
         return omsorg;
     }
 
-    public void setOmsorg(Omsorg omsorg) {
+    public void setOmsorg(OmsorgDto omsorg) {
         this.omsorg = omsorg;
     }
 

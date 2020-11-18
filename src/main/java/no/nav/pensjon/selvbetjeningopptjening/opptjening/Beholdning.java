@@ -1,6 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.model.*;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode;
 
 import java.time.LocalDate;
@@ -32,11 +31,11 @@ public class Beholdning implements Periode {
     private final double innskuddUtenOmsorg;
     private final String oppdateringArsak;
     private final Lonnsvekstregulering lonnsvekstregulering;
-    private final InntektOpptjeningBelop inntektOpptjeningBelop;
-    private final OmsorgOpptjeningBelop omsorgOpptjeningBelop;
-    private final DagpengerOpptjeningBelop dagpengerOpptjeningBelop;
-    private final ForstegangstjenesteOpptjeningBelop forstegangstjenesteOpptjeningBelop;
-    private final UforeOpptjeningBelop uforeOpptjeningBelop;
+    private final Inntektsopptjening inntektsopptjening;
+    private final Omsorgsopptjening omsorgsopptjening;
+    private final Dagpengeopptjening dagpengeopptjening;
+    private final Forstegangstjenesteopptjening forstegangstjenesteopptjening;
+    private final Uforeopptjening uforeopptjening;
 
     public Beholdning(Long id,
                       String fnr,
@@ -52,11 +51,11 @@ public class Beholdning implements Periode {
                       Double innskuddUtenOmsorg,
                       String oppdateringArsak,
                       Lonnsvekstregulering lonnsvekstregulering,
-                      InntektOpptjeningBelop inntektOpptjeningBelop,
-                      OmsorgOpptjeningBelop omsorgOpptjeningBelop,
-                      DagpengerOpptjeningBelop dagpengerOpptjeningBelop,
-                      ForstegangstjenesteOpptjeningBelop forstegangstjenesteOpptjeningBelop,
-                      UforeOpptjeningBelop uforeOpptjeningBelop) {
+                      Inntektsopptjening inntektsopptjening,
+                      Omsorgsopptjening omsorgsopptjening,
+                      Dagpengeopptjening dagpengeopptjening,
+                      Forstegangstjenesteopptjening forstegangstjenesteopptjening,
+                      Uforeopptjening uforeopptjening) {
         this.id = id == null ? 0L : id;
         this.fnr = fnr;
         this.status = status;
@@ -74,11 +73,11 @@ public class Beholdning implements Periode {
         this.innskuddUtenOmsorg = innskuddUtenOmsorg == null ? 0D : innskuddUtenOmsorg;
         this.oppdateringArsak = oppdateringArsak;
         this.lonnsvekstregulering = lonnsvekstregulering;
-        this.inntektOpptjeningBelop = inntektOpptjeningBelop;
-        this.omsorgOpptjeningBelop = omsorgOpptjeningBelop;
-        this.dagpengerOpptjeningBelop = dagpengerOpptjeningBelop;
-        this.forstegangstjenesteOpptjeningBelop = forstegangstjenesteOpptjeningBelop;
-        this.uforeOpptjeningBelop = uforeOpptjeningBelop;
+        this.inntektsopptjening = inntektsopptjening;
+        this.omsorgsopptjening = omsorgsopptjening;
+        this.dagpengeopptjening = dagpengeopptjening;
+        this.forstegangstjenesteopptjening = forstegangstjenesteopptjening;
+        this.uforeopptjening = uforeopptjening;
     }
 
     long getId() {
@@ -142,31 +141,31 @@ public class Beholdning implements Periode {
     }
 
     double getLonnsvekstreguleringsbelop() {
-        return hasLonnsvekstreguleringsbelop() ? lonnsvekstregulering.getReguleringsbelop() : 0D;
+        return hasLonnsvekstreguleringsbelop() ? lonnsvekstregulering.getBelop() : 0D;
     }
 
     boolean hasLonnsvekstreguleringsbelop() {
-        return lonnsvekstregulering != null && lonnsvekstregulering.getReguleringsbelop() != null;
+        return lonnsvekstregulering != null && lonnsvekstregulering.hasBelop();
     }
 
-    InntektOpptjeningBelop getInntektOpptjeningBelop() {
-        return inntektOpptjeningBelop;
+    Inntektsopptjening getInntektsopptjening() {
+        return inntektsopptjening;
     }
 
-    OmsorgOpptjeningBelop getOmsorgOpptjeningBelop() {
-        return omsorgOpptjeningBelop;
+    Omsorgsopptjening getOmsorgsopptjening() {
+        return omsorgsopptjening;
     }
 
-    DagpengerOpptjeningBelop getDagpengerOpptjeningBelop() {
-        return dagpengerOpptjeningBelop;
+    Dagpengeopptjening getDagpengeopptjening() {
+        return dagpengeopptjening;
     }
 
-    ForstegangstjenesteOpptjeningBelop getForstegangstjenesteOpptjeningBelop() {
-        return forstegangstjenesteOpptjeningBelop;
+    Forstegangstjenesteopptjening getForstegangstjenesteopptjening() {
+        return forstegangstjenesteopptjening;
     }
 
-    UforeOpptjeningBelop getUforeOpptjeningBelop() {
-        return uforeOpptjeningBelop;
+    Uforeopptjening getUforeopptjening() {
+        return uforeopptjening;
     }
 
     boolean startsFirstDayOf(int year) {
@@ -196,33 +195,31 @@ public class Beholdning implements Periode {
     List<GrunnlagTypeCode> getOpptjeningGrunnlagTypes() {
         List<GrunnlagTypeCode> grunnlagTypes = new ArrayList<>();
 
-        if (inntektOpptjeningBelop != null && inntektOpptjeningBelop.getBelop() > 0) {
+        if (inntektsopptjening != null && inntektsopptjening.getBelop() > 0) {
             grunnlagTypes.add(INNTEKT_GRUNNLAG);
         }
 
-        if (omsorgOpptjeningBelop != null && omsorgOpptjeningBelop.getBelop() > 0) {
+        if (omsorgsopptjening != null && omsorgsopptjening.getBelop() > 0) {
             grunnlagTypes.add(OMSORGSOPPTJENING_GRUNNLAG);
         }
 
-        if (uforeOpptjeningBelop != null && uforeOpptjeningBelop.getBelop() > 0) {
+        if (uforeopptjening != null && uforeopptjening.getBelop() > 0) {
             grunnlagTypes.add(UFORE_GRUNNLAG);
         }
 
-        if (forstegangstjenesteOpptjeningBelop != null && forstegangstjenesteOpptjeningBelop.getBelop() > 0) {
+        if (forstegangstjenesteopptjening != null && forstegangstjenesteopptjening.getBelop() > 0) {
             grunnlagTypes.add(FORSTEGANGSTJENESTE_GRUNNLAG);
         }
 
-        if (dagpengerOpptjeningBelop != null && (
-                dagpengerOpptjeningBelop.getBelopOrdinar() != null && dagpengerOpptjeningBelop.getBelopOrdinar() > 0
-                        || dagpengerOpptjeningBelop.getBelopFiskere() != null && dagpengerOpptjeningBelop.getBelopFiskere() > 0)) {
+        if (dagpengeopptjening != null && dagpengeopptjening.hasPositiveBelop()) {
             grunnlagTypes.add(DAGPENGER_GRUNNLAG);
         }
 
         return filterGrunnlagOnlyThoseThatApply(grunnlagTypes);
     }
 
-    Integer getUforegrad(){
-        return uforeOpptjeningBelop != null ? uforeOpptjeningBelop.getUforegrad() : null;
+    Integer getUforegrad() {
+        return uforeopptjening == null ? null : uforeopptjening.getUforegrad();
     }
 
     private List<GrunnlagTypeCode> filterGrunnlagOnlyThoseThatApply(List<GrunnlagTypeCode> grunnlagTypes) {
@@ -230,7 +227,7 @@ public class Beholdning implements Periode {
             return List.of(NO_GRUNNLAG);
         }
 
-        if (grunnlagTypes.contains(OMSORGSOPPTJENING_GRUNNLAG) && grunnlag == omsorgOpptjeningBelop.getBelop()) {
+        if (grunnlagTypes.contains(OMSORGSOPPTJENING_GRUNNLAG) && grunnlag == omsorgsopptjening.getBelop()) {
             return List.of(OMSORGSOPPTJENING_GRUNNLAG);
         }
 
@@ -241,7 +238,7 @@ public class Beholdning implements Periode {
             return grunnlagTypes;
         }
 
-        if (grunnlagTypes.contains(INNTEKT_GRUNNLAG) && grunnlag == inntektOpptjeningBelop.getBelop()) {
+        if (grunnlagTypes.contains(INNTEKT_GRUNNLAG) && grunnlag == inntektsopptjening.getBelop()) {
             return List.of(INNTEKT_GRUNNLAG);
         }
 

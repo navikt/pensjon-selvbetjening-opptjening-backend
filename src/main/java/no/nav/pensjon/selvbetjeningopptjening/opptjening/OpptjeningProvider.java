@@ -14,6 +14,7 @@ import no.nav.pensjon.selvbetjeningopptjening.model.Restpensjon;
 import no.nav.pensjon.selvbetjeningopptjening.model.UforeHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;

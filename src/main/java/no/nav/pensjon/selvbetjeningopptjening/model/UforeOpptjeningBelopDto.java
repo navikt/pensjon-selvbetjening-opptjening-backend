@@ -3,7 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UforeOpptjeningBelop {
+public class UforeOpptjeningBelopDto {
 
     private Long uforeOpptjeningBelopId;
 

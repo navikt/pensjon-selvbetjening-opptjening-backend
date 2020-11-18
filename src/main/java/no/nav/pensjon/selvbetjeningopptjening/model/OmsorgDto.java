@@ -5,7 +5,7 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Omsorg implements Serializable {
+public class OmsorgDto implements Serializable {
 
     private Long omsorgId;
 

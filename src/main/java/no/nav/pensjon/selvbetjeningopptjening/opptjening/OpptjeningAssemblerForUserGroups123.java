@@ -2,6 +2,8 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.model.*;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 
 import java.time.LocalDate;
 import java.util.List;

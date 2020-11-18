@@ -1,4 +1,4 @@
-package no.nav.pensjon.selvbetjeningopptjening.opptjening;
+package no.nav.pensjon.selvbetjeningopptjening.opptjening.dto;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -13,7 +13,6 @@ public class EndringPensjonsopptjeningDto {
      * Dato for endring av pensjonsbeholdning.
      */
     private LocalDate dato;
-
 
     private TypeArsakCode arsakType;
 

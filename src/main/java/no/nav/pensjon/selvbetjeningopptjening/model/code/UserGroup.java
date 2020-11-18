@@ -6,6 +6,7 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.Pensjonspoe
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.model.*;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.*;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 
 import java.time.LocalDate;
 import java.util.List;

@@ -91,7 +91,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_beholdning_with_fomDate_1JanGivenYear_with_BeholdningInnskudd_and_uttak_then_calculator_returns_3_elements_med_endringBelop_og_pensjonsbeholdningBelop() {
         LocalDate fomDato = LocalDate.of(2020, 1, 1);
-        Beholdning beholdning = newBeholdningWithInnskudd(fomDato);
+        Beholdning beholdning = beholdningWithInnskudd(fomDato);
         Uttaksgrad uttaksgrad = uttaksgradFom(fomDato);
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
@@ -131,7 +131,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_beholdning_list_has_one_element_with_fomDateOnRegulationDate_with_lonnsvekstregulering_and_uttak_then_calculator_returns_3_elements() {
         LocalDate fomDato = LocalDate.of(2020, 5, 1);
-        Beholdning beholdning = newBeholdning(100D, fomDato, lonnsvekstregulering(10D));
+        Beholdning beholdning = newBeholdning(100D, fomDato, new Lonnsvekstregulering(10D));
         Uttaksgrad uttaksgrad = uttaksgradFom(fomDato);
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
@@ -149,7 +149,7 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_GivenYear_2020_with_uttaksgrad_value_100_then_calculator_returns_ArsakDetailCode_OPPTJENING_HEL() {
-        Beholdning beholdning = newBeholdningWithVedtak(LocalDate.of(2020, 1, 1));
+        Beholdning beholdning = beholdningWithVedtak(LocalDate.of(2020, 1, 1));
         Uttaksgrad uttaksgrad = uttaksgradFom(LocalDate.of(2019, 1, 1));
         uttaksgrad.setVedtakId(beholdning.getVedtakId());
         uttaksgrad.setUttaksgrad(100);
@@ -164,7 +164,7 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_GivenYear_2020_with_uttaksgrad_value_lessthan100_then_calculator_returns_ArsakDetailCode_OPPTJENING_GRADERT() {
-        Beholdning beholdning = newBeholdningWithVedtak(LocalDate.of(2020, 1, 1));
+        Beholdning beholdning = beholdningWithVedtak(LocalDate.of(2020, 1, 1));
         Uttaksgrad uttaksgrad = uttaksgradFom(LocalDate.of(2019, 1, 1));
         uttaksgrad.setVedtakId(beholdning.getVedtakId());
         uttaksgrad.setUttaksgrad(50);
@@ -180,7 +180,7 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_fomDate_1Jan2020_with_uttaksgrad_value_0_then_calculator_returns_ArsakDetailCode_OPPTJENING_2012() {
-        Beholdning beholdning = newBeholdningWithVedtak(LocalDate.of(2020, 1, 1));
+        Beholdning beholdning = beholdningWithVedtak(LocalDate.of(2020, 1, 1));
         Uttaksgrad uttaksgrad = uttaksgradFom(LocalDate.of(2019, 1, 1));
         uttaksgrad.setVedtakId(beholdning.getVedtakId());
         uttaksgrad.setUttaksgrad(0);
@@ -196,7 +196,7 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_fomDate_1MayGivenYear_with_Lonnsvekstregulering_then_calculator_returns_ArsakDetailCode_REGULERING() {
-        Beholdning beholdning = newBeholdning(1D, LocalDate.of(2020, 5, 1), lonnsvekstregulering(2D));
+        Beholdning beholdning = newBeholdning(1D, LocalDate.of(2020, 5, 1), new Lonnsvekstregulering(2D));
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
                 .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
@@ -266,8 +266,8 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_fomDate_1MayGivenYear_with_Lonnsvekstregulering_then_calculator_returns_2_ArsakType_values() {
-        Beholdning beholdning = newBeholdningWithInnskudd(
-                LocalDate.of(2020, 5, 1), lonnsvekstregulering(10D));
+        Beholdning beholdning = beholdningWithInnskudd(
+                LocalDate.of(2020, 5, 1), new Lonnsvekstregulering(10D));
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
                 .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
@@ -279,7 +279,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_beholdningGrunnlag_is_inntekt_then_calculator_returns_grunnlagTypeCode_INNTEKT_GRUNNLAG() {
         double inntekt = 1D;
-        Beholdning beholdning = newBeholdningFom1Jan2020(1D, inntekt, 2D, 0D, 0D, 0D);
+        Beholdning beholdning = beholdningFom1Jan2020(1D, inntekt, 2D, 0D, 0D, 0D);
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
                 .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
@@ -294,7 +294,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_beholdningGrunnlag_is_omsorg_then_calculator_returns_grunnlagTypeCode_OMSORGSOPPTJENING_GRUNNLAG() {
         double omsorg = 1d;
-        Beholdning beholdning = newBeholdningFom1Jan2020(omsorg, 2d, omsorg, 0D, 0D, 0D);
+        Beholdning beholdning = beholdningFom1Jan2020(omsorg, 2d, omsorg, 0D, 0D, 0D);
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
                 .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
@@ -309,7 +309,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_beholdningGrunnlag_is_forstegangstjeneste_then_calculator_returns_grunnlagTypeCode_FORSTEGANGSTJENESTE_GRUNNLAG() {
         double forstegangstjeneste = 1d;
-        Beholdning beholdning = newBeholdningFom1Jan2020(forstegangstjeneste, 0D, 0D, forstegangstjeneste, 0D, 0D);
+        Beholdning beholdning = beholdningFom1Jan2020(forstegangstjeneste, 0D, 0D, forstegangstjeneste, 0D, 0D);
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
                 .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
@@ -324,7 +324,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_beholdningGrunnlag_is_dagpenger_then_calculator_returns_grunnlagTypeCode_DAGPENGER_GRUNNLAG() {
         double dagpenger = 1d;
-        Beholdning beholdning = newBeholdningFom1Jan2020(dagpenger, 0D, 0D, 0D, dagpenger, 0D);
+        Beholdning beholdning = beholdningFom1Jan2020(dagpenger, 0D, 0D, 0D, dagpenger, 0D);
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
                 .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
@@ -338,9 +338,8 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_beholdningGrunnlag_is_ufore_then_calculator_returns_grunnlagTypeCode_UFORE_GRUNNLAG() {
-        double ufore = 1d;
-        Beholdning beholdning = newBeholdningFom1Jan2020(ufore, 0D, 0D, 0D, 0D, ufore);
-        beholdning.getUforeOpptjeningBelop().setUforegrad(100);
+        double uforebelop = 1d;
+        Beholdning beholdning = beholdningFom1Jan2020(uforebelop, 0D, 0D, 0D, 0D, new Uforeopptjening(100, uforebelop));
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
                 .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
@@ -349,13 +348,13 @@ class EndringPensjonsbeholdningCalculatorTest {
         assertEquals(OPPTJENING, endring.getArsakType());
         assertEquals(1, endring.getGrunnlagTypes().size());
         assertTrue(endring.getGrunnlagTypes().contains(UFORE_GRUNNLAG));
-        assertEquals(ufore, endring.getGrunnlag());
+        assertEquals(uforebelop, endring.getGrunnlag());
     }
 
     @Test
     void when_forstegangstjeneste_ufore_or_dagpenger_is_among_more_than_one_possible_grunnlag_then_calculator_returns_all_grunnlagTypes_present_except_OMSORGSOPPTJENING() {
         double grunnlag = 7d;
-        Beholdning beholdning = newBeholdningFom1Jan2020(grunnlag, 2d, 3d, 1d, 4d, 5d);
+        Beholdning beholdning = beholdningFom1Jan2020(grunnlag, 2d, 3d, 1d, 4d, 5d);
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
                 .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
@@ -369,7 +368,7 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_beholdningGrunnlag_is_null_then_calculator_returns_grunnlagTypeCode_NO_GRUNNLAG() {
-        Beholdning beholdning = newBeholdningFom1Jan2020(null, 0D, 0D, 0D, 0D, 0D);
+        Beholdning beholdning = beholdningFom1Jan2020(null, 0D, 0D, 0D, 0D, 0D);
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
                 .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
@@ -381,7 +380,7 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_beholdningGrunnlag_is_0_then_calculator_returns_grunnlagTypeCode_NO_GRUNNLAG() {
-        Beholdning beholdning = newBeholdningFom1Jan2020(0D, 0D, 0D, 0D, 0D, 0D);
+        Beholdning beholdning = beholdningFom1Jan2020(0D, 0D, 0D, 0D, 0D, 0D);
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
                 .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
@@ -436,8 +435,7 @@ class EndringPensjonsbeholdningCalculatorTest {
                 null, null);
     }
 
-    private static Beholdning newBeholdning(double belop, LocalDate fomDate,
-                                            Lonnsvekstregulering lonnsvekstregulering) {
+    private static Beholdning newBeholdning(double belop, LocalDate fomDate, Lonnsvekstregulering regulering) {
         return new Beholdning(
                 null, "", "", "",
                 belop,
@@ -445,28 +443,21 @@ class EndringPensjonsbeholdningCalculatorTest {
                 fomDate,
                 null, null, null,
                 null, null, "",
-                lonnsvekstregulering, null, null, null,
+                regulering, null, null, null,
                 null, null);
     }
 
-    private static Beholdning newBeholdningFom1Jan2020(Double grunnlag, double inntekt, double omsorgsbelop,
-                                                       double forstegangstjenestebelop, double dagpenger,
-                                                       double uforebelop) {
-        var inntektsopptjening = new InntektOpptjeningBelop();
-        inntektsopptjening.setBelop(inntekt);
+    private static Beholdning beholdningFom1Jan2020(Double grunnlag, double inntekt, double omsorgsbelop,
+                                                    double forstegangstjenestebelop, double dagpenger,
+                                                    double uforebelop) {
+        return beholdningFom1Jan2020(grunnlag, inntekt, omsorgsbelop,
+                forstegangstjenestebelop, dagpenger,
+                new Uforeopptjening(0, uforebelop));
+    }
 
-        var omsorgsopptjening = new OmsorgOpptjeningBelop();
-        omsorgsopptjening.setBelop(omsorgsbelop);
-
-        var forstegangstjenesteopptjening = new ForstegangstjenesteOpptjeningBelop();
-        forstegangstjenesteopptjening.setBelop(forstegangstjenestebelop);
-
-        var dagpengeropptjening = new DagpengerOpptjeningBelop();
-        dagpengeropptjening.setBelopOrdinar(dagpenger);
-
-        var uforeopptjening = new UforeOpptjeningBelop();
-        uforeopptjening.setBelop(uforebelop);
-
+    private static Beholdning beholdningFom1Jan2020(Double grunnlag, double inntekt, double omsorgsbelop,
+                                                    double forstegangstjenestebelop, double dagpenger,
+                                                    Uforeopptjening uforeopptjening) {
         return new Beholdning(
                 null, "", "", "",
                 100D,
@@ -475,15 +466,15 @@ class EndringPensjonsbeholdningCalculatorTest {
                 null,
                 grunnlag,
                 null, null, null, "",
-                new Lonnsvekstregulering(),
-                inntektsopptjening,
-                omsorgsopptjening,
-                dagpengeropptjening,
-                forstegangstjenesteopptjening,
+                new Lonnsvekstregulering(null),
+                new Inntektsopptjening(inntekt),
+                new Omsorgsopptjening(1990, omsorgsbelop, null),
+                new Dagpengeopptjening(1990, dagpenger, null),
+                new Forstegangstjenesteopptjening(1990, forstegangstjenestebelop),
                 uforeopptjening);
     }
 
-    private static Beholdning newBeholdningWithInnskudd(LocalDate fomDate) {
+    private static Beholdning beholdningWithInnskudd(LocalDate fomDate) {
         return new Beholdning(
                 null, "", "", "",
                 100.0,
@@ -496,8 +487,7 @@ class EndringPensjonsbeholdningCalculatorTest {
                 null, null);
     }
 
-    private static Beholdning newBeholdningWithInnskudd(LocalDate fomDate,
-                                                        Lonnsvekstregulering lonnsvekstregulering) {
+    private static Beholdning beholdningWithInnskudd(LocalDate fomDate, Lonnsvekstregulering regulering) {
         return new Beholdning(
                 null, "", "", "",
                 1.0,
@@ -505,11 +495,11 @@ class EndringPensjonsbeholdningCalculatorTest {
                 fomDate,
                 null, null, null,
                 10.0, null, "",
-                lonnsvekstregulering, null, null, null,
+                regulering, null, null, null,
                 null, null);
     }
 
-    private static Beholdning newBeholdningWithVedtak(LocalDate fomDate) {
+    private static Beholdning beholdningWithVedtak(LocalDate fomDate) {
         return new Beholdning(
                 null, "", "", "",
                 1.0,
@@ -521,15 +511,9 @@ class EndringPensjonsbeholdningCalculatorTest {
                 null, null);
     }
 
-    private static Uttaksgrad uttaksgradFom(LocalDate fomDato) {
-        Uttaksgrad uttaksgrad = new Uttaksgrad();
-        uttaksgrad.setFomDato(fomDato);
+    private static Uttaksgrad uttaksgradFom(LocalDate date) {
+        var uttaksgrad = new Uttaksgrad();
+        uttaksgrad.setFomDato(date);
         return uttaksgrad;
-    }
-
-    private static Lonnsvekstregulering lonnsvekstregulering(double belop) {
-        var regulering = new Lonnsvekstregulering();
-        regulering.setReguleringsbelop(belop);
-        return regulering;
     }
 }

@@ -11,6 +11,7 @@ import java.util.List;
 import no.nav.pensjon.selvbetjeningopptjening.model.*;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UforeTypeCode;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
 
 public class MerknadHandler {
 
@@ -183,28 +184,25 @@ public class MerknadHandler {
 
     private static boolean mottattDagpenger(int year, Beholdning beholdning) {
         return (mottattDagpengerFiskere(beholdning) || mottattDagpenger(beholdning))
-                && year == beholdning.getDagpengerOpptjeningBelop().getAr();
+                && year == beholdning.getDagpengeopptjening().getYear();
     }
 
     private static boolean mottattDagpengerFiskere(Beholdning beholdning) {
-        DagpengerOpptjeningBelop belop = beholdning.getDagpengerOpptjeningBelop();
-
-        return belop != null
-                && belop.getBelopFiskere() != null
-                && belop.getBelopFiskere() > 0;
+        Dagpengeopptjening belop = beholdning.getDagpengeopptjening();
+        return belop != null && belop.getFiskerBelop() > 0;
     }
 
     private static boolean mottattDagpenger(Beholdning beholdning) {
-        DagpengerOpptjeningBelop belop = beholdning.getDagpengerOpptjeningBelop();
-        return belop != null && belop.getBelopOrdinar() > 0;
+        Dagpengeopptjening belop = beholdning.getDagpengeopptjening();
+        return belop != null && belop.getOrdinartBelop() > 0;
     }
 
     private static boolean mottattForstegangstjeneste(int year, Beholdning beholdning) {
-        ForstegangstjenesteOpptjeningBelop belop = beholdning.getForstegangstjenesteOpptjeningBelop();
+        Forstegangstjenesteopptjening belop = beholdning.getForstegangstjenesteopptjening();
 
         return belop != null
                 && belop.getBelop() > 0
-                && belop.getAr() == year;
+                && belop.getYear() == year;
     }
 
     private static void addMerknadOmsorgFromPensjonsbeholdning(int year, OpptjeningDto opptjening, List<MerknadCode> merknader, List<Beholdning> beholdninger) {
@@ -222,17 +220,16 @@ public class MerknadHandler {
     }
 
     private static boolean hasOmsorgsopptjening(int year, Beholdning beholdning) {
-        OmsorgOpptjeningBelop belop = beholdning.getOmsorgOpptjeningBelop();
+        Omsorgsopptjening opptjening = beholdning.getOmsorgsopptjening();
 
-        return belop != null
-                && belop.getBelop() != null
-                && belop.getBelop() > 0
-                && belop.getAr() == year;
+        return opptjening != null
+                && opptjening.getBelop() > 0
+                && opptjening.getYear() == year;
     }
 
     private static boolean hasOverforeOmsorgsopptjening(int year, Beholdning beholdning) {
-        OmsorgOpptjeningBelop belop = beholdning.getOmsorgOpptjeningBelop();
-        return beholdningHasOpptjeningOmsorgBarn(belop) && belop.getAr() == year;
+        Omsorgsopptjening belop = beholdning.getOmsorgsopptjening();
+        return beholdningHasOpptjeningOmsorgBarn(belop) && belop.getYear() == year;
     }
 
     private static void addOmsorgsopptjeningMerknad(OpptjeningDto opptjening, List<MerknadCode> merknader) {
@@ -251,18 +248,22 @@ public class MerknadHandler {
         merknader.add(MerknadCode.OVERFORE_OMSORGSOPPTJENING);
     }
 
-    private static Boolean beholdningHasOpptjeningOmsorgBarn(OmsorgOpptjeningBelop belop) {
-        if (belop == null) {
+    private static Boolean beholdningHasOpptjeningOmsorgBarn(Omsorgsopptjening opptjening) {
+        if (opptjening == null) {
             return false;
         }
 
-        return belop
-                .getOmsorgListe()
+        return opptjening
+                .getOmsorger()
                 .stream()
                 .anyMatch(MerknadHandler::isTypeOmsorgBarn);
     }
 
     private static boolean isTypeOmsorgBarn(Omsorg omsorg) {
+        return omsorg != null && isTypeOmsorgBarn(omsorg.getType());
+    }
+
+    private static boolean isTypeOmsorgBarn(OmsorgDto omsorg) {
         return omsorg != null && isTypeOmsorgBarn(omsorg.getOmsorgType());
     }
 

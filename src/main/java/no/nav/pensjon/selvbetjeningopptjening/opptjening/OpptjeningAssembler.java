@@ -3,6 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.model.*;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.OpptjeningTypeCode;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -319,7 +320,7 @@ abstract class OpptjeningAssembler {
     }
 
     private static void setPensjonsgivendeInntektFromInntektopptjeningBelop(Map<Integer, OpptjeningDto> opptjeningerByYear, BeholdningDto beholdning) {
-        InntektOpptjeningBelop belop = beholdning.getInntektOpptjeningBelop();
+        InntektOpptjeningBelopDto belop = beholdning.getInntektOpptjeningBelop();
 
         if (belop == null || belop.getSumPensjonsgivendeInntekt() == null) {
             return;

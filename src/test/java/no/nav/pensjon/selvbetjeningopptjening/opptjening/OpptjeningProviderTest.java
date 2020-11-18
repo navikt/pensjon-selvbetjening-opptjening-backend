@@ -20,6 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,7 +46,7 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradCons
 import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.model.BeholdningDto;
 import no.nav.pensjon.selvbetjeningopptjening.model.Inntekt;
-import no.nav.pensjon.selvbetjeningopptjening.model.InntektOpptjeningBelop;
+import no.nav.pensjon.selvbetjeningopptjening.model.InntektOpptjeningBelopDto;
 import no.nav.pensjon.selvbetjeningopptjening.model.Pensjonspoeng;
 import no.nav.pensjon.selvbetjeningopptjening.model.Restpensjon;
 import no.nav.pensjon.selvbetjeningopptjening.model.UforeHistorikk;
@@ -432,7 +434,7 @@ class OpptjeningProviderTest {
     @Test
     void when_Fnr_UserGroup5_with_InntektOpptjeningBelop_and_FomDato_1980_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_PensjonsgivendeInntekt() {
         BeholdningDto beholdning = beholdningFomFirstDayInYear(1980);
-        InntektOpptjeningBelop inntektOpptjeningBelop = new InntektOpptjeningBelop();
+        InntektOpptjeningBelopDto inntektOpptjeningBelop = new InntektOpptjeningBelopDto();
         inntektOpptjeningBelop.setAr(1980);
         Inntekt inntekt = inntekt();
         inntektOpptjeningBelop.setSumPensjonsgivendeInntekt(inntekt);
@@ -502,7 +504,7 @@ class OpptjeningProviderTest {
         BeholdningDto beholdning2011 = beholdningFomFirstDayInYear(2011);
 
         BeholdningDto beholdning2012 = beholdningFomFirstDayInYear(2012 );
-        InntektOpptjeningBelop inntektOpptjeningBelop = new InntektOpptjeningBelop();
+        InntektOpptjeningBelopDto inntektOpptjeningBelop = new InntektOpptjeningBelopDto();
         Inntekt inntekt2012 = inntekt(2012, expectedInntekt2012);
         inntektOpptjeningBelop.setSumPensjonsgivendeInntekt(inntekt2012);
         inntektOpptjeningBelop.setBelop((double) expectedInntekt2012);
@@ -536,7 +538,7 @@ class OpptjeningProviderTest {
         BeholdningDto beholdningYearWithoutInntekt = beholdningFomFirstDayInYear(yearWithoutInntekt);
 
         BeholdningDto beholdningYearWithInntekt = beholdningFomFirstDayInYear(yearWithInntekt);
-        InntektOpptjeningBelop inntektOpptjeningBelop = new InntektOpptjeningBelop();
+        InntektOpptjeningBelopDto inntektOpptjeningBelop = new InntektOpptjeningBelopDto();
         Inntekt inntekt = inntekt(yearWithInntekt, expectedInntekt);
         inntektOpptjeningBelop.setSumPensjonsgivendeInntekt(inntekt);
         inntektOpptjeningBelop.setBelop((double) expectedInntekt);
@@ -565,7 +567,7 @@ class OpptjeningProviderTest {
     @Test
     void when_Fnr_UserGroup4_with_InntektOpptjeningBelop_and_FomDato_1980_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_PensjonsgivendeInntekt() {
         BeholdningDto beholdning = beholdningFomFirstDayInYear(1980);
-        InntektOpptjeningBelop inntektOpptjeningBelop = new InntektOpptjeningBelop();
+        InntektOpptjeningBelopDto inntektOpptjeningBelop = new InntektOpptjeningBelopDto();
         inntektOpptjeningBelop.setAr(1980);
         inntektOpptjeningBelop.setSumPensjonsgivendeInntekt(inntekt());
         beholdning.setInntektOpptjeningBelop(inntektOpptjeningBelop);

@@ -1,6 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.model.BeholdningDto;
+import no.nav.pensjon.selvbetjeningopptjening.model.*;
 
 import java.util.List;
 
@@ -41,13 +41,12 @@ public class BeholdningMapper {
                         dto.getBeholdningInnskudd(),
                         dto.getBeholdningInnskuddUtenOmsorg(),
                         dto.getOppdateringArsak(),
-                        dto.getLonnsvekstregulering(),
-                        dto.getInntektOpptjeningBelop(),
-                        dto.getOmsorgOpptjeningBelop(),
-                        dto.getDagpengerOpptjeningBelop(),
-                        dto.getForstegangstjenesteOpptjeningBelop(),
-                        dto.getUforeOpptjeningBelop()
-                );
+                        fromDto(dto.getLonnsvekstregulering()),
+                        fromDto(dto.getInntektOpptjeningBelop()),
+                        fromDto(dto.getOmsorgOpptjeningBelop()),
+                        fromDto(dto.getDagpengerOpptjeningBelop()),
+                        fromDto(dto.getForstegangstjenesteOpptjeningBelop()),
+                        fromDto(dto.getUforeOpptjeningBelop()));
     }
 
     private static BeholdningDto toDto(Beholdning domain) {
@@ -69,12 +68,155 @@ public class BeholdningMapper {
         dto.setBeholdningInnskudd(domain.getInnskudd());
         dto.setBeholdningInnskuddUtenOmsorg(domain.getInnskuddUtenOmsorg());
         dto.setOppdateringArsak(domain.getOppdateringArsak());
-        dto.setLonnsvekstregulering(domain.getLonnsvekstregulering());
-        dto.setInntektOpptjeningBelop(domain.getInntektOpptjeningBelop());
-        dto.setOmsorgOpptjeningBelop(domain.getOmsorgOpptjeningBelop());
-        dto.setDagpengerOpptjeningBelop(domain.getDagpengerOpptjeningBelop());
-        dto.setForstegangstjenesteOpptjeningBelop(domain.getForstegangstjenesteOpptjeningBelop());
-        dto.setUforeOpptjeningBelop(domain.getUforeOpptjeningBelop());
+        dto.setLonnsvekstregulering(toDto(domain.getLonnsvekstregulering()));
+        dto.setInntektOpptjeningBelop(toDto(domain.getInntektsopptjening()));
+        dto.setOmsorgOpptjeningBelop(toDto(domain.getOmsorgsopptjening()));
+        dto.setDagpengerOpptjeningBelop(toDto(domain.getDagpengeopptjening()));
+        dto.setForstegangstjenesteOpptjeningBelop(toDto(domain.getForstegangstjenesteopptjening()));
+        dto.setUforeOpptjeningBelop(toDto(domain.getUforeopptjening()));
+        return dto;
+    }
+
+    private static Lonnsvekstregulering fromDto(LonnsvekstreguleringDto dto) {
+        return dto == null ? null
+                :
+                new Lonnsvekstregulering(dto.getReguleringsbelop());
+    }
+
+    private static LonnsvekstreguleringDto toDto(Lonnsvekstregulering domain) {
+        if (domain == null) {
+            return null;
+        }
+
+        var dto = new LonnsvekstreguleringDto();
+        dto.setReguleringsbelop(domain.getBelop());
+        return dto;
+    }
+
+    private static Inntektsopptjening fromDto(InntektOpptjeningBelopDto dto) {
+        return dto == null ? null
+                :
+                new Inntektsopptjening(dto.getBelop());
+    }
+
+    private static InntektOpptjeningBelopDto toDto(Inntektsopptjening domain) {
+        if (domain == null) {
+            return null;
+        }
+
+        var dto = new InntektOpptjeningBelopDto();
+        dto.setBelop(domain.getBelop());
+        return dto;
+    }
+
+    private static Omsorgsopptjening fromDto(OmsorgOpptjeningBelopDto dto) {
+        return dto == null ? null
+                :
+                new Omsorgsopptjening(
+                        dto.getAr(),
+                        dto.getBelop(),
+                        fromOmsorgDtos(dto.getOmsorgListe()));
+    }
+
+    private static OmsorgOpptjeningBelopDto toDto(Omsorgsopptjening domain) {
+        if (domain == null) {
+            return null;
+        }
+
+        var dto = new OmsorgOpptjeningBelopDto();
+        dto.setAr(domain.getYear());
+        dto.setBelop(domain.getBelop());
+        dto.setOmsorgListe(toOmsorgDtos(domain.getOmsorger()));
+        return dto;
+    }
+
+    private static List<Omsorg> fromOmsorgDtos(List<OmsorgDto> dtos) {
+        return dtos == null ? null
+                :
+                dtos.stream()
+                        .map(BeholdningMapper::fromDto)
+                        .collect(toList());
+    }
+
+    private static List<OmsorgDto> toOmsorgDtos(List<Omsorg> list) {
+        return list == null ? null
+                :
+                list.stream()
+                        .map(BeholdningMapper::toDto)
+                        .collect(toList());
+    }
+
+    private static Omsorg fromDto(OmsorgDto dto) {
+        return dto == null ? null
+                :
+                new Omsorg(dto.getOmsorgType());
+    }
+
+    private static OmsorgDto toDto(Omsorg domain) {
+        if (domain == null) {
+            return null;
+        }
+
+        var dto = new OmsorgDto();
+        dto.setOmsorgType(domain.getType());
+        return dto;
+    }
+
+    private static Dagpengeopptjening fromDto(DagpengerOpptjeningBelopDto dto) {
+        return dto == null ? null
+                :
+                new Dagpengeopptjening(
+                        dto.getAr(),
+                        dto.getBelopOrdinar(),
+                        dto.getBelopFiskere());
+    }
+
+    private static DagpengerOpptjeningBelopDto toDto(Dagpengeopptjening domain) {
+        if (domain == null) {
+            return null;
+        }
+
+        var dto = new DagpengerOpptjeningBelopDto();
+        dto.setAr(domain.getYear());
+        dto.setBelopOrdinar(domain.getOrdinartBelop());
+        dto.setBelopFiskere(domain.getFiskerBelop());
+        return dto;
+    }
+
+    private static Forstegangstjenesteopptjening fromDto(ForstegangstjenesteOpptjeningBelopDto dto) {
+        return dto == null ? null
+                :
+                new Forstegangstjenesteopptjening(
+                        dto.getAr(),
+                        dto.getBelop());
+    }
+
+    private static ForstegangstjenesteOpptjeningBelopDto toDto(Forstegangstjenesteopptjening domain) {
+        if (domain == null) {
+            return null;
+        }
+
+        var dto = new ForstegangstjenesteOpptjeningBelopDto();
+        dto.setAr(domain.getYear());
+        return dto;
+    }
+
+    private static Uforeopptjening fromDto(UforeOpptjeningBelopDto dto) {
+        return dto == null ? null
+                :
+                new Uforeopptjening(
+                        dto.getAr(),
+                        dto.getBelop());
+    }
+
+    private static UforeOpptjeningBelopDto toDto(Uforeopptjening domain) {
+        if (domain == null) {
+            return null;
+        }
+
+        var dto = new UforeOpptjeningBelopDto();
+        dto.setUforegrad(domain.getUforegrad());
+        dto.setBelop(domain.getBelop());
         return dto;
     }
 }

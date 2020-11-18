@@ -3,6 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 import static no.nav.pensjon.selvbetjeningopptjening.unleash.UnleashProvider.toggle;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.ISSUER;
 
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
