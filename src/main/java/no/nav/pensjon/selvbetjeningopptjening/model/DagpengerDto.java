@@ -3,26 +3,17 @@ package no.nav.pensjon.selvbetjeningopptjening.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Dagpenger {
+public class DagpengerDto {
 
     private Long dagpengerId;
-
     private String fnr;
-
     private String dagpengerType;
-
     private String rapportType;
-
     private String kilde;
-
     private Integer ar;
-
     private Integer utbetalteDagpenger;
-
     private Integer uavkortetDagpengegrunnlag;
-
     private Integer ferietillegg;
-
     private Integer barnetillegg;
 
     public Long getDagpengerId() {

@@ -5,7 +5,8 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ForstegangstjenestePeriode {
+public class ForstegangstjenestePeriodeDto {
+
     private Long forstegangstjenestePeriodeId;
     private String periodeType;
     private String tjenesteType;

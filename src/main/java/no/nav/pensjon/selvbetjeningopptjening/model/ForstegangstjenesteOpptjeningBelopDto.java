@@ -8,14 +8,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class ForstegangstjenesteOpptjeningBelopDto {
 
     private Long forstegangstjenesteOpptjeningBelopId;
-
     private Integer ar;
-
     private Double belop;
-
-    private Forstegangstjeneste forstegangstjeneste;
-
-    private List<ForstegangstjenestePeriode> anvendtForstegangstjenestePeriodeListe;
+    private ForstegangstjenesteDto forstegangstjeneste;
+    private List<ForstegangstjenestePeriodeDto> anvendtForstegangstjenestePeriodeListe;
 
     public Long getForstegangstjenesteOpptjeningBelopId() {
         return forstegangstjenesteOpptjeningBelopId;
@@ -41,19 +37,19 @@ public class ForstegangstjenesteOpptjeningBelopDto {
         this.belop = belop;
     }
 
-    public Forstegangstjeneste getForstegangstjeneste() {
+    public ForstegangstjenesteDto getForstegangstjeneste() {
         return forstegangstjeneste;
     }
 
-    public void setForstegangstjeneste(Forstegangstjeneste forstegangstjeneste) {
+    public void setForstegangstjeneste(ForstegangstjenesteDto forstegangstjeneste) {
         this.forstegangstjeneste = forstegangstjeneste;
     }
 
-    public List<ForstegangstjenestePeriode> getAnvendtForstegangstjenestePeriodeListe() {
+    public List<ForstegangstjenestePeriodeDto> getAnvendtForstegangstjenestePeriodeListe() {
         return anvendtForstegangstjenestePeriodeListe;
     }
 
-    public void setAnvendtForstegangstjenestePeriodeListe(List<ForstegangstjenestePeriode> anvendtForstegangstjenestePeriodeListe) {
+    public void setAnvendtForstegangstjenestePeriodeListe(List<ForstegangstjenestePeriodeDto> anvendtForstegangstjenestePeriodeListe) {
         this.anvendtForstegangstjenestePeriodeListe = anvendtForstegangstjenestePeriodeListe;
     }
 }
