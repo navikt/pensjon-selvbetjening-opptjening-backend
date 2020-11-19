@@ -3,7 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikkDto;
 import no.nav.pensjon.selvbetjeningopptjening.model.UforeHistorikkDto;
-import no.nav.pensjon.selvbetjeningopptjening.model.Uforeperiode;
+import no.nav.pensjon.selvbetjeningopptjening.model.UforeperiodeDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.AfpHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.UforeHistorikk;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,6 +41,7 @@ class PersonConsumerTest {
     private static final String UFOREHISTORIKK_URL = ENDPOINT + "/person/uforehistorikk";
     private static final String EXPECTED_AFP_HISTORIKK_IDENTIFIER = "PROPEN2602 getAfphistorikkForPerson";
     private static final String EXPECTED_UFOREHISTORIKK_IDENTIFIER = "PROPEN2603 getUforehistorikkForPerson";
+    private static final LocalDate DATE = LocalDate.of(1991, 1, 1);
     private PersonConsumer consumer;
 
     @Mock
@@ -61,13 +62,13 @@ class PersonConsumerTest {
     @Test
     void should_return_Afphistorikk_when_getAfpHistorikkForPerson() {
         var dto = new AfpHistorikkDto();
-        dto.setVirkFom(LocalDate.of(1991, 1, 1));
+        dto.setVirkFom(DATE);
         ResponseEntity<AfpHistorikkDto> entity = new ResponseEntity<>(dto, HttpStatus.OK);
         when(restTemplateMock.exchange(eq(AFP_HISTORIKK_URL), any(), any(), eq(AfpHistorikkDto.class))).thenReturn(entity);
 
         AfpHistorikk historikk = consumer.getAfpHistorikkForPerson("");
 
-        assertEquals(LocalDate.of(1991, 1, 1), historikk.getVirkningFom());
+        assertEquals(DATE, historikk.getVirkningFomDate());
     }
 
     @Test
@@ -86,14 +87,17 @@ class PersonConsumerTest {
 
     @Test
     void should_get_Uforehistorikk_when_getUforeHistorikkForPerson() {
-        var dto = new UforeHistorikkDto();
-        dto.setUforeperiodeListe(singletonList(new Uforeperiode()));
-        ResponseEntity<UforeHistorikkDto> entity = new ResponseEntity<>(dto, HttpStatus.OK);
+        var historikkDto = new UforeHistorikkDto();
+        UforeperiodeDto uforeperiode = new UforeperiodeDto();
+        uforeperiode.setUfgFom(DATE);
+        historikkDto.setUforeperiodeListe(singletonList(uforeperiode));
+        ResponseEntity<UforeHistorikkDto> entity = new ResponseEntity<>(historikkDto, HttpStatus.OK);
         when(restTemplateMock.exchange(eq(UFOREHISTORIKK_URL), any(), any(), eq(UforeHistorikkDto.class))).thenReturn(entity);
 
         UforeHistorikk historikk = consumer.getUforeHistorikkForPerson("");
 
         assertEquals(1, historikk.getUforeperioder().size());
+        assertEquals(DATE, historikk.getUforeperioder().get(0).getFomDate());
     }
 
     @Test

@@ -7,7 +7,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UforeTypeCode;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Uforeperiode {
+public class UforeperiodeDto {
+
     private Integer uforegrad;
     private UforeTypeCode uforetype;
     private LocalDate ufgFom;

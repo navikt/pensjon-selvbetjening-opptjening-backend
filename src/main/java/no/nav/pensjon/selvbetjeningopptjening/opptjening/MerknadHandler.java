@@ -1,16 +1,15 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import static no.nav.pensjon.selvbetjeningopptjening.opptjening.OmsorgTypes.OMSORG_BARN_UNDER_6;
-import static no.nav.pensjon.selvbetjeningopptjening.opptjening.OmsorgTypes.OMSORG_BARN_UNDER_7;
-import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
+import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
+import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import no.nav.pensjon.selvbetjeningopptjening.model.*;
-import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
-import no.nav.pensjon.selvbetjeningopptjening.model.code.UforeTypeCode;
+import static no.nav.pensjon.selvbetjeningopptjening.opptjening.OmsorgTypes.OMSORG_BARN_UNDER_6;
+import static no.nav.pensjon.selvbetjeningopptjening.opptjening.OmsorgTypes.OMSORG_BARN_UNDER_7;
+import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
 
 //TODO: Denne klassen må gjennomgås når man skal utvide mvp for å finne ut hvordan merknadene skal håndteres.
 //      For mvp er de fleste merknader kommentert bort da mvp håndterer disse i EndringPensjonspptjeningCalculator i stedet.
@@ -62,8 +61,8 @@ public class MerknadHandler {
             return;
         }
 
-        int firstYearToBeMarkedWithAfp = afpHistorikk.getVirkningFom().getYear();
-        int lastYearToBeMarkedWithAfp = afpHistorikk.getVirkningTom() == null ? LocalDate.now().getYear() - 1 : afpHistorikk.getVirkningTom().getYear();
+        int firstYearToBeMarkedWithAfp = afpHistorikk.getStartYear();
+        int lastYearToBeMarkedWithAfp = afpHistorikk.getEndYearOrDefault(() -> LocalDate.now().getYear() - 1);
 
         if (firstYearToBeMarkedWithAfp <= year && year <= lastYearToBeMarkedWithAfp) {
             merknader.add(MerknadCode.AFP);
@@ -90,8 +89,8 @@ public class MerknadHandler {
         Integer maxUforegrad = null;
 
         for (Uforeperiode periode : historikk.getUforeperioder()) {
-            //TODO: isRealUforeperiode seems superfluous in next line
-            if (isRealUforeperiode(periode) && isStrictRealUforeperiode(periode) && isUforeperiodeVirkFomBeforeGrunnlagsAr(year, periode)) {
+            //TODO: isReal check seems superfluous in next line
+            if (periode.isReal() && periode.isStrictReal() && periode.isVirkFomBeforeGrunnlagYear(year)) {
                 if (maxUforegrad == null || periode.getUforegrad() > maxUforegrad) {
                     maxUforegrad = periode.getUforegrad();
                 }
@@ -99,38 +98,6 @@ public class MerknadHandler {
         }
 
         return maxUforegrad;
-    }
-
-    private static boolean isUforeperiodeVirkFomBeforeGrunnlagsAr(int grunnlagsar, Uforeperiode periode) {
-        LocalDate firstDayInGrunnlagsar = LocalDate.of(grunnlagsar, 1, 1);
-        LocalDate virkFom = periode.getUfgFom();
-
-        return virkFom.getYear() == grunnlagsar ||
-                isDateBeforeOrEqual(periode.getUfgFom(), firstDayInGrunnlagsar) &&
-                        (periode.getUfgTom() == null || grunnlagsArBeforeUforeTom(firstDayInGrunnlagsar, periode.getUfgTom()));
-    }
-
-    private static boolean grunnlagsArBeforeUforeTom(LocalDate firstDayInGrunnlagsar, LocalDate tom) {
-        return firstDayInGrunnlagsar.getYear() == tom.getYear() || isDateBeforeOrEqual(firstDayInGrunnlagsar, tom);
-    }
-
-    private static boolean isDateBeforeOrEqual(LocalDate date, LocalDate otherDate) {
-        return date.isBefore(otherDate) || date.isEqual(otherDate);
-    }
-
-    private static boolean isRealUforeperiode(Uforeperiode periode) {
-        UforeTypeCode type = periode.getUforetype();
-
-        return UforeTypeCode.UF_M_YRKE.equals(type) ||
-                UforeTypeCode.UFORE.equals(type) ||
-                UforeTypeCode.YRKE.equals(type);
-    }
-
-    private static boolean isStrictRealUforeperiode(Uforeperiode periode) {
-        UforeTypeCode type = periode.getUforetype();
-
-        return UforeTypeCode.UFORE.equals(type)
-                || UforeTypeCode.UF_M_YRKE.equals(type);
     }
 
     private static void addMerknadReform2010(int year, List<MerknadCode> merknader) {
