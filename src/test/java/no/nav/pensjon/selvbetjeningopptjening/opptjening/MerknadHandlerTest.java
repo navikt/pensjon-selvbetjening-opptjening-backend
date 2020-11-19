@@ -89,9 +89,16 @@ class MerknadHandlerTest {
         assertSingleMerknad(INGEN_OPPTJENING, opptjening.getMerknader());
     }
 
-    @Test
-    void when_Opptjening_with_AfpHistorikk_and_without_PensjonsBeholdning_then_addMerknaderOnOpptjening_returns_MerknadCode_AFP_and_INGEN_OPPTJENING() {
-        var opptjening = new OpptjeningDto();
+//    @Test
+//    void when_Opptjening_with_AfpHistorikk_and_without_PensjonsBeholdning_then_addMerknaderOnOpptjening_returns_MerknadCode_AFP_and_INGEN_OPPTJENING() {
+//        var opptjening = new OpptjeningDto();
+//
+//        MerknadHandler.addMerknaderOnOpptjening(1990, opptjening, null, emptyList(), afpHistorikk(), null);
+//
+//        assertEquals(2, opptjening.getMerknader().size());
+//        assertEquals(AFP, opptjening.getMerknader().get(0));
+//        assertEquals(INGEN_OPPTJENING, opptjening.getMerknader().get(1));
+//    }
 
         MerknadHandler.addMerknaderOnOpptjening(YEAR, opptjening, null, emptyList(), afpHistorikk(), null);
 

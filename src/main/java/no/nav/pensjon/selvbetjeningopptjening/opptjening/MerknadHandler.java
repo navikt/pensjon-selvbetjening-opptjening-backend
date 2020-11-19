@@ -13,6 +13,8 @@ import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UforeTypeCode;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
 
+//TODO: Denne klassen må gjennomgås når man skal utvide mvp for å finne ut hvordan merknadene skal håndteres.
+//      For mvp er de fleste merknader kommentert bort da mvp håndterer disse i EndringPensjonspptjeningCalculator i stedet.
 public class MerknadHandler {
 
     static void setMerknadOmsorgsopptjeningPensjonspoeng(OpptjeningDto opptjening, Pensjonspoeng pensjonspoeng) {
@@ -42,17 +44,16 @@ public class MerknadHandler {
                                          AfpHistorikk afpHistorikk,
                                          UforeHistorikk uforehistorikk) {
         List<MerknadCode> merknader = new ArrayList<>();
-        addMerknadAfp(year, merknader, afpHistorikk);
-        addMerknadUforegrad(year, uforehistorikk, opptjening, merknader);
+        //addMerknadAfp(year, merknader, afpHistorikk);
+        //addMerknadUforegrad(year, uforehistorikk, opptjening, merknader);
 
         //When beholdninger is null the user is not in Usergroup 4 or 5 and these merknads do not apply
         if (beholdninger != null) {
             addMerknadReform2010(year, merknader);
-            addMerknadDagpengerAndForstegangstjeneste(year, merknader, beholdninger);
             addMerknadOmsorgFromPensjonsbeholdning(year, opptjening, merknader, beholdninger);
         }
 
-        addMerknadGradertAlderspensjon(year, uttaksgradhistorikk, merknader);
+        //addMerknadGradertAlderspensjon(year, uttaksgradhistorikk, merknader);
         addMerknadIngenOpptjening(opptjening, merknader);
         opptjening.addMerknader(merknader);
     }
@@ -76,7 +77,6 @@ public class MerknadHandler {
         }
     }
 
-    //TODO: Utvidelse av MVP. I MVP blir ikke ufore-merknaden brukt. Vurder om det samme kan gjøres i utvidelsen av MVP slik at denne koden kan fjernes fra MerknadHandler.
     private static void addMerknadUforegrad(int year, UforeHistorikk uforehistorikk, OpptjeningDto opptjening, List<MerknadCode> merknader) {
         if (uforehistorikk == null) {
             return;
@@ -206,11 +206,11 @@ public class MerknadHandler {
     }
 
     private static void addMerknadOmsorgFromPensjonsbeholdning(int year, OpptjeningDto opptjening, List<MerknadCode> merknader, List<Beholdning> beholdninger) {
-        beholdninger
-                .stream()
-                .filter(beholdning -> hasOmsorgsopptjening(year, beholdning))
-                .findFirst()
-                .ifPresent(beholdning -> addOmsorgsopptjeningMerknad(opptjening, merknader));
+//        beholdninger
+//                .stream()
+//                .filter(beholdning -> hasOmsorgsopptjening(year, beholdning))
+//                .findFirst()
+//                .ifPresent(beholdning -> addOmsorgsopptjeningMerknad(opptjening, merknader));
 
         beholdninger
                 .stream()

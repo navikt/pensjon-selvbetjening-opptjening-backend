@@ -40,7 +40,7 @@ spec:
     - name: PDL_ENDPOINT_URL
       value: https://pdl-api.nais.adeo.no/graphql
     - name: UNLEASH_ENDPOINT_URL
-      value: https://unleash.nais.adeo.no/api
+      value: https://unleash.nais.io/api
     - name: APP_ENVIRONMENT
       value: p
   envFrom:
