@@ -5,7 +5,7 @@ public class Forstegangstjenesteopptjening {
     private int year;
     private double belop;
 
-    Forstegangstjenesteopptjening(Integer year, Double belop) {
+    public Forstegangstjenesteopptjening(Integer year, Double belop) {
         this.year = year == null ? 1900 : year;
         this.belop = belop == null ? 0D : belop;
     }

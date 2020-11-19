@@ -1,5 +1,6 @@
-package no.nav.pensjon.selvbetjeningopptjening.opptjening;
+package no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping;
 
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.EndringPensjonsopptjening;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.EndringPensjonsopptjeningDto;
 
 import java.util.List;
@@ -17,7 +18,11 @@ class EndringPensjonsopptjeningMapper {
     }
 
     private static EndringPensjonsopptjeningDto toDto(EndringPensjonsopptjening opptjening) {
-        EndringPensjonsopptjeningDto dto = new EndringPensjonsopptjeningDto();
+        return opptjening == null ? null : newDto(opptjening);
+    }
+
+    private static EndringPensjonsopptjeningDto newDto(EndringPensjonsopptjening opptjening) {
+        var dto = new EndringPensjonsopptjeningDto();
         dto.setArsakDetails(opptjening.getArsakDetails());
         dto.setArsakType(opptjening.getArsakType());
         dto.setDato(opptjening.getDato());

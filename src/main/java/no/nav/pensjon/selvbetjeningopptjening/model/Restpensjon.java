@@ -1,15 +1,9 @@
 package no.nav.pensjon.selvbetjeningopptjening.model;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import org.springframework.format.annotation.DateTimeFormat;
-
-import no.nav.pensjon.selvbetjeningopptjening.util.LocalDateTimeFromEpochDeserializer;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Restpensjon {
@@ -27,7 +21,7 @@ public class Restpensjon {
 
     private LocalDate tomDato;
 
-    private List<Pensjonspoeng> pensjonspoengListe;
+    private List<PensjonspoengDto> pensjonspoengListe;
 
     private String oppdateringArsak;
 
@@ -87,11 +81,11 @@ public class Restpensjon {
         this.tomDato = tomDato;
     }
 
-    public List<Pensjonspoeng> getPensjonspoengListe() {
+    public List<PensjonspoengDto> getPensjonspoengListe() {
         return pensjonspoengListe;
     }
 
-    public void setPensjonspoengListe(List<Pensjonspoeng> pensjonspoengListe) {
+    public void setPensjonspoengListe(List<PensjonspoengDto> pensjonspoengListe) {
         this.pensjonspoengListe = pensjonspoengListe;
     }
 

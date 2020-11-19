@@ -467,7 +467,7 @@ class EndringPensjonsbeholdningCalculatorTest {
                 grunnlag,
                 null, null, null, "",
                 new Lonnsvekstregulering(null),
-                new Inntektsopptjening(inntekt),
+                new Inntektsopptjening(1990, inntekt, null),
                 new Omsorgsopptjening(1990, omsorgsbelop, null),
                 new Dagpengeopptjening(1990, dagpenger, null),
                 new Forstegangstjenesteopptjening(1990, forstegangstjenestebelop),

@@ -7,7 +7,7 @@ import java.util.List;
 public class OpptjeningBasis {
 
     private final List<Pensjonspoeng> pensjonspoengList;
-    private final List<BeholdningDto> beholdninger;
+    private final List<Beholdning> beholdninger;
     private final List<Restpensjon> restpensjoner;
     private final List<Inntekt> inntekter;
     private final List<Uttaksgrad> uttaksgrader;
@@ -15,7 +15,7 @@ public class OpptjeningBasis {
     private final UforeHistorikk uforeHistorikk;
 
     public OpptjeningBasis(List<Pensjonspoeng> pensjonspoengList,
-                           List<BeholdningDto> beholdninger,
+                           List<Beholdning> beholdninger,
                            List<Restpensjon> restpensjoner,
                            List<Inntekt> inntekter,
                            List<Uttaksgrad> uttaksgrader,
@@ -34,7 +34,7 @@ public class OpptjeningBasis {
         return pensjonspoengList;
     }
 
-    List<BeholdningDto> getPensjonsbeholdninger() {
+    List<Beholdning> getPensjonsbeholdninger() {
         return beholdninger;
     }
 

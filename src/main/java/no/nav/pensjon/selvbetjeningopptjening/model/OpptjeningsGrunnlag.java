@@ -7,13 +7,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OpptjeningsGrunnlag {
 
-    private List<Inntekt> inntektListe;
+    private List<InntektDto> inntektListe;
 
-    public List<Inntekt> getInntektListe() {
+    public List<InntektDto> getInntektListe() {
         return inntektListe;
     }
 
-    public void setInntektListe(List<Inntekt> inntektListe) {
+    public void setInntektListe(List<InntektDto> inntektListe) {
         this.inntektListe = inntektListe;
     }
 }

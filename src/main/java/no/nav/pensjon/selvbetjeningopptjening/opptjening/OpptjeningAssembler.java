@@ -4,18 +4,20 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGett
 import no.nav.pensjon.selvbetjeningopptjening.model.*;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.OpptjeningTypeCode;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.OpptjeningMapper;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.round;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static no.nav.pensjon.selvbetjeningopptjening.opptjening.BeholdningMapper.fromDto;
 import static no.nav.pensjon.selvbetjeningopptjening.opptjening.EndringPensjonsbeholdningCalculator.calculatePensjonsbeholdningsendringer;
-import static no.nav.pensjon.selvbetjeningopptjening.opptjening.EndringPensjonsopptjeningMapper.toDto;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
 import static no.nav.pensjon.selvbetjeningopptjening.util.DateUtil.firstDayOf;
 
@@ -28,39 +30,37 @@ abstract class OpptjeningAssembler {
         this.uttaksgradGetter = uttaksgradGetter;
     }
 
-    Map<Integer, OpptjeningDto> getOpptjeningerByYear(List<Pensjonspoeng> pensjonspoengList,
-                                                      List<Restpensjon> restpensjoner) {
-        Map<Integer, OpptjeningDto> opptjeningerByYear = new HashMap<>();
-        pensjonspoengList.forEach(poeng -> putOpptjeningYear(opptjeningerByYear, poeng.getAr()));
+    Map<Integer, Opptjening> getOpptjeningerByYear(List<Pensjonspoeng> pensjonspoengList,
+                                                   List<Restpensjon> restpensjoner) {
+        Map<Integer, Opptjening> opptjeningerByYear = new HashMap<>();
+        pensjonspoengList.forEach(poeng -> putOpptjeningYear(opptjeningerByYear, poeng.getYear()));
         restpensjoner.forEach(pensjon -> putOpptjeningYear(opptjeningerByYear, pensjon.getFomDato().getYear()));
         return opptjeningerByYear;
     }
 
     Map<Integer, Long> getSumPensjonsgivendeInntekterByYear(List<Inntekt> inntekter) {
         return inntekter.stream()
-                .filter(inntekt -> INNTEKT_TYPE_SUM_PENSJONSGIVENDE_INNTEKT.equals(inntekt.getInntektType()))
-                .collect(toMap(Inntekt::getInntektAr, Inntekt::getBelop));
+                .filter(inntekt -> INNTEKT_TYPE_SUM_PENSJONSGIVENDE_INNTEKT.equals(inntekt.getType()))
+                .collect(toMap(Inntekt::getYear, Inntekt::getBelop));
     }
 
-    void populatePensjonsbeholdning(Map<Integer, OpptjeningDto> opptjeningerByYear,
-                                    Map<Integer, BeholdningDto> beholdningerByYear) {
+    void populatePensjonsbeholdning(Map<Integer, Opptjening> opptjeningerByYear,
+                                    Map<Integer, Beholdning> beholdningerByYear) {
         beholdningerByYear.forEach((year, beholdning) -> populatePensjonsbeholdning(opptjeningerByYear, year, beholdning));
 
         beholdningerByYear.values().forEach(
                 beholdning -> setPensjonsgivendeInntektFromInntektopptjeningBelop(opptjeningerByYear, beholdning));
     }
 
-    Map<Integer, BeholdningDto> getBeholdningerByYear(List<BeholdningDto> beholdninger) {
+    Map<Integer, Beholdning> getBeholdningerByYear(List<Beholdning> beholdninger) {
         if (beholdninger == null) {
             return emptyMap();
         }
 
-        Map<Integer, BeholdningDto> beholdningerByYear = new HashMap<>();
+        Map<Integer, Beholdning> beholdningerByYear = new HashMap<>();
 
-        for (BeholdningDto beholdning : beholdninger) {
-            if (beholdning.getFomDato() != null) {
-                beholdningerByYear.put(beholdning.getFomDato().getYear(), beholdning);
-            }
+        for (Beholdning beholdning : beholdninger) {
+            beholdningerByYear.put(beholdning.getFomDato().getYear(), beholdning);
         }
 
         return beholdningerByYear;
@@ -94,7 +94,7 @@ abstract class OpptjeningAssembler {
         return fodselYear + 13;
     }
 
-    int findLatestOpptjeningYear(Map<Integer, OpptjeningDto> opptjeningerByYear) {
+    int findLatestOpptjeningYear(Map<Integer, Opptjening> opptjeningerByYear) {
         int lastYearWithOpptjening = -1;
         int thisYear = LocalDate.now().getYear();
 
@@ -107,11 +107,11 @@ abstract class OpptjeningAssembler {
         return lastYearWithOpptjening > -1 ? lastYearWithOpptjening : thisYear;
     }
 
-    void setRestpensjoner(Map<Integer, OpptjeningDto> opptjeningerByYear, List<Restpensjon> restpensjoner) {
+    void setRestpensjoner(Map<Integer, Opptjening> opptjeningerByYear, List<Restpensjon> restpensjoner) {
         restpensjoner.forEach(pensjon -> setRestpensjon(opptjeningerByYear, pensjon));
     }
 
-    void removeFutureOpptjening(Map<Integer, OpptjeningDto> opptjeningerByYear, int latestOpptjeningYear) {
+    void removeFutureOpptjening(Map<Integer, Opptjening> opptjeningerByYear, int latestOpptjeningYear) {
         opptjeningerByYear.entrySet().stream()
                 .filter(entry -> entry.getKey() > latestOpptjeningYear)
                 .forEach(entry -> opptjeningerByYear.remove(entry.getKey()));
@@ -121,14 +121,14 @@ abstract class OpptjeningAssembler {
      * Adds opptjening to opptjeningerByYear for years with inntekt but no beholdning.
      */
     void putYearsWithAdditionalInntekt(Map<Integer, Long> inntekterByYear,
-                                       Map<Integer, OpptjeningDto> opptjeningerByYear,
+                                       Map<Integer, Opptjening> opptjeningerByYear,
                                        int firstYearWithOpptjening,
                                        int lastYearWithOpptjening) {
         IntStream.rangeClosed(firstYearWithOpptjening, lastYearWithOpptjening)
                 .forEach(year -> putYearWithAdditionalInntekt(inntekterByYear, opptjeningerByYear, year));
     }
 
-    void putYearsWithNoOpptjening(Map<Integer, OpptjeningDto> opptjeningerByYear,
+    void putYearsWithNoOpptjening(Map<Integer, Opptjening> opptjeningerByYear,
                                   int firstYearWithOpptjening,
                                   int lastYearWithOpptjening) {
         if (firstYearWithOpptjening <= 0 || lastYearWithOpptjening <= 0) {
@@ -139,8 +139,8 @@ abstract class OpptjeningAssembler {
                 .forEach(year -> putYearWithNoOpptjening(opptjeningerByYear, year));
     }
 
-    void populateMerknadForOpptjening(Map<Integer, OpptjeningDto> opptjeningerByYear,
-                                      List<BeholdningDto> beholdninger,
+    void populateMerknadForOpptjening(Map<Integer, Opptjening> opptjeningerByYear,
+                                      List<Beholdning> beholdninger,
                                       List<Uttaksgrad> uttaksgradHistorikk,
                                       AfpHistorikk afpHistorikk,
                                       UforeHistorikk uforeHistorikk) {
@@ -149,8 +149,8 @@ abstract class OpptjeningAssembler {
                         beholdninger, uttaksgradHistorikk, afpHistorikk, uforeHistorikk, year, opptjening));
     }
 
-    void setEndringerOpptjening(Map<Integer, OpptjeningDto> opptjeningerByYear,
-                                List<BeholdningDto> beholdninger) {
+    void setEndringerOpptjening(Map<Integer, Opptjening> opptjeningerByYear,
+                                List<Beholdning> beholdninger) {
         List<Long> vedtakIds = getVedtakIdsForBeholdningAfter2009(beholdninger);
         List<Uttaksgrad> uttaksgraderForBeholdningAfter2009 = uttaksgradGetter.getUttaksgradForVedtak(vedtakIds);
 
@@ -159,43 +159,49 @@ abstract class OpptjeningAssembler {
                 .forEach(entry -> setEndringer(beholdninger, uttaksgraderForBeholdningAfter2009, entry.getKey(), entry.getValue()));
     }
 
-    void populatePensjonspoeng(Map<Integer, OpptjeningDto> opptjeningerByYear, List<Pensjonspoeng> pensjonspoengList) {
+    void populatePensjonspoeng(Map<Integer, Opptjening> opptjeningerByYear, List<Pensjonspoeng> pensjonspoengList) {
         pensjonspoengList.stream()
-                .filter(poeng -> poeng.getAr() != null)
+                .filter(Pensjonspoeng::hasYear)
                 .forEach(poeng -> populatePensjonspoeng(opptjeningerByYear, poeng));
     }
 
-    int countNumberOfYearsWithPensjonspoeng(Map<Integer, OpptjeningDto> opptjeningerByYear) {
+    int countNumberOfYearsWithPensjonspoeng(Map<Integer, Opptjening> opptjeningerByYear) {
         return (int) opptjeningerByYear.values().stream()
                 .filter(opptjening -> isPositive(opptjening.getPensjonspoeng()))
                 .count();
     }
 
-    private static void addMerknaderOnOpptjening(List<BeholdningDto> beholdninger, List<Uttaksgrad> uttaksgrader,
-                                                 AfpHistorikk afpHistorikk, UforeHistorikk uforeHistorikk,
-                                                 Integer year, OpptjeningDto opptjening) {
-        MerknadHandler.addMerknaderOnOpptjening(
-                year, opptjening, fromDto(beholdninger), uttaksgrader, afpHistorikk, uforeHistorikk);
+    Map<Integer, OpptjeningDto> toDto(Map<Integer, Opptjening> opptjeningerByYear) {
+        Map<Integer, OpptjeningDto> dtoMap = new HashMap<>();
+        opptjeningerByYear.forEach((year, value) -> dtoMap.put(year, OpptjeningMapper.toDto(value)));
+        return dtoMap;
     }
 
-    private static List<Long> getVedtakIdsForBeholdningAfter2009(List<BeholdningDto> beholdninger) {
+    private static void addMerknaderOnOpptjening(List<Beholdning> beholdninger, List<Uttaksgrad> uttaksgrader,
+                                                 AfpHistorikk afpHistorikk, UforeHistorikk uforeHistorikk,
+                                                 Integer year, Opptjening opptjening) {
+        MerknadHandler.addMerknaderOnOpptjening(
+                year, opptjening, beholdninger, uttaksgrader, afpHistorikk, uforeHistorikk);
+    }
+
+    private static List<Long> getVedtakIdsForBeholdningAfter2009(List<Beholdning> beholdninger) {
         return beholdninger.stream()
-                .filter(beholdning -> beholdning.getVedtakId() != null && beholdning.getFomDato().getYear() >= REFORM_2010 - 1)
-                .map(BeholdningDto::getVedtakId)
+                .filter(beholdning -> beholdning.hasVedtak() && beholdning.getFomDato().getYear() >= REFORM_2010 - 1)
+                .map(Beholdning::getVedtakId)
                 .collect(toList());
     }
 
-    private static void populatePensjonspoeng(Map<Integer, OpptjeningDto> opptjeningerByYear, Pensjonspoeng poeng) {
-        OpptjeningDto opptjening = opptjeningerByYear.get(poeng.getAr());
+    private static void populatePensjonspoeng(Map<Integer, Opptjening> opptjeningerByYear, Pensjonspoeng poeng) {
+        Opptjening opptjening = opptjeningerByYear.get(poeng.getYear());
         populateOpptjeningMapWithPensjonspoeng(opptjening, poeng);
     }
 
-    private static void populateOpptjeningMapWithPensjonspoeng(OpptjeningDto opptjening, Pensjonspoeng pensjonspoeng) {
-        String pensjonspoengType = pensjonspoeng.getPensjonspoengType();
+    private static void populateOpptjeningMapWithPensjonspoeng(Opptjening opptjening, Pensjonspoeng pensjonspoeng) {
+        String pensjonspoengType = pensjonspoeng.getType();
 
         if (isOpptjeningTypeInntekt(pensjonspoengType)) {
             opptjening.setPensjonspoeng(pensjonspoeng.getPoeng());
-            opptjening.setPensjonsgivendeInntekt(pensjonspoeng.getInntekt().getBelop().intValue());
+            opptjening.setPensjonsgivendeInntekt(pensjonspoeng.getInntekt().getBelop());
         }
 
         if (isOpptjeningTypeOmsorgspoeng(pensjonspoengType)) {
@@ -211,12 +217,12 @@ abstract class OpptjeningAssembler {
         MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng);
     }
 
-    private static void putOpptjeningYear(Map<Integer, OpptjeningDto> opptjeningerByYear, int year) {
-        OpptjeningDto opptjening = getOpptjening(opptjeningerByYear, year);
+    private static void putOpptjeningYear(Map<Integer, Opptjening> opptjeningerByYear, int year) {
+        Opptjening opptjening = getOpptjening(opptjeningerByYear, year);
         opptjeningerByYear.put(year, opptjening);
     }
 
-    private static void putYearWithNoOpptjening(Map<Integer, OpptjeningDto> opptjeningerByYear, int year) {
+    private static void putYearWithNoOpptjening(Map<Integer, Opptjening> opptjeningerByYear, int year) {
         if (opptjeningerByYear.containsKey(year)) {
             return;
         }
@@ -232,46 +238,44 @@ abstract class OpptjeningAssembler {
         return omsorgspoengOpptjeningTypes().contains(opptjeningType);
     }
 
-    private static boolean isOmsorgspoengGreaterThanPensjonspoeng(OpptjeningDto opptjening) {
-        boolean pensjonspoengIsNullButOmsorgspoengIsNotNull =
-                opptjening.getOmsorgspoeng() != null &&
-                        opptjening.getPensjonspoeng() == null;
+    private static boolean isOmsorgspoengGreaterThanPensjonspoeng(Opptjening opptjening) {
+        boolean hasOmsorgspoengButNotPensjonspoeng =
+                opptjening.hasOmsorgspoeng() && !opptjening.hasPensjonspoeng();
 
-        boolean bothOmsorgspoengAndPensjonspoengIsNotNull =
-                opptjening.getOmsorgspoeng() != null &&
-                        opptjening.getPensjonspoeng() != null;
+        boolean hasBothOmsorgspoengAndPensjonspoeng =
+                opptjening.hasOmsorgspoeng() && opptjening.hasPensjonspoeng();
 
-        return pensjonspoengIsNullButOmsorgspoengIsNotNull
-                || bothOmsorgspoengAndPensjonspoengIsNotNull
+        return hasOmsorgspoengButNotPensjonspoeng
+                || hasBothOmsorgspoengAndPensjonspoeng
                 && opptjening.getPensjonspoeng() < opptjening.getOmsorgspoeng();
     }
 
     private static void putYearWithAdditionalInntekt(Map<Integer, Long> inntekterByYear,
-                                                     Map<Integer, OpptjeningDto> opptjeningerByYear,
+                                                     Map<Integer, Opptjening> opptjeningerByYear,
                                                      int year) {
         if (opptjeningerByYear.containsKey(year) || !inntekterByYear.containsKey(year)) {
             return;
         }
 
-        OpptjeningDto opptjening = getOpptjening(opptjeningerByYear, year);
-        opptjening.setPensjonsgivendeInntekt(inntekterByYear.get(year).intValue());
+        Opptjening opptjening = getOpptjening(opptjeningerByYear, year);
+        opptjening.setPensjonsgivendeInntekt(inntekterByYear.get(year));
         opptjeningerByYear.put(year, opptjening);
     }
 
-    private static void setEndringer(List<BeholdningDto> beholdninger,
+    private static void setEndringer(List<Beholdning> beholdninger,
                                      List<Uttaksgrad> uttaksgrader,
                                      int year,
-                                     OpptjeningDto opptjening) {
+                                     Opptjening opptjening) {
         List<EndringPensjonsopptjening> endringer = calculatePensjonsbeholdningsendringer(
                 year,
-                fromDto(beholdninger),
+                beholdninger,
                 uttaksgrader);
 
-        opptjening.setEndringOpptjening(toDto(endringer));
+        opptjening.setOpptjeningsendringer(endringer);
     }
 
-    private static void setRestpensjon(Map<Integer, OpptjeningDto> opptjeningerByYear, Restpensjon restpensjon) {
-        OpptjeningDto opptjening = opptjeningerByYear.get(restpensjon.getFomDato().getYear());
+    private static void setRestpensjon(Map<Integer, Opptjening> opptjeningerByYear, Restpensjon restpensjon) {
+        Opptjening opptjening = opptjeningerByYear.get(restpensjon.getFomDato().getYear());
 
         if (opptjening == null) {
             return;
@@ -298,8 +302,9 @@ abstract class OpptjeningAssembler {
         return belop;
     }
 
-    private static void populatePensjonsbeholdning(Map<Integer, OpptjeningDto> opptjeningerByYear, int year, BeholdningDto beholdning) {
-        OpptjeningDto opptjening = getOpptjening(opptjeningerByYear, year);
+    private static void populatePensjonsbeholdning(Map<Integer, Opptjening> opptjeningerByYear,
+                                                   int year, Beholdning beholdning) {
+        Opptjening opptjening = getOpptjening(opptjeningerByYear, year);
         opptjening.setPensjonsbeholdning(round(beholdning.getBelop()));
 
         if (!opptjeningerByYear.containsKey(year)) {
@@ -309,30 +314,32 @@ abstract class OpptjeningAssembler {
         setDefaultPensjonsgivendeInntektBasedOnBeholdningYear(beholdning, opptjeningerByYear);
     }
 
-    private static void setDefaultPensjonsgivendeInntektBasedOnBeholdningYear(BeholdningDto beholdning, Map<Integer, OpptjeningDto> opptjeningerByYear) {
+    private static void setDefaultPensjonsgivendeInntektBasedOnBeholdningYear(
+            Beholdning beholdning, Map<Integer, Opptjening> opptjeningerByYear) {
         int currentYear = LocalDate.now().getYear();
         int beholdningYear = beholdning.getFomDato().getYear();
 
         if (beholdningYear < currentYear - 1) {
-            Optional<OpptjeningDto> opptjening = Optional.ofNullable(opptjeningerByYear.get(beholdningYear));
-            opptjening.ifPresent(opt -> opt.setPensjonsgivendeInntekt(0));
+            Optional<Opptjening> opptjening = Optional.ofNullable(opptjeningerByYear.get(beholdningYear));
+            opptjening.ifPresent(opt -> opt.setPensjonsgivendeInntekt(0L));
         }
     }
 
-    private static void setPensjonsgivendeInntektFromInntektopptjeningBelop(Map<Integer, OpptjeningDto> opptjeningerByYear, BeholdningDto beholdning) {
-        InntektOpptjeningBelopDto belop = beholdning.getInntektOpptjeningBelop();
+    private static void setPensjonsgivendeInntektFromInntektopptjeningBelop(
+            Map<Integer, Opptjening> opptjeningerByYear, Beholdning beholdning) {
+        Inntektsopptjening inntektsopptjening = beholdning.getInntektsopptjening();
 
-        if (belop == null || belop.getSumPensjonsgivendeInntekt() == null) {
+        if (inntektsopptjening == null || inntektsopptjening.getSumPensjonsgivendeInntekt() == null) {
             return;
         }
 
-        Integer year = belop.getAr();
-        Optional<OpptjeningDto> opptjening = Optional.ofNullable(opptjeningerByYear.get(year));
-        opptjening.ifPresent(opt -> opt.setPensjonsgivendeInntekt(belop.getSumPensjonsgivendeInntekt().getBelop().intValue()));
+        int year = inntektsopptjening.getYear();
+        Optional<Opptjening> opptjening = Optional.ofNullable(opptjeningerByYear.get(year));
+        opptjening.ifPresent(o -> o.setPensjonsgivendeInntekt(inntektsopptjening.getSumPensjonsgivendeInntekt().getBelop()));
     }
 
-    private static OpptjeningDto getOpptjening(Map<Integer, OpptjeningDto> opptjeningerByYear, int year) {
-        return opptjeningerByYear.getOrDefault(year, new OpptjeningDto());
+    private static Opptjening getOpptjening(Map<Integer, Opptjening> opptjeningerByYear, int year) {
+        return opptjeningerByYear.getOrDefault(year, new Opptjening(null, null));
     }
 
     private static List<String> omsorgspoengOpptjeningTypes() {
@@ -344,11 +351,8 @@ abstract class OpptjeningAssembler {
                 OpptjeningTypeCode.OBU6.toString());
     }
 
-    private static OpptjeningDto noOpptjening() {
-        var opptjening = new OpptjeningDto();
-        opptjening.setPensjonsgivendeInntekt(0);
-        opptjening.setPensjonspoeng(0D);
-        return opptjening;
+    private static Opptjening noOpptjening() {
+        return new Opptjening(0L, 0D);
     }
 
     private static boolean isPositive(Double value) {

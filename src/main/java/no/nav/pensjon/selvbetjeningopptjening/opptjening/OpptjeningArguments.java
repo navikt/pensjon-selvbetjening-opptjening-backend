@@ -4,9 +4,7 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.Opptj
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
-import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.model.Restpensjon;
-import no.nav.pensjon.selvbetjeningopptjening.model.UforeHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
 
 import java.time.LocalDate;

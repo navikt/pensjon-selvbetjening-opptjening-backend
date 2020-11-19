@@ -80,7 +80,7 @@ public class Beholdning implements Periode {
         this.uforeopptjening = uforeopptjening;
     }
 
-    long getId() {
+    public long getId() {
         return id;
     }
 
@@ -88,11 +88,11 @@ public class Beholdning implements Periode {
         return fnr;
     }
 
-    String getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    String getType() {
+    public String getType() {
         return type;
     }
 
@@ -100,7 +100,7 @@ public class Beholdning implements Periode {
         return belop;
     }
 
-    long getVedtakId() {
+    public long getVedtakId() {
         return vedtakId;
     }
 
@@ -116,27 +116,27 @@ public class Beholdning implements Periode {
         return tomDato;
     }
 
-    double getGrunnlag() {
+    public double getGrunnlag() {
         return grunnlag;
     }
 
-    double getGrunnlagAvkortet() {
+    public double getGrunnlagAvkortet() {
         return grunnlagAvkortet;
     }
 
-    double getInnskudd() {
+    public double getInnskudd() {
         return innskudd;
     }
 
-    double getInnskuddUtenOmsorg() {
+    public double getInnskuddUtenOmsorg() {
         return innskuddUtenOmsorg;
     }
 
-    String getOppdateringArsak() {
+    public String getOppdateringArsak() {
         return oppdateringArsak;
     }
 
-    Lonnsvekstregulering getLonnsvekstregulering() {
+    public Lonnsvekstregulering getLonnsvekstregulering() {
         return lonnsvekstregulering;
     }
 
@@ -148,23 +148,23 @@ public class Beholdning implements Periode {
         return lonnsvekstregulering != null && lonnsvekstregulering.hasBelop();
     }
 
-    Inntektsopptjening getInntektsopptjening() {
+    public Inntektsopptjening getInntektsopptjening() {
         return inntektsopptjening;
     }
 
-    Omsorgsopptjening getOmsorgsopptjening() {
+    public Omsorgsopptjening getOmsorgsopptjening() {
         return omsorgsopptjening;
     }
 
-    Dagpengeopptjening getDagpengeopptjening() {
+    public Dagpengeopptjening getDagpengeopptjening() {
         return dagpengeopptjening;
     }
 
-    Forstegangstjenesteopptjening getForstegangstjenesteopptjening() {
+    public Forstegangstjenesteopptjening getForstegangstjenesteopptjening() {
         return forstegangstjenesteopptjening;
     }
 
-    Uforeopptjening getUforeopptjening() {
+    public Uforeopptjening getUforeopptjening() {
         return uforeopptjening;
     }
 

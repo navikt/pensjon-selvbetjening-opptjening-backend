@@ -9,14 +9,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class InntektOpptjeningBelopDto {
 
     private Long inntektOpptjeningBelopId;
-
     private Integer ar;
-
     private Double belop;
-
-    private Inntekt sumPensjonsgivendeInntekt;
-
-    private List<Inntekt> inntektListe = new ArrayList<>();
+    private InntektDto sumPensjonsgivendeInntekt;
+    private List<InntektDto> inntektListe = new ArrayList<>();
 
     public Long getInntektOpptjeningBelopId() {
         return inntektOpptjeningBelopId;
@@ -42,19 +38,19 @@ public class InntektOpptjeningBelopDto {
         this.belop = belop;
     }
 
-    public Inntekt getSumPensjonsgivendeInntekt() {
+    public InntektDto getSumPensjonsgivendeInntekt() {
         return sumPensjonsgivendeInntekt;
     }
 
-    public void setSumPensjonsgivendeInntekt(Inntekt sumPensjonsgivendeInntekt) {
+    public void setSumPensjonsgivendeInntekt(InntektDto sumPensjonsgivendeInntekt) {
         this.sumPensjonsgivendeInntekt = sumPensjonsgivendeInntekt;
     }
 
-    public List<Inntekt> getInntektListe() {
+    public List<InntektDto> getInntektListe() {
         return inntektListe;
     }
 
-    public void setInntektListe(List<Inntekt> inntektListe) {
+    public void setInntektListe(List<InntektDto> inntektListe) {
         this.inntektListe = inntektListe;
     }
 }

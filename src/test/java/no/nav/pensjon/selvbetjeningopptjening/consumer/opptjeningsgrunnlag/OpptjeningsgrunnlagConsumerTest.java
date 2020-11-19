@@ -2,6 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -12,6 +13,7 @@ import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
 
 import java.util.List;
 
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Inntekt;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,12 +28,11 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.model.Inntekt;
+import no.nav.pensjon.selvbetjeningopptjening.model.InntektDto;
 import no.nav.pensjon.selvbetjeningopptjening.model.OpptjeningsGrunnlag;
 
 @ExtendWith(MockitoExtension.class)
-public class OpptjeningsgrunnlagConsumerTest {
+class OpptjeningsgrunnlagConsumerTest {
 
     private final String endpoint = "http://poppEndpoint.test";
 
@@ -47,30 +48,28 @@ public class OpptjeningsgrunnlagConsumerTest {
     private ArgumentCaptor<HttpMethod> httpMethodCaptor;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         consumer = new OpptjeningsgrunnlagConsumer(endpoint);
         consumer.setRestTemplate(restTemplateMock);
     }
 
     @Test
-    public void should_return_list_of_Inntekt_when_getInntektListeFromOpptjeningsgrunnlag() {
-        HentOpptjeningsGrunnlagResponse expectedResponse = new HentOpptjeningsGrunnlagResponse();
-        OpptjeningsGrunnlag expectedOpptjeningsGrunnlag = new OpptjeningsGrunnlag();
-        List<Inntekt> expectedInntektList = List.of(new Inntekt());
-        expectedOpptjeningsGrunnlag.setInntektListe(expectedInntektList);
-        expectedResponse.setOpptjeningsGrunnlag(expectedOpptjeningsGrunnlag);
+    void should_return_list_of_Inntekt_when_getInntektListeFromOpptjeningsgrunnlag() {
+        HentOpptjeningsGrunnlagResponse response = new HentOpptjeningsGrunnlagResponse();
+        OpptjeningsGrunnlag grunnlag = new OpptjeningsGrunnlag();
+        grunnlag.setInntektListe(List.of(inntektDto()));
+        response.setOpptjeningsGrunnlag(grunnlag);
+        ResponseEntity<HentOpptjeningsGrunnlagResponse> entity = new ResponseEntity<>(response, null, HttpStatus.OK);
+        when(restTemplateMock.exchange(urlCaptor.capture(), any(), any(), eq(HentOpptjeningsGrunnlagResponse.class))).thenReturn(entity);
 
-        ResponseEntity<HentOpptjeningsGrunnlagResponse> expectedResponseEntity = new ResponseEntity<>(expectedResponse, null, HttpStatus.OK);
+        List<Inntekt> inntekter = consumer.getInntektListeFromOpptjeningsgrunnlag("fnr", 0, 0);
 
-        when(restTemplateMock.exchange(urlCaptor.capture(), any(), any(), eq(HentOpptjeningsGrunnlagResponse.class))).thenReturn(expectedResponseEntity);
-
-        List<Inntekt> actualInntektList = consumer.getInntektListeFromOpptjeningsgrunnlag("fnr", 0, 0);
-
-        assertThat(actualInntektList, is(expectedInntektList));
+        assertEquals(1, inntekter.size());
+        assertEquals(1991, inntekter.get(0).getYear());
     }
 
     @Test
-    public void should_add_fnr_as_pathparam_and_fom_and_tom_as_queryparams_when_GET_getInntektListeFromOpptjeningsgrunnlag() {
+    void should_add_fnr_as_pathparam_and_fom_and_tom_as_queryparams_when_GET_getInntektListeFromOpptjeningsgrunnlag() {
         String fnr = "fnrValue";
         Integer fom = 1988;
         Integer tom = 2018;
@@ -84,7 +83,7 @@ public class OpptjeningsgrunnlagConsumerTest {
     }
 
     @Test
-    public void should_return_FailedCallingExternalServiceException_when_401() {
+    void should_return_FailedCallingExternalServiceException_when_401() {
         when(restTemplateMock.exchange("http://poppEndpoint.test/opptjeningsgrunnlag/?fomAr=0&tomAr=0",
                 HttpMethod.GET,
                 null,
@@ -98,7 +97,7 @@ public class OpptjeningsgrunnlagConsumerTest {
     }
 
     @Test
-    public void should_return_FailedCallingExternalServiceException_when_512() {
+    void should_return_FailedCallingExternalServiceException_when_512() {
         when(restTemplateMock.exchange("http://poppEndpoint.test/opptjeningsgrunnlag/?fomAr=0&tomAr=0",
                 HttpMethod.GET,
                 null,
@@ -112,7 +111,7 @@ public class OpptjeningsgrunnlagConsumerTest {
     }
 
     @Test
-    public void should_return_FailedCallingExternalServiceException_when_500() {
+    void should_return_FailedCallingExternalServiceException_when_500() {
         when(restTemplateMock.exchange("http://poppEndpoint.test/opptjeningsgrunnlag/?fomAr=0&tomAr=0",
                 HttpMethod.GET,
                 null,
@@ -128,7 +127,7 @@ public class OpptjeningsgrunnlagConsumerTest {
     }
 
     @Test
-    public void should_return_FailedCallingExternalServiceException_when_RuntimeException() {
+    void should_return_FailedCallingExternalServiceException_when_RuntimeException() {
         when(restTemplateMock.exchange("http://poppEndpoint.test/opptjeningsgrunnlag/?fomAr=0&tomAr=0",
                 HttpMethod.GET,
                 null,
@@ -139,5 +138,11 @@ public class OpptjeningsgrunnlagConsumerTest {
                 () -> consumer.getInntektListeFromOpptjeningsgrunnlag("", 0, 0));
 
         assertThat(thrown.getMessage(), is("Error when calling the external service " + CONSUMED_SERVICE + " in " + POPP + ". An error occurred in the consumer"));
+    }
+
+    private static InntektDto inntektDto() {
+        var dto = new InntektDto();
+        dto.setInntektAr(1991);
+        return dto;
     }
 }

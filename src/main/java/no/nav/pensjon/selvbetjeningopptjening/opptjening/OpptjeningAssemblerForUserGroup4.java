@@ -1,8 +1,8 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
-import no.nav.pensjon.selvbetjeningopptjening.model.*;
-import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
+import no.nav.pensjon.selvbetjeningopptjening.model.Restpensjon;
+import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 
 import java.time.LocalDate;
@@ -28,13 +28,13 @@ public class OpptjeningAssemblerForUserGroup4 extends OpptjeningAssembler {
 
     private OpptjeningResponse createResponse(LocalDate fodselsdato,
                                               List<Pensjonspoeng> pensjonspoengList,
-                                              List<BeholdningDto> beholdninger,
+                                              List<Beholdning> beholdninger,
                                               List<Restpensjon> restpensjoner,
                                               List<Uttaksgrad> uttaksgrader,
                                               AfpHistorikk afpHistorikk,
                                               UforeHistorikk uforeHistorikk) {
         OpptjeningResponse response = new OpptjeningResponse(fodselsdato.getYear());
-        Map<Integer, OpptjeningDto> opptjeningerByYear = getOpptjeningerByYear(pensjonspoengList, restpensjoner);
+        Map<Integer, Opptjening> opptjeningerByYear = getOpptjeningerByYear(pensjonspoengList, restpensjoner);
         populatePensjonspoeng(opptjeningerByYear, pensjonspoengList);
         populatePensjonsbeholdning(opptjeningerByYear, getBeholdningerByYear(beholdninger));
 
@@ -51,7 +51,7 @@ public class OpptjeningAssemblerForUserGroup4 extends OpptjeningAssembler {
         int numberOfYearsWithPensjonspoeng = countNumberOfYearsWithPensjonspoeng(opptjeningerByYear);
         setEndringerOpptjening(opptjeningerByYear, beholdninger);
         response.setNumberOfYearsWithPensjonspoeng(numberOfYearsWithPensjonspoeng);
-        response.setOpptjeningData(opptjeningerByYear);
+        response.setOpptjeningData(toDto(opptjeningerByYear));
         return response;
     }
 }

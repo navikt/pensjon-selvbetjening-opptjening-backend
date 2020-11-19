@@ -6,7 +6,7 @@ public class Dagpengeopptjening {
     private double ordinartBelop;
     private double fiskerBelop;
 
-    Dagpengeopptjening(Integer year, Double ordinartBelop, Double fiskerBelop) {
+    public Dagpengeopptjening(Integer year, Double ordinartBelop, Double fiskerBelop) {
         this.year = year == null ? 1900 : year;
         this.ordinartBelop = ordinartBelop == null ? 0D : ordinartBelop;
         this.fiskerBelop = fiskerBelop == null ? 0D : fiskerBelop;
@@ -16,11 +16,11 @@ public class Dagpengeopptjening {
         return year;
     }
 
-    double getOrdinartBelop() {
+    public double getOrdinartBelop() {
         return ordinartBelop;
     }
 
-    double getFiskerBelop() {
+    public double getFiskerBelop() {
         return fiskerBelop;
     }
 

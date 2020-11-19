@@ -8,7 +8,7 @@ public class Omsorg {
         this.type = type;
     }
 
-    String getType() {
+    public String getType() {
         return type;
     }
 }

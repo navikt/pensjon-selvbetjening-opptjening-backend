@@ -11,7 +11,7 @@ import java.util.List;
 
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
 
-class EndringPensjonsopptjening {
+public class EndringPensjonsopptjening {
 
     private final TypeArsakCode arsakType;
     private final LocalDate dato;
@@ -156,39 +156,39 @@ class EndringPensjonsopptjening {
         this.uforegrad = uforegrad;
     }
 
-    TypeArsakCode getArsakType() {
+    public TypeArsakCode getArsakType() {
         return arsakType;
     }
 
-    LocalDate getDato() {
+    public LocalDate getDato() {
         return dato;
     }
 
-    Double getEndringsbelop() {
+    public Double getEndringsbelop() {
         return endringsbelop;
     }
 
-    Double getBeholdningsbelop() {
+    public Double getBeholdningsbelop() {
         return beholdningsbelop;
     }
 
-    Integer getUttaksgrad() {
+    public Integer getUttaksgrad() {
         return uttaksgrad;
     }
 
-    Double getGrunnlag() {
+    public Double getGrunnlag() {
         return grunnlag;
     }
 
-    List<DetailsArsakCode> getArsakDetails() {
+    public List<DetailsArsakCode> getArsakDetails() {
         return arsakDetails;
     }
 
-    List<GrunnlagTypeCode> getGrunnlagTypes() {
+    public List<GrunnlagTypeCode> getGrunnlagTypes() {
         return grunnlagTypes;
     }
 
-    Integer getUforegrad() { return uforegrad; }
+    public Integer getUforegrad() { return uforegrad; }
 
     private static List<DetailsArsakCode> getArsakDetails(int year, Integer uttaksgrad) {
         List<DetailsArsakCode> details = new ArrayList<>();

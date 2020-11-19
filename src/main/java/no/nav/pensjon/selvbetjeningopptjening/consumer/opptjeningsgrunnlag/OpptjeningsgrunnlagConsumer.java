@@ -1,7 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.pensjon.selvbetjeningopptjening.model.Inntekt;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Inntekt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpMethod;
@@ -12,6 +12,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.PoppUtil.handle;
+import static no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.InntektMapper.fromDto;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
 
 public class OpptjeningsgrunnlagConsumer {
@@ -33,7 +34,7 @@ public class OpptjeningsgrunnlagConsumer {
                     HentOpptjeningsGrunnlagResponse.class)
                     .getBody();
 
-            return response == null ? null : response.getOpptjeningsGrunnlag().getInntektListe();
+            return response == null ? null : fromDto(response.getOpptjeningsGrunnlag().getInntektListe());
         } catch (RestClientResponseException e) {
             throw handle(e, CONSUMED_SERVICE);
         } catch (Exception e) {

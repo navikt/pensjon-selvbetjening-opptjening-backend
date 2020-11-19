@@ -99,7 +99,7 @@ public enum UserGroup {
                                                                  PensjonspoengConsumer pensjonspoengConsumer,
                                                                  PensjonsbeholdningConsumer beholdningConsumer,
                                                                  UttaksgradGetter uttaksgradGetter) {
-        List<BeholdningDto> beholdninger = beholdningConsumer.getPensjonsbeholdning(fnr);
+        List<Beholdning> beholdninger = beholdningConsumer.getPensjonsbeholdning(fnr);
         List<Pensjonspoeng> pensjonspoengList = pensjonspoengConsumer.getPensjonspoengListe(fnr);
 
         OpptjeningBasis basis = new OpptjeningBasis(
@@ -123,7 +123,7 @@ public enum UserGroup {
                                                                  OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer,
                                                                  PensjonsbeholdningConsumer beholdningConsumer,
                                                                  UttaksgradGetter uttaksgradGetter) {
-        List<BeholdningDto> beholdninger = beholdningConsumer.getPensjonsbeholdning(fnr);
+        List<Beholdning> beholdninger = beholdningConsumer.getPensjonsbeholdning(fnr);
         int firstPossibleInntektYear = fodselsdato.getYear() + 13;
         List<Inntekt> inntekter = opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(fnr, firstPossibleInntektYear, LocalDate.now().getYear());
 

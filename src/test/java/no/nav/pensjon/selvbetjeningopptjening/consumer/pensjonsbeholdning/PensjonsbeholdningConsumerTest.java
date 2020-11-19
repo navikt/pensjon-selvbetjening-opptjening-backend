@@ -2,6 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -10,9 +11,11 @@ import static org.mockito.Mockito.when;
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer.CONSUMED_SERVICE;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Beholdning;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +37,9 @@ import no.nav.pensjon.selvbetjeningopptjening.model.BeholdningDto;
 class PensjonsbeholdningConsumerTest {
 
     private static final String ENDPOINT = "http://poppEndpoint.test";
+    private static LocalDate DATE = LocalDate.of(1991, 1, 1);
     private PensjonsbeholdningConsumer consumer;
+
     @Mock
     private RestTemplate restTemplateMock;
     @Captor
@@ -51,17 +56,15 @@ class PensjonsbeholdningConsumerTest {
 
     @Test
     void should_return_list_of_Beholdning_when_getPensjonsbeholdning() {
-        BeholdningListeResponse expectedResponse = new BeholdningListeResponse();
-        List<BeholdningDto> expectedBeholdningList = List.of(new BeholdningDto());
-        expectedResponse.setBeholdninger(expectedBeholdningList);
+        var response = new BeholdningListeResponse();
+        response.setBeholdninger(List.of(beholdningDto()));
+        ResponseEntity<BeholdningListeResponse> entity = new ResponseEntity<>(response, null, HttpStatus.OK);
+        when(restTemplateMock.exchange(urlCaptor.capture(), any(), any(), eq(BeholdningListeResponse.class))).thenReturn(entity);
 
-        ResponseEntity<BeholdningListeResponse> expectedResponseEntity = new ResponseEntity<>(expectedResponse, null, HttpStatus.OK);
+        List<Beholdning> beholdninger = consumer.getPensjonsbeholdning("fnr");
 
-        when(restTemplateMock.exchange(urlCaptor.capture(), any(), any(), eq(BeholdningListeResponse.class))).thenReturn(expectedResponseEntity);
-
-        List<BeholdningDto> actualBeholdningList = consumer.getPensjonsbeholdning("fnr");
-
-        assertThat(actualBeholdningList, is(expectedBeholdningList));
+        assertEquals(1, beholdninger.size());
+        assertEquals(DATE, beholdninger.get(0).getFomDato());
     }
 
     @Test
@@ -135,5 +138,11 @@ class PensjonsbeholdningConsumerTest {
 
         assertThat(thrown.getMessage(),
                 is("Error when calling the external service " + CONSUMED_SERVICE + " in " + POPP + ". An error occurred in the consumer"));
+    }
+
+    private static BeholdningDto beholdningDto() {
+        var dto = new BeholdningDto();
+        dto.setFomDato(DATE);
+        return dto;
     }
 }

@@ -6,14 +6,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Pensjonspoeng implements Serializable {
+public class PensjonspoengDto implements Serializable {
 
     private Long pensjonspoengId;
     private String fnr;
     private String fnrOmsorgFor;
     private String kilde;
     private String pensjonspoengType;
-    private Inntekt inntekt;
+    private InntektDto inntekt;
     private OmsorgDto omsorg;
     private Integer ar;
     private Integer anvendtPi;
@@ -52,11 +52,11 @@ public class Pensjonspoeng implements Serializable {
         this.ar = ar;
     }
 
-    public Inntekt getInntekt() {
+    public InntektDto getInntekt() {
         return inntekt;
     }
 
-    public void setInntekt(Inntekt inntekt) {
+    public void setInntekt(InntektDto inntekt) {
         this.inntekt = inntekt;
     }
 

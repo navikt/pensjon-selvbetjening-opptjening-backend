@@ -24,7 +24,7 @@ public class Omsorgsopptjening {
         return belop;
     }
 
-    List<Omsorg> getOmsorger() {
+    public List<Omsorg> getOmsorger() {
         return omsorger;
     }
 }

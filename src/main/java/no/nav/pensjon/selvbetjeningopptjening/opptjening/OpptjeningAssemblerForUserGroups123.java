@@ -1,8 +1,8 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
-import no.nav.pensjon.selvbetjeningopptjening.model.*;
-import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
+import no.nav.pensjon.selvbetjeningopptjening.model.Restpensjon;
+import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 
 import java.time.LocalDate;
@@ -32,7 +32,7 @@ public class OpptjeningAssemblerForUserGroups123 extends OpptjeningAssembler {
                                               AfpHistorikk afpHistorikk,
                                               UforeHistorikk uforeHistorikk) {
         OpptjeningResponse response = new OpptjeningResponse(fodselsdato.getYear());
-        Map<Integer, OpptjeningDto> opptjeningerByYear = getOpptjeningerByYear(pensjonspoengList, restpensjoner);
+        Map<Integer, Opptjening> opptjeningerByYear = getOpptjeningerByYear(pensjonspoengList, restpensjoner);
         populatePensjonspoeng(opptjeningerByYear, pensjonspoengList);
 
         if (opptjeningerByYear.isEmpty()) {
@@ -46,7 +46,7 @@ public class OpptjeningAssemblerForUserGroups123 extends OpptjeningAssembler {
         putYearsWithNoOpptjening(opptjeningerByYear, firstYearWithOpptjening, lastYearWithOpptjening);
         populateMerknadForOpptjening(opptjeningerByYear, null, uttaksgrader, afpHistorikk, uforeHistorikk);
         response.setNumberOfYearsWithPensjonspoeng(countNumberOfYearsWithPensjonspoeng(opptjeningerByYear));
-        response.setOpptjeningData(opptjeningerByYear);
+        response.setOpptjeningData(toDto(opptjeningerByYear));
         return response;
     }
 }

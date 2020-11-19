@@ -1,7 +1,8 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.pensjon.selvbetjeningopptjening.model.Pensjonspoeng;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pensjonspoeng;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.PensjonspoengMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpMethod;
@@ -33,7 +34,7 @@ public class PensjonspoengConsumer {
                     PensjonspoengListeResponse.class)
                     .getBody();
 
-            return response == null ? null : response.getPensjonspoeng();
+            return response == null ? null : PensjonspoengMapper.fromDto(response.getPensjonspoeng());
         } catch (RestClientResponseException e) {
             throw handle(e, CONSUMED_SERVICE);
         } catch (Exception e) {

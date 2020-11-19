@@ -1,7 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.pensjon.selvbetjeningopptjening.model.BeholdningDto;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Beholdning;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -12,6 +12,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.PoppUtil.handle;
+import static no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.BeholdningMapper.fromDto;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
 
 public class PensjonsbeholdningConsumer {
@@ -25,7 +26,7 @@ public class PensjonsbeholdningConsumer {
         this.restTemplate = restTemplate;
     }
 
-    public List<BeholdningDto> getPensjonsbeholdning(String fnr) {
+    public List<Beholdning> getPensjonsbeholdning(String fnr) {
         try {
             BeholdningListeResponse response = restTemplate.exchange(
                     buildUrl(),
@@ -34,7 +35,7 @@ public class PensjonsbeholdningConsumer {
                     BeholdningListeResponse.class)
                     .getBody();
 
-            return response == null ? null : response.getBeholdninger();
+            return response == null ? null : fromDto(response.getBeholdninger());
         } catch (RestClientResponseException e) {
             throw handle(e, CONSUMED_SERVICE);
         } catch (Exception e) {
