@@ -1,7 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
-import no.nav.pensjon.selvbetjeningopptjening.model.*;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.OpptjeningTypeCode;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.OpptjeningMapper;
@@ -60,7 +59,7 @@ abstract class OpptjeningAssembler {
         Map<Integer, Beholdning> beholdningerByYear = new HashMap<>();
 
         for (Beholdning beholdning : beholdninger) {
-            beholdningerByYear.put(beholdning.getFomDato().getYear(), beholdning);
+            beholdningerByYear.put(beholdning.getStartYear(), beholdning);
         }
 
         return beholdningerByYear;

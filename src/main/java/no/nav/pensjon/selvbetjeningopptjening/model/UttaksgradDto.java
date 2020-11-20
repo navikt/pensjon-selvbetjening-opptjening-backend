@@ -5,7 +5,8 @@ import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Uttaksgrad {
+public class UttaksgradDto {
+
     private LocalDate fomDato;
     private LocalDate tomDato;
     private Integer uttaksgrad;

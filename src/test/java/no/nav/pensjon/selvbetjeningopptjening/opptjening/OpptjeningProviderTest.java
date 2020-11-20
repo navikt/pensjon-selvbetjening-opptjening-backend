@@ -13,7 +13,6 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.Pensjonspoe
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.model.*;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +34,8 @@ import static java.util.Collections.singletonList;
 import static no.nav.pensjon.selvbetjeningopptjening.PidGenerator.generatePid;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
@@ -43,8 +43,9 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class OpptjeningProviderTest {
 
-    private static LocalDate DATE_IN_1960 = LocalDate.of(1960, 7, 6);
-    private static LocalDate DATE_IN_1963 = LocalDate.of(1963, 7, 6);
+    private static final LocalDate DATE_IN_1960 = LocalDate.of(1960, 7, 6);
+    private static final LocalDate DATE_IN_1963 = LocalDate.of(1963, 7, 6);
+    private OpptjeningProvider opptjeningProvider;
 
     @Mock
     private PensjonsbeholdningConsumer pensjonsbeholdningConsumer;
@@ -62,8 +63,6 @@ class OpptjeningProviderTest {
     private PdlConsumer pdlConsumer;
     @Captor
     private ArgumentCaptor<Integer> yearCaptor;
-
-    private OpptjeningProvider opptjeningProvider;
 
     @BeforeEach
     void setUp() {
@@ -119,16 +118,6 @@ class OpptjeningProviderTest {
         OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato));
 
         assertThat(opptjeningResponse.getFodselsaar(), is(expectedFodselsaar));
-    }
-
-    @Test
-    void when_Uttaksgrad_is_not_set_then_calculateOpptjeningForFnr_throws_NullPointerException() {
-        List<Uttaksgrad> uttaksgradList = List.of(new Uttaksgrad());
-        when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(uttaksgradList);
-        when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
-
-        assertThrows(NullPointerException.class, () -> opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963)));
     }
 
     @Test
@@ -615,10 +604,11 @@ class OpptjeningProviderTest {
     }
 
     private static Uttaksgrad uttaksgrad() {
-        var uttaksgrad = new Uttaksgrad();
-        uttaksgrad.setUttaksgrad(50);
-        uttaksgrad.setFomDato(LocalDate.MAX);
-        return uttaksgrad;
+        return new Uttaksgrad(
+                null,
+                50,
+                LocalDate.MAX,
+                null);
     }
 
     private static AfpHistorikk afpHistorikk() {

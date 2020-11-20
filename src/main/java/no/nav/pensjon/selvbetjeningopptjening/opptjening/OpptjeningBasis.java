@@ -1,7 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.model.*;
-
 import java.util.List;
 
 public class OpptjeningBasis {

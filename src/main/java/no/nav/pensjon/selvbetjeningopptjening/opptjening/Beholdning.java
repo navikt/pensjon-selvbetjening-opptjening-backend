@@ -112,6 +112,10 @@ public class Beholdning implements Periode {
         return fomDato;
     }
 
+    public int getStartYear() {
+        return fomDato.getYear();
+    }
+
     public LocalDate getTomDato() {
         return tomDato;
     }

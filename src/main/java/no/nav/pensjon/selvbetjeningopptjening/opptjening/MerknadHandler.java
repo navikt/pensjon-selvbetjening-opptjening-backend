@@ -1,6 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
 
 import java.time.LocalDate;
@@ -182,24 +181,12 @@ public class MerknadHandler {
     private static void addMerknadGradertAlderspensjon(int year, List<Uttaksgrad> uttaksgrader, List<MerknadCode> merknader) {
         uttaksgrader
                 .stream()
-                .filter(uttaksgrad -> uttaksgradCoversYear(year, uttaksgrad))
+                .filter(uttaksgrad -> uttaksgrad.coversYear(year))
                 .forEach(uttaksgrad -> addUttakMerknad(merknader, uttaksgrad));
     }
 
-    private static boolean uttaksgradCoversYear(int year, Uttaksgrad uttaksgrad) {
-        return uttaksgrad.getFomDato().getYear() <= year
-                && uttaksgradEndsAtOrAfter(year, uttaksgrad);
-    }
-
-    private static boolean uttaksgradEndsAtOrAfter(int year, Uttaksgrad uttaksgrad) {
-        LocalDate tom = uttaksgrad.getTomDato();
-        return tom == null || year <= tom.getYear();
-    }
-
     private static void addUttakMerknad(List<MerknadCode> merknader, Uttaksgrad uttaksgrad) {
-        Integer grad = uttaksgrad.getUttaksgrad();
-
-        if (0 < grad && grad < 100 && !merknader.contains(MerknadCode.GRADERT_UTTAK)) {
+        if (uttaksgrad.isGradert() && !merknader.contains(MerknadCode.GRADERT_UTTAK)) {
             merknader.add(MerknadCode.GRADERT_UTTAK);
             return;
         }

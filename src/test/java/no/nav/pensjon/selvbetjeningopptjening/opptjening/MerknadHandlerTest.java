@@ -290,11 +290,11 @@ class MerknadHandlerTest {
     }
 
     private static Uttaksgrad uttaksgrad(int value) {
-        var grad = new Uttaksgrad();
-        grad.setFomDato(LocalDate.of(1980, 1, 1));
-        grad.setTomDato(LocalDate.of(2000, 1, 1));
-        grad.setUttaksgrad(value);
-        return grad;
+        return new Uttaksgrad(
+                null,
+                value,
+                LocalDate.of(1980, 1, 1),
+                LocalDate.of(2000, 1, 1));
     }
 
     private static AfpHistorikk afpHistorikk() {
@@ -317,10 +317,10 @@ class MerknadHandlerTest {
         return uforeperiode(UFOREGRAD_VALUE, type);
     }
 
-    private static Uforeperiode uforeperiode(Integer uforegrad, UforeTypeCode type) {
+    private static Uforeperiode uforeperiode(Integer uforegrad, UforeTypeCode uforetype) {
         return new Uforeperiode(
                 uforegrad,
-                type,
+                uforetype,
                 LocalDate.of(1980, 1, 1),
                 LocalDate.of(2000, 1, 1));
     }
