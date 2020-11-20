@@ -1,7 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -305,9 +303,9 @@ public class EndringPensjonsbeholdningCalculator {
                 .orElse(Beholdning.NULL);
     }
 
-    private static Integer findUttaksgrad(LocalDate date, long vedtakId, List<Uttaksgrad> uttaksgrader) {
+    private static int findUttaksgrad(LocalDate date, long vedtakId, List<Uttaksgrad> uttaksgrader) {
         return uttaksgrader.stream()
-                .filter(uttaksgrad -> matchesVedtakAndDate(uttaksgrad, vedtakId, date))
+                .filter(grad -> matchesVedtakAndDate(grad, vedtakId, date))
                 .findFirst()
                 .map(Uttaksgrad::getUttaksgrad)
                 .orElse(0);
@@ -324,15 +322,15 @@ public class EndringPensjonsbeholdningCalculator {
     }
 
     private static boolean matchesVedtakAndDate(Uttaksgrad uttaksgrad, long vedtakId, LocalDate date) {
-        return uttaksgrad.getVedtakId().equals(vedtakId)
-                && isDateInPeriod(date, uttaksgrad.getFomDato(), uttaksgrad.getTomDato());
+        return uttaksgrad.getVedtakId() == vedtakId
+                && isDateInPeriod(date, uttaksgrad.getFomDate(), uttaksgrad.getTomDate());
     }
 
     private static boolean isBeholdningWithinUttaksgradsperiodeIncludeSameDay(Beholdning beholdning,
                                                                               List<Uttaksgrad> uttaksgrader) {
         return uttaksgrader
                 .stream()
-                .anyMatch(grad -> beholdning.isWithinInclusive(grad.getFomDato(), grad.getTomDato()));
+                .anyMatch(grad -> beholdning.isWithinInclusive(grad.getFomDate(), grad.getTomDate()));
     }
 
     private static <T> T getLastElement(List<T> list) {

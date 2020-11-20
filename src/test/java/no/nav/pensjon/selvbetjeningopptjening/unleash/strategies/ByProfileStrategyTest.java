@@ -2,7 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.unleash.strategies;
 
 import no.nav.pensjon.selvbetjeningopptjening.config.StringExtractor;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
-import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uttaksgrad;
 import no.nav.pensjon.selvbetjeningopptjening.util.SimpleStringExtractor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,7 +49,7 @@ class ByProfileStrategyTest {
     @Test
     void isEnabled_returns_false_when_birthYear_is_after_1962_but_uttaksgrad() {
         setToggleValue("noUttakAndBornAfter1962");
-        when(uttaksgradGetter.getAlderSakUttaksgradhistorikkForPerson(anyString())).thenReturn(singletonList(new Uttaksgrad()));
+        when(uttaksgradGetter.getAlderSakUttaksgradhistorikkForPerson(anyString())).thenReturn(singletonList(uttaksgrad()));
 
         boolean isEnabled = strategy.isEnabled(params);
 
@@ -58,7 +59,7 @@ class ByProfileStrategyTest {
     @Test
     void isEnabled_returns_false_when_uttaksgrad_but_birthYear_is_notAfter_1962() {
         setToggleValue("noUttakAndBornAfter1962");
-        when(uttaksgradGetter.getAlderSakUttaksgradhistorikkForPerson(anyString())).thenReturn(singletonList(new Uttaksgrad()));
+        when(uttaksgradGetter.getAlderSakUttaksgradhistorikkForPerson(anyString())).thenReturn(singletonList(uttaksgrad()));
         strategy.setFnrBefore1962();
 
         boolean isEnabled = strategy.isEnabled(params);
@@ -81,6 +82,10 @@ class ByProfileStrategyTest {
 
     private void setToggleValue(String value) {
         params.put("profile", value);
+    }
+
+    private static Uttaksgrad uttaksgrad() {
+        return new Uttaksgrad(null, null, LocalDate.MIN, null);
     }
 
     private class TestByProfileStrategy extends ByProfileStrategy {

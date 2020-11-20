@@ -113,11 +113,7 @@ class MerknadHandlerTest {
     @Test
     void when_UforeHistorikk_with_Uforetype_UFORE_Year_mellom_UfgFom_and_UfgTom_and_no_Uforegrad_then_addMerknaderOnOpptjening_returns_empty_MerknandList() {
         Opptjening opptjening = opptjeningBasedOnPensjonsbeholdning();
-        Uforeperiode uforeperiode = new Uforeperiode();
-        uforeperiode.setUfgFom(LocalDate.of(1980, 1, 1));
-        uforeperiode.setUfgTom(LocalDate.of(2000, 1, 1));
-        uforeperiode.setUforetype(UforeTypeCode.UFORE);
-        UforeHistorikk uforeHistorikk = uforeHistorikk(uforeperiode);
+        UforeHistorikk uforeHistorikk = uforeHistorikk(uforeperiode());
 
         MerknadHandler.addMerknaderOnOpptjening(YEAR, opptjening, null, emptyList(), null, uforeHistorikk);
 
@@ -273,21 +269,12 @@ class MerknadHandlerTest {
         return new Pensjonspoeng(null, "", null, null, omsorg);
     }
 
-    private static Uforeperiode uforeperiode(UforeTypeCode type) {
-        var periode = new Uforeperiode();
-        periode.setUfgFom(LocalDate.of(1980, 1, 1));
-        periode.setUfgTom(LocalDate.of(2000, 1, 1));
-        periode.setUforetype(type);
-        periode.setUforegrad(UFOREGRAD_VALUE);
-        return periode;
-    }
-
     private static Uttaksgrad uttaksgrad(int value) {
-        var grad = new Uttaksgrad();
-        grad.setFomDato(LocalDate.of(1980, 1, 1));
-        grad.setTomDato(LocalDate.of(2000, 1, 1));
-        grad.setUttaksgrad(value);
-        return grad;
+        return new Uttaksgrad(
+                null,
+                value,
+                LocalDate.of(1980, 1, 1),
+                LocalDate.of(2000, 1, 1));
     }
 
     private static AfpHistorikk afpHistorikk() {
@@ -300,6 +287,22 @@ class MerknadHandlerTest {
 
     private static UforeHistorikk uforeHistorikk(Uforeperiode uforeperiode) {
         return new UforeHistorikk(singletonList(uforeperiode));
+    }
+
+    private static Uforeperiode uforeperiode() {
+        return uforeperiode(null, UforeTypeCode.UFORE);
+    }
+
+    private static Uforeperiode uforeperiode(UforeTypeCode type) {
+        return uforeperiode(UFOREGRAD_VALUE, type);
+    }
+
+    private static Uforeperiode uforeperiode(Integer uforegrad, UforeTypeCode uforetype) {
+        return new Uforeperiode(
+                uforegrad,
+                uforetype,
+                LocalDate.of(1980, 1, 1),
+                LocalDate.of(2000, 1, 1));
     }
 
     private static void assertSingleMerknad(MerknadCode expected, List<MerknadCode> actual) {

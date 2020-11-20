@@ -9,10 +9,6 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.Pensjonspoe
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
-import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikkDto;
-import no.nav.pensjon.selvbetjeningopptjening.model.Restpensjon;
-import no.nav.pensjon.selvbetjeningopptjening.model.UforeHistorikkDto;
-import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import org.apache.commons.logging.Log;

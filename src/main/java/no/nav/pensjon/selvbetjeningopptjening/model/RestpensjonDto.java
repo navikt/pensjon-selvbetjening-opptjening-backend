@@ -6,23 +6,16 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Restpensjon {
+public class RestpensjonDto {
+
     private String fnr;
-
     private Double restGrunnpensjon;
-
     private Double restTilleggspensjon;
-
     private Double restPensjonstillegg;
-
     private Long vedtakId;
-
     private LocalDate fomDato;
-
     private LocalDate tomDato;
-
     private List<PensjonspoengDto> pensjonspoengListe;
-
     private String oppdateringArsak;
 
     public String getFnr() {

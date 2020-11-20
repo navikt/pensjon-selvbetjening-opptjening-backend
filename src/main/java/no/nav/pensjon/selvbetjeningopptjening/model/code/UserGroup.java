@@ -4,7 +4,6 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.Opptj
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
-import no.nav.pensjon.selvbetjeningopptjening.model.*;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.*;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 
@@ -78,7 +77,7 @@ public enum UserGroup {
                                                                     UttaksgradGetter uttaksgradGetter) {
         List<Pensjonspoeng> pensjonspoengList = pensjonspoengConsumer.getPensjonspoengListe(fnr);
 
-        OpptjeningBasis basis = new OpptjeningBasis(
+        var basis = new OpptjeningBasis(
                 pensjonspoengList,
                 emptyList(), // No beholdninger
                 restpensjoner,
@@ -102,7 +101,7 @@ public enum UserGroup {
         List<Beholdning> beholdninger = beholdningConsumer.getPensjonsbeholdning(fnr);
         List<Pensjonspoeng> pensjonspoengList = pensjonspoengConsumer.getPensjonspoengListe(fnr);
 
-        OpptjeningBasis basis = new OpptjeningBasis(
+        var basis = new OpptjeningBasis(
                 pensjonspoengList,
                 beholdninger,
                 restpensjoner,
@@ -127,7 +126,7 @@ public enum UserGroup {
         int firstPossibleInntektYear = fodselsdato.getYear() + 13;
         List<Inntekt> inntekter = opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(fnr, firstPossibleInntektYear, LocalDate.now().getYear());
 
-        OpptjeningBasis basis = new OpptjeningBasis(
+        var basis = new OpptjeningBasis(
                 emptyList(), // No pensjonspoeng
                 beholdninger,
                 restpensjoner,

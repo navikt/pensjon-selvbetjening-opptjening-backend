@@ -13,7 +13,6 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.Pensjonspoe
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.model.*;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +34,8 @@ import static java.util.Collections.singletonList;
 import static no.nav.pensjon.selvbetjeningopptjening.PidGenerator.generatePid;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
@@ -43,8 +43,9 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class OpptjeningProviderTest {
 
-    private static LocalDate DATE_IN_1960 = LocalDate.of(1960, 7, 6);
-    private static LocalDate DATE_IN_1963 = LocalDate.of(1963, 7, 6);
+    private static final LocalDate DATE_IN_1960 = LocalDate.of(1960, 7, 6);
+    private static final LocalDate DATE_IN_1963 = LocalDate.of(1963, 7, 6);
+    private OpptjeningProvider opptjeningProvider;
 
     @Mock
     private PensjonsbeholdningConsumer pensjonsbeholdningConsumer;
@@ -62,8 +63,6 @@ class OpptjeningProviderTest {
     private PdlConsumer pdlConsumer;
     @Captor
     private ArgumentCaptor<Integer> yearCaptor;
-
-    private OpptjeningProvider opptjeningProvider;
 
     @BeforeEach
     void setUp() {
@@ -119,16 +118,6 @@ class OpptjeningProviderTest {
         OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato));
 
         assertThat(opptjeningResponse.getFodselsaar(), is(expectedFodselsaar));
-    }
-
-    @Test
-    void when_Uttaksgrad_is_not_set_then_calculateOpptjeningForFnr_throws_NullPointerException() {
-        List<Uttaksgrad> uttaksgradList = List.of(new Uttaksgrad());
-        when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(uttaksgradList);
-        when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
-
-        assertThrows(NullPointerException.class, () -> opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963)));
     }
 
     @Test
@@ -295,7 +284,7 @@ class OpptjeningProviderTest {
 
     @Test
     void when_Fnr_UserGroup5_with_RestGrunnPensjon_and_Uttaksgrad_less_than_100_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Restpensjon() {
-        Restpensjon restpensjon = restpensjon(1980);
+        Restpensjon restpensjon = restpensjonWithGrunnpensjon(1980);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(singletonList(uttaksgrad()));
         when(restpensjonConsumer.getRestpensjonListe(any(String.class))).thenReturn(singletonList(restpensjon));
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
@@ -311,9 +300,7 @@ class OpptjeningProviderTest {
 
     @Test
     void when_Fnr_UserGroup5_with_RestPensjonstillegg_and_Uttaksgrad_less_than_100_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Restpensjon() {
-        Restpensjon restpensjon = new Restpensjon();
-        restpensjon.setRestPensjonstillegg(100d);
-        restpensjon.setFomDato(LocalDate.of(1980, 1, 1));
+        Restpensjon restpensjon = restpensjonWithPensjonstillegg();
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(singletonList(uttaksgrad()));
         when(restpensjonConsumer.getRestpensjonListe(any(String.class))).thenReturn(singletonList(restpensjon));
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
@@ -329,10 +316,7 @@ class OpptjeningProviderTest {
 
     @Test
     void when_Fnr_UserGroup5_with_RestTilleggspensjon_and_Uttaksgrad_less_than_100_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Restpensjon() {
-        Restpensjon restpensjon = new Restpensjon();
-        restpensjon.setRestTilleggspensjon(100d);
-        restpensjon.setFomDato(LocalDate.of(1980, 1, 1));
-
+        Restpensjon restpensjon = restpensjonWithTilleggspensjon();
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(singletonList(uttaksgrad()));
         when(restpensjonConsumer.getRestpensjonListe(any(String.class))).thenReturn(singletonList(restpensjon));
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
@@ -348,9 +332,7 @@ class OpptjeningProviderTest {
 
     @Test
     void when_Fnr_UserGroup5_with_RestPensjonstillegg_and_RestGrunnpensjon_and_Uttaksgrad_less_than_100_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Restpensjon() {
-        Restpensjon restpensjon = restpensjon(1980);
-        restpensjon.setRestPensjonstillegg(100d);
-
+        Restpensjon restpensjon = restpensjonWithGrunnpensjonAndPensjonstillegg();
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(singletonList(uttaksgrad()));
         when(restpensjonConsumer.getRestpensjonListe(any(String.class))).thenReturn(singletonList(restpensjon));
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
@@ -366,7 +348,7 @@ class OpptjeningProviderTest {
 
     @Test
     void when_Fnr_UserGroup4_with_RestGrunnPensjon_and_Uttaksgrad_less_than_100_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Restpensjon() {
-        Restpensjon restpensjon = restpensjon(1980);
+        Restpensjon restpensjon = restpensjonWithGrunnpensjon(1980);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(singletonList(uttaksgrad()));
         when(restpensjonConsumer.getRestpensjonListe(any(String.class))).thenReturn(singletonList(restpensjon));
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
@@ -382,7 +364,7 @@ class OpptjeningProviderTest {
     @Test
     void when_Fnr_UserGroup123_with_RestGrunnPensjon_and_Uttaksgrad_less_than_100_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Restpensjon() {
         LocalDate fodselsdato = LocalDate.of(1950, 7, 6);
-        Restpensjon restpensjon = restpensjon(1970);
+        Restpensjon restpensjon = restpensjonWithGrunnpensjon(1970);
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(singletonList(uttaksgrad()));
         when(restpensjonConsumer.getRestpensjonListe(any(String.class))).thenReturn(singletonList(restpensjon));
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
@@ -605,18 +587,28 @@ class OpptjeningProviderTest {
         return inntekt("");
     }
 
-    private static Restpensjon restpensjon(int year) {
-        var restpensjon = new Restpensjon();
-        restpensjon.setRestGrunnpensjon(100d);
-        restpensjon.setFomDato(LocalDate.of(year, 1, 1));
-        return restpensjon;
+    private static Restpensjon restpensjonWithGrunnpensjon(int year) {
+        return new Restpensjon(LocalDate.of(year, 1, 1), 100D, null, null);
+    }
+
+    private static Restpensjon restpensjonWithPensjonstillegg() {
+        return new Restpensjon(LocalDate.of(1980, 1, 1), null, null, 100D);
+    }
+
+    private static Restpensjon restpensjonWithGrunnpensjonAndPensjonstillegg() {
+        return new Restpensjon(LocalDate.of(1980, 1, 1), 100D, null, 100D);
+    }
+
+    private static Restpensjon restpensjonWithTilleggspensjon() {
+        return new Restpensjon(LocalDate.of(1980, 1, 1), null, 100D, null);
     }
 
     private static Uttaksgrad uttaksgrad() {
-        var uttaksgrad = new Uttaksgrad();
-        uttaksgrad.setUttaksgrad(50);
-        uttaksgrad.setFomDato(LocalDate.MAX);
-        return uttaksgrad;
+        return new Uttaksgrad(
+                null,
+                50,
+                LocalDate.MAX,
+                null);
     }
 
     private static AfpHistorikk afpHistorikk() {

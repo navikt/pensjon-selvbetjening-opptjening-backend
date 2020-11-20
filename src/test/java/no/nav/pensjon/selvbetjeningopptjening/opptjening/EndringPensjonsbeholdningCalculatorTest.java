@@ -1,6 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.model.*;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode;
 import org.junit.jupiter.api.Test;
 
@@ -111,8 +110,7 @@ class EndringPensjonsbeholdningCalculatorTest {
         LocalDate fomDato = LocalDate.of(2020, 1, 1);
         LocalDate tomDato = LocalDate.of(2020, 12, 31);
         Beholdning beholdning = newBeholdning(10D, fomDato, tomDato);
-        Uttaksgrad uttaksgrad = uttaksgradFom(fomDato);
-        uttaksgrad.setTomDato(tomDato);
+        Uttaksgrad uttaksgrad = uttaksgrad(fomDato, tomDato);
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
                 .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), singletonList(uttaksgrad));
@@ -150,10 +148,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_GivenYear_2020_with_uttaksgrad_value_100_then_calculator_returns_ArsakDetailCode_OPPTJENING_HEL() {
         Beholdning beholdning = beholdningWithVedtak(LocalDate.of(2020, 1, 1));
-        Uttaksgrad uttaksgrad = uttaksgradFom(LocalDate.of(2019, 1, 1));
-        uttaksgrad.setVedtakId(beholdning.getVedtakId());
-        uttaksgrad.setUttaksgrad(100);
-        uttaksgrad.setTomDato(LocalDate.of(2020, 12, 31));
+        Uttaksgrad uttaksgrad = uttaksgrad(beholdning.getVedtakId(), 100);
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
                 .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), singletonList(uttaksgrad));
@@ -165,10 +160,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_GivenYear_2020_with_uttaksgrad_value_lessthan100_then_calculator_returns_ArsakDetailCode_OPPTJENING_GRADERT() {
         Beholdning beholdning = beholdningWithVedtak(LocalDate.of(2020, 1, 1));
-        Uttaksgrad uttaksgrad = uttaksgradFom(LocalDate.of(2019, 1, 1));
-        uttaksgrad.setVedtakId(beholdning.getVedtakId());
-        uttaksgrad.setUttaksgrad(50);
-        uttaksgrad.setTomDato(LocalDate.of(2020, 12, 31));
+        Uttaksgrad uttaksgrad = uttaksgrad(beholdning.getVedtakId(), 50);
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
                 .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), singletonList(uttaksgrad));
@@ -181,10 +173,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_fomDate_1Jan2020_with_uttaksgrad_value_0_then_calculator_returns_ArsakDetailCode_OPPTJENING_2012() {
         Beholdning beholdning = beholdningWithVedtak(LocalDate.of(2020, 1, 1));
-        Uttaksgrad uttaksgrad = uttaksgradFom(LocalDate.of(2019, 1, 1));
-        uttaksgrad.setVedtakId(beholdning.getVedtakId());
-        uttaksgrad.setUttaksgrad(0);
-        uttaksgrad.setTomDato(LocalDate.of(2020, 12, 31));
+        Uttaksgrad uttaksgrad = uttaksgrad(beholdning.getVedtakId(), 0);
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
                 .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), singletonList(uttaksgrad));
@@ -308,7 +297,7 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_beholdningGrunnlag_is_forstegangstjeneste_then_calculator_returns_grunnlagTypeCode_FORSTEGANGSTJENESTE_GRUNNLAG() {
-        double forstegangstjeneste = 1d;
+        double forstegangstjeneste = 1D;
         Beholdning beholdning = beholdningFom1Jan2020(forstegangstjeneste, 0D, 0D, forstegangstjeneste, 0D, 0D);
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
@@ -511,9 +500,19 @@ class EndringPensjonsbeholdningCalculatorTest {
                 null, null);
     }
 
+    private static Uttaksgrad uttaksgrad(long vedtakId, int uttaksgrad) {
+        return new Uttaksgrad(
+                vedtakId,
+                uttaksgrad,
+                LocalDate.of(2019, 1, 1),
+                LocalDate.of(2020, 12, 31));
+    }
+
+    private static Uttaksgrad uttaksgrad(LocalDate fomDate, LocalDate tomDate) {
+        return new Uttaksgrad(null, null, fomDate, tomDate);
+    }
+
     private static Uttaksgrad uttaksgradFom(LocalDate date) {
-        var uttaksgrad = new Uttaksgrad();
-        uttaksgrad.setFomDato(date);
-        return uttaksgrad;
+        return new Uttaksgrad(null, null, date, null);
     }
 }

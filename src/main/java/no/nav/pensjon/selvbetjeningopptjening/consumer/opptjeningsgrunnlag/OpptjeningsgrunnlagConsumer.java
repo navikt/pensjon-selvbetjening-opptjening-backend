@@ -17,9 +17,11 @@ import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
 
 public class OpptjeningsgrunnlagConsumer {
 
-    static final String CONSUMED_SERVICE = "PROPOPP007 hentOpptjeningsgrunnlag";
+    private static final String CONSUMED_SERVICE = "PROPOPP007 hentOpptjeningsgrunnlag";
+    private static final String ENDPOINT_PATH = "/opptjeningsgrunnlag/";
     private final String endpoint;
     private RestTemplate restTemplate;
+    //TODO Migrate to WebClient
 
     public OpptjeningsgrunnlagConsumer(String endpoint) {
         this.endpoint = endpoint;
@@ -45,7 +47,7 @@ public class OpptjeningsgrunnlagConsumer {
     private String buildUrl(String fnr, Integer fomAr, Integer tomAr) {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromHttpUrl(endpoint)
-                .path("/opptjeningsgrunnlag/" + fnr);
+                .path(ENDPOINT_PATH + fnr);
 
         if (fomAr != null) {
             builder.queryParam("fomAr", Integer.toString(fomAr));

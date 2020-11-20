@@ -1,12 +1,12 @@
 package no.nav.pensjon.selvbetjeningopptjening.unleash.strategies;
 
-import java.util.List;
-import java.util.Map;
-
 import no.nav.pensjon.selvbetjeningopptjening.config.StringExtractor;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
-import no.nav.pensjon.selvbetjeningopptjening.model.Uttaksgrad;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uttaksgrad;
+
+import java.util.List;
+import java.util.Map;
 
 public class ByProfileStrategy extends BeanStrategy {
 

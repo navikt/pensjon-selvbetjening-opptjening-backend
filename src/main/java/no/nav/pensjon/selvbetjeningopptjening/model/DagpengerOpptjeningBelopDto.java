@@ -9,14 +9,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class DagpengerOpptjeningBelopDto {
 
     private Long dagpengerOpptjeningBelopId;
-
     private Integer ar;
-
     private Double belopOrdinar;
-
     private Double belopFiskere;
-
-    private List<Dagpenger> dagpengerListe = new ArrayList<Dagpenger>();
+    private List<DagpengerDto> dagpengerListe = new ArrayList<>();
 
     public Long getDagpengerOpptjeningBelopId() {
         return dagpengerOpptjeningBelopId;
@@ -50,11 +46,11 @@ public class DagpengerOpptjeningBelopDto {
         this.belopFiskere = belopFiskere;
     }
 
-    public List<Dagpenger> getDagpengerListe() {
+    public List<DagpengerDto> getDagpengerListe() {
         return dagpengerListe;
     }
 
-    public void setDagpengerListe(List<Dagpenger> dagpengerListe) {
+    public void setDagpengerListe(List<DagpengerDto> dagpengerListe) {
         this.dagpengerListe = dagpengerListe;
     }
 }

@@ -8,13 +8,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UforeHistorikkDto {
 
-    private List<Uforeperiode> uforeperiodeListe = new ArrayList<>();
+    private List<UforeperiodeDto> uforeperiodeListe = new ArrayList<>();
 
-    public List<Uforeperiode> getUforeperiodeListe() {
+    public List<UforeperiodeDto> getUforeperiodeListe() {
         return uforeperiodeListe;
     }
 
-    public void setUforeperiodeListe(List<Uforeperiode> uforeperiodeListe) {
+    public void setUforeperiodeListe(List<UforeperiodeDto> uforeperiodeListe) {
         this.uforeperiodeListe = uforeperiodeListe;
     }
 }

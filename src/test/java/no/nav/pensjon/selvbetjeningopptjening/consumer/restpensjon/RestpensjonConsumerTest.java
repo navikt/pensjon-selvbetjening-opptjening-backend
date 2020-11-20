@@ -2,16 +2,17 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import static no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer.CONSUMED_SERVICE;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
 
 import java.util.List;
 
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Restpensjon;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,49 +27,47 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.pensjon.selvbetjeningopptjening.model.Restpensjon;
+import no.nav.pensjon.selvbetjeningopptjening.model.RestpensjonDto;
 
 @ExtendWith(MockitoExtension.class)
-public class RestpensjonConsumerTest {
-    private final String endpoint = "http://poppEndpoint.test";
+class RestpensjonConsumerTest {
 
-    @Mock
-    private RestTemplate restTemplateMock;
-
+    private static final String ENDPOINT = "http://poppEndpoint.test";
+    private static final String CONSUMED_SERVICE = "PROPOPP013 hentRestpensjoner";
     private RestpensjonConsumer consumer;
 
+    @Mock
+    private RestTemplate rest;
     @Captor
     private ArgumentCaptor<String> urlCaptor;
-
     @Captor
     private ArgumentCaptor<HttpMethod> httpMethodCaptor;
 
     @BeforeEach
-    public void setup() {
-        consumer = new RestpensjonConsumer(endpoint);
-        consumer.setRestTemplate(restTemplateMock);
+    void setup() {
+        consumer = new RestpensjonConsumer(ENDPOINT);
+        consumer.setRestTemplate(rest);
     }
 
     @Test
-    public void should_return_list_of_Restpensjons_when_getRestpensjonListe() {
-        RestpensjonListeResponse expectedResponse = new RestpensjonListeResponse();
-        List<Restpensjon> expectedPensjonspoengList = List.of(new Restpensjon());
-        expectedResponse.setRestpensjoner(expectedPensjonspoengList);
+    void should_return_list_of_Restpensjons_when_getRestpensjonListe() {
+        var response = new RestpensjonListeResponse();
+        var dto = new RestpensjonDto();
+        dto.setRestPensjonstillegg(1.23D);
+        response.setRestpensjoner(List.of(dto));
+        ResponseEntity<RestpensjonListeResponse> entity = new ResponseEntity<>(response, null, HttpStatus.OK);
+        when(rest.exchange(urlCaptor.capture(), any(), any(), eq(RestpensjonListeResponse.class))).thenReturn(entity);
 
-        ResponseEntity<RestpensjonListeResponse> expectedResponseEntity = new ResponseEntity<>(expectedResponse, null, HttpStatus.OK);
+        List<Restpensjon> restpensjoner = consumer.getRestpensjonListe("fnr");
 
-        when(restTemplateMock.exchange(urlCaptor.capture(), any(), any(), eq(RestpensjonListeResponse.class))).thenReturn(expectedResponseEntity);
-
-        List<Restpensjon> actualPensjonspoengList = consumer.getRestpensjonListe("fnr");
-
-        assertThat(actualPensjonspoengList, is(expectedPensjonspoengList));
+        assertEquals(1, restpensjoner.size());
+        assertEquals(1.23D, restpensjoner.get(0).getRestPensjonstillegg());
     }
 
     @Test
-    public void should_add_fnr_as_pathrparam_when_GET_getRestpensjonListe() {
+    void should_add_fnr_as_pathrparam_when_GET_getRestpensjonListe() {
         String expectedFnr = "fnrValue";
-
-        when(restTemplateMock.exchange(
+        when(rest.exchange(
                 urlCaptor.capture(),
                 httpMethodCaptor.capture(),
                 eq(null),
@@ -77,12 +76,12 @@ public class RestpensjonConsumerTest {
         consumer.getRestpensjonListe(expectedFnr);
 
         assertThat(httpMethodCaptor.getValue(), is(HttpMethod.GET));
-        assertThat(urlCaptor.getValue(), is(endpoint + "/restpensjon/" + expectedFnr + "?hentSiste=false"));
+        assertThat(urlCaptor.getValue(), is(ENDPOINT + "/restpensjon/" + expectedFnr + "?hentSiste=false"));
     }
 
     @Test
-    public void should_return_FailedCallingExternalServiceException_when_401() {
-        when(restTemplateMock.exchange("http://poppEndpoint.test/restpensjon/?hentSiste=false",
+    void should_return_FailedCallingExternalServiceException_when_401() {
+        when(rest.exchange("http://poppEndpoint.test/restpensjon/?hentSiste=false",
                 HttpMethod.GET,
                 null,
                 RestpensjonListeResponse.class)).thenThrow(new RestClientResponseException("", HttpStatus.UNAUTHORIZED.value(), "", null, null, null));
@@ -95,8 +94,8 @@ public class RestpensjonConsumerTest {
     }
 
     @Test
-    public void should_return_FailedCallingExternalServiceException_when_512() {
-        when(restTemplateMock.exchange("http://poppEndpoint.test/restpensjon/?hentSiste=false",
+    void should_return_FailedCallingExternalServiceException_when_512() {
+        when(rest.exchange("http://poppEndpoint.test/restpensjon/?hentSiste=false",
                 HttpMethod.GET,
                 null,
                 RestpensjonListeResponse.class)).thenThrow(new RestClientResponseException("PersonDoesNotExistExceptionDto", 512, "", null, null, null));
@@ -109,8 +108,8 @@ public class RestpensjonConsumerTest {
     }
 
     @Test
-    public void should_return_FailedCallingExternalServiceException_when_500() {
-        when(restTemplateMock.exchange("http://poppEndpoint.test/restpensjon/?hentSiste=false",
+    void should_return_FailedCallingExternalServiceException_when_500() {
+        when(rest.exchange("http://poppEndpoint.test/restpensjon/?hentSiste=false",
                 HttpMethod.GET,
                 null,
                 RestpensjonListeResponse.class)).thenThrow(new RestClientResponseException("", HttpStatus.INTERNAL_SERVER_ERROR.value(), "", null, null, null));
@@ -125,8 +124,8 @@ public class RestpensjonConsumerTest {
     }
 
     @Test
-    public void should_return_FailedCallingExternalServiceException_when_RuntimeException() {
-        when(restTemplateMock.exchange("http://poppEndpoint.test/restpensjon/?hentSiste=false",
+    void should_return_FailedCallingExternalServiceException_when_RuntimeException() {
+        when(rest.exchange("http://poppEndpoint.test/restpensjon/?hentSiste=false",
                 HttpMethod.GET,
                 null,
                 RestpensjonListeResponse.class)).thenThrow(new RuntimeException());

@@ -8,7 +8,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import static no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer.CONSUMED_SERVICE;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
 
 import java.util.List;
@@ -29,12 +28,13 @@ import org.springframework.web.client.RestTemplate;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.model.InntektDto;
-import no.nav.pensjon.selvbetjeningopptjening.model.OpptjeningsGrunnlag;
+import no.nav.pensjon.selvbetjeningopptjening.model.OpptjeningsGrunnlagDto;
 
 @ExtendWith(MockitoExtension.class)
 class OpptjeningsgrunnlagConsumerTest {
 
-    private final String endpoint = "http://poppEndpoint.test";
+    private static final String CONSUMED_SERVICE = "PROPOPP007 hentOpptjeningsgrunnlag";
+    private static final String ENDPOINT = "http://poppEndpoint.test";
 
     @Mock
     private RestTemplate restTemplateMock;
@@ -49,14 +49,14 @@ class OpptjeningsgrunnlagConsumerTest {
 
     @BeforeEach
     void setup() {
-        consumer = new OpptjeningsgrunnlagConsumer(endpoint);
+        consumer = new OpptjeningsgrunnlagConsumer(ENDPOINT);
         consumer.setRestTemplate(restTemplateMock);
     }
 
     @Test
     void should_return_list_of_Inntekt_when_getInntektListeFromOpptjeningsgrunnlag() {
-        HentOpptjeningsGrunnlagResponse response = new HentOpptjeningsGrunnlagResponse();
-        OpptjeningsGrunnlag grunnlag = new OpptjeningsGrunnlag();
+        var response = new HentOpptjeningsGrunnlagResponse();
+        var grunnlag = new OpptjeningsGrunnlagDto();
         grunnlag.setInntektListe(List.of(inntektDto()));
         response.setOpptjeningsGrunnlag(grunnlag);
         ResponseEntity<HentOpptjeningsGrunnlagResponse> entity = new ResponseEntity<>(response, null, HttpStatus.OK);
@@ -73,13 +73,12 @@ class OpptjeningsgrunnlagConsumerTest {
         String fnr = "fnrValue";
         Integer fom = 1988;
         Integer tom = 2018;
-
         when(restTemplateMock.exchange(urlCaptor.capture(), httpMethodCaptor.capture(), any(), eq(HentOpptjeningsGrunnlagResponse.class))).thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
         consumer.getInntektListeFromOpptjeningsgrunnlag(fnr, fom, tom);
 
         assertThat(httpMethodCaptor.getValue(), is(HttpMethod.GET));
-        assertThat(urlCaptor.getValue(), is(endpoint + "/opptjeningsgrunnlag/" + fnr + "?fomAr=" + fom + "&tomAr=" + tom));
+        assertThat(urlCaptor.getValue(), is(ENDPOINT + "/opptjeningsgrunnlag/" + fnr + "?fomAr=" + fom + "&tomAr=" + tom));
     }
 
     @Test

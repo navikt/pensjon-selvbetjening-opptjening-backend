@@ -1,7 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
-import no.nav.pensjon.selvbetjeningopptjening.model.*;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.OpptjeningTypeCode;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.OpptjeningMapper;
@@ -34,7 +33,7 @@ abstract class OpptjeningAssembler {
                                                    List<Restpensjon> restpensjoner) {
         Map<Integer, Opptjening> opptjeningerByYear = new HashMap<>();
         pensjonspoengList.forEach(poeng -> putOpptjeningYear(opptjeningerByYear, poeng.getYear()));
-        restpensjoner.forEach(pensjon -> putOpptjeningYear(opptjeningerByYear, pensjon.getFomDato().getYear()));
+        restpensjoner.forEach(pensjon -> putOpptjeningYear(opptjeningerByYear, pensjon.getFomDate().getYear()));
         return opptjeningerByYear;
     }
 
@@ -60,7 +59,7 @@ abstract class OpptjeningAssembler {
         Map<Integer, Beholdning> beholdningerByYear = new HashMap<>();
 
         for (Beholdning beholdning : beholdninger) {
-            beholdningerByYear.put(beholdning.getFomDato().getYear(), beholdning);
+            beholdningerByYear.put(beholdning.getStartYear(), beholdning);
         }
 
         return beholdningerByYear;
@@ -167,7 +166,7 @@ abstract class OpptjeningAssembler {
 
     int countNumberOfYearsWithPensjonspoeng(Map<Integer, Opptjening> opptjeningerByYear) {
         return (int) opptjeningerByYear.values().stream()
-                .filter(opptjening -> isPositive(opptjening.getPensjonspoeng()))
+                .filter(opptjening -> opptjening.getPensjonspoeng() > 0D)
                 .count();
     }
 
@@ -275,7 +274,7 @@ abstract class OpptjeningAssembler {
     }
 
     private static void setRestpensjon(Map<Integer, Opptjening> opptjeningerByYear, Restpensjon restpensjon) {
-        Opptjening opptjening = opptjeningerByYear.get(restpensjon.getFomDato().getYear());
+        Opptjening opptjening = opptjeningerByYear.get(restpensjon.getFomDate().getYear());
 
         if (opptjening == null) {
             return;
@@ -285,17 +284,10 @@ abstract class OpptjeningAssembler {
     }
 
     private static double getBelop(Restpensjon restpensjon) {
-        double belop = 0D;
+        double belop = restpensjon.getRestGrunnpensjon()
+                + restpensjon.getRestTilleggspensjon();
 
-        if (restpensjon.getRestGrunnpensjon() != null) {
-            belop += restpensjon.getRestGrunnpensjon();
-        }
-
-        if (restpensjon.getRestTilleggspensjon() != null) {
-            belop += restpensjon.getRestTilleggspensjon();
-        }
-
-        if (isPositive(restpensjon.getRestPensjonstillegg())) {
+        if (restpensjon.getRestPensjonstillegg() > 0D) {
             belop += restpensjon.getRestPensjonstillegg();
         }
 
@@ -353,9 +345,5 @@ abstract class OpptjeningAssembler {
 
     private static Opptjening noOpptjening() {
         return new Opptjening(0L, 0D);
-    }
-
-    private static boolean isPositive(Double value) {
-        return value != null && value > 0;
     }
 }
