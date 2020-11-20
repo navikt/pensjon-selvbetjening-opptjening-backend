@@ -150,17 +150,21 @@ public class MerknadHandler {
     }
 
     private static void addMerknadOmsorgFromPensjonsbeholdning(int year, Opptjening opptjening, List<MerknadCode> merknader, List<Beholdning> beholdninger) {
-//        beholdninger
-//                .stream()
-//                .filter(beholdning -> hasOmsorgsopptjening(year, beholdning))
-//                .findFirst()
-//                .ifPresent(beholdning -> addOmsorgsopptjeningMerknad(opptjening, merknader));
-
         beholdninger
                 .stream()
                 .filter(beholdning -> hasOverforeOmsorgsopptjening(year, beholdning))
                 .findFirst()
                 .ifPresent(beholdning -> addOverforeOmsorgsopptjeningMerknad(opptjening, merknader));
+
+        if (merknader.contains(MerknadCode.OVERFORE_OMSORGSOPPTJENING)) {
+            beholdninger
+                    .stream()
+                    .filter(beholdning -> hasOmsorgsopptjening(year, beholdning))
+                    .findFirst()
+                    .ifPresent(beholdning -> addOmsorgsopptjeningMerknad(opptjening, merknader));
+        }
+
+
     }
 
     private static boolean hasOmsorgsopptjening(int year, Beholdning beholdning) {

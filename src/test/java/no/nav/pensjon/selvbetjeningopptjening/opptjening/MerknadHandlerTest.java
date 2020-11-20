@@ -173,24 +173,14 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_ForstegangstjenesteOpptjeningBelop_with_Belop_value_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_empty_MerknandList() {
+    void when_OmsorgOpptjeningBelop_with_Belop_value_more_than_0_and_Year_same_as_BelopAr_and_OVERFORE_OMSORGSOPPTJENING_then_addMerknaderOnOpptjening_returns_MerknadCode_OMSORGSOPPTJENING() {
         Opptjening opptjening = opptjeningBasedOnPensjonsbeholdning();
-        Beholdning beholdning = beholdning(new Forstegangstjenesteopptjening(1900, 0d));
+        Beholdning beholdning = beholdning(OmsorgTypes.OMSORG_BARN_UNDER_7, 10d);
 
         MerknadHandler.addMerknaderOnOpptjening(YEAR, opptjening, singletonList(beholdning), emptyList(), null, null);
 
-        assertTrue(opptjening.getMerknader().isEmpty());
+        assertTrue(opptjening.getMerknader().containsAll(List.of(OMSORGSOPPTJENING, OVERFORE_OMSORGSOPPTJENING)));
     }
-
-//    @Test
-//    void when_OmsorgOpptjeningBelop_with_Belop_value_more_than_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_OMSORGSOPPTJENING() {
-//        Opptjening opptjening = opptjeningBasedOnPensjonsbeholdning();
-//        Beholdning beholdning = beholdning(new Omsorgsopptjening(YEAR, 10d, null));
-//
-//        MerknadHandler.addMerknaderOnOpptjening(YEAR, opptjening, singletonList(beholdning), emptyList(), null, null);
-//
-//        assertSingleMerknad(OMSORGSOPPTJENING, opptjening.getMerknader());
-//    }
 
     @Test
     void when_OmsorgOpptjeningBelop_with_BelopType_OBU7_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_OVERFORE_OMSORGSOPPTJENING() {
@@ -238,26 +228,16 @@ class MerknadHandlerTest {
                 null, null, null);
     }
 
+    private static Beholdning beholdning(String omsorgType, double belop) {
+        var omsorg = new Omsorg(omsorgType);
+        var opptjening = new Omsorgsopptjening(YEAR, belop, singletonList(omsorg));
+        return beholdning(opptjening);
+    }
+
     private static Beholdning beholdning(String omsorgType) {
         var omsorg = new Omsorg(omsorgType);
         var opptjening = new Omsorgsopptjening(YEAR, 0D, singletonList(omsorg));
         return beholdning(opptjening);
-    }
-
-    private static Beholdning beholdning(Dagpengeopptjening belop) {
-        return new Beholdning(
-                null, "", "", "", null, null, LocalDate.MIN,
-                null, null, null, null, null,
-                "", null, null, null,
-                belop, null, null);
-    }
-
-    private static Beholdning beholdning(Forstegangstjenesteopptjening belop) {
-        return new Beholdning(
-                null, "", "", "", null, null, LocalDate.MIN,
-                null, null, null, null, null,
-                "", null, null, null,
-                null, belop, null);
     }
 
     private static Beholdning beholdning(Omsorgsopptjening opptjening) {
