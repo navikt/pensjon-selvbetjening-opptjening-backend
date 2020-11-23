@@ -16,7 +16,7 @@ public class Inntektsopptjening {
         return belop;
     }
 
-    Inntekt getSumPensjonsgivendeInntekt() {
+    public Inntekt getSumPensjonsgivendeInntekt() {
         return sumPensjonsgivendeInntekt;
     }
 

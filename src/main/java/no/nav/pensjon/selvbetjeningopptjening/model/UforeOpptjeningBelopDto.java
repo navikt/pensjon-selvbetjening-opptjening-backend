@@ -6,43 +6,24 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class UforeOpptjeningBelopDto {
 
     private Long uforeOpptjeningBelopId;
-
     private Integer ar;
-
     private Double belop;
-
     private Boolean proRataBeregnetUp;
-
     private Double poengtall;
-
     private Integer uforegrad;
-
     private Double antattInntekt;
-
     private Double antattInntektProRata;
-
     private Double andelProrata;
-
     private Integer poengarTellerProRata;
-
     private Integer poengarNevnerProRata;
-
     private Integer antFremtidigArProRata;
-
     private Double poengAntattArligInntekt;
-
     private Integer yrkesskadegrad;
-
     private Double antattInntektYrke;
-
     private Boolean uforear;
-
     private Boolean konvertertUFT;
-
     private Integer veietGrunnbelop;
-
     private Boolean uforetrygd;
-
     private Boolean yrkesskade;
 
     public Long getUforeOpptjeningBelopId() {

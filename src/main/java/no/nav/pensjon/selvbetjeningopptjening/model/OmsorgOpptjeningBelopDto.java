@@ -9,13 +9,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class OmsorgOpptjeningBelopDto {
 
     private Long omsorgOpptjeningBelopId;
-
     private Integer ar;
-
     private Double belop;
-
     private Double omsorgOpptjeningInnskudd;
-
     private List<OmsorgDto> omsorgListe = new ArrayList<>();
 
     public Long getOmsorgOpptjeningBelopId() {

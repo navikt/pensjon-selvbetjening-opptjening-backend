@@ -8,15 +8,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class OmsorgDto implements Serializable {
 
     private Long omsorgId;
-
     private String fnr;
-
     private String fnrOmsorgFor;
-
     private String omsorgType;
-
     private String kilde;
-
     private Integer ar;
 
     public String getFnr() {
