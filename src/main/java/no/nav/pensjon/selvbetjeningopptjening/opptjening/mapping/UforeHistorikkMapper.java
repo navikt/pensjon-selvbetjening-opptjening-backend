@@ -32,6 +32,6 @@ public class UforeHistorikkMapper {
                         dto.getUforegrad(),
                         dto.getUforetype(),
                         dto.getUfgFom(),
-                        dto.getUfgFom());
+                        dto.getUfgTom());
     }
 }
