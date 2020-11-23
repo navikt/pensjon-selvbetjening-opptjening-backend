@@ -88,7 +88,7 @@ public class BeholdningMapper {
         return dto == null ? null
                 :
                 new Uforeopptjening(
-                        dto.getAr(),
+                        dto.getUforegrad(),
                         dto.getBelop());
     }
 }
