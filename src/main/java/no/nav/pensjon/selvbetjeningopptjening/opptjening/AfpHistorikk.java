@@ -22,11 +22,11 @@ public class AfpHistorikk {
         return virkningFomDate;
     }
 
-    int getStartYear() {
+    public int getStartYear() {
         return virkningFomDate.getYear();
     }
 
-    int getEndYearOrDefault(Producer<Integer> defaultYear) {
+    public int getEndYearOrDefault(Producer<Integer> defaultYear) {
         return hasVirkningTomDate ? virkningTomDate.getYear() : defaultYear.call();
     }
 }

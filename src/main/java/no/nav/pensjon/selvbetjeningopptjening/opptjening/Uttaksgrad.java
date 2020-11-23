@@ -1,7 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import java.time.LocalDate;
-import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
@@ -33,19 +32,19 @@ public class Uttaksgrad {
         return fomDate;
     }
 
-     LocalDate getTomDate() {
+    public LocalDate getTomDate() {
         return tomDate;
     }
 
-    boolean coversYear(int year) {
+    public boolean coversYear(int year) {
         return fomDate.getYear() <= year && endsAtOrAfter(year);
     }
 
-   private boolean endsAtOrAfter(int year) {
-        return !hasTomDate || year <= tomDate.getYear();
+    public boolean isGradert() {
+        return 0 < uttaksgrad && uttaksgrad < 100;
     }
 
-    boolean isGradert() {
-        return 0 < uttaksgrad && uttaksgrad < 100;
+    private boolean endsAtOrAfter(int year) {
+        return !hasTomDate || year <= tomDate.getYear();
     }
 }
