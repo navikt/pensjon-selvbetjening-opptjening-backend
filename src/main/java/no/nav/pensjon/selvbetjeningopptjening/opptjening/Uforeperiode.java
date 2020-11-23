@@ -17,7 +17,7 @@ public class Uforeperiode {
     public Uforeperiode(Integer uforegrad, UforeTypeCode uforetype, LocalDate fomDate, LocalDate tomDate) {
         this.uforegrad = uforegrad == null ? 0 : uforegrad;
         this.uforetype = uforetype;
-        this.fomDate = requireNonNull(fomDate);
+        this.fomDate = fomDate;
         this.tomDate = tomDate;
         this.hasTomDate = tomDate != null;
     }
