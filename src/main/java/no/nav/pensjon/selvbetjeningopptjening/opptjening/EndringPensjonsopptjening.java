@@ -38,7 +38,7 @@ public class EndringPensjonsopptjening {
                 null);
     }
 
-    static EndringPensjonsopptjening nyOpptjening(int year,
+    public static EndringPensjonsopptjening nyOpptjening(int year,
                                                   double beholdningsbelop,
                                                   double innskudd,
                                                   Integer uttaksgrad,

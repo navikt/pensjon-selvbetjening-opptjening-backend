@@ -51,7 +51,7 @@ public class Opptjening {
         return omsorgspoeng;
     }
 
-    void setOmsorgspoeng(Double value) {
+    public void setOmsorgspoeng(Double value) {
         omsorgspoeng = value == null ? 0D : value;
         hasOmsorgspoeng = value != null;
     }
@@ -60,7 +60,7 @@ public class Opptjening {
         return omsorgspoengType;
     }
 
-    void setOmsorgspoengType(String value) {
+    public void setOmsorgspoengType(String value) {
         omsorgspoengType = value;
     }
 
@@ -68,11 +68,11 @@ public class Opptjening {
         return opptjeningsendringer;
     }
 
-    void setOpptjeningsendringer(List<EndringPensjonsopptjening> values) {
+    public void setOpptjeningsendringer(List<EndringPensjonsopptjening> values) {
         opptjeningsendringer = values;
     }
 
-     public boolean hasPensjonsbeholdning() {
+    public boolean hasPensjonsbeholdning() {
         return hasPensjonsbeholdning;
     }
 
@@ -85,7 +85,7 @@ public class Opptjening {
         hasPensjonsbeholdning = value != null;
     }
 
-     public boolean hasRestpensjon() {
+    public boolean hasRestpensjon() {
         return hasRestpensjon;
     }
 
@@ -102,7 +102,7 @@ public class Opptjening {
         return maxUforegrad;
     }
 
-    void setMaxUforegrad(Integer value) {
+    public void setMaxUforegrad(Integer value) {
         maxUforegrad = value == null ? 0 : value;
     }
 
@@ -122,11 +122,11 @@ public class Opptjening {
         return merknader.contains(value);
     }
 
-    void addMerknad(MerknadCode value) {
+    public void addMerknad(MerknadCode value) {
         merknader.add(value);
     }
 
-    void addMerknader(List<MerknadCode> values) {
+    public void addMerknader(List<MerknadCode> values) {
         merknader.addAll(values);
     }
 
