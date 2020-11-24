@@ -23,9 +23,7 @@ class UforeHistorikkMapperTest {
 
         List<Uforeperiode> perioder = historikk.getUforeperioder();
         assertEquals(1, perioder.size());
-        Uforeperiode periode = perioder.get(0);
-        assertEquals(LocalDate.of(1991, 1, 1), periode.getFomDate());
-        assertEquals(LocalDate.of(1992, 12, 31), periode.getTomDate());
+        assertEquals(11, perioder.get(0).getUforegrad());
     }
 
     private static UforeperiodeDto uforeperiode() {

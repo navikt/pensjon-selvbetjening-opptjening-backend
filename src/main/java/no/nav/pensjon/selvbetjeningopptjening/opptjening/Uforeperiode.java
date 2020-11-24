@@ -4,12 +4,10 @@ import no.nav.pensjon.selvbetjeningopptjening.model.code.UforeTypeCode;
 
 import java.time.LocalDate;
 
-import static java.util.Objects.requireNonNull;
-
 public class Uforeperiode {
 
     private final int uforegrad;
-    private UforeTypeCode uforetype;
+    private final UforeTypeCode uforetype;
     private final LocalDate fomDate;
     private final LocalDate tomDate;
     private final boolean hasTomDate;

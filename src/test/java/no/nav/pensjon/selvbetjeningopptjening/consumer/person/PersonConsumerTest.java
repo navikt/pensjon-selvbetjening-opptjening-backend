@@ -6,6 +6,7 @@ import no.nav.pensjon.selvbetjeningopptjening.model.UforeHistorikkDto;
 import no.nav.pensjon.selvbetjeningopptjening.model.UforeperiodeDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.AfpHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.UforeHistorikk;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uforeperiode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +22,7 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 import static java.util.Collections.singletonList;
@@ -89,15 +91,16 @@ class PersonConsumerTest {
     void should_get_Uforehistorikk_when_getUforeHistorikkForPerson() {
         var historikkDto = new UforeHistorikkDto();
         UforeperiodeDto uforeperiode = new UforeperiodeDto();
-        uforeperiode.setUfgFom(DATE);
+        uforeperiode.setUforegrad(50);
         historikkDto.setUforeperiodeListe(singletonList(uforeperiode));
         ResponseEntity<UforeHistorikkDto> entity = new ResponseEntity<>(historikkDto, HttpStatus.OK);
         when(restTemplateMock.exchange(eq(UFOREHISTORIKK_URL), any(), any(), eq(UforeHistorikkDto.class))).thenReturn(entity);
 
         UforeHistorikk historikk = consumer.getUforeHistorikkForPerson("");
 
-        assertEquals(1, historikk.getUforeperioder().size());
-        assertEquals(DATE, historikk.getUforeperioder().get(0).getFomDate());
+        List<Uforeperiode> perioder = historikk.getUforeperioder();
+        assertEquals(1, perioder.size());
+        assertEquals(50, perioder.get(0).getUforegrad());
     }
 
     @Test
