@@ -169,13 +169,13 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_OmsorgOpptjeningBelop_with_Belop_value_more_than_0_and_Year_same_as_BelopAr_and_OVERFORE_OMSORGSOPPTJENING_then_addMerknaderOnOpptjening_returns_MerknadCode_OMSORGSOPPTJENING() {
+    void when_OmsorgOpptjeningBelop_with_Belop_value_more_than_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_OMSORGSOPPTJENING() {
         Opptjening opptjening = opptjeningBasedOnPensjonsbeholdning();
-        Beholdning beholdning = beholdning(OmsorgTypes.OMSORG_BARN_UNDER_7, 10d);
+        Beholdning beholdning = beholdning(new Omsorgsopptjening(YEAR, 10d, null));
 
         MerknadHandler.addMerknaderOnOpptjening(YEAR, opptjening, singletonList(beholdning), emptyList(), null, null);
 
-        assertTrue(opptjening.getMerknader().containsAll(List.of(OMSORGSOPPTJENING, OVERFORE_OMSORGSOPPTJENING)));
+        assertSingleMerknad(OMSORGSOPPTJENING, opptjening.getMerknader());
     }
 
     @Test
@@ -222,12 +222,6 @@ class MerknadHandlerTest {
                 null, null, null, null, null,
                 "", null, null, null,
                 null, null, null);
-    }
-
-    private static Beholdning beholdning(String omsorgType, double belop) {
-        var omsorg = new Omsorg(omsorgType);
-        var opptjening = new Omsorgsopptjening(YEAR, belop, singletonList(omsorg));
-        return beholdning(opptjening);
     }
 
     private static Beholdning beholdning(String omsorgType) {
