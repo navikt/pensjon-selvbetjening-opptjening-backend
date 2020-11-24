@@ -16,15 +16,15 @@ public class Restpensjon {
         this.restPensjonstillegg = restPensjonstillegg == null ? 0D : restPensjonstillegg;
     }
 
-    LocalDate getFomDate() {
+    public LocalDate getFomDate() {
         return fomDate;
     }
 
-    double getRestGrunnpensjon() {
+    public double getRestGrunnpensjon() {
         return restGrunnpensjon;
     }
 
-    double getRestTilleggspensjon() {
+    public double getRestTilleggspensjon() {
         return restTilleggspensjon;
     }
 
