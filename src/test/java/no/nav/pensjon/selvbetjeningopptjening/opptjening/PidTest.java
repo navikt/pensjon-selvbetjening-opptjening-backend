@@ -3,208 +3,198 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.time.Month;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
-import no.nav.pensjon.selvbetjeningopptjening.opptjening.PidValidationException;
-
 @ExtendWith(MockitoExtension.class)
-public class PidTest {
-    private String monthAbove9BostNr = "01327200336";
-    private String normalFnr = "03029119367";
-    private String specialFnr0 = "26067300000";
-    private String specialFnr1 = "26067300001";
-    private String specialFnr2 = "26067300002";
-    private String specialFnr29Feb = "29027300000";
-    private String specialFnr30Feb = "30027300000";
-    private String specialFnr61May = "61057300000";
-    private String specialFnr21XXX = "21257300000";
-    private String specialFnrZero = "00000000000";
-    private String specialFnr03Jan76 = "03017600000";
-    private String specialFnr03Jan73 = "03017300000"; // Passes the mod11 check, but not the special circumstance check
-    private String dNummerValidLowPnr1 = "41015800001";
-    private String dNummerValidLowPnr2 = "57022800002";
-    private String dNummerValidLowPnr3 = "64025000003";
-    private String dNummerValidLowPnr4 = "58044400004";
-    private String dNummerValidLowPnr5 = "61073600005";
-    private String dNummerValidLowPnr6 = "67045600006";
-    private String dNummerValidLowPnr7 = "46073400007";
-    private String dNummerValidLowPnr8 = "70103900008";
-    private String dNummerValidLowPnr9 = "41033100009";
+class PidTest {
+
+    private static final String MONTH_ABOVE_9_BOST_NR = "01327200336";
+    private static final String NORMAL_FNR = "03029119367";
+    private static final String SPECIAL_FNR_0 = "26067300000";
+    private static final String SPECIAL_FNR_1 = "26067300001";
+    private static final String SPECIAL_FNR_2 = "26067300002";
+    private static final String SPECIAL_FNR_29_FEB = "29027300000";
+    private static final String SPECIAL_FNR_30_FEB = "30027300000";
+    private static final String SPECIAL_FNR_61_MAY = "61057300000";
+    private static final String SPECIAL_FNR_21_XXX = "21257300000";
+    private static final String SPECIAL_FNR_ZERO = "00000000000";
+    private static final String SPECIAL_FNR_3_JAN_76 = "03017600000";
+    private static final String SPECIAL_FNR_3_JAN_73 = "03017300000"; // Passes the mod11 check, but not the special circumstance check
+    private static final String D_NUMMER_VALID_LOW_PNR_1 = "41015800001";
+    private static final String D_NUMMER_VALID_LOW_PNR_2 = "57022800002";
+    private static final String D_NUMMER_VALID_LOW_PNR_3 = "64025000003";
+    private static final String D_NUMMER_VALID_LOW_PNR_4 = "58044400004";
+    private static final String D_NUMMER_VALID_LOW_PNR_5 = "61073600005";
+    private static final String D_NUMMER_VALID_LOW_PNR_6 = "67045600006";
+    private static final String D_NUMMER_VALID_LOW_PNR_7 = "46073400007";
+    private static final String D_NUMMER_VALID_LOW_PNR_8 = "70103900008";
+    private static final String D_NUMMER_VALID_LOW_PNR_9 = "41033100009";
 
     @Test
-    public void should_validate_false_when_special_circumstances_not_allowed_and_pid_has_special_circumstances() {
-        assertFalse("Special circumstance test without acceptspecialcircumstance set failed for Fnr" + specialFnr0, Pid
-                .isValidPid(specialFnr0, false));
-        assertFalse("Special circumstance test without acceptspecialcircumstance set failed for Fnr" + specialFnr0, Pid
-                .isValidPid(specialFnr0));
-        assertFalse("Special circumstance test without acceptspecialcircumstance set failed for Fnr" + specialFnr1, Pid
-                .isValidPid(specialFnr1, false));
-        assertFalse("Special circumstance test without acceptspecialcircumstance set failed for Fnr" + specialFnr1, Pid
-                .isValidPid(specialFnr1));
-        assertFalse("Special circumstance test failed for Fnr" + specialFnr2, Pid.isValidPid(specialFnr2));
+    void should_validate_false_when_special_circumstances_not_allowed_and_pid_has_special_circumstances() {
+        assertFalse(Pid.isValidPid(SPECIAL_FNR_0, false), "Special circumstance test without acceptspecialcircumstance set failed for Fnr" + SPECIAL_FNR_0);
+        assertFalse(Pid.isValidPid(SPECIAL_FNR_0), "Special circumstance test without acceptspecialcircumstance set failed for Fnr" + SPECIAL_FNR_0);
+        assertFalse(Pid.isValidPid(SPECIAL_FNR_1, false), "Special circumstance test without acceptspecialcircumstance set failed for Fnr" + SPECIAL_FNR_1);
+        assertFalse(Pid.isValidPid(SPECIAL_FNR_1), "Special circumstance test without acceptspecialcircumstance set failed for Fnr" + SPECIAL_FNR_1);
+        assertFalse(Pid.isValidPid(SPECIAL_FNR_2), "Special circumstance test failed for Fnr" + SPECIAL_FNR_2);
 
-        assertFalse("Special circumstance test failed for Fnr" + specialFnr29Feb, Pid.isValidPid(specialFnr29Feb));
-        assertFalse("Special circumstance test failed for Fnr" + specialFnr29Feb, Pid.isValidPid(specialFnr29Feb, false));
-        assertFalse("Special circumstance test failed for Fnr" + specialFnr30Feb, Pid.isValidPid(specialFnr30Feb));
-        assertFalse("Special circumstance test failed for Fnr" + specialFnr29Feb, Pid.isValidPid(specialFnr30Feb, false));
+        assertFalse(Pid.isValidPid(SPECIAL_FNR_29_FEB), "Special circumstance test failed for Fnr" + SPECIAL_FNR_29_FEB);
+        assertFalse(Pid.isValidPid(SPECIAL_FNR_29_FEB, false), "Special circumstance test failed for Fnr" + SPECIAL_FNR_29_FEB);
+        assertFalse(Pid.isValidPid(SPECIAL_FNR_30_FEB), "Special circumstance test failed for Fnr" + SPECIAL_FNR_30_FEB);
+        assertFalse(Pid.isValidPid(SPECIAL_FNR_30_FEB, false), "Special circumstance test failed for Fnr" + SPECIAL_FNR_29_FEB);
 
-        assertFalse("Special circumstance test failed for Fnr" + specialFnr61May, Pid.isValidPid(specialFnr61May));
-        assertFalse("Special circumstance test failed for Fnr" + specialFnr61May, Pid.isValidPid(specialFnr61May, false));
-        assertFalse("Special circumstance test failed for Fnr" + specialFnr21XXX, Pid.isValidPid(specialFnr21XXX));
-        assertFalse("Special circumstance test failed for Fnr" + specialFnr21XXX, Pid.isValidPid(specialFnr21XXX, false));
-        assertFalse("Special circumstance test failed for Fnr" + specialFnrZero, Pid.isValidPid(specialFnrZero));
-        assertFalse("Special circumstance test failed for Fnr" + specialFnrZero, Pid.isValidPid(specialFnrZero, false));
-        assertFalse("Special circumstance test failed for Fnr " + specialFnr03Jan73, Pid.isValidPid(specialFnr03Jan73, false));
+        assertFalse(Pid.isValidPid(SPECIAL_FNR_61_MAY), "Special circumstance test failed for Fnr" + SPECIAL_FNR_61_MAY);
+        assertFalse(Pid.isValidPid(SPECIAL_FNR_61_MAY, false), "Special circumstance test failed for Fnr" + SPECIAL_FNR_61_MAY);
+        assertFalse(Pid.isValidPid(SPECIAL_FNR_21_XXX), "Special circumstance test failed for Fnr" + SPECIAL_FNR_21_XXX);
+        assertFalse(Pid.isValidPid(SPECIAL_FNR_21_XXX, false), "Special circumstance test failed for Fnr" + SPECIAL_FNR_21_XXX);
+        assertFalse(Pid.isValidPid(SPECIAL_FNR_ZERO), "Special circumstance test failed for Fnr" + SPECIAL_FNR_ZERO);
+        assertFalse(Pid.isValidPid(SPECIAL_FNR_ZERO, false), "Special circumstance test failed for Fnr" + SPECIAL_FNR_ZERO);
+        assertFalse(Pid.isValidPid(SPECIAL_FNR_3_JAN_73, false), "Special circumstance test failed for Fnr " + SPECIAL_FNR_3_JAN_73);
 
-        assertFalse("Special circumstance test failed for Fnr " + specialFnr03Jan76, Pid.isValidPid(specialFnr03Jan76, false));
+        assertFalse(Pid.isValidPid(SPECIAL_FNR_3_JAN_76, false), "Special circumstance test failed for Fnr " + SPECIAL_FNR_3_JAN_76);
         String specialFnr08Jun57 = "08065700000";
-        assertFalse("Special circumstance test failed for Fnr " + specialFnr08Jun57, Pid.isValidPid(specialFnr08Jun57, false));
+        assertFalse(Pid.isValidPid(specialFnr08Jun57, false), "Special circumstance test failed for Fnr " + specialFnr08Jun57);
     }
 
     @Test
-    public void should_validate_true_when_special_circumstances_allowed_and_pid_has_special_circumstances() {
+    void should_validate_true_when_special_circumstances_allowed_and_pid_has_special_circumstances() {
         // validate the Pids with special circumstances enabled
-        assertTrue("Special circumstance test failed for Fnr" + specialFnr0, Pid.isValidPid(specialFnr0, true));
-        assertTrue("Special circumstance test failed for Fnr" + specialFnr1, Pid.isValidPid(specialFnr1, true));
+        assertTrue(Pid.isValidPid(SPECIAL_FNR_0, true), "Special circumstance test failed for Fnr" + SPECIAL_FNR_0);
+        assertTrue(Pid.isValidPid(SPECIAL_FNR_1, true), "Special circumstance test failed for Fnr" + SPECIAL_FNR_1);
 
-        assertTrue("Special circumstance test failed for Fnr" + specialFnr29Feb, Pid.isValidPid(specialFnr29Feb, true));
+        assertTrue(Pid.isValidPid(SPECIAL_FNR_29_FEB, true), "Special circumstance test failed for Fnr" + SPECIAL_FNR_29_FEB);
 
-        assertTrue("Special circumstance test failed for Fnr" + specialFnr61May, Pid.isValidPid(specialFnr61May, true));
-        assertTrue("Special circumstance test failed for Fnr" + specialFnr21XXX, Pid.isValidPid(specialFnr21XXX, true));
+        assertTrue(Pid.isValidPid(SPECIAL_FNR_61_MAY, true), "Special circumstance test failed for Fnr" + SPECIAL_FNR_61_MAY);
+        assertTrue(Pid.isValidPid(SPECIAL_FNR_21_XXX, true), "Special circumstance test failed for Fnr" + SPECIAL_FNR_21_XXX);
 
-        assertTrue("Special circumstance test failed for Fnr " + specialFnr03Jan73, Pid.isValidPid(specialFnr03Jan73, true));
-        assertTrue("Special circumstance test failed for Fnr " + specialFnr03Jan76, Pid.isValidPid(specialFnr03Jan76, true));
+        assertTrue(Pid.isValidPid(SPECIAL_FNR_3_JAN_73, true), "Special circumstance test failed for Fnr " + SPECIAL_FNR_3_JAN_73);
+        assertTrue(Pid.isValidPid(SPECIAL_FNR_3_JAN_76, true), "Special circumstance test failed for Fnr " + SPECIAL_FNR_3_JAN_76);
     }
 
     @Test
-    public void should_validate_false_when_pids_with_unallowed_special_circumstances() {
-        assertFalse("Special circumstance test failed for Fnr" + specialFnrZero, Pid.isValidPid(specialFnrZero, true));
-        assertFalse("Special circumstance test failed for Fnr" + specialFnr30Feb, Pid.isValidPid(specialFnr30Feb, true));
-        assertFalse("Special circumstance test failed for Fnr" + specialFnr2, Pid.isValidPid(specialFnr2, true));
+    void should_validate_false_when_pids_with_unallowed_special_circumstances() {
+        assertFalse(Pid.isValidPid(SPECIAL_FNR_ZERO, true), "Special circumstance test failed for Fnr" + SPECIAL_FNR_ZERO);
+        assertFalse(Pid.isValidPid(SPECIAL_FNR_30_FEB, true), "Special circumstance test failed for Fnr" + SPECIAL_FNR_30_FEB);
+        assertFalse(Pid.isValidPid(SPECIAL_FNR_2, true), "Special circumstance test failed for Fnr" + SPECIAL_FNR_2);
     }
 
     @Test
-    public void should_throw_PidValidationException_when_creating_Pid_with_invalid_inputs() {
-        assertThrows(PidValidationException.class, () -> new Pid(specialFnr0, false));
-        assertThrows(PidValidationException.class, () -> new Pid(specialFnr1, false));
-        assertThrows(PidValidationException.class, () -> new Pid(specialFnr2, true));
-        assertThrows(PidValidationException.class, () -> new Pid(specialFnr2, false));
-        assertThrows(PidValidationException.class, () -> new Pid(specialFnr29Feb, false));
-        assertThrows(PidValidationException.class, () -> new Pid(specialFnr30Feb, true));
-        assertThrows(PidValidationException.class, () -> new Pid(specialFnr30Feb, false));
-        assertThrows(PidValidationException.class, () -> new Pid(specialFnr61May, false));
-        assertThrows(PidValidationException.class, () -> new Pid(specialFnr21XXX, false));
-        assertThrows(PidValidationException.class, () -> new Pid(specialFnrZero, true));
-        assertThrows(PidValidationException.class, () -> new Pid(specialFnrZero, false));
+    void should_throw_PidValidationException_when_creating_Pid_with_invalid_inputs() {
+        assertThrows(PidValidationException.class, () -> new Pid(SPECIAL_FNR_0, false));
+        assertThrows(PidValidationException.class, () -> new Pid(SPECIAL_FNR_1, false));
+        assertThrows(PidValidationException.class, () -> new Pid(SPECIAL_FNR_2, true));
+        assertThrows(PidValidationException.class, () -> new Pid(SPECIAL_FNR_2, false));
+        assertThrows(PidValidationException.class, () -> new Pid(SPECIAL_FNR_29_FEB, false));
+        assertThrows(PidValidationException.class, () -> new Pid(SPECIAL_FNR_30_FEB, true));
+        assertThrows(PidValidationException.class, () -> new Pid(SPECIAL_FNR_30_FEB, false));
+        assertThrows(PidValidationException.class, () -> new Pid(SPECIAL_FNR_61_MAY, false));
+        assertThrows(PidValidationException.class, () -> new Pid(SPECIAL_FNR_21_XXX, false));
+        assertThrows(PidValidationException.class, () -> new Pid(SPECIAL_FNR_ZERO, true));
+        assertThrows(PidValidationException.class, () -> new Pid(SPECIAL_FNR_ZERO, false));
     }
 
     @Test
-    public void should_create_Pid_when_valid_fnr_as_input() {
-        assertTrue("Could not create Pid using valid Fnr", Pid.isValidPid(normalFnr));
+    void should_create_Pid_when_valid_fnr_as_input() {
+        assertTrue(Pid.isValidPid(NORMAL_FNR), "Could not create Pid using valid Fnr");
     }
 
     @Test
-    public void should_create_Pid_when_valid_bostnr_as_input() {
+    void should_create_Pid_when_valid_bostnr_as_input() {
         String monthBelow10BostNrWs = "04250100286";
-
-        assertTrue("Could not create fnr using a Bostnummer with birth month > 9", Pid.isValidPid(monthAbove9BostNr));
-        assertTrue("Could not create fnr using a Bostnummer with birth month < 10", Pid.isValidPid(monthBelow10BostNrWs));
+        assertTrue(Pid.isValidPid(MONTH_ABOVE_9_BOST_NR), "Could not create fnr using a Bostnummer with birth month > 9");
+        assertTrue(Pid.isValidPid(monthBelow10BostNrWs), "Could not create fnr using a Bostnummer with birth month < 10");
     }
 
     @Test
-    public void should_create_Pid_when_valid_dnummer_as_input() {
-
+    void should_create_Pid_when_valid_dnummer_as_input() {
         String dnummerValid0 = "41060094231";
-        assertTrue("Could not create fnr using a valid Dnummer with day > 40:" + dnummerValid0, Pid.isValidPid(dnummerValid0));
+        assertTrue(Pid.isValidPid(dnummerValid0), "Could not create fnr using a valid Dnummer with day > 40:" + dnummerValid0);
     }
 
     @Test
-    public void should_validate_true_when_isDnummer_check_on_dnummer() {
+    void should_validate_true_when_isDnummer_check_on_dnummer() {
         String dnummerValid1 = "61080098013";
-        assertTrue("Failed check of valid dnummer:" + dnummerValid1, new Pid(dnummerValid1).isDnummer());
+        assertTrue(new Pid(dnummerValid1).isDnummer(), "Failed check of valid dnummer:" + dnummerValid1);
     }
 
     @Test
-    public void should_validate_false_when_isDnummer_check_on_fnr() {
-        assertFalse("Failed check of dnummer with normal fnr:" + normalFnr, new Pid(normalFnr).isDnummer());
+    void should_validate_false_when_isDnummer_check_on_fnr() {
+        assertFalse(new Pid(NORMAL_FNR).isDnummer(), "Failed check of dnummer with normal fnr:" + NORMAL_FNR);
     }
 
     @Test
-    public void should_validate_true_when_isDummer_check_on_dnummer_with_special_circumstances() {
+    void should_validate_true_when_isDummer_check_on_dnummer_with_special_circumstances() {
         String dnummerInvalidUnlessAcceptSpecialCircumstances = "41018100000";
-        assertTrue("Failed check of special dnummer:" + dnummerInvalidUnlessAcceptSpecialCircumstances, new Pid(
-                dnummerInvalidUnlessAcceptSpecialCircumstances, true).isDnummer());
+        assertTrue(new Pid(dnummerInvalidUnlessAcceptSpecialCircumstances, true).isDnummer(), "Failed check of special dnummer:" + dnummerInvalidUnlessAcceptSpecialCircumstances);
     }
 
     @Test
-    public void should_extract_expected_date_when_getFodselsdato_on_valid_Pid_from_fnr() {
+    void should_extract_expected_date_when_getFodselsdato_on_valid_Pid_from_fnr() {
         LocalDate expectedDate = LocalDate.of(1991, Month.FEBRUARY, 3);
-        assertThat(new Pid(normalFnr).getFodselsdato(), is(equalTo(expectedDate)));
+        assertThat(new Pid(NORMAL_FNR).getFodselsdato(), is(equalTo(expectedDate)));
     }
 
     @Test
-    public void should_extract_expected_date_when_getFodselsdato_on_valid_Pid_from_bostnr() {
+    void should_extract_expected_date_when_getFodselsdato_on_valid_Pid_from_bostnr() {
         LocalDate expectedDateForAbove = LocalDate.of(1972, Month.DECEMBER, 1);
         LocalDate expectedDateForBelow = LocalDate.of(1901, Month.MAY, 4);
-        assertThat(new Pid(monthAbove9BostNr).getFodselsdato(), is(equalTo(expectedDateForAbove)));
+        assertThat(new Pid(MONTH_ABOVE_9_BOST_NR).getFodselsdato(), is(equalTo(expectedDateForAbove)));
         String monthBelow10BostNr = "04250100286";
         assertThat(new Pid(monthBelow10BostNr).getFodselsdato(), is(equalTo(expectedDateForBelow)));
     }
 
     @Test
-    public void should_throwPidValidationException_when_getFodselsdato_on_valid_special_circumstance_Pid_that_lacks_fodselsdato() {
-
-        assertThrows(PidValidationException.class, () -> new Pid(specialFnr0, true).getFodselsdato());
-        assertThrows(PidValidationException.class, () -> new Pid(specialFnr1, true).getFodselsdato());
-        assertThrows(PidValidationException.class, () -> new Pid(specialFnr29Feb, true).getFodselsdato());
-        assertThrows(PidValidationException.class, () -> new Pid(specialFnr21XXX, true).getFodselsdato());
+    void should_throwPidValidationException_when_getFodselsdato_on_valid_special_circumstance_Pid_that_lacks_fodselsdato() {
+        assertThrows(PidValidationException.class, () -> new Pid(SPECIAL_FNR_0, true).getFodselsdato());
+        assertThrows(PidValidationException.class, () -> new Pid(SPECIAL_FNR_1, true).getFodselsdato());
+        assertThrows(PidValidationException.class, () -> new Pid(SPECIAL_FNR_29_FEB, true).getFodselsdato());
+        assertThrows(PidValidationException.class, () -> new Pid(SPECIAL_FNR_21_XXX, true).getFodselsdato());
     }
 
     @Test
-    public void should_getFodselsdato_when_Pid_of_type_specialFnr61May(){
+    void should_getFodselsdato_when_Pid_of_type_specialFnr61May() {
         LocalDate expecteFodselsdato = LocalDate.of(1973, Month.MAY, 21);
-        assertThat(new Pid(specialFnr61May, true).getFodselsdato(), is(expecteFodselsdato));
+        assertThat(new Pid(SPECIAL_FNR_61_MAY, true).getFodselsdato(), is(expecteFodselsdato));
     }
 
     @Test
-    public void should_return_fnr_when_Pid_getPid_and_normalFnr() {
-        Pid pid = new Pid(normalFnr, false);
-        assertThat(pid.toString(), is(equalTo(normalFnr)));
+    void should_return_fnr_when_Pid_getPid_and_normalFnr() {
+        Pid pid = new Pid(NORMAL_FNR, false);
+        assertThat(pid.toString(), is(equalTo(NORMAL_FNR)));
     }
 
     @Test
-    public void should_validate_true_when_dnummer_ending_with_00000N_and_special_circumstances_false() {
-        assertTrue("Could not create Dnr", Pid.isValidPid(dNummerValidLowPnr1, false));
-        assertTrue("Could not create Dnr", Pid.isValidPid(dNummerValidLowPnr2, false));
-        assertTrue("Could not create Dnr", Pid.isValidPid(dNummerValidLowPnr3, false));
-        assertTrue("Could not create Dnr", Pid.isValidPid(dNummerValidLowPnr4, false));
-        assertTrue("Could not create Dnr", Pid.isValidPid(dNummerValidLowPnr5, false));
-        assertTrue("Could not create Dnr", Pid.isValidPid(dNummerValidLowPnr6, false));
-        assertTrue("Could not create Dnr", Pid.isValidPid(dNummerValidLowPnr7, false));
-        assertTrue("Could not create Dnr", Pid.isValidPid(dNummerValidLowPnr8, false));
-        assertTrue("Could not create Dnr", Pid.isValidPid(dNummerValidLowPnr9, false));
+    void should_validate_true_when_dnummer_ending_with_00000N_and_special_circumstances_false() {
+        assertTrue(Pid.isValidPid(D_NUMMER_VALID_LOW_PNR_1, false), "Could not create Dnr");
+        assertTrue(Pid.isValidPid(D_NUMMER_VALID_LOW_PNR_2, false), "Could not create Dnr");
+        assertTrue(Pid.isValidPid(D_NUMMER_VALID_LOW_PNR_3, false), "Could not create Dnr");
+        assertTrue(Pid.isValidPid(D_NUMMER_VALID_LOW_PNR_4, false), "Could not create Dnr");
+        assertTrue(Pid.isValidPid(D_NUMMER_VALID_LOW_PNR_5, false), "Could not create Dnr");
+        assertTrue(Pid.isValidPid(D_NUMMER_VALID_LOW_PNR_6, false), "Could not create Dnr");
+        assertTrue(Pid.isValidPid(D_NUMMER_VALID_LOW_PNR_7, false), "Could not create Dnr");
+        assertTrue(Pid.isValidPid(D_NUMMER_VALID_LOW_PNR_8, false), "Could not create Dnr");
+        assertTrue(Pid.isValidPid(D_NUMMER_VALID_LOW_PNR_9, false), "Could not create Dnr");
     }
 
     @Test
-    public void should_validate_true_when_dnummer_end_with_00000N_and_special_circumstances_true() {
-        assertTrue("Could not create Dnr", Pid.isValidPid(dNummerValidLowPnr1, true));
-        assertTrue("Could not create Dnr", Pid.isValidPid(dNummerValidLowPnr2, true));
-        assertTrue("Could not create Dnr", Pid.isValidPid(dNummerValidLowPnr3, true));
-        assertTrue("Could not create Dnr", Pid.isValidPid(dNummerValidLowPnr4, true));
-        assertTrue("Could not create Dnr", Pid.isValidPid(dNummerValidLowPnr5, true));
-        assertTrue("Could not create Dnr", Pid.isValidPid(dNummerValidLowPnr6, true));
-        assertTrue("Could not create Dnr", Pid.isValidPid(dNummerValidLowPnr7, true));
-        assertTrue("Could not create Dnr", Pid.isValidPid(dNummerValidLowPnr8, true));
-        assertTrue("Could not create Dnr", Pid.isValidPid(dNummerValidLowPnr9, true));
+    void should_validate_true_when_dnummer_end_with_00000N_and_special_circumstances_true() {
+        assertTrue(Pid.isValidPid(D_NUMMER_VALID_LOW_PNR_1, true), "Could not create Dnr");
+        assertTrue(Pid.isValidPid(D_NUMMER_VALID_LOW_PNR_2, true), "Could not create Dnr");
+        assertTrue(Pid.isValidPid(D_NUMMER_VALID_LOW_PNR_3, true), "Could not create Dnr");
+        assertTrue(Pid.isValidPid(D_NUMMER_VALID_LOW_PNR_4, true), "Could not create Dnr");
+        assertTrue(Pid.isValidPid(D_NUMMER_VALID_LOW_PNR_5, true), "Could not create Dnr");
+        assertTrue(Pid.isValidPid(D_NUMMER_VALID_LOW_PNR_6, true), "Could not create Dnr");
+        assertTrue(Pid.isValidPid(D_NUMMER_VALID_LOW_PNR_7, true), "Could not create Dnr");
+        assertTrue(Pid.isValidPid(D_NUMMER_VALID_LOW_PNR_8, true), "Could not create Dnr");
+        assertTrue(Pid.isValidPid(D_NUMMER_VALID_LOW_PNR_9, true), "Could not create Dnr");
     }
 }
