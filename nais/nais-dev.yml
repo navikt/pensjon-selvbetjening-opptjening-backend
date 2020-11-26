@@ -39,6 +39,9 @@ spec:
   azure:
     application:
       enabled: true
+      replyURLs:
+        - https://pensjon-selvbetjening-opptjening-backend.nais.preprod.local/oauth2/internal/callback
+        - http://localhost:8080/oauth2/internal/callback
   webproxy: true
   prometheus:
     enabled: true
