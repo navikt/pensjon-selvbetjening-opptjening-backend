@@ -36,6 +36,10 @@ spec:
       value: q2
   envFrom:
     - configmap: loginservice-idporten
+  azure:
+    application:
+      enabled: true
+  webproxy: true
   prometheus:
     enabled: true
     path: /api/mgmt/prom

@@ -45,6 +45,10 @@ spec:
       value: p
   envFrom:
     - configmap: loginservice-idporten
+  azure:
+    application:
+      enabled: true
+  webproxy: true
   prometheus:
     enabled: true
     path: /api/mgmt/prom
