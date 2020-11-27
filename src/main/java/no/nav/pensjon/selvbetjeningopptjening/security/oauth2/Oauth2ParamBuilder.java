@@ -99,7 +99,7 @@ public class Oauth2ParamBuilder {
         map.put(RESPONSE_TYPE, OAUTH_2_RESPONSE_TYPE);
         map.put(REDIRECT_URI, encode(callbackUri));
         map.put(CLIENT_ID, clientId);
-        map.put(STATE, state);
+        map.put(STATE, encode(state));
         return map;
     }
 
