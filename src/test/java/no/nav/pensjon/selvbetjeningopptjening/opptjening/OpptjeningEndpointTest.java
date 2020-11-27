@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -54,7 +55,7 @@ class OpptjeningEndpointTest {
     @Test
     void getOpptjeningForFnr_returns_opptjeningJson_when_feature_enabled() throws Exception {
         featureToggler.enable(OpptjeningFeature.PL1441);
-        when(provider.calculateOpptjeningForFnr(PID)).thenReturn(response());
+        when(provider.calculateOpptjeningForFnr(PID, false)).thenReturn(response());
 
         mvc.perform(get(URI))
                 .andExpect(status().isOk())
@@ -64,7 +65,7 @@ class OpptjeningEndpointTest {
     @Test
     void getOpptjeningForFnr_returns_statusForbidden_when_feature_disabled() throws Exception {
         featureToggler.disable(OpptjeningFeature.PL1441);
-        when(provider.calculateOpptjeningForFnr(PID)).thenReturn(response());
+        when(provider.calculateOpptjeningForFnr(PID, false)).thenReturn(response());
 
         mvc.perform(get(URI))
                 .andExpect(status().isForbidden())
@@ -76,7 +77,7 @@ class OpptjeningEndpointTest {
     @Test
     void getOpptjeningForFnr_returns_statusInternalServerError_when_failedCallingExternalService() throws Exception {
         featureToggler.enable(OpptjeningFeature.PL1441);
-        when(provider.calculateOpptjeningForFnr(PID)).thenThrow(new FailedCallingExternalServiceException("sp", "sid", "details", new Exception("cause")));
+        when(provider.calculateOpptjeningForFnr(PID, false)).thenThrow(new FailedCallingExternalServiceException("sp", "sid", "details", new Exception("cause")));
 
         mvc.perform(get(URI))
                 .andExpect(status().isInternalServerError())
@@ -87,7 +88,7 @@ class OpptjeningEndpointTest {
     @Test
     void getOpptjeningForFnr_returns_statusBadRequest_when_invalidPid() throws Exception {
         featureToggler.enable(OpptjeningFeature.PL1441);
-        when(provider.calculateOpptjeningForFnr(any())).thenThrow(new PidValidationException(""));
+        when(provider.calculateOpptjeningForFnr(any(), eq(false))).thenThrow(new PidValidationException(""));
 
         mvc.perform(get(URI))
                 .andExpect(status().isBadRequest())

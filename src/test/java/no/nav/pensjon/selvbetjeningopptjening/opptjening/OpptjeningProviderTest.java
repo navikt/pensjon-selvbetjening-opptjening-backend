@@ -36,8 +36,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -84,9 +83,9 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(fodselsdato, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(fodselsdato, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato), false);
 
         assertThat(opptjeningResponse.getFodselsaar(), is(expectedFodselsaar));
     }
@@ -99,9 +98,9 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(emptyList());
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(fodselsdato, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(fodselsdato, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato), false);
 
         assertThat(opptjeningResponse.getFodselsaar(), is(expectedFodselsaar));
     }
@@ -113,9 +112,9 @@ class OpptjeningProviderTest {
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(emptyList());
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(fodselsdato, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(fodselsdato, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato), false);
 
         assertThat(opptjeningResponse.getFodselsaar(), is(expectedFodselsaar));
     }
@@ -127,9 +126,9 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(singletonList(beholdning));
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), false);
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(1, opptjeningerByYear.size());
@@ -143,9 +142,9 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(singletonList(beholdning));
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), false);
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(4, opptjeningerByYear.size());
@@ -159,9 +158,9 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(singletonList(beholdning));
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(emptyList());
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1960, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1960, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960), false);
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(beholdning.getBelop(), opptjeningerByYear.get(1983).getPensjonsbeholdning().doubleValue());
@@ -175,9 +174,9 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(singletonList(pensjonspoeng));
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1960, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1960, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960), false);
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         OpptjeningDto opptjening = opptjeningerByYear.get(pensjonspoeng.getYear());
@@ -192,9 +191,9 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(singletonList(pensjonspoeng));
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1960, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1960, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960), false);
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         OpptjeningDto opptjening = opptjeningerByYear.get(pensjonspoeng.getYear());
@@ -211,9 +210,9 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(pensjonspoengList);
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1960, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1960, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960), false);
 
         assertEquals(pensjonspoengList.size(), opptjeningResponse.getNumberOfYearsWithPensjonspoeng());
     }
@@ -225,9 +224,9 @@ class OpptjeningProviderTest {
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(singletonList(pensjonspoeng));
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(fodselsdato, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(fodselsdato, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato), false);
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         OpptjeningDto opptjening = opptjeningerByYear.get(pensjonspoeng.getYear());
@@ -242,9 +241,9 @@ class OpptjeningProviderTest {
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(singletonList(pensjonspoeng));
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(fodselsdato, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(fodselsdato, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato), false);
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         OpptjeningDto opptjening = opptjeningerByYear.get(pensjonspoeng.getYear());
@@ -261,9 +260,9 @@ class OpptjeningProviderTest {
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(pensjonspoengList);
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(fodselsdato, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(fodselsdato, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato), false);
 
         assertEquals(pensjonspoengList.size(), opptjeningResponse.getNumberOfYearsWithPensjonspoeng());
     }
@@ -275,9 +274,9 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), false);
 
         assertNull(opptjeningResponse.getOpptjeningData());
     }
@@ -290,9 +289,9 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), false);
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(restpensjon.getRestGrunnpensjon(), opptjeningerByYear.get(1980).getRestpensjon());
@@ -306,9 +305,9 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), false);
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(restpensjon.getRestPensjonstillegg(), opptjeningerByYear.get(1980).getRestpensjon());
@@ -322,9 +321,9 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), false);
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(restpensjon.getRestTilleggspensjon(), opptjeningerByYear.get(1980).getRestpensjon());
@@ -338,9 +337,9 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), false);
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(restpensjon.getRestPensjonstillegg() + restpensjon.getRestGrunnpensjon(), opptjeningerByYear.get(1980).getRestpensjon());
@@ -353,9 +352,9 @@ class OpptjeningProviderTest {
         when(restpensjonConsumer.getRestpensjonListe(any(String.class))).thenReturn(singletonList(restpensjon));
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1960, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1960, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960), false);
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(restpensjon.getRestGrunnpensjon(), opptjeningerByYear.get(1980).getRestpensjon());
@@ -368,9 +367,9 @@ class OpptjeningProviderTest {
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(singletonList(uttaksgrad()));
         when(restpensjonConsumer.getRestpensjonListe(any(String.class))).thenReturn(singletonList(restpensjon));
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(fodselsdato, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(fodselsdato, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato), false);
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(restpensjon.getRestGrunnpensjon(), opptjeningerByYear.get(1970).getRestpensjon());
@@ -385,9 +384,9 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(singletonList(beholdning));
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), false);
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(beholdning.getInntektsopptjening().getSumPensjonsgivendeInntekt().getBelop(), opptjeningerByYear.get(1980).getPensjonsgivendeInntekt().longValue());
@@ -400,9 +399,9 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(singletonList(inntekt));
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), false);
 
         assertNull(opptjeningResponse.getOpptjeningData());
     }
@@ -414,9 +413,9 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(singletonList(inntekt));
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), false);
 
         assertNull(opptjeningResponse.getOpptjeningData());
     }
@@ -429,9 +428,9 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(singletonList(beholdning));
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(singletonList(inntekt));
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), false);
 
         assertEquals(inntekt.getBelop(), opptjeningResponse.getOpptjeningData().get(1980).getPensjonsgivendeInntekt().longValue());
     }
@@ -451,9 +450,9 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(List.of(beholdning2011, beholdning2012, beholdning2013));
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(singletonList(additionalInntekt2010));
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), false);
 
         assertThat(opptjeningResponse.getOpptjeningData().get(2010).getPensjonsgivendeInntekt().longValue(), is(expectedInntekt2010));
         assertThat(opptjeningResponse.getOpptjeningData().get(2011).getPensjonsgivendeInntekt(), is(0));
@@ -482,9 +481,9 @@ class OpptjeningProviderTest {
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class)))
                 .thenReturn(List.of(beholdningYearWithoutInntekt, beholdningYearWithInntekt, beholdningLastYear, beholdningThisYear));
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(new ArrayList<>());
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1963, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), false);
 
         assertThat(opptjeningResponse.getOpptjeningData().get(yearWithoutInntekt).getPensjonsgivendeInntekt(), is(0));
         assertThat(opptjeningResponse.getOpptjeningData().get(yearWithInntekt).getPensjonsgivendeInntekt().longValue(), is(expectedInntekt));
@@ -500,9 +499,9 @@ class OpptjeningProviderTest {
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(singletonList(beholdning));
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1960, null));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(DATE_IN_1960, null));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960));
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960), false);
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(beholdning.getInntektsopptjening().getSumPensjonsgivendeInntekt().getBelop(), opptjeningerByYear.get(1980).getPensjonsgivendeInntekt().longValue());
@@ -512,13 +511,13 @@ class OpptjeningProviderTest {
     @Test
     void when_PdlResponse_not_contains_foedselsdato_then_use_foedselsaar_from_pdl_instead() {
         Integer expectedFoedselsaar = 1970;
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(null, expectedFoedselsaar));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(null, expectedFoedselsaar));
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), yearCaptor.capture(), anyInt())).thenReturn(emptyList());
 
-        opptjeningProvider.calculateOpptjeningForFnr(generatePid(LocalDate.now()));
+        opptjeningProvider.calculateOpptjeningForFnr(generatePid(LocalDate.now()), false);
 
         assertThat(yearCaptor.getValue() - 13, is(expectedFoedselsaar));
     }
@@ -526,13 +525,13 @@ class OpptjeningProviderTest {
     @Test
     void when_PdlResponse_contains_foedselsdato_then_use_foedselsaar_from_pdl_foedselsdato() {
         int expectedFoedselsaar = 1970;
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenReturn(createPdlResponseForFoedselsdato(LocalDate.of(expectedFoedselsaar, 8, 9), 1990));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenReturn(createPdlResponseForFoedselsdato(LocalDate.of(expectedFoedselsaar, 8, 9), 1990));
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), yearCaptor.capture(), anyInt())).thenReturn(emptyList());
 
-        opptjeningProvider.calculateOpptjeningForFnr(generatePid(LocalDate.now()));
+        opptjeningProvider.calculateOpptjeningForFnr(generatePid(LocalDate.now()), false);
 
         assertThat(yearCaptor.getValue() - 13, is(expectedFoedselsaar));
     }
@@ -540,14 +539,14 @@ class OpptjeningProviderTest {
     @Test
     void when_Call_to_PDL_fails_then_use_foedselsaar_from_fnr_instead() {
         Pid pid = generatePid(LocalDate.of(1964, 7, 6));
-        when(pdlConsumer.getPdlResponse(any(PdlRequest.class))).thenThrow(new FailedCallingExternalServiceException("", ""));
+        when(pdlConsumer.getPdlResponse(any(PdlRequest.class), eq(false))).thenThrow(new FailedCallingExternalServiceException("", ""));
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(pid.getPid())).thenReturn(emptyList());
         when(personConsumer.getAfpHistorikkForPerson(pid.getPid())).thenReturn(afpHistorikk());
         when(personConsumer.getUforeHistorikkForPerson(pid.getPid())).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(pid.getPid())).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), yearCaptor.capture(), anyInt())).thenReturn(emptyList());
 
-        opptjeningProvider.calculateOpptjeningForFnr(pid);
+        opptjeningProvider.calculateOpptjeningForFnr(pid, false);
 
         assertThat(yearCaptor.getValue() - 13, is(pid.getFodselsdato().getYear()));
     }

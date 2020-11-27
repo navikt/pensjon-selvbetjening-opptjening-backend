@@ -49,8 +49,8 @@ public class OpptjeningProvider {
         this.uttaksgradGetter = uttaksgradGetter;
     }
 
-    OpptjeningResponse calculateOpptjeningForFnr(Pid pid) {
-        LocalDate fodselsdato = getFodselsdato(pid);
+    OpptjeningResponse calculateOpptjeningForFnr(Pid pid, boolean isInternalUser) {
+        LocalDate fodselsdato = getFodselsdato(pid, isInternalUser);
         String fnr = pid.getPid();
         UserGroup userGroup = findUserGroup(fodselsdato);
         List<Uttaksgrad> uttaksgrader = uttaksgradGetter.getAlderSakUttaksgradhistorikkForPerson(fnr);
@@ -75,10 +75,10 @@ public class OpptjeningProvider {
                         uttaksgradGetter));
     }
 
-    private LocalDate getFodselsdato(Pid pid) {
+    private LocalDate getFodselsdato(Pid pid, boolean isInternalUser) {
         try {
             PdlRequest request = new PdlRequest(pid.getPid());
-            List<Foedsel> foedsler = pdlConsumer.getPdlResponse(request).getData().getHentPerson().getFoedsel();
+            List<Foedsel> foedsler = pdlConsumer.getPdlResponse(request, isInternalUser).getData().getHentPerson().getFoedsel();
 
             if (foedsler == null || foedsler.isEmpty()) {
                 log.warn("No fødsel found in PDL for fnr. Deriving fødselsdato directly from fnr.");
