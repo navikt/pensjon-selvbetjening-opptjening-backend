@@ -36,7 +36,7 @@ spec:
     application:
       enabled: true
       replyURLs:
-        - https://www-q0.dev.nav.no/pensjon/opptjening/oauth2/internal/callback
+        - https://pensjon-selvbetjening-opptjening-frontend.dev.adeo.no/pensjon/opptjening/oauth2/internal/callback
         - http://localhost:8080/oauth2/internal/callback
         - http://localhost:3000/oauth2/internal/callback
   webproxy: true

@@ -1,18 +1,24 @@
 package no.nav.pensjon.selvbetjeningopptjening.security.oidc;
 
 import no.nav.pensjon.selvbetjeningopptjening.security.dto.OidcConfigDto;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import static java.util.Objects.requireNonNull;
 
+@Component
+@Qualifier("internal-user")
 public class WebClientOidcConfigGetter implements OidcConfigGetter {
 
     private final WebClient webClient;
     private final String configUrl;
     private OidcConfigDto config;
 
-    public WebClientOidcConfigGetter(String configUrl) {
-        this.webClient = WebClient.create();
+    public WebClientOidcConfigGetter(@Qualifier("external-call") WebClient webClient,
+                                     @Value("${internal-user.openid.well-known-url}") String configUrl) {
+        this.webClient = requireNonNull(webClient);
         this.configUrl = requireNonNull(configUrl);
     }
 

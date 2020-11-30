@@ -23,7 +23,6 @@ class WebClientOidcConfigGetterTest {
     private static String baseUrl;
     private static String oidcConfigResponse;
     private OidcConfigGetter configGetter;
-    private WebClient webClient;
 
     @BeforeAll
     static void setUp() throws IOException {
@@ -40,8 +39,8 @@ class WebClientOidcConfigGetterTest {
 
     @BeforeEach
     void initialize() {
-        webClient = spy(WebClient.create());
-        configGetter = new WebClientOidcConfigGetter(baseUrl);
+        WebClient webClient = spy(WebClient.create());
+        configGetter = new WebClientOidcConfigGetter(webClient, baseUrl);
     }
 
     @Test

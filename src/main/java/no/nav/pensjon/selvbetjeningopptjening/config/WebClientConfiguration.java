@@ -1,7 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.config;
 
-import no.nav.pensjon.selvbetjeningopptjening.security.oidc.OidcConfigGetter;
-import no.nav.pensjon.selvbetjeningopptjening.security.oidc.WebClientOidcConfigGetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,12 +20,6 @@ import java.net.URISyntaxException;
 public class WebClientConfiguration {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-
-    @Bean
-    @Qualifier("internal-user")
-    OidcConfigGetter oidcConfigGetterForInternalUsers(@Value("${internal-user.openid.well-known-url}") String configUrl) {
-        return new WebClientOidcConfigGetter(configUrl);
-    }
 
     @Bean
     @Primary
