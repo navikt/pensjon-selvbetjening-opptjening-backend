@@ -59,13 +59,6 @@ class StateValidatorTest {
         assertEquals("Invalid state (1)", exception.getMessage());
     }
 
-    @Test
-    void when_invalid_uri_then_exception() throws Exception {
-        when(crypto.decrypt(ENCRYPTED_STATE)).thenReturn(TEST_TIME_MILLIS + VALID_DELIMITER + INVALID_URI);
-        var exception = assertThrows(Oauth2FlowException.class, () -> validator.extractRedirectUri(ENCRYPTED_STATE));
-        assertEquals("Invalid state (2)", exception.getMessage());
-    }
-
     private static class TestStateValidator extends StateValidator {
 
         TestStateValidator(Crypto crypto) {

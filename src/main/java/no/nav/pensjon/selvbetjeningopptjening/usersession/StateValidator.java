@@ -10,7 +10,6 @@ import static org.springframework.util.StringUtils.hasText;
 class StateValidator {
 
     private static final String DELIMITER = ":";
-    private static final String URI_START = "/api";
     private static final long MAX_DELAY_MILLIS = 3600000L;
     private final Crypto crypto;
 
@@ -41,13 +40,7 @@ class StateValidator {
             throw new Oauth2FlowException("Invalid state (1)");
         }
 
-        String redirectUri = split[1];
-
-        if (!redirectUri.startsWith(URI_START)) {
-            throw new Oauth2FlowException("Invalid state (2)");
-        }
-
-        return redirectUri;
+        return split[1];
     }
 
     protected long getCurrentMillis() {
