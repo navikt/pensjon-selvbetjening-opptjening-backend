@@ -26,8 +26,12 @@ class StateValidator {
         String state = crypto.decrypt(encryptedState);
         String[] split = state.split(DELIMITER);
 
+        if (split.length > 2) {
+            throw new Oauth2FlowException("Invalid state format; probably unencoded redirect URI");
+        }
+
         if (split.length != 2) {
-            throw new Oauth2FlowException("Invalid state format");
+             throw new Oauth2FlowException("Invalid state format");
         }
 
         long stateMillis = Long.parseLong(split[0]);

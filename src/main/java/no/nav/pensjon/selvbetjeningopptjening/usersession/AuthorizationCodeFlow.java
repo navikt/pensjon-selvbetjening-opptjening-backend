@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 import static java.lang.System.currentTimeMillis;
@@ -126,7 +127,7 @@ public abstract class AuthorizationCodeFlow {
 
     private String encryptedState(String redirectUri) throws CryptoException {
         String uri = hasText(redirectUri) ? redirectUri : defaultAfterCallbackRedirectUri();
-        String state = String.format("%s:%s", currentTimeMillis(), uri);
+        String state = String.format("%s:%s", currentTimeMillis(), URLEncoder.encode(uri, StandardCharsets.UTF_8));
         return crypto.encrypt(state);
     }
 
