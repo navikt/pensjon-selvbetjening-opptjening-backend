@@ -40,7 +40,7 @@ class CookieSetterTest {
         Cookie actual = cookieCaptor.getValue();
         assertEquals("xu-idtoken", actual.getName());
         assertEquals("foo", actual.getValue());
-        assertEquals("/api", actual.getPath());
+        assertEquals("/", actual.getPath());
         assertTrue(actual.isHttpOnly());
         assertTrue(actual.getSecure());
     }
@@ -53,7 +53,7 @@ class CookieSetterTest {
         Cookie actual = cookieCaptor.getValue();
         assertEquals("iu-idtoken", actual.getName());
         assertEquals("foo", actual.getValue());
-        assertEquals("/api", actual.getPath());
+        assertEquals("/", actual.getPath());
         assertTrue(actual.isHttpOnly());
         assertTrue(actual.getSecure());
     }
@@ -66,7 +66,7 @@ class CookieSetterTest {
         Cookie actual = cookieCaptor.getValue();
         assertEquals("refresh-token", actual.getName());
         assertEquals("foo", actual.getValue());
-        assertEquals("/oauth2", actual.getPath());
+        assertEquals("/", actual.getPath());
         assertTrue(actual.isHttpOnly());
         assertTrue(actual.getSecure());
     }
