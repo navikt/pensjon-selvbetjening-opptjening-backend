@@ -30,6 +30,8 @@ spec:
       value: https://unleash.nais.io/api
     - name: APP_ENVIRONMENT
       value: q2
+    - name: AZURE_APP_REDIRECT_URI
+      value: https://pensjon-selvbetjening-opptjening-frontend.dev.adeo.no/pensjon/opptjening/oauth2/internal/callback
   envFrom:
     - configmap: loginservice-idporten
   azure:
