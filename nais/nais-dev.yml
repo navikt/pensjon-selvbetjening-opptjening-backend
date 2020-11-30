@@ -21,15 +21,11 @@ spec:
     - https://pensjon-selvbetjening-opptjening-backend.nais.preprod.local
   readiness:
     path: "/api/internal/isReady"
-    initialDelay: 3
-    timeout: 1
   env:
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
       value: selvbetjening-idtoken
     - name: HTTP_PROXY_PARAMETERNAME
       value: "http.proxy"
-    - name: HTTP_PROXY
-      value: http://webproxy-nais.nav.no:8088
     - name: UNLEASH_ENDPOINT_URL
       value: https://unleash.nais.io/api
     - name: APP_ENVIRONMENT
@@ -40,8 +36,9 @@ spec:
     application:
       enabled: true
       replyURLs:
-        - https://pensjon-selvbetjening-opptjening-backend.nais.preprod.local/oauth2/internal/callback
+        - https://www-q0.dev.nav.no/pensjon/opptjening/oauth2/internal/callback
         - http://localhost:8080/oauth2/internal/callback
+        - http://localhost:3000/oauth2/internal/callback
   webproxy: true
   prometheus:
     enabled: true
