@@ -11,6 +11,7 @@ import no.nav.security.token.support.core.api.Unprotected;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,6 +44,12 @@ public class OpptjeningOnBehalfEndpoint {
 
         try {
             String idToken = SplitCookieAssembler.getCookieValue(request, CookieType.INTERNAL_USER_ID_TOKEN);
+
+            if (StringUtils.isEmpty(idToken)) {
+                log.info("No JWT in request");
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No JWT");
+            }
+
             jwsValidator.validate(idToken);
 
             if (toggle(OpptjeningFeature.PL1441).isEnabled()) {
