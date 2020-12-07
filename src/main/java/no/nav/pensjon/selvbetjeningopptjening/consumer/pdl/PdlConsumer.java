@@ -78,16 +78,6 @@ public class PdlConsumer {
         return AUTH_TYPE + " " + getServiceUserAccessToken();
     }
 
-    private void handleNull(PdlResponse response) {
-        if (response != null) {
-            return;
-        }
-
-        String cause = "Failed parsing response";
-        log.error(CONSUMED_SERVICE + " error: " + cause);
-        throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, cause);
-    }
-
     private List<BirthDate> handleJsonError(JSONException e) {
         String cause = "Failed deserializing JSON response";
         log.error(CONSUMED_SERVICE + " error: " + cause, e);
