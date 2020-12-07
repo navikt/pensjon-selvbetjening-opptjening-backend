@@ -3,6 +3,8 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 import no.nav.pensjon.selvbetjeningopptjening.model.*;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UforeTypeCode;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
+
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -99,16 +101,16 @@ class MerknadHandlerTest {
 //        assertEquals(INGEN_OPPTJENING, opptjening.getMerknader().get(1));
 //    }
 
-//    @Test
-//    void when_UforeHistorikk_with_Uforetype_UFORE_Year_mellom_UfgFom_and_UfgTom_and_Uforegrad_then_addMerknaderOnOpptjening_returns_MerknadCode_UFOREGRAD() {
-//        Opptjening opptjening = opptjeningBasedOnPensjonsbeholdning();
-//        UforeHistorikk uforeHistorikk = uforeHistorikk(UforeTypeCode.UFORE);
-//
-//        MerknadHandler.addMerknaderOnOpptjening(YEAR, opptjening, null, emptyList(), null, uforeHistorikk);
-//
-//        assertSingleMerknad(UFOREGRAD, opptjening.getMerknader());
-//        assertEquals(UFOREGRAD_VALUE, opptjening.getMaxUforegrad());
-//    }
+    @Test
+    void when_UforeHistorikk_with_Uforetype_UFORE_Year_mellom_UfgFom_and_UfgTom_and_Uforegrad_then_addMerknaderOnOpptjening_returns_MerknadCode_UFOREGRAD() {
+        Opptjening opptjening = opptjeningBasedOnPensjonsbeholdning();
+        UforeHistorikk uforeHistorikk = uforeHistorikk(UforeTypeCode.UFORE);
+
+        MerknadHandler.addMerknaderOnOpptjening(YEAR, opptjening, null, emptyList(), null, uforeHistorikk);
+
+        assertSingleMerknad(UFOREGRAD, opptjening.getMerknader());
+        assertEquals(UFOREGRAD_VALUE, opptjening.getMaxUforegrad());
+    }
 
     @Test
     void when_UforeHistorikk_with_Uforetype_UFORE_Year_mellom_UfgFom_and_UfgTom_and_no_Uforegrad_then_addMerknaderOnOpptjening_returns_empty_MerknandList() {
@@ -120,16 +122,16 @@ class MerknadHandlerTest {
         assertTrue(opptjening.getMerknader().isEmpty());
     }
 
-//    @Test
-//    void when_UforeHistorikk_with_Uforetype_UF_M_YRKE_Year_mellom_UfgFom_and_UfgTom_and_Uforegrad_then_addMerknaderOnOpptjening_returns_MerknadCode_UFOREGRAD() {
-//        Opptjening opptjening = opptjeningBasedOnPensjonsbeholdning();
-//        UforeHistorikk uforeHistorikk = uforeHistorikk(UforeTypeCode.UF_M_YRKE);
-//
-//        MerknadHandler.addMerknaderOnOpptjening(YEAR, opptjening, null, emptyList(), null, uforeHistorikk);
-//
-//        assertSingleMerknad(UFOREGRAD, opptjening.getMerknader());
-//        assertEquals(UFOREGRAD_VALUE, opptjening.getMaxUforegrad());
-//    }
+    @Test
+    void when_UforeHistorikk_with_Uforetype_UF_M_YRKE_Year_mellom_UfgFom_and_UfgTom_and_Uforegrad_then_addMerknaderOnOpptjening_returns_MerknadCode_UFOREGRAD() {
+        Opptjening opptjening = opptjeningBasedOnPensjonsbeholdning();
+        UforeHistorikk uforeHistorikk = uforeHistorikk(UforeTypeCode.UF_M_YRKE);
+
+        MerknadHandler.addMerknaderOnOpptjening(YEAR, opptjening, null, emptyList(), null, uforeHistorikk);
+
+        assertSingleMerknad(UFOREGRAD, opptjening.getMerknader());
+        assertEquals(UFOREGRAD_VALUE, opptjening.getMaxUforegrad());
+    }
 
 //    @Test
 //    void when_Opptjening_with_Uttaksgrad_100_then_addMerknaderOnOpptjening_returns_MerknadCode_HELT_UTTAK() {
@@ -208,12 +210,61 @@ class MerknadHandlerTest {
         assertTrue(opptjening.getMerknader().isEmpty());
     }
 
+    @Test
+    void when_DagpengerOpptjeningBelop_with_BelopFiskere_more_than_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_DAGPENGER() {
+        Opptjening opptjening = opptjening();
+        Beholdning beholdning = beholdning(new Dagpengeopptjening(1990, null, 10d));
+
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjening, singletonList(beholdning), emptyList(), null, null);
+
+        assertEquals(2, opptjening.getMerknader().size());
+        assertTrue(opptjening.getMerknader().contains(DAGPENGER));
+    }
+
+    @Test
+    void when_DagpengerOpptjeningBelop_with_BelopOrdinar_more_than_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_DAGPENGER() {
+        Opptjening opptjening = opptjening();
+        Beholdning beholdning = beholdning(new Dagpengeopptjening(1990, 10d, null));
+
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjening, singletonList(beholdning), emptyList(), null, null);
+
+        assertEquals(2, opptjening.getMerknader().size());
+        assertTrue(opptjening.getMerknader().contains(DAGPENGER));
+    }
+
+    @Test
+    void when_ForstegangstjenesteOpptjeningBelop_with_Belop_more_than_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_FORSTEGANGSTJENESTE() {
+        Opptjening opptjening = opptjening();
+        Beholdning beholdning = beholdning(new Forstegangstjenesteopptjening(1990, 10d));
+
+        MerknadHandler.addMerknaderOnOpptjening(1990, opptjening, singletonList(beholdning), emptyList(), null, null);
+
+        assertEquals(2, opptjening.getMerknader().size());
+        assertTrue(opptjening.getMerknader().contains(FORSTEGANGSTJENESTE));
+    }
+
     private static Opptjening opptjening() {
         return new Opptjening(null, null);
     }
 
     private static Pensjonspoeng getPensjonspoeng() {
         return new Pensjonspoeng(null, "", null, null, null);
+    }
+
+    private static Beholdning beholdning(Forstegangstjenesteopptjening forstegangstjenesteopptjening){
+        return new Beholdning(
+                null, "", "", "", null, null, LocalDate.MIN,
+                null, null, null, null, null,
+                "", null, null, null,
+                null, forstegangstjenesteopptjening, null);
+    }
+
+    private static Beholdning beholdning(Dagpengeopptjening dagpengeopptjening){
+        return new Beholdning(
+                null, "", "", "", null, null, LocalDate.MIN,
+                null, null, null, null, null,
+                "", null, null, null,
+                dagpengeopptjening, null, null);
     }
 
     private static Beholdning beholdning() {

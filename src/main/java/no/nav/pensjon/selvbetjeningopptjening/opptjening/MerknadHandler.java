@@ -42,17 +42,56 @@ public class MerknadHandler {
                                          UforeHistorikk uforehistorikk) {
         List<MerknadCode> merknader = new ArrayList<>();
         //addMerknadAfp(year, merknader, afpHistorikk);
-        //addMerknadUforegrad(year, uforehistorikk, opptjening, merknader);
+        addMerknadUforegrad(year, uforehistorikk, opptjening, merknader);
 
         //When beholdninger is null the user is not in Usergroup 4 or 5 and these merknads do not apply
         if (beholdninger != null) {
             addMerknadReform2010(year, merknader);
             addMerknadOmsorgFromPensjonsbeholdning(year, opptjening, merknader, beholdninger);
+            addMerknadDagpengerAndForstegangstjeneste(year, merknader, beholdninger);
         }
 
         //addMerknadGradertAlderspensjon(year, uttaksgradhistorikk, merknader);
         addMerknadIngenOpptjening(opptjening, merknader);
         opptjening.addMerknader(merknader);
+    }
+
+    private static void addMerknadDagpengerAndForstegangstjeneste(int year, List<MerknadCode> merknader, List<Beholdning> beholdninger) {
+        beholdninger
+                .stream()
+                .filter(beholdning -> mottattDagpenger(year, beholdning))
+                .findFirst()
+                .ifPresent(beholdning -> merknader.add(MerknadCode.DAGPENGER));
+
+        beholdninger
+                .stream()
+                .filter(beholdning -> mottattForstegangstjeneste(year, beholdning))
+                .findFirst()
+                .ifPresent(beholdning -> merknader.add(MerknadCode.FORSTEGANGSTJENESTE));
+    }
+
+    private static boolean mottattDagpenger(int year, Beholdning beholdning) {
+        return (mottattDagpengerFiskere(beholdning) || mottattDagpenger(beholdning))
+                && year == beholdning.getDagpengeopptjening().getYear();
+    }
+
+    private static boolean mottattDagpengerFiskere(Beholdning beholdning) {
+        Dagpengeopptjening belop = beholdning.getDagpengeopptjening();
+
+        return belop != null && belop.getFiskerBelop() > 0;
+    }
+
+    private static boolean mottattDagpenger(Beholdning beholdning) {
+        Dagpengeopptjening belop = beholdning.getDagpengeopptjening();
+        return belop != null && belop.getOrdinartBelop() > 0;
+    }
+
+    private static boolean mottattForstegangstjeneste(int year, Beholdning beholdning) {
+        Forstegangstjenesteopptjening belop = beholdning.getForstegangstjenesteopptjening();
+
+        return belop != null
+                && belop.getBelop() > 0
+                && belop.getYear() == year;
     }
 
     private static void addMerknadAfp(int year, List<MerknadCode> merknader, AfpHistorikk afpHistorikk) {
