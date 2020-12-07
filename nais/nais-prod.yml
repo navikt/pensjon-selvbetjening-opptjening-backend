@@ -2,7 +2,7 @@ apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
   name: pensjon-selvbetjening-opptjening-backend
-  namespace: default
+  namespace: pensjonselvbetjening
   labels:
     team: pensjonselvbetjening
 spec:
@@ -45,6 +45,10 @@ spec:
       value: p
   envFrom:
     - configmap: loginservice-idporten
+  azure:
+    application:
+      enabled: true
+  webproxy: true
   prometheus:
     enabled: true
     path: /api/mgmt/prom

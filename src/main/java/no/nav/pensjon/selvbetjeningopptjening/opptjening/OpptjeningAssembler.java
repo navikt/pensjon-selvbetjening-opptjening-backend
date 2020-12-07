@@ -6,10 +6,7 @@ import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.OpptjeningMapper;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.round;
@@ -111,9 +108,17 @@ abstract class OpptjeningAssembler {
     }
 
     void removeFutureOpptjening(Map<Integer, Opptjening> opptjeningerByYear, int latestOpptjeningYear) {
-        opptjeningerByYear.entrySet().stream()
-                .filter(entry -> entry.getKey() > latestOpptjeningYear)
-                .forEach(entry -> opptjeningerByYear.remove(entry.getKey()));
+        List<Integer> yearsToBeRemoved = new ArrayList<>();
+
+        for (Map.Entry<Integer, Opptjening> entries : opptjeningerByYear.entrySet()) {
+            if (entries.getKey() > latestOpptjeningYear) {
+                yearsToBeRemoved.add(entries.getKey());
+            }
+        }
+
+        for (Integer year : yearsToBeRemoved) {
+            opptjeningerByYear.remove(year);
+        }
     }
 
     /**

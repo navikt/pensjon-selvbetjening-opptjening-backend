@@ -55,7 +55,7 @@ class PdlConsumerTest {
         var consumer = new PdlConsumer(baseUrl, tokenValidationContextHolder, serviceUserTokenGetter);
         server.enqueue(pdlResponse());
 
-        PdlResponse response = consumer.getPdlResponse(new PdlRequest("ident"));
+        PdlResponse response = consumer.getPdlResponse(new PdlRequest("ident"), false);
 
         Foedsel foedsel = response.getData().getHentPerson().getFoedsel().get(0);
         assertNull(foedsel.getFoedselsaar());

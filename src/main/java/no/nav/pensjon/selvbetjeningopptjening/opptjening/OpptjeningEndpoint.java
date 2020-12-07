@@ -1,9 +1,10 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import static no.nav.pensjon.selvbetjeningopptjening.unleash.UnleashProvider.toggle;
-import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.ISSUER;
-
+import no.nav.pensjon.selvbetjeningopptjening.config.OpptjeningFeature;
+import no.nav.pensjon.selvbetjeningopptjening.config.StringExtractor;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
+import no.nav.security.token.support.core.api.ProtectedWithClaims;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
@@ -12,10 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import no.nav.pensjon.selvbetjeningopptjening.config.OpptjeningFeature;
-import no.nav.pensjon.selvbetjeningopptjening.config.StringExtractor;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.security.token.support.core.api.ProtectedWithClaims;
+import static no.nav.pensjon.selvbetjeningopptjening.unleash.UnleashProvider.toggle;
+import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.ISSUER;
 
 @RestController
 @RequestMapping("api")
@@ -35,10 +34,10 @@ public class OpptjeningEndpoint {
     public OpptjeningResponse getOpptjeningForFnr() {
         try {
             if (toggle(OpptjeningFeature.PL1441).isEnabled()) {
-                return provider.calculateOpptjeningForFnr(new Pid(fnrExtractor.extract(), true));
+                return provider.calculateOpptjeningForFnr(new Pid(fnrExtractor.extract(), true), false);
             } else {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The service is not made available for the specified user yet");
-        }
+            }
         } catch (PidValidationException e) {
             log.error(e);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);

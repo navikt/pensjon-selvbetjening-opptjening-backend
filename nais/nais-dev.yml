@@ -2,7 +2,7 @@ apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
   name: pensjon-selvbetjening-opptjening-backend
-  namespace: default
+  namespace: pensjonselvbetjening
   labels:
     team: pensjonselvbetjening
 spec:
@@ -21,21 +21,27 @@ spec:
     - https://pensjon-selvbetjening-opptjening-backend.nais.preprod.local
   readiness:
     path: "/api/internal/isReady"
-    initialDelay: 3
-    timeout: 1
   env:
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
       value: selvbetjening-idtoken
     - name: HTTP_PROXY_PARAMETERNAME
       value: "http.proxy"
-    - name: HTTP_PROXY
-      value: http://webproxy-nais.nav.no:8088
     - name: UNLEASH_ENDPOINT_URL
       value: https://unleash.nais.io/api
     - name: APP_ENVIRONMENT
       value: q2
+    - name: AZURE_APP_REDIRECT_URI
+      value: https://pensjon-selvbetjening-opptjening-frontend.dev.adeo.no/pensjon/opptjening/oauth2/internal/callback
   envFrom:
     - configmap: loginservice-idporten
+  azure:
+    application:
+      enabled: true
+      replyURLs:
+        - https://pensjon-selvbetjening-opptjening-frontend.dev.adeo.no/pensjon/opptjening/oauth2/internal/callback
+        - http://localhost:8080/oauth2/internal/callback
+        - http://localhost:3000/oauth2/internal/callback
+  webproxy: true
   prometheus:
     enabled: true
     path: /api/mgmt/prom
