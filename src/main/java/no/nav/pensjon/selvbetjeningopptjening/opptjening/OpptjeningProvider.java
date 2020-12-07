@@ -1,9 +1,8 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlRequest;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedsel;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
@@ -50,9 +49,9 @@ public class OpptjeningProvider {
     }
 
     OpptjeningResponse calculateOpptjeningForFnr(Pid pid, boolean isInternalUser) {
-        LocalDate fodselsdato = getFodselsdato(pid, isInternalUser);
+        LocalDate birthDate = getBirthDate(pid, isInternalUser);
         String fnr = pid.getPid();
-        UserGroup userGroup = findUserGroup(fodselsdato);
+        UserGroup userGroup = findUserGroup(birthDate);
         List<Uttaksgrad> uttaksgrader = uttaksgradGetter.getAlderSakUttaksgradhistorikkForPerson(fnr);
         AfpHistorikk afpHistorikk = personConsumer.getAfpHistorikkForPerson(fnr);
         UforeHistorikk uforehistorikk = personConsumer.getUforeHistorikkForPerson(fnr);
@@ -64,7 +63,7 @@ public class OpptjeningProvider {
         return userGroup.getOpptjeningAssembler().apply(
                 new OpptjeningArguments(
                         fnr,
-                        fodselsdato,
+                        birthDate,
                         restpensjoner,
                         uttaksgrader,
                         afpHistorikk,
@@ -75,35 +74,30 @@ public class OpptjeningProvider {
                         uttaksgradGetter));
     }
 
-    private LocalDate getFodselsdato(Pid pid, boolean isInternalUser) {
+    private LocalDate getBirthDate(Pid pid, boolean isInternalUser) {
         try {
-            PdlRequest request = new PdlRequest(pid.getPid());
-            List<Foedsel> foedsler = pdlConsumer.getPdlResponse(request, isInternalUser).getData().getHentPerson().getFoedsel();
+            List<BirthDate> birthDates = pdlConsumer.getBirthDates(pid, isInternalUser);
 
-            if (foedsler == null || foedsler.isEmpty()) {
-                log.warn("No fødsel found in PDL for fnr. Deriving fødselsdato directly from fnr.");
-                return pid.getFodselsdato();
+            if (birthDates.isEmpty()) {
+                log.warn("No birth info found in PDL for PID.");
+                return getDefaultBirthdate(pid);
             }
 
-            Foedsel foedsel = foedsler.get(0);
+            BirthDate birthdate = birthDates.get(0);
 
-            if (foedsel.getFoedselsdato() != null) {
-                return foedsel.getFoedselsdato();
+            if (birthdate.isBasedOnYearOnly()) {
+                log.info("Birth date set to first day in birth year.");
             }
 
-            log.warn("No fødselsdato found in PDL for fnr.");
-
-            if (foedsel.getFoedselsaar() != null) {
-                log.info("Fødselsdato set to first day in fødselsår.");
-                return LocalDate.of(foedsel.getFoedselsaar(), 1, 1);
-            }
-
-            log.warn("No fødselsår found in PDL for fnr.");
+            return birthdate.getValue();
         } catch (Exception e) {
-            log.error("Call to PDL failed.");
+            log.error("Call to PDL failed: " + e.getMessage());
+            return getDefaultBirthdate(pid);
         }
+    }
 
-        log.info("Deriving fødselsdato directly from fnr.");
+    private LocalDate getDefaultBirthdate(Pid pid) {
+        log.info("Deriving birth date directly from PID.");
         return pid.getFodselsdato();
     }
 

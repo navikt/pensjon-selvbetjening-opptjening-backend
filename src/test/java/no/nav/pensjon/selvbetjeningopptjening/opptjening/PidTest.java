@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.LocalDate;
 import java.time.Month;
 
+import no.nav.pensjon.selvbetjeningopptjening.TestFnrs;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -18,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class PidTest {
 
     private static final String MONTH_ABOVE_9_BOST_NR = "01327200336";
-    private static final String NORMAL_FNR = "03029119367";
     private static final String SPECIAL_FNR_0 = "26067300000";
     private static final String SPECIAL_FNR_1 = "26067300001";
     private static final String SPECIAL_FNR_2 = "26067300002";
@@ -104,7 +104,7 @@ class PidTest {
 
     @Test
     void should_create_Pid_when_valid_fnr_as_input() {
-        assertTrue(Pid.isValidPid(NORMAL_FNR), "Could not create Pid using valid Fnr");
+        assertTrue(Pid.isValidPid(TestFnrs.NORMAL), "Could not create Pid using valid Fnr");
     }
 
     @Test
@@ -128,7 +128,7 @@ class PidTest {
 
     @Test
     void should_validate_false_when_isDnummer_check_on_fnr() {
-        assertFalse(new Pid(NORMAL_FNR).isDnummer(), "Failed check of dnummer with normal fnr:" + NORMAL_FNR);
+        assertFalse(new Pid(TestFnrs.NORMAL).isDnummer(), "Failed check of dnummer with normal fnr:" + TestFnrs.NORMAL);
     }
 
     @Test
@@ -140,7 +140,7 @@ class PidTest {
     @Test
     void should_extract_expected_date_when_getFodselsdato_on_valid_Pid_from_fnr() {
         LocalDate expectedDate = LocalDate.of(1991, Month.FEBRUARY, 3);
-        assertThat(new Pid(NORMAL_FNR).getFodselsdato(), is(equalTo(expectedDate)));
+        assertThat(new Pid(TestFnrs.NORMAL).getFodselsdato(), is(equalTo(expectedDate)));
     }
 
     @Test
@@ -168,8 +168,8 @@ class PidTest {
 
     @Test
     void should_return_fnr_when_Pid_getPid_and_normalFnr() {
-        Pid pid = new Pid(NORMAL_FNR, false);
-        assertThat(pid.toString(), is(equalTo(NORMAL_FNR)));
+        Pid pid = new Pid(TestFnrs.NORMAL, false);
+        assertThat(pid.toString(), is(equalTo(TestFnrs.NORMAL)));
     }
 
     @Test

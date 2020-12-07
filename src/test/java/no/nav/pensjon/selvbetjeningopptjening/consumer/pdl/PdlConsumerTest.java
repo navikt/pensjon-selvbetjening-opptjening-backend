@@ -1,8 +1,10 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 
+import no.nav.pensjon.selvbetjeningopptjening.TestFnrs;
 import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserToken;
 import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedsel;
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 import no.nav.security.token.support.core.context.TokenValidationContext;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
@@ -18,16 +20,17 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 class PdlConsumerTest {
 
-    private static final String FOEDSELSDATO = "2001-01-01";
+    private static final String BIRTHDATE = "2001-01-01";
     private static MockWebServer server;
     private static String baseUrl;
 
@@ -49,17 +52,18 @@ class PdlConsumerTest {
     }
 
     @Test
-    void getPdlResponse() {
+    void getBirthDates_shall_return_birthDate_when_one_exists() {
         when(tokenValidationContextHolder.getTokenValidationContext()).thenReturn(tokenValidationContext());
         when(serviceUserTokenGetter.getServiceUserToken()).thenReturn(new ServiceUserToken());
         var consumer = new PdlConsumer(baseUrl, tokenValidationContextHolder, serviceUserTokenGetter);
         server.enqueue(pdlResponse());
 
-        PdlResponse response = consumer.getPdlResponse(new PdlRequest("ident"), false);
+        List<BirthDate> birthDates = consumer.getBirthDates(new Pid(TestFnrs.NORMAL), false);
 
-        Foedsel foedsel = response.getData().getHentPerson().getFoedsel().get(0);
-        assertNull(foedsel.getFoedselsaar());
-        assertEquals(LocalDate.of(2001, 1, 1), foedsel.getFoedselsdato());
+        assertEquals(1, birthDates.size());
+        BirthDate birthDate = birthDates.get(0);
+        assertFalse(birthDate.isBasedOnYearOnly());
+        assertEquals(LocalDate.of(2001, 1, 1), birthDate.getValue());
     }
 
     private static TokenValidationContext tokenValidationContext() {
@@ -76,16 +80,16 @@ class PdlConsumerTest {
 
     private static MockResponse pdlResponse() {
         return new MockResponse()
+                .addHeader("Content-Type", "application/json")
                 .setBody("{\n" +
                         "  \"data\": {\n" +
                         "    \"hentPerson\": {\n" +
                         "      \"foedsel\": [{\n" +
                         "        \"foedselsaar\": \"null\",\n" +
-                        "        \"foedselsdato\": \"" + FOEDSELSDATO + "\"\n" +
+                        "        \"foedselsdato\": \"" + BIRTHDATE + "\"\n" +
                         "      }]\n" +
                         "    }\n" +
                         "  }\n" +
-                        "}")
-                .addHeader("Content-Type", "application/json");
+                        "}");
     }
 }

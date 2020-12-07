@@ -1,27 +1,36 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 
+import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedsel;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlData;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlError;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
+import no.nav.security.token.support.core.context.TokenValidationContextHolder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.security.token.support.core.context.TokenValidationContextHolder;
-
 import java.util.List;
+
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.joining;
+import static no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.mapping.BirthDateMapper.fromDtos;
 
 public class PdlConsumer {
 
-    private static final String ISSUER = "selvbetjening";
+    private static final String CONSUMED_SERVICE = "PDL";
+    private static final String TOKEN_ISSUER = "selvbetjening";
     private static final String AUTH_TYPE = "Bearer";
-    private final Logger log = LoggerFactory.getLogger(getClass());
-    private TokenValidationContextHolder context;
-    private ServiceUserTokenGetter serviceUserTokenGetter;
-    private WebClient webclient;
+    private static final String THEME = "PEN";
+    private final Log log = LogFactory.getLog(getClass());
+    private final TokenValidationContextHolder context;
+    private final ServiceUserTokenGetter serviceUserTokenGetter;
+    private final WebClient webclient;
 
     public PdlConsumer(String endpoint, TokenValidationContextHolder context, ServiceUserTokenGetter serviceUserTokenGetter) {
         this.context = context;
@@ -30,30 +39,25 @@ public class PdlConsumer {
                 .builder()
                 .baseUrl(endpoint)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .defaultHeader("Tema", "PEN")
+                .defaultHeader(PdlHttpHeaders.THEME, THEME)
                 .build();
     }
 
-    public PdlResponse getPdlResponse(PdlRequest request, boolean isInternalUser) {
+    public List<BirthDate> getBirthDates(Pid pid, boolean isInternalUser) {
         try {
             PdlResponse response =
                     webclient.post()
                             .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue(isInternalUser))
-                            .header("Nav-Consumer-Token", consumerToken())
-                            .bodyValue(request.getGraphQlQuery())
+                            .header(PdlHttpHeaders.CONSUMER_TOKEN, consumerToken())
+                            .bodyValue(PdlRequest.getBirthQuery(pid))
                             .retrieve()
-                            .bodyToMono(PdlResponse.class).block();
+                            .bodyToMono(PdlResponse.class)
+                            .block();
 
-            if (response == null) {
-                log.error("PDL error: Failed parsing response");
-                throw new FailedCallingExternalServiceException("PDL", "Failed parsing response");
-            }
-
-            handleErrors(response.getErrors());
-            return response;
+            handleErrors(response);
+            return fromDtos(getBirths(response));
         } catch (JSONException e) {
-            log.error("PDL error: Failed deserializing JSON response", e);
-            throw new FailedCallingExternalServiceException("PDL", "Failed deserializing JSON response");
+            return handleJsonError(e);
         }
     }
 
@@ -67,11 +71,37 @@ public class PdlConsumer {
     }
 
     private String getUserAccessToken() {
-        return context.getTokenValidationContext().getJwtToken(ISSUER).getTokenAsString();
+        return context.getTokenValidationContext().getJwtToken(TOKEN_ISSUER).getTokenAsString();
     }
 
     private String consumerToken() {
         return AUTH_TYPE + " " + getServiceUserAccessToken();
+    }
+
+    private void handleNull(PdlResponse response) {
+        if (response != null) {
+            return;
+        }
+
+        String cause = "Failed parsing response";
+        log.error(CONSUMED_SERVICE + " error: " + cause);
+        throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, cause);
+    }
+
+    private List<BirthDate> handleJsonError(JSONException e) {
+        String cause = "Failed deserializing JSON response";
+        log.error(CONSUMED_SERVICE + " error: " + cause, e);
+        throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, cause);
+    }
+
+    private void handleErrors(PdlResponse response) {
+        if (response == null) {
+            String cause = "Failed parsing response";
+            log.error(CONSUMED_SERVICE + " error: " + cause);
+            throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, cause);
+        }
+
+        handleErrors(response.getErrors());
     }
 
     private void handleErrors(List<PdlError> errors) {
@@ -79,10 +109,23 @@ public class PdlConsumer {
             return;
         }
 
-        var builder = new StringBuilder();
-        builder.append("Errors from PDL: ");
-        errors.forEach(error -> builder.append(error.getMessage()).append(", "));
-        log.error("PDL error: " + errors.toString());
-        throw new FailedCallingExternalServiceException("PDL", builder.substring(0, builder.length() - 2));
+        String causes = errors.stream()
+                .map(PdlError::getMessage)
+                .collect(joining(", "));
+
+        log.error(CONSUMED_SERVICE + " error: " + causes);
+        throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, causes);
+    }
+
+    private static List<Foedsel> getBirths(PdlResponse response) {
+        return response == null
+                ? emptyList()
+                : getBirths(response.getData());
+    }
+
+    private static List<Foedsel> getBirths(PdlData data) {
+        return data == null || data.getHentPerson() == null
+                ? emptyList()
+                : data.getHentPerson().getFoedsel();
     }
 }
