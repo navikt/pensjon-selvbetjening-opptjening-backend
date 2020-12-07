@@ -10,9 +10,11 @@ import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
@@ -21,6 +23,7 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.mapping.BirthDateMapper.fromDtos;
 
+@Component
 public class PdlConsumer {
 
     private static final String CONSUMED_SERVICE = "PDL";
@@ -32,7 +35,9 @@ public class PdlConsumer {
     private final ServiceUserTokenGetter serviceUserTokenGetter;
     private final WebClient webclient;
 
-    public PdlConsumer(String endpoint, TokenValidationContextHolder context, ServiceUserTokenGetter serviceUserTokenGetter) {
+    public PdlConsumer(@Value("${pdl.endpoint.url}") String endpoint,
+                       TokenValidationContextHolder context,
+                       ServiceUserTokenGetter serviceUserTokenGetter) {
         this.context = context;
         this.serviceUserTokenGetter = serviceUserTokenGetter;
         this.webclient = WebClient

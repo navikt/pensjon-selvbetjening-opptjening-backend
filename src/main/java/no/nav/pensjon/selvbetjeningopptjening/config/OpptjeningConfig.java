@@ -74,13 +74,6 @@ public class OpptjeningConfig {
     }
 
     @Bean
-    public PdlConsumer pdlConsumer(@Value("${pdl.endpoint.url}") String endpoint,
-                                   TokenValidationContextHolder context,
-                                   ServiceUserTokenGetter tokenGetter) {
-        return new PdlConsumer(endpoint, context, tokenGetter);
-    }
-
-    @Bean
     public EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator() {
         return new EndringPensjonsbeholdningCalculator();
     }
