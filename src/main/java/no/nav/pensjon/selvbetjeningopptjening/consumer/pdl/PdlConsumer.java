@@ -6,7 +6,9 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServ
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedsel;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlData;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlError;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlErrorExtension;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
+import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,6 +17,7 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
@@ -48,11 +51,11 @@ public class PdlConsumer {
                 .build();
     }
 
-    public List<BirthDate> getBirthDates(Pid pid, boolean isInternalUser) {
+    public List<BirthDate> getBirthDates(Pid pid, LoginSecurityLevel securityLevel) throws PdlException {
         try {
             PdlResponse response =
                     webclient.post()
-                            .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue(isInternalUser))
+                            .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue(securityLevel))
                             .header(PdlHttpHeaders.CONSUMER_TOKEN, consumerToken())
                             .bodyValue(PdlRequest.getBirthQuery(pid))
                             .retrieve()
@@ -66,9 +69,11 @@ public class PdlConsumer {
         }
     }
 
-    private String getAuthHeaderValue(boolean isInternalUser) {
+    private String getAuthHeaderValue(LoginSecurityLevel securityLevel) {
         return AUTH_TYPE + " " +
-                (isInternalUser ? getServiceUserAccessToken() : getUserAccessToken());
+                (securityLevel == LoginSecurityLevel.INTERNAL
+                        ? getServiceUserAccessToken()
+                        : getUserAccessToken());
     }
 
     private String getServiceUserAccessToken() {
@@ -89,7 +94,7 @@ public class PdlConsumer {
         throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, cause);
     }
 
-    private void handleErrors(PdlResponse response) {
+    private void handleErrors(PdlResponse response) throws PdlException {
         if (response == null) {
             String cause = "Failed parsing response";
             log.error(CONSUMED_SERVICE + " error: " + cause);
@@ -99,10 +104,12 @@ public class PdlConsumer {
         handleErrors(response.getErrors());
     }
 
-    private void handleErrors(List<PdlError> errors) {
+    private void handleErrors(List<PdlError> errors) throws PdlException {
         if (errors == null || errors.isEmpty()) {
             return;
         }
+
+        handleSingleExtendedError(errors);
 
         String causes = errors.stream()
                 .map(PdlError::getMessage)
@@ -110,6 +117,22 @@ public class PdlConsumer {
 
         log.error(CONSUMED_SERVICE + " error: " + causes);
         throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, causes);
+    }
+
+    private void handleSingleExtendedError(List<PdlError> errors) throws PdlException {
+        if (errors.size() != 1) {
+            return;
+        }
+
+        PdlError error = errors.get(0);
+        PdlErrorExtension extensions = error.getExtensions();
+
+        if (extensions == null || StringUtils.isEmpty(extensions.getCode())) {
+            return;
+        }
+
+        log.error(String.format("%s error: %s; %s", CONSUMED_SERVICE, error.getMessage(), extensions.getCode()));
+        throw new PdlException(error.getMessage(), extensions.getCode());
     }
 
     private static List<Foedsel> getBirths(PdlResponse response) {

@@ -3,6 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model;
 import java.util.List;
 
 public class PdlError {
+
     private String message;
     private List<PdlErrorLocation> locations;
     private List<String> path;
@@ -53,26 +54,6 @@ public class PdlError {
             return "{"
                     + "line: " + this.line + ", "
                     + "column: " + this.column
-                    + "}";
-        }
-    }
-
-    static class PdlErrorExtension {
-        private String code;
-        private String classification;
-
-        public String getCode() {
-            return code;
-        }
-
-        public String getClassification() {
-            return classification;
-        }
-
-        public String toString() {
-            return "{"
-                    + "code: " + this.code + ", "
-                    + "classification: " + this.classification
                     + "}";
         }
     }

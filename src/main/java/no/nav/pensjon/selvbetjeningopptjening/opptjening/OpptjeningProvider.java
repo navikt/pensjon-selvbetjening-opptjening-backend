@@ -1,8 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
@@ -10,8 +8,8 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonCo
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import no.nav.pensjon.selvbetjeningopptjening.person.PersonService;
+import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -23,13 +21,12 @@ import static no.nav.pensjon.selvbetjeningopptjening.util.UserGroupUtil.findUser
 @Component
 public class OpptjeningProvider {
 
-    private final Log log = LogFactory.getLog(getClass());
     private final PensjonsbeholdningConsumer pensjonsbeholdningConsumer;
     private final OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer;
     private final PensjonspoengConsumer pensjonspoengConsumer;
     private final RestpensjonConsumer restpensjonConsumer;
     private final PersonConsumer personConsumer;
-    private final PdlConsumer pdlConsumer;
+    private final PersonService personService;
     private final UttaksgradGetter uttaksgradGetter;
 
     public OpptjeningProvider(PensjonsbeholdningConsumer pensjonsbeholdningConsumer,
@@ -37,19 +34,19 @@ public class OpptjeningProvider {
                               PensjonspoengConsumer pensjonspoengConsumer,
                               RestpensjonConsumer restpensjonConsumer,
                               PersonConsumer personConsumer,
-                              PdlConsumer pdlConsumer,
+                              PersonService personService,
                               UttaksgradGetter uttaksgradGetter) {
         this.pensjonsbeholdningConsumer = pensjonsbeholdningConsumer;
         this.opptjeningsgrunnlagConsumer = opptjeningsgrunnlagConsumer;
         this.pensjonspoengConsumer = pensjonspoengConsumer;
         this.restpensjonConsumer = restpensjonConsumer;
         this.personConsumer = personConsumer;
-        this.pdlConsumer = pdlConsumer;
+        this.personService = personService;
         this.uttaksgradGetter = uttaksgradGetter;
     }
 
-    OpptjeningResponse calculateOpptjeningForFnr(Pid pid, boolean isInternalUser) {
-        LocalDate birthDate = getBirthDate(pid, isInternalUser);
+    OpptjeningResponse calculateOpptjeningForFnr(Pid pid, LoginSecurityLevel securityLevel) {
+        LocalDate birthDate = personService.getBirthDate(pid, securityLevel);
         String fnr = pid.getPid();
         UserGroup userGroup = findUserGroup(birthDate);
         List<Uttaksgrad> uttaksgrader = uttaksgradGetter.getAlderSakUttaksgradhistorikkForPerson(fnr);
@@ -72,33 +69,6 @@ public class OpptjeningProvider {
                         pensjonspoengConsumer,
                         pensjonsbeholdningConsumer,
                         uttaksgradGetter));
-    }
-
-    private LocalDate getBirthDate(Pid pid, boolean isInternalUser) {
-        try {
-            List<BirthDate> birthDates = pdlConsumer.getBirthDates(pid, isInternalUser);
-
-            if (birthDates.isEmpty()) {
-                log.warn("No birth info found in PDL for PID.");
-                return getDefaultBirthdate(pid);
-            }
-
-            BirthDate birthdate = birthDates.get(0);
-
-            if (birthdate.isBasedOnYearOnly()) {
-                log.info("Birth date set to first day in birth year.");
-            }
-
-            return birthdate.getValue();
-        } catch (Exception e) {
-            log.error("Call to PDL failed: " + e.getMessage());
-            return getDefaultBirthdate(pid);
-        }
-    }
-
-    private LocalDate getDefaultBirthdate(Pid pid) {
-        log.info("Deriving birth date directly from PID.");
-        return pid.getFodselsdato();
     }
 
     private boolean shouldGetRestpensjon(UserGroup userGroup, List<Uttaksgrad> uttaksgrader) {

@@ -4,6 +4,7 @@ import io.jsonwebtoken.JwtException;
 import no.nav.pensjon.selvbetjeningopptjening.config.OpptjeningFeature;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
+import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieType;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.SplitCookieAssembler;
 import no.nav.pensjon.selvbetjeningopptjening.security.jwt.JwsValidator;
@@ -53,7 +54,8 @@ public class OpptjeningOnBehalfEndpoint {
             jwsValidator.validate(idToken);
 
             if (toggle(OpptjeningFeature.PL1441).isEnabled()) {
-                return provider.calculateOpptjeningForFnr(new Pid(fnr, true), true);
+                var pid = new Pid(fnr, true);
+                return provider.calculateOpptjeningForFnr(pid, LoginSecurityLevel.INTERNAL);
             }
 
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The service is unavailable for the specified user");
