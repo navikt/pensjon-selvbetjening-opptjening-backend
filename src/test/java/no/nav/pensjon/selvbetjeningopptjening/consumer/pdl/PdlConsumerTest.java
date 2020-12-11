@@ -6,6 +6,7 @@ import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserT
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
+import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import no.nav.security.token.support.core.context.TokenValidationContext;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
@@ -62,10 +63,10 @@ class PdlConsumerTest {
     }
 
     @Test
-    void getBirthDates_shall_return_birthDate_when_one_exists() {
+    void getBirthDates_shall_return_birthDate_when_one_exists() throws PdlException {
         server.enqueue(pdlDataResponse());
 
-        List<BirthDate> birthDates = consumer.getBirthDates(PID, false);
+        List<BirthDate> birthDates = consumer.getBirthDates(PID, LoginSecurityLevel.LEVEL4);
 
         assertEquals(1, birthDates.size());
         BirthDate birthDate = birthDates.get(0);
@@ -74,13 +75,25 @@ class PdlConsumerTest {
     }
 
     @Test
-    void getBirthDates_shall_throwException_when_PDL_returns_error() {
+    void getBirthDates_shall_throwPdlException_when_PDL_returns_error() {
         server.enqueue(pdlErrorResponse());
 
-        FailedCallingExternalServiceException exception = assertThrows(FailedCallingExternalServiceException.class,
-                () -> consumer.getBirthDates(PID, false));
+        PdlException exception = assertThrows(PdlException.class,
+                () -> consumer.getBirthDates(PID, LoginSecurityLevel.LEVEL4));
 
-        assertEquals("Error when calling the external service PDL. Ikke tilgang til å se person",
+        assertEquals("Ikke tilgang til å se person", exception.getMessage());
+        assertEquals("unauthorized", exception.getErrorCode());
+    }
+
+    @Test
+    void getBirthDates_shall_throwFailedCallingExternalServiceException_when_PDL_returns_multipleErrors() {
+        server.enqueue(pdlMultipleErrorResponse());
+
+        FailedCallingExternalServiceException exception = assertThrows(FailedCallingExternalServiceException.class,
+                () -> consumer.getBirthDates(PID, LoginSecurityLevel.LEVEL4));
+
+        assertEquals("Error when calling the external service PDL." +
+                        " Fant ikke person, Ukjent problem oppsto, feilen har blitt logget og følges opp",
                 exception.getMessage());
     }
 
@@ -127,6 +140,43 @@ class PdlConsumerTest {
                         "    },\n" +
                         "    \"path\": [\"hentPerson\"]\n" +
                         "  }]\n" +
+                        "}");
+    }
+
+    private static MockResponse pdlMultipleErrorResponse() {
+        return new MockResponse()
+                .addHeader("Content-Type", "application/json")
+                .setBody("{\n" +
+                        "  \"errors\": [{\n" +
+                        "    \"message\": \"Fant ikke person\",\n" +
+                        "    \"locations\": [{\n" +
+                        "      \"line\": 2,\n" +
+                        "      \"column\": 5\n" +
+                        "    }],\n" +
+                        "    \"path\": [\n" +
+                        "      \"hentPerson\"\n" +
+                        "    ],\n" +
+                        "    \"extensions\": {\n" +
+                        "      \"code\": \"not_found\",\n" +
+                        "      \"classification\": \"ExecutionAborted\"\n" +
+                        "    }\n" +
+                        "  }, {\n" +
+                        "    \"message\": \"Ukjent problem oppsto, feilen har blitt logget og følges opp\",\n" +
+                        "    \"locations\": [{\n" +
+                        "      \"line\": 2,\n" +
+                        "      \"column\": 5\n" +
+                        "    }],\n" +
+                        "    \"path\": [\n" +
+                        "      \"hentPerson\", \"bostedsadresse\"\n" +
+                        "    ],\n" +
+                        "    \"extensions\": {\n" +
+                        "      \"code\": \"server_error\",\n" +
+                        "      \"classification\": \"ExecutionAborted\"\n" +
+                        "    }\n" +
+                        "  }],\n" +
+                        "  \"data\": {\n" +
+                        "    \"hentPerson\": null\n" +
+                        "  }\n" +
                         "}");
     }
 }

@@ -1,14 +1,14 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import no.finn.unleash.FakeUnleash;
-
 import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
 import no.nav.pensjon.selvbetjeningopptjening.config.OpptjeningFeature;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
+import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import no.nav.pensjon.selvbetjeningopptjening.unleash.UnleashProvider;
-import no.nav.pensjon.selvbetjeningopptjening.util.FnrExtractor;
-
+import no.nav.pensjon.selvbetjeningopptjening.usersession.LoginInfo;
+import no.nav.pensjon.selvbetjeningopptjening.usersession.LoginInfoGetter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,7 +40,7 @@ class OpptjeningEndpointTest {
     @MockBean
     OpptjeningProvider provider;
     @MockBean
-    FnrExtractor fnrExtractor;
+    LoginInfoGetter loginInfoGetter;
 
     @BeforeAll
     static void setUp() {
@@ -49,13 +50,13 @@ class OpptjeningEndpointTest {
 
     @BeforeEach
     void initialize() {
-        when(fnrExtractor.extract()).thenReturn(PID.getPid());
+        when(loginInfoGetter.getLoginInfo()).thenReturn(new LoginInfo(PID, LoginSecurityLevel.LEVEL4));
     }
 
     @Test
     void getOpptjeningForFnr_returns_opptjeningJson_when_feature_enabled() throws Exception {
         featureToggler.enable(OpptjeningFeature.PL1441);
-        when(provider.calculateOpptjeningForFnr(PID, false)).thenReturn(response());
+        when(provider.calculateOpptjeningForFnr(PID, LoginSecurityLevel.LEVEL4)).thenReturn(response());
 
         mvc.perform(get(URI))
                 .andExpect(status().isOk())
@@ -65,19 +66,19 @@ class OpptjeningEndpointTest {
     @Test
     void getOpptjeningForFnr_returns_statusForbidden_when_feature_disabled() throws Exception {
         featureToggler.disable(OpptjeningFeature.PL1441);
-        when(provider.calculateOpptjeningForFnr(PID, false)).thenReturn(response());
+        when(provider.calculateOpptjeningForFnr(PID, LoginSecurityLevel.LEVEL4)).thenReturn(response());
 
         mvc.perform(get(URI))
                 .andExpect(status().isForbidden())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResponseStatusException))
-                .andExpect(result -> assertEquals("403 FORBIDDEN \"The service is not made available for the specified user yet\"", result.getResolvedException().getMessage()))
+                .andExpect(result -> assertEquals("403 FORBIDDEN \"The service is not made available for the specified user yet\"", getExceptionMessage(result)))
                 .andExpect(content().string(""));
     }
 
     @Test
     void getOpptjeningForFnr_returns_statusInternalServerError_when_failedCallingExternalService() throws Exception {
         featureToggler.enable(OpptjeningFeature.PL1441);
-        when(provider.calculateOpptjeningForFnr(PID, false)).thenThrow(new FailedCallingExternalServiceException("sp", "sid", "details", new Exception("cause")));
+        when(provider.calculateOpptjeningForFnr(PID, LoginSecurityLevel.LEVEL4)).thenThrow(new FailedCallingExternalServiceException("sp", "sid", "details", new Exception("cause")));
 
         mvc.perform(get(URI))
                 .andExpect(status().isInternalServerError())
@@ -88,7 +89,7 @@ class OpptjeningEndpointTest {
     @Test
     void getOpptjeningForFnr_returns_statusBadRequest_when_invalidPid() throws Exception {
         featureToggler.enable(OpptjeningFeature.PL1441);
-        when(provider.calculateOpptjeningForFnr(any(), eq(false))).thenThrow(new PidValidationException(""));
+        when(provider.calculateOpptjeningForFnr(any(), eq(LoginSecurityLevel.LEVEL4))).thenThrow(new PidValidationException(""));
 
         mvc.perform(get(URI))
                 .andExpect(status().isBadRequest())
@@ -100,5 +101,10 @@ class OpptjeningEndpointTest {
         var response = new OpptjeningResponse(1950);
         response.setNumberOfYearsWithPensjonspoeng(1);
         return response;
+    }
+
+    private static String getExceptionMessage(MvcResult result) {
+        Exception exception = result.getResolvedException();
+        return exception == null ? null : exception.getMessage();
     }
 }

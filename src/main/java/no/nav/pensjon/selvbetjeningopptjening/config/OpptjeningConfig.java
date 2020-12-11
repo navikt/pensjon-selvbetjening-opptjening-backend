@@ -5,13 +5,14 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.OidcAuthTokenInterceptor;
 import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.EndringPensjonsbeholdningCalculator;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.MerknadHandler;
+import no.nav.pensjon.selvbetjeningopptjening.usersession.LoginInfoGetter;
+import no.nav.pensjon.selvbetjeningopptjening.usersession.token.TokenLoginInfoExtractor;
 import no.nav.pensjon.selvbetjeningopptjening.util.FnrExtractor;
 import no.nav.pensjon.selvbetjeningopptjening.util.LocalDateTimeFromEpochDeserializer;
 import no.nav.pensjon.selvbetjeningopptjening.util.SimpleStringExtractor;
@@ -93,6 +94,18 @@ public class OpptjeningConfig {
     @Profile("!default")
     public StringExtractor simpleFnrExtractor(@Value("${fnr}") String fnr) {
         return new SimpleStringExtractor(fnr);
+    }
+
+    @Bean
+    @Profile("default")
+    public LoginInfoGetter loginInfoGetter(TokenValidationContextHolder context) {
+        return new TokenLoginInfoExtractor(context);
+    }
+
+    @Bean
+    @Profile("!default")
+    public LoginInfoGetter simpleLoginInfoGetter(@Value("${fnr}") String fnr) {
+        return new SimpleLoginInfoGetter(fnr);
     }
 
     private static MappingJackson2HttpMessageConverter createCustomMessageConverterForLocalDate() {

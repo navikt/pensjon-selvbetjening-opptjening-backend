@@ -1,9 +1,10 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import no.nav.pensjon.selvbetjeningopptjening.config.OpptjeningFeature;
-import no.nav.pensjon.selvbetjeningopptjening.config.StringExtractor;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
+import no.nav.pensjon.selvbetjeningopptjening.usersession.LoginInfo;
+import no.nav.pensjon.selvbetjeningopptjening.usersession.LoginInfoGetter;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,21 +24,22 @@ public class OpptjeningEndpoint {
 
     private final Log log = LogFactory.getLog(getClass());
     private OpptjeningProvider provider;
-    private StringExtractor fnrExtractor;
+    private LoginInfoGetter loginInfoGetter;
 
-    public OpptjeningEndpoint(OpptjeningProvider provider, StringExtractor fnrExtractor) {
+    public OpptjeningEndpoint(OpptjeningProvider provider, LoginInfoGetter loginInfoGetter) {
         this.provider = provider;
-        this.fnrExtractor = fnrExtractor;
+        this.loginInfoGetter = loginInfoGetter;
     }
 
     @GetMapping("/opptjening")
     public OpptjeningResponse getOpptjeningForFnr() {
         try {
             if (toggle(OpptjeningFeature.PL1441).isEnabled()) {
-                return provider.calculateOpptjeningForFnr(new Pid(fnrExtractor.extract(), true), false);
-            } else {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The service is not made available for the specified user yet");
+                LoginInfo login = loginInfoGetter.getLoginInfo();
+                return provider.calculateOpptjeningForFnr(login.getPid(), login.getSecurityLevel());
             }
+
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The service is not made available for the specified user yet");
         } catch (PidValidationException e) {
             log.error(e);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
