@@ -7,9 +7,11 @@ public class OpptjeningResponse {
     private Map<Integer, OpptjeningDto> opptjeningData;
     private Integer numberOfYearsWithPensjonspoeng;
     private Integer fodselsaar;
+    private int andelPensjonBasertPaBeholdning;
 
-    public OpptjeningResponse(Integer fodselsaar) {
+    public OpptjeningResponse(Integer fodselsaar, int andelPensjonBasertPaBeholdning) {
         this.fodselsaar = fodselsaar;
+        this.andelPensjonBasertPaBeholdning = andelPensjonBasertPaBeholdning;
     }
 
     public Map<Integer, OpptjeningDto> getOpptjeningData() {
@@ -30,5 +32,9 @@ public class OpptjeningResponse {
 
     public Integer getFodselsaar() {
         return fodselsaar;
+    }
+
+    public int getAndelPensjonBasertPaBeholdning() {
+        return andelPensjonBasertPaBeholdning;
     }
 }
