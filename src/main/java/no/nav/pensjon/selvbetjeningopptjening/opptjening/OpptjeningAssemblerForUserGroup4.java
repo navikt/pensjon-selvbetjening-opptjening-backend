@@ -31,7 +31,7 @@ public class OpptjeningAssemblerForUserGroup4 extends OpptjeningAssembler {
                                               List<Uttaksgrad> uttaksgrader,
                                               AfpHistorikk afpHistorikk,
                                               UforeHistorikk uforeHistorikk) {
-        OpptjeningResponse response = new OpptjeningResponse(fodselsdato.getYear());
+        OpptjeningResponse response = new OpptjeningResponse(fodselsdato.getYear(), calculateAndelNyttRegelverkUsergroup4(fodselsdato.getYear()));
         Map<Integer, Opptjening> opptjeningerByYear = getOpptjeningerByYear(pensjonspoengList, restpensjoner);
         populatePensjonspoeng(opptjeningerByYear, pensjonspoengList);
         populatePensjonsbeholdning(opptjeningerByYear, getBeholdningerByYear(beholdninger));
@@ -51,5 +51,30 @@ public class OpptjeningAssemblerForUserGroup4 extends OpptjeningAssembler {
         response.setNumberOfYearsWithPensjonspoeng(numberOfYearsWithPensjonspoeng);
         response.setOpptjeningData(toDto(opptjeningerByYear));
         return response;
+    }
+
+    private int calculateAndelNyttRegelverkUsergroup4(int fodselsaar) {
+        switch (fodselsaar) {
+            case 1954:
+                return 1;
+            case 1955:
+                return 2;
+            case 1956:
+                return 3;
+            case 1957:
+                return 4;
+            case 1958:
+                return 5;
+            case 1959:
+                return 6;
+            case 1960:
+                return 7;
+            case 1961:
+                return 8;
+            case 1962:
+                return 9;
+            default:
+                throw new IllegalStateException("Fodselsaar " + fodselsaar + " is not valid for Usergroup4");
+        }
     }
 }
