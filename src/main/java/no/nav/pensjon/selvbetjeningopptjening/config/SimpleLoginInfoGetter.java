@@ -9,7 +9,7 @@ public class SimpleLoginInfoGetter implements LoginInfoGetter {
 
     private final String fnr;
 
-    SimpleLoginInfoGetter(String fnr) {
+    public SimpleLoginInfoGetter(String fnr) {
         this.fnr = fnr;
     }
 

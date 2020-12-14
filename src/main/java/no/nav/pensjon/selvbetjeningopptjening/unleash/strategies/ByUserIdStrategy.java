@@ -1,6 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.unleash.strategies;
 
-import no.nav.pensjon.selvbetjeningopptjening.config.StringExtractor;
+import no.nav.pensjon.selvbetjeningopptjening.usersession.LoginInfoGetter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Arrays;
@@ -26,7 +26,7 @@ public class ByUserIdStrategy extends BeanStrategy {
     }
 
     private boolean isCurrentUser(String user) {
-        String userId = getBean(StringExtractor.class).extract();
+        String userId = getBean(LoginInfoGetter.class).getLoginInfo().getPid().getPid();
         return userId != null && (userId.equals(user) || isEncryptedUserId(userId, user));
     }
 

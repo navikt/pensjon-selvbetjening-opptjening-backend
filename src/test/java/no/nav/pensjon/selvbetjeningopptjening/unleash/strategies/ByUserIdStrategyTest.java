@@ -1,6 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.unleash.strategies;
 
-import no.nav.pensjon.selvbetjeningopptjening.util.SimpleStringExtractor;
+import no.nav.pensjon.selvbetjeningopptjening.TestFnrs;
+import no.nav.pensjon.selvbetjeningopptjening.config.SimpleLoginInfoGetter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -29,7 +30,7 @@ class ByUserIdStrategyTest {
 
     @Test
     void isEnabled_returns_true_when_userId_match() {
-        String encryptedUserId = new BCryptPasswordEncoder().encode("match");
+        String encryptedUserId = new BCryptPasswordEncoder().encode(TestFnrs.NORMAL);
         setToggleValue(encryptedUserId);
 
         boolean isEnabled = strategy.isEnabled(params);
@@ -39,7 +40,7 @@ class ByUserIdStrategyTest {
 
     @Test
     void isEnabled_returns_false_when_userId_mismatch() {
-        String encryptedUserId = new BCryptPasswordEncoder().encode("match");
+        String encryptedUserId = new BCryptPasswordEncoder().encode(TestFnrs.NORMAL);
         setToggleValue(encryptedUserId);
         strategy.seMismatchingUserId();
 
@@ -64,16 +65,16 @@ class ByUserIdStrategyTest {
 
     private static class TestByUserIdStrategy extends ByUserIdStrategy {
 
-        private String userId = "match";
+        private String userId = TestFnrs.NORMAL;
 
         @Override
         @SuppressWarnings("unchecked")
         protected <T> T getBean(Class<T> beanClass) {
-            return (T) new SimpleStringExtractor(userId);
+            return (T) new SimpleLoginInfoGetter(userId);
         }
 
         void seMismatchingUserId() {
-            userId = "mismatch";
+            userId = "41015800001";
         }
     }
 }

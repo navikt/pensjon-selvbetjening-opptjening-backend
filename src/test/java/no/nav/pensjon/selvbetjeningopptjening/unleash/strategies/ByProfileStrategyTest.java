@@ -1,9 +1,9 @@
 package no.nav.pensjon.selvbetjeningopptjening.unleash.strategies;
 
-import no.nav.pensjon.selvbetjeningopptjening.config.StringExtractor;
+import no.nav.pensjon.selvbetjeningopptjening.config.SimpleLoginInfoGetter;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uttaksgrad;
-import no.nav.pensjon.selvbetjeningopptjening.util.SimpleStringExtractor;
+import no.nav.pensjon.selvbetjeningopptjening.usersession.LoginInfoGetter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -90,16 +90,17 @@ class ByProfileStrategyTest {
 
     private class TestByProfileStrategy extends ByProfileStrategy {
 
+        private static final String SYNTHETIC_FNR_BEFORE_1962 = "31126100666";
         private String fnr = "03029119367";
 
         @Override
         @SuppressWarnings("unchecked")
         protected <T> T getBean(Class<T> beanClass) {
-            return beanClass == StringExtractor.class ? (T) new SimpleStringExtractor(fnr) : (T) uttaksgradGetter;
+            return beanClass == LoginInfoGetter.class ? (T) new SimpleLoginInfoGetter(fnr) : (T) uttaksgradGetter;
         }
 
         void setFnrBefore1962() {
-            fnr = "31126112345";
+            fnr = SYNTHETIC_FNR_BEFORE_1962;
         }
     }
 }

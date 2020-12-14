@@ -1,9 +1,9 @@
 package no.nav.pensjon.selvbetjeningopptjening.unleash.strategies;
 
-import no.nav.pensjon.selvbetjeningopptjening.config.StringExtractor;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uttaksgrad;
+import no.nav.pensjon.selvbetjeningopptjening.usersession.LoginInfoGetter;
 
 import java.util.List;
 import java.util.Map;
@@ -29,8 +29,8 @@ public class ByProfileStrategy extends BeanStrategy {
             return false;
         }
 
-        String fnr = getBean(StringExtractor.class).extract();
-        return Pid.isValidPid(fnr) && uttaksgrader(fnr).isEmpty() && new Pid(fnr).getFodselsdato().getYear() > TIPPING_POINT;
+        Pid pid = getBean(LoginInfoGetter.class).getLoginInfo().getPid();
+        return uttaksgrader(pid.getPid()).isEmpty() && pid.getFodselsdato().getYear() > TIPPING_POINT;
     }
 
     private List<Uttaksgrad> uttaksgrader(String fnr) {

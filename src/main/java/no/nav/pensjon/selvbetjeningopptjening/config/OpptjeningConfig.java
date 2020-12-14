@@ -13,9 +13,7 @@ import no.nav.pensjon.selvbetjeningopptjening.opptjening.EndringPensjonsbeholdni
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.MerknadHandler;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.LoginInfoGetter;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.token.TokenLoginInfoExtractor;
-import no.nav.pensjon.selvbetjeningopptjening.util.FnrExtractor;
 import no.nav.pensjon.selvbetjeningopptjening.util.LocalDateTimeFromEpochDeserializer;
-import no.nav.pensjon.selvbetjeningopptjening.util.SimpleStringExtractor;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -82,18 +80,6 @@ public class OpptjeningConfig {
     @Bean
     public MerknadHandler merknadHandler() {
         return new MerknadHandler();
-    }
-
-    @Bean
-    @Profile("default")
-    public StringExtractor fnrExtractor(TokenValidationContextHolder context) {
-        return new FnrExtractor(context);
-    }
-
-    @Bean
-    @Profile("!default")
-    public StringExtractor simpleFnrExtractor(@Value("${fnr}") String fnr) {
-        return new SimpleStringExtractor(fnr);
     }
 
     @Bean
