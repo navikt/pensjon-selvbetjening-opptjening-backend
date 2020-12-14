@@ -1,7 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import io.jsonwebtoken.JwtException;
-import no.nav.pensjon.selvbetjeningopptjening.config.OpptjeningFeature;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
@@ -22,7 +21,6 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.servlet.http.HttpServletRequest;
 
 import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
-import static no.nav.pensjon.selvbetjeningopptjening.unleash.UnleashProvider.toggle;
 
 @RestController
 @RequestMapping("api/")
@@ -52,13 +50,8 @@ public class OpptjeningOnBehalfEndpoint {
             }
 
             jwsValidator.validate(idToken);
-
-            if (toggle(OpptjeningFeature.PL1441).isEnabled()) {
-                var pid = new Pid(fnr, true);
-                return provider.calculateOpptjeningForFnr(pid, LoginSecurityLevel.INTERNAL);
-            }
-
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The service is unavailable for the specified user");
+            var pid = new Pid(fnr, true);
+            return provider.calculateOpptjeningForFnr(pid, LoginSecurityLevel.INTERNAL);
         } catch (JwtException e) {
             log.error("JwtException. Message: {}.", e.getMessage());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
