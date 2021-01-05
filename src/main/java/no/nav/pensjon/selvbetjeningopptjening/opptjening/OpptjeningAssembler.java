@@ -318,7 +318,11 @@ abstract class OpptjeningAssembler {
 
         if (beholdningYear < currentYear - 1) {
             Optional<Opptjening> opptjening = Optional.ofNullable(opptjeningerByYear.get(beholdningYear));
-            opptjening.ifPresent(opt -> opt.setPensjonsgivendeInntekt(0L));
+            opptjening.ifPresent(opt -> {
+                if (!opt.hasPensjonsgivendeInntekt()) {
+                    opt.setPensjonsgivendeInntekt(0L);
+                }
+            });
         }
     }
 
