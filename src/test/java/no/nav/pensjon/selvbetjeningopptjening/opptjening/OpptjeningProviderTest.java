@@ -7,6 +7,7 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.Pensjonspoe
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.model.code.OpptjeningTypeCode;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.person.PersonService;
@@ -457,6 +458,30 @@ class OpptjeningProviderTest {
     }
 
     @Test
+    void when_pid_UserGroup4_default_inntekt_should_not_overwrite_already_set_inntekt() {
+        long expectedInntekt2012 = 1200L;
+        long expectedInntekt2013 = 1600L;
+        Beholdning beholdning2011 = beholdningFomFirstDayInYear(2011);
+        Inntekt inntekt2012 = new Inntekt(2012, "SUM_PI", expectedInntekt2012);
+        var inntektsopptjening = new Inntektsopptjening(2012, (double) expectedInntekt2012, inntekt2012);
+        Beholdning beholdning2012 = beholdningFomFirstDayInYear(2012, inntektsopptjening);
+        Beholdning beholdning2013 = beholdningFomFirstDayInYear(2013);
+        Pensjonspoeng pensjonspoeng2013 = pensjonspoengForYearWithInntekt(2013, expectedInntekt2013);
+
+        when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
+        when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
+        when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(List.of(beholdning2011, beholdning2012, beholdning2013));
+        when(personService.getBirthDate(any(Pid.class), eq(LoginSecurityLevel.LEVEL4))).thenReturn(DATE_IN_1960);
+        when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(singletonList(pensjonspoeng2013));
+
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960), LoginSecurityLevel.LEVEL4);
+
+        assertThat(opptjeningResponse.getOpptjeningData().get(2011).getPensjonsgivendeInntekt(), is(0));
+        assertThat(opptjeningResponse.getOpptjeningData().get(2012).getPensjonsgivendeInntekt().longValue(), is(expectedInntekt2012));
+        assertThat(opptjeningResponse.getOpptjeningData().get(2013).getPensjonsgivendeInntekt().longValue(), is(expectedInntekt2013));
+    }
+
+    @Test
     void when_pid_UserGroup5_with_with_no_inntekt_on_last_two_years_then_pensjonsgivendeInntekt_should_be_null() {
         int currentYear = LocalDate.now().getYear();
         int lastYear = currentYear - 1;
@@ -584,5 +609,9 @@ class OpptjeningProviderTest {
 
     private static UforeHistorikk uforeHistorikk() {
         return new UforeHistorikk(emptyList());
+    }
+
+    private static Pensjonspoeng pensjonspoengForYearWithInntekt(int year, long inntekt){
+        return new Pensjonspoeng(year, OpptjeningTypeCode.PPI.toString(), 1d, new Inntekt(year, "SUM_PI", inntekt), new Omsorg(""));
     }
 }
