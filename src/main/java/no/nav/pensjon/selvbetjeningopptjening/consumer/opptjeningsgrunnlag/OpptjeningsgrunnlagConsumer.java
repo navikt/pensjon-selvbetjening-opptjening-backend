@@ -1,5 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag;
 
+import no.nav.pensjon.selvbetjeningopptjening.common.selftest.PingInfo;
+import no.nav.pensjon.selvbetjeningopptjening.common.selftest.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Inntekt;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,12 +12,13 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.Optional;
 
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.PoppUtil.handle;
 import static no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.InntektMapper.fromDto;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
 
-public class OpptjeningsgrunnlagConsumer {
+public class OpptjeningsgrunnlagConsumer implements Pingable {
 
     private static final String CONSUMED_SERVICE = "PROPOPP007 hentOpptjeningsgrunnlag";
     private static final String ENDPOINT_PATH = "/opptjeningsgrunnlag/";
@@ -65,4 +68,23 @@ public class OpptjeningsgrunnlagConsumer {
     public void setRestTemplate(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
+
+    @Override
+    public Optional<String> ping() {
+        try {
+            return Optional.ofNullable(restTemplate.exchange(
+                    UriComponentsBuilder.fromHttpUrl(endpoint).path("/opptjeningsgrunnlag/ping").toUriString(),
+                    HttpMethod.GET,
+                    null,
+                    String.class).getBody());
+        } catch (RestClientResponseException rce) {
+            throw handle(rce, CONSUMED_SERVICE);
+        }
+    }
+
+    @Override
+    public PingInfo getPingInfo() {
+        return new PingInfo("REST", "POPP Pensjon Beholdning", UriComponentsBuilder.fromHttpUrl(endpoint).path("/opptjeningsgrunnlag/ping").toUriString());
+    }
+
 }

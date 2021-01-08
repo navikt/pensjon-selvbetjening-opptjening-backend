@@ -1,5 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning;
 
+import no.nav.pensjon.selvbetjeningopptjening.common.selftest.PingInfo;
+import no.nav.pensjon.selvbetjeningopptjening.common.selftest.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Beholdning;
 import org.springframework.http.HttpEntity;
@@ -10,12 +12,13 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.Optional;
 
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.PoppUtil.handle;
 import static no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.BeholdningMapper.fromDto;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
 
-public class PensjonsbeholdningConsumer {
+public class PensjonsbeholdningConsumer implements Pingable {
 
     static final String CONSUMED_SERVICE = "PROPOPP006 hentPensjonsbeholdningListe";
     private final String endpoint;
@@ -54,5 +57,23 @@ public class PensjonsbeholdningConsumer {
         return new HttpEntity<>(
                 new BeholdningListeRequest(fnr),
                 new HttpHeaders());
+    }
+
+    @Override
+    public Optional<String> ping() {
+        try {
+            return Optional.ofNullable(restTemplate.exchange(
+                    UriComponentsBuilder.fromHttpUrl(endpoint).path("/beholdning/ping").toUriString(),
+                    HttpMethod.GET,
+                    null,
+                    String.class).getBody());
+        } catch (RestClientResponseException rce) {
+            throw handle(rce, CONSUMED_SERVICE);
+        }
+    }
+
+    @Override
+    public PingInfo getPingInfo() {
+        return new PingInfo("REST", "POPP Pensjon Beholdning", buildUrl());
     }
 }

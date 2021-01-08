@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static no.nav.pensjon.selvbetjeningopptjening.util.UserGroupUtil.findUserGroup;
 
@@ -69,6 +70,16 @@ public class OpptjeningProvider {
                         pensjonspoengConsumer,
                         pensjonsbeholdningConsumer,
                         uttaksgradGetter));
+    }
+
+    public String ping(){
+        Optional<String> ping1 = pensjonsbeholdningConsumer.ping();
+        Optional<String> ping2 = opptjeningsgrunnlagConsumer.ping();
+        Optional<String> ping3 = personConsumer.ping();
+        Optional<String> ping4 = pensjonspoengConsumer.ping() ;
+        Optional<String> ping5 = restpensjonConsumer.ping();
+        Optional<String> ping6 = uttaksgradGetter.ping();
+        return "ping";
     }
 
     private boolean shouldGetRestpensjon(UserGroup userGroup, List<Uttaksgrad> uttaksgrader) {

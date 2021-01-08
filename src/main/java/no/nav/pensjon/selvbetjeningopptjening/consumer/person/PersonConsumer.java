@@ -1,5 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.person;
 
+import no.nav.pensjon.selvbetjeningopptjening.common.selftest.PingInfo;
+import no.nav.pensjon.selvbetjeningopptjening.common.selftest.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikkDto;
 import no.nav.pensjon.selvbetjeningopptjening.model.UforeHistorikkDto;
@@ -15,10 +17,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Optional;
+
+import static no.nav.pensjon.selvbetjeningopptjening.consumer.PoppUtil.handle;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.PEN;
 
-public class PersonConsumer {
+public class PersonConsumer implements Pingable {
 
     private String endpoint;
     private RestTemplate restTemplate;
@@ -60,6 +66,24 @@ public class PersonConsumer {
         } catch (Exception e) {
             throw new FailedCallingExternalServiceException(PEN, "PROPEN2603 getUforehistorikkForPerson", "An error occurred in the consumer", e);
         }
+    }
+
+    @Override
+    public Optional<String> ping() {
+        try {
+            return Optional.ofNullable(restTemplate.exchange(
+                    UriComponentsBuilder.fromHttpUrl(endpoint).path("/person/ping").toUriString(),
+                    HttpMethod.GET,
+                    null,
+                    String.class).getBody());
+        } catch (RestClientResponseException rce) {
+            throw handle(rce, "Error in PEN Person");
+        }
+    }
+
+    @Override
+    public PingInfo getPingInfo() {
+        return new PingInfo("REST", "PEN", UriComponentsBuilder.fromHttpUrl(endpoint).path("/person/ping").toUriString());
     }
 
     private FailedCallingExternalServiceException handle(RestClientResponseException e, String serviceIdentifier) {
