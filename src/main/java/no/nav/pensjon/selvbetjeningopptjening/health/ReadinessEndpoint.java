@@ -32,7 +32,7 @@ public class ReadinessEndpoint {
     }
 
     @RequestMapping(path = "selvtest", method = RequestMethod.GET)
-    public String  ping() {
-        return opptjeningProvider.ping();
+    public void ping() {
+         opptjeningProvider.ping();
     }
 }

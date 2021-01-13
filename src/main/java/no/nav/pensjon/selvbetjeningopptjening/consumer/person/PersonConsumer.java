@@ -19,9 +19,6 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Optional;
-
-import static no.nav.pensjon.selvbetjeningopptjening.consumer.PoppUtil.handle;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.PEN;
 
 public class PersonConsumer implements Pingable {
@@ -69,13 +66,13 @@ public class PersonConsumer implements Pingable {
     }
 
     @Override
-    public Optional<String> ping() {
+    public void ping() {
         try {
-            return Optional.ofNullable(restTemplate.exchange(
+                restTemplate.exchange(
                     UriComponentsBuilder.fromHttpUrl(endpoint).path("/person/ping").toUriString(),
                     HttpMethod.GET,
                     null,
-                    String.class).getBody());
+                    String.class).getBody();
         } catch (RestClientResponseException rce) {
             throw handle(rce, "Error in PEN Person");
         }

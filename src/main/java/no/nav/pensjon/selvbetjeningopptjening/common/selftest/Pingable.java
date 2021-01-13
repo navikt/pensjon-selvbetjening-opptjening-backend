@@ -1,7 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.common.selftest;
 
-import java.util.Optional;
-
 /**
  * Defines that the implementing consumer has a ping operation
  */
@@ -16,9 +14,8 @@ public interface Pingable {
 
     /**
      * Perform the ping operation
-     * @return optional information from ping-op
      */
-    Optional<String> ping();
+    void ping();
 
     /**
      * @return static information regarding the target

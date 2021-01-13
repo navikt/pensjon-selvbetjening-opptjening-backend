@@ -12,7 +12,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
-import java.util.Optional;
 
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.PoppUtil.handle;
 import static no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.RestpensjonMapper.fromDto;
@@ -46,13 +45,13 @@ public class RestpensjonConsumer implements Pingable {
     }
 
     @Override
-    public Optional<String> ping() {
+    public void ping() {
         try {
-            return Optional.ofNullable(restTemplate.exchange(
+                restTemplate.exchange(
                     UriComponentsBuilder.fromHttpUrl(endpoint).path("/restpensjon/ping").toUriString(),
                     HttpMethod.GET,
                     null,
-                    String.class).getBody());
+                    String.class).getBody();
         } catch (RestClientResponseException rce) {
             throw handle(rce, CONSUMED_SERVICE);
         }
