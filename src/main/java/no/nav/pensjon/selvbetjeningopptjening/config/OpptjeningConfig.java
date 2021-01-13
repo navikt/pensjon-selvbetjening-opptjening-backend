@@ -83,15 +83,8 @@ public class OpptjeningConfig {
     }
 
     @Bean
-    @Profile("default")
     public LoginInfoGetter loginInfoGetter(TokenValidationContextHolder context) {
         return new TokenLoginInfoExtractor(context);
-    }
-
-    @Bean
-    @Profile("!default")
-    public LoginInfoGetter simpleLoginInfoGetter(@Value("${fnr}") String fnr) {
-        return new SimpleLoginInfoGetter(fnr);
     }
 
     private static MappingJackson2HttpMessageConverter createCustomMessageConverterForLocalDate() {

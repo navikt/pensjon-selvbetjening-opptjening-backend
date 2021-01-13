@@ -19,7 +19,7 @@ import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.ISSUER;
 
 @RestController
 @RequestMapping("api")
-@ProtectedWithClaims(issuer = ISSUER) // Use @Unprotected when running with laptop/uimage profile
+@ProtectedWithClaims(issuer = ISSUER)
 public class OpptjeningEndpoint {
 
     private final Log log = LogFactory.getLog(getClass());
