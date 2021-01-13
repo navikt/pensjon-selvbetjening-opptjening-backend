@@ -1,6 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.usersession.internaluser;
 
 import io.jsonwebtoken.JwtException;
+import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
 import no.nav.pensjon.selvbetjeningopptjening.security.crypto.Crypto;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieSetter;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieType;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
@@ -32,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(InternalUserAuthorizationCodeFlow.class)
+@ContextConfiguration(classes = SelvbetjeningOpptjeningApplication.class)
 class InternalUserAuthorizationCodeFlowTest {
 
     private static final String ROOT_URL = "/oauth2/internal";

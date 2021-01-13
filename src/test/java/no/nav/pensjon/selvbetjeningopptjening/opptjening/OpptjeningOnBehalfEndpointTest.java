@@ -2,6 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import no.finn.unleash.FakeUnleash;
 import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
+import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
 import no.nav.pensjon.selvbetjeningopptjening.config.OpptjeningFeature;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.servlet.http.Cookie;
@@ -25,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(OpptjeningOnBehalfEndpoint.class)
+@ContextConfiguration(classes = SelvbetjeningOpptjeningApplication.class)
 class OpptjeningOnBehalfEndpointTest {
 
     private static final Pid PID = PidGenerator.generatePidAtAge(65);
