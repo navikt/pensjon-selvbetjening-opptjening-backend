@@ -2,8 +2,8 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 
 import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
-import no.nav.pensjon.selvbetjeningopptjening.common.selftest.PingInfo;
-import no.nav.pensjon.selvbetjeningopptjening.common.selftest.Pingable;
+import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.PingInfo;
+import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedsel;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlData;

@@ -1,7 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag;
 
-import no.nav.pensjon.selvbetjeningopptjening.common.selftest.PingInfo;
-import no.nav.pensjon.selvbetjeningopptjening.common.selftest.Pingable;
+import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.PingInfo;
+import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Inntekt;
 import org.springframework.beans.factory.annotation.Autowired;

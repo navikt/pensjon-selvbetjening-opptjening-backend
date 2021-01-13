@@ -1,4 +1,4 @@
-package no.nav.pensjon.selvbetjeningopptjening.common.selftest;
+package no.nav.pensjon.selvbetjeningopptjening.common.selvtest;
 
 import java.util.Objects;
 
@@ -40,7 +40,7 @@ public class PingInfo {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PingInfo pingInfo = (PingInfo) o;
-        return resourceType == pingInfo.resourceType &&
+        return resourceType.equals(pingInfo.resourceType) &&
             Objects.equals(endpoint, pingInfo.endpoint) &&
             Objects.equals(description, pingInfo.description);
     }

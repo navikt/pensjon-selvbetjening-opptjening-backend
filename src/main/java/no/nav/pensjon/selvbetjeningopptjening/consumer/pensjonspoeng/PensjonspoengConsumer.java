@@ -1,7 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng;
 
-import no.nav.pensjon.selvbetjeningopptjening.common.selftest.PingInfo;
-import no.nav.pensjon.selvbetjeningopptjening.common.selftest.Pingable;
+import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.PingInfo;
+import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pensjonspoeng;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.PensjonspoengMapper;

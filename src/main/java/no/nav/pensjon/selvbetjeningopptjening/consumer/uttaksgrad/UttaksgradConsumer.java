@@ -1,6 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad;
 
-import no.nav.pensjon.selvbetjeningopptjening.common.selftest.PingInfo;
+import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uttaksgrad;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.UttaksgradMapper;

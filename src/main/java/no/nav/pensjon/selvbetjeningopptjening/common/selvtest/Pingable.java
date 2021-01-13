@@ -1,4 +1,4 @@
-package no.nav.pensjon.selvbetjeningopptjening.common.selftest;
+package no.nav.pensjon.selvbetjeningopptjening.common.selvtest;
 
 /**
  * Defines that the implementing consumer has a ping operation
