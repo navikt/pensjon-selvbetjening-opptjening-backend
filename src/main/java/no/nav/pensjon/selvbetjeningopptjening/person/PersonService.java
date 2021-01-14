@@ -24,6 +24,10 @@ public class PersonService {
         this.pdlConsumer = pdlConsumer;
     }
 
+    public void ping(){
+        pdlConsumer.ping();
+    }
+
     public LocalDate getBirthDate(Pid pid, LoginSecurityLevel securityLevel) {
         try {
             List<BirthDate> birthDates = pdlConsumer.getBirthDates(pid, securityLevel);

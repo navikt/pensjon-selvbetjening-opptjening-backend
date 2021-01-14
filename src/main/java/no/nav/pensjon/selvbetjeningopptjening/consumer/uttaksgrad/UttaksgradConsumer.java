@@ -1,5 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad;
 
+import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uttaksgrad;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.UttaksgradMapper;
@@ -68,6 +69,24 @@ public class UttaksgradConsumer implements UttaksgradGetter {
         } catch (Exception e) {
             throw new FailedCallingExternalServiceException(PEN, "PROPEN3001 getAlderSakUttaksgradhistorikkForPerson", "An error occurred in the consumer", e);
         }
+    }
+
+    @Override
+    public void ping() {
+        try {
+                 restTemplate.exchange(
+                    UriComponentsBuilder.fromHttpUrl(endpoint).path("/uttaksgrad/ping").toUriString(),
+                    HttpMethod.GET,
+                    null,
+                    String.class).getBody();
+        } catch (RestClientResponseException rce) {
+            throw handle(rce, "Error in PEN Uttaksgrad");
+        }
+    }
+
+    @Override
+    public PingInfo getPingInfo() {
+        return new PingInfo("REST", "PEN", UriComponentsBuilder.fromHttpUrl(endpoint).path("/uttaksgrad/ping").toUriString());
     }
 
     private FailedCallingExternalServiceException handle(RestClientResponseException e, String serviceIdentifier) {

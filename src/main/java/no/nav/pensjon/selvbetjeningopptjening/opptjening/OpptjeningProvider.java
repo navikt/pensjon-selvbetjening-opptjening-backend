@@ -71,6 +71,16 @@ public class OpptjeningProvider {
                         uttaksgradGetter));
     }
 
+    public void ping(){
+        pensjonsbeholdningConsumer.ping();
+        opptjeningsgrunnlagConsumer.ping();
+        personConsumer.ping();
+        pensjonspoengConsumer.ping() ;
+        restpensjonConsumer.ping();
+        uttaksgradGetter.ping();
+        personService.ping();
+    }
+
     private boolean shouldGetRestpensjon(UserGroup userGroup, List<Uttaksgrad> uttaksgrader) {
         return userGroup.hasRestpensjon() && userHasUttakAlderspensjonWithUttaksgradLessThan100(uttaksgrader);
     }
