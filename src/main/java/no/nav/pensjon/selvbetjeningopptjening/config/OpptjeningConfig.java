@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
@@ -83,15 +82,8 @@ public class OpptjeningConfig {
     }
 
     @Bean
-    @Profile("default")
     public LoginInfoGetter loginInfoGetter(TokenValidationContextHolder context) {
         return new TokenLoginInfoExtractor(context);
-    }
-
-    @Bean
-    @Profile("!default")
-    public LoginInfoGetter simpleLoginInfoGetter(@Value("${fnr}") String fnr) {
-        return new SimpleLoginInfoGetter(fnr);
     }
 
     private static MappingJackson2HttpMessageConverter createCustomMessageConverterForLocalDate() {

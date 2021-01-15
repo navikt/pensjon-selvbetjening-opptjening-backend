@@ -1,7 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.unleash.strategies;
 
-import no.nav.pensjon.selvbetjeningopptjening.config.SimpleLoginInfoGetter;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
+import no.nav.pensjon.selvbetjeningopptjening.mock.MockLoginInfoGetter;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uttaksgrad;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.LoginInfoGetter;
 import org.junit.jupiter.api.BeforeEach;
@@ -96,7 +96,7 @@ class ByProfileStrategyTest {
         @Override
         @SuppressWarnings("unchecked")
         protected <T> T getBean(Class<T> beanClass) {
-            return beanClass == LoginInfoGetter.class ? (T) new SimpleLoginInfoGetter(fnr) : (T) uttaksgradGetter;
+            return beanClass == LoginInfoGetter.class ? (T) new MockLoginInfoGetter(fnr) : (T) uttaksgradGetter;
         }
 
         void setFnrBefore1962() {

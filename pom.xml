@@ -160,6 +160,12 @@
             <version>${okhttp3.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>no.nav.security</groupId>
+            <artifactId>mock-oauth2-server</artifactId>
+            <version>0.1.35</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -1,7 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.unleash.strategies;
 
 import no.nav.pensjon.selvbetjeningopptjening.TestFnrs;
-import no.nav.pensjon.selvbetjeningopptjening.config.SimpleLoginInfoGetter;
+import no.nav.pensjon.selvbetjeningopptjening.mock.MockLoginInfoGetter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -70,7 +70,7 @@ class ByUserIdStrategyTest {
         @Override
         @SuppressWarnings("unchecked")
         protected <T> T getBean(Class<T> beanClass) {
-            return (T) new SimpleLoginInfoGetter(userId);
+            return (T) new MockLoginInfoGetter(userId);
         }
 
         void seMismatchingUserId() {

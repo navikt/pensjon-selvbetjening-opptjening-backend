@@ -3,19 +3,22 @@ package no.nav.pensjon.selvbetjeningopptjening.unleash;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.finn.unleash.FakeUnleash;
+import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+
 import java.util.Collections;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @WebMvcTest(UnleashStatusEndpoint.class)
+@ContextConfiguration(classes = SelvbetjeningOpptjeningApplication.class)
 class UnleashStatusEndpointTest {
 
     private static final String URI = "/api/unleash";
@@ -32,7 +35,6 @@ class UnleashStatusEndpointTest {
 
     @Test
     void getUnleashStatus_returns_Status_OK_when_valid_input() throws Exception {
-
         mvc.perform(post(URI)
                 .contentType("application/json")
                 .content(UnleashStatusEndpointTest.request()))
@@ -41,7 +43,6 @@ class UnleashStatusEndpointTest {
 
     @Test
     void getUnleashStatus_returns_UnleashStatusResponseJson_when_requestBody_has_toggleList() throws Exception {
-
         mvc.perform(post(URI)
                 .contentType("application/json")
                 .content(UnleashStatusEndpointTest.request()))
@@ -69,11 +70,11 @@ class UnleashStatusEndpointTest {
                 .andExpect(content().json("{}"));
     }
 
-    private  static String request() {
-        UnleashStatusRequest request = new UnleashStatusRequest();
+    private static String request() {
+        var request = new UnleashStatusRequest();
         request.setToggleList(Collections.singletonList("toggle1"));
+        var mapper = new ObjectMapper();
 
-        ObjectMapper mapper = new ObjectMapper();
         try {
             return mapper.writeValueAsString(request);
         } catch (JsonProcessingException e) {
