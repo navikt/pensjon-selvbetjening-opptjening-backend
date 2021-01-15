@@ -1,5 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag;
 
+import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.PingInfo;
+import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Inntekt;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +17,7 @@ import static no.nav.pensjon.selvbetjeningopptjening.consumer.PoppUtil.handle;
 import static no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.InntektMapper.fromDto;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
 
-public class OpptjeningsgrunnlagConsumer {
+public class OpptjeningsgrunnlagConsumer implements Pingable {
 
     private static final String CONSUMED_SERVICE = "PROPOPP007 hentOpptjeningsgrunnlag";
     private static final String ENDPOINT_PATH = "/opptjeningsgrunnlag/";
@@ -65,4 +67,23 @@ public class OpptjeningsgrunnlagConsumer {
     public void setRestTemplate(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
+
+    @Override
+    public void ping() {
+        try {
+                restTemplate.exchange(
+                    UriComponentsBuilder.fromHttpUrl(endpoint).path("/opptjeningsgrunnlag/ping").toUriString(),
+                    HttpMethod.GET,
+                    null,
+                    String.class).getBody();
+        } catch (RestClientResponseException rce) {
+            throw handle(rce, CONSUMED_SERVICE);
+        }
+    }
+
+    @Override
+    public PingInfo getPingInfo() {
+        return new PingInfo("REST", "POPP Pensjon Beholdning", UriComponentsBuilder.fromHttpUrl(endpoint).path("/opptjeningsgrunnlag/ping").toUriString());
+    }
+
 }

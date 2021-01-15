@@ -2,6 +2,8 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 
 import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
+import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.PingInfo;
+import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedsel;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlData;
@@ -27,7 +29,7 @@ import static java.util.stream.Collectors.joining;
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.mapping.BirthDateMapper.fromDtos;
 
 @Component
-public class PdlConsumer {
+public class PdlConsumer implements Pingable {
 
     private static final String CONSUMED_SERVICE = "PDL";
     private static final String TOKEN_ISSUER = "selvbetjening";
@@ -37,11 +39,13 @@ public class PdlConsumer {
     private final TokenValidationContextHolder context;
     private final ServiceUserTokenGetter serviceUserTokenGetter;
     private final WebClient webclient;
+    private final String endpoint;
 
     public PdlConsumer(@Value("${pdl.endpoint.url}") String endpoint,
                        TokenValidationContextHolder context,
                        ServiceUserTokenGetter serviceUserTokenGetter) {
         this.context = context;
+        this.endpoint = endpoint;
         this.serviceUserTokenGetter = serviceUserTokenGetter;
         this.webclient = WebClient
                 .builder()
@@ -67,6 +71,23 @@ public class PdlConsumer {
         } catch (JSONException e) {
             return handleJsonError(e);
         }
+    }
+
+    @Override
+    public void ping() {
+        try {
+                webclient.options()
+                    .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue(LoginSecurityLevel.INTERNAL))
+                    .header(PdlHttpHeaders.CONSUMER_TOKEN, consumerToken()).retrieve().bodyToMono(String.class)
+                    .block();
+        } catch (RuntimeException re) {
+            throw new FailedCallingExternalServiceException("PDL","","", re);
+        }
+    }
+
+    @Override
+    public PingInfo getPingInfo() {
+        return new PingInfo("REST", "PDL", endpoint);
     }
 
     private String getAuthHeaderValue(LoginSecurityLevel securityLevel) {
