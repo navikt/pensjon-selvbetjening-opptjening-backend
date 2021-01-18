@@ -48,6 +48,8 @@ spec:
   azure:
     application:
       enabled: true
+      replyURLs:
+        - https://pensjon-selvbetjening-opptjening-frontend.adeo.no/pensjon/opptjening/oauth2/internal/callback
   webproxy: true
   prometheus:
     enabled: true
