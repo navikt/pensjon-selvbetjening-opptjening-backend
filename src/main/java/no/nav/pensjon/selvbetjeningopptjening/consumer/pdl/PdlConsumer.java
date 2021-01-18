@@ -2,8 +2,8 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 
 import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
-import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.PingInfo;
-import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.Pingable;
+import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
+import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedsel;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlData;
@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.List;
 
@@ -47,24 +48,19 @@ public class PdlConsumer implements Pingable {
         this.context = context;
         this.endpoint = endpoint;
         this.serviceUserTokenGetter = serviceUserTokenGetter;
-        this.webclient = WebClient
-                .builder()
-                .baseUrl(endpoint)
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .defaultHeader(PdlHttpHeaders.THEME, THEME)
-                .build();
+        this.webclient = pdlWebClient(endpoint);
     }
 
     public List<BirthDate> getBirthDates(Pid pid, LoginSecurityLevel securityLevel) throws PdlException {
         try {
-            PdlResponse response =
-                    webclient.post()
-                            .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue(securityLevel))
-                            .header(PdlHttpHeaders.CONSUMER_TOKEN, consumerToken())
-                            .bodyValue(PdlRequest.getBirthQuery(pid))
-                            .retrieve()
-                            .bodyToMono(PdlResponse.class)
-                            .block();
+            PdlResponse response = webclient
+                    .post()
+                    .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue(securityLevel))
+                    .header(PdlHttpHeaders.CONSUMER_TOKEN, consumerToken())
+                    .bodyValue(PdlRequest.getBirthQuery(pid))
+                    .retrieve()
+                    .bodyToMono(PdlResponse.class)
+                    .block();
 
             handleErrors(response);
             return fromDtos(getBirths(response));
@@ -76,12 +72,13 @@ public class PdlConsumer implements Pingable {
     @Override
     public void ping() {
         try {
-                webclient.options()
-                    .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue(LoginSecurityLevel.INTERNAL))
-                    .header(PdlHttpHeaders.CONSUMER_TOKEN, consumerToken()).retrieve().bodyToMono(String.class)
+            webclient
+                    .options()
+                    .retrieve()
+                    .toBodilessEntity()
                     .block();
-        } catch (RuntimeException re) {
-            throw new FailedCallingExternalServiceException("PDL","","", re);
+        } catch (WebClientResponseException e) {
+            throw new FailedCallingExternalServiceException("PDL", "", "", e);
         }
     }
 
@@ -95,6 +92,15 @@ public class PdlConsumer implements Pingable {
                 (securityLevel == LoginSecurityLevel.INTERNAL
                         ? getServiceUserAccessToken()
                         : getUserAccessToken());
+    }
+
+    private static WebClient pdlWebClient(String endpoint) {
+        return WebClient
+                .builder()
+                .baseUrl(endpoint)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader(PdlHttpHeaders.THEME, THEME)
+                .build();
     }
 
     private String getServiceUserAccessToken() {

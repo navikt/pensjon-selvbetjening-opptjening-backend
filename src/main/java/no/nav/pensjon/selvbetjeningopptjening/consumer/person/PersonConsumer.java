@@ -1,7 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.person;
 
-import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.PingInfo;
-import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.Pingable;
+import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
+import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikkDto;
 import no.nav.pensjon.selvbetjeningopptjening.model.UforeHistorikkDto;
@@ -68,13 +68,13 @@ public class PersonConsumer implements Pingable {
     @Override
     public void ping() {
         try {
-                restTemplate.exchange(
+            restTemplate.exchange(
                     UriComponentsBuilder.fromHttpUrl(endpoint).path("/person/ping").toUriString(),
                     HttpMethod.GET,
                     null,
                     String.class).getBody();
-        } catch (RestClientResponseException rce) {
-            throw handle(rce, "Error in PEN Person");
+        } catch (RestClientResponseException e) {
+            throw handle(e, "Error in PEN Person");
         }
     }
 

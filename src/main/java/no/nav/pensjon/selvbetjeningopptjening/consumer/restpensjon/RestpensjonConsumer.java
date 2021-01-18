@@ -1,7 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon;
 
-import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.PingInfo;
-import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.Pingable;
+import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
+import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Restpensjon;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,19 +47,19 @@ public class RestpensjonConsumer implements Pingable {
     @Override
     public void ping() {
         try {
-                restTemplate.exchange(
+            restTemplate.exchange(
                     UriComponentsBuilder.fromHttpUrl(endpoint).path("/restpensjon/ping").toUriString(),
                     HttpMethod.GET,
                     null,
                     String.class).getBody();
-        } catch (RestClientResponseException rce) {
-            throw handle(rce, CONSUMED_SERVICE);
+        } catch (RestClientResponseException e) {
+            throw handle(e, CONSUMED_SERVICE);
         }
     }
 
     @Override
     public PingInfo getPingInfo() {
-        return new PingInfo("REST", "POPP Rest Pensjon", UriComponentsBuilder.fromHttpUrl(endpoint).path("/restpensjon/ping").toUriString());
+        return new PingInfo("REST", "POPP Restpensjon", UriComponentsBuilder.fromHttpUrl(endpoint).path("/restpensjon/ping").toUriString());
     }
 
     private String buildUrl(String fnr) {

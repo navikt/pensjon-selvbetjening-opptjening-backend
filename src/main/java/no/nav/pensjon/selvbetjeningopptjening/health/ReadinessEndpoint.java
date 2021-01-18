@@ -31,7 +31,7 @@ public class ReadinessEndpoint {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @RequestMapping(path = "selvtest", method = RequestMethod.GET)
+    @RequestMapping(path = "selftest", method = RequestMethod.GET)
     public void ping() {
          opptjeningProvider.ping();
     }

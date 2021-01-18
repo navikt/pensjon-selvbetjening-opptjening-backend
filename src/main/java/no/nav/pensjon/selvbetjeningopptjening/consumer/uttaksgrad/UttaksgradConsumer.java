@@ -1,6 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad;
 
-import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.PingInfo;
+import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uttaksgrad;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.UttaksgradMapper;
@@ -74,13 +74,13 @@ public class UttaksgradConsumer implements UttaksgradGetter {
     @Override
     public void ping() {
         try {
-                 restTemplate.exchange(
+            restTemplate.exchange(
                     UriComponentsBuilder.fromHttpUrl(endpoint).path("/uttaksgrad/ping").toUriString(),
                     HttpMethod.GET,
                     null,
                     String.class).getBody();
-        } catch (RestClientResponseException rce) {
-            throw handle(rce, "Error in PEN Uttaksgrad");
+        } catch (RestClientResponseException e) {
+            throw handle(e, "Error in PEN Uttaksgrad");
         }
     }
 

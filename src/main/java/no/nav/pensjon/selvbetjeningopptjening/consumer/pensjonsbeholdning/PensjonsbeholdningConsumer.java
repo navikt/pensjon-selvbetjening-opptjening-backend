@@ -1,7 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning;
 
-import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.PingInfo;
-import no.nav.pensjon.selvbetjeningopptjening.common.selvtest.Pingable;
+import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
+import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Beholdning;
 import org.springframework.http.HttpEntity;
@@ -61,13 +61,13 @@ public class PensjonsbeholdningConsumer implements Pingable {
     @Override
     public void ping() {
         try {
-                restTemplate.exchange(
+            restTemplate.exchange(
                     UriComponentsBuilder.fromHttpUrl(endpoint).path("/beholdning/ping").toUriString(),
                     HttpMethod.GET,
                     null,
                     String.class).getBody();
-        } catch (RestClientResponseException rce) {
-            throw handle(rce, CONSUMED_SERVICE);
+        } catch (RestClientResponseException e) {
+            throw handle(e, CONSUMED_SERVICE);
         }
     }
 

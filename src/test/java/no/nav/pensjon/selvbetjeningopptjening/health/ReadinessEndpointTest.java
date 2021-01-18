@@ -35,8 +35,8 @@ class ReadinessEndpointTest {
     }
 
     @Test
-    void isSelvtest() throws Exception {
-        mvc.perform(get("/api/internal/selvtest"))
+    void selftest() throws Exception {
+        mvc.perform(get("/api/internal/selftest"))
                 .andExpect(status().isOk());
     }
 }
