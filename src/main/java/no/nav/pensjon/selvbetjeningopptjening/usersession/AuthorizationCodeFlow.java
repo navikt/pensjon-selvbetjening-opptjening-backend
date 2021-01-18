@@ -10,8 +10,8 @@ import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.Oauth2FlowExceptio
 import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.Oauth2ParamBuilder;
 import no.nav.pensjon.selvbetjeningopptjening.security.oidc.OidcConfigGetter;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.token.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -22,6 +22,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Objects.requireNonNull;
 import static org.springframework.util.StringUtils.hasText;
@@ -29,7 +30,7 @@ import static org.springframework.util.StringUtils.isEmpty;
 
 public abstract class AuthorizationCodeFlow {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private final Log log = LogFactory.getLog(getClass());
     private final TokenGetter tokenGetter;
     private final TokenRefresher tokenRefresher;
     private final JwsValidator jwsValidator;
@@ -44,7 +45,7 @@ public abstract class AuthorizationCodeFlow {
                                     TokenRefresher tokenRefresher,
                                     JwsValidator jwsValidator,
                                     CookieSetter cookieSetter,
-                                    no.nav.pensjon.selvbetjeningopptjening.security.crypto.Crypto crypto,
+                                    Crypto crypto,
                                     String clientId,
                                     String callbackUri) {
         this.tokenGetter = requireNonNull(tokenGetter);
@@ -58,8 +59,8 @@ public abstract class AuthorizationCodeFlow {
     }
 
     protected void login(HttpServletResponse response,
-                         String redirectUri) throws IOException, no.nav.pensjon.selvbetjeningopptjening.security.crypto.CryptoException {
-        log.info("Login request received. Redirect URI: '{}'.", redirectUri);
+                         String redirectUri) throws IOException, CryptoException {
+        log.info(format("Login request received. Redirect URI: '%s'.", redirectUri));
 
         String uri = new Oauth2ParamBuilder()
                 .scope(oauth2Scope())
@@ -79,27 +80,34 @@ public abstract class AuthorizationCodeFlow {
             return;
         }
 
-        log.info("Callback received. Code: '{}...'. State: '{}'.", code.substring(0, 3), state);
+        log.info(format("Callback received. Code: '%s...'. State: '%s'.", code.substring(0, 3), state));
 
         try {
             String redirectUri = new StateValidator(crypto).extractRedirectUri(state);
             TokenData tokenData = tokenGetter.getTokenData(TokenAccessParam.authorizationCode(code));
             jwsValidator.validate(tokenData.getIdToken());
+
+            if (!isUserAuthorized(tokenData.getAccessToken())) {
+                log.info("User not authorized");
+                unauthorized(response);
+                return;
+            }
+
             setCookies(response, tokenData);
             decodeAndRedirect(response, redirectUri);
         } catch (JwtException e) {
-            log.warn("Bad JWT. Message: '{}'.", e.getMessage());
-            response.sendRedirect("/api/error");
+            log.warn(format("Bad JWT. Message: '%s'.", e.getMessage()));
+            unauthorized(response);
         } catch (CryptoException | Oauth2FlowException e) {
-            log.warn("Bad state. Message: '{}'.", e.getMessage());
-            response.sendRedirect("/api/error");
+            log.warn(format("Bad state. Message: '%s'.", e.getMessage()));
+            unauthorized(response);
         }
     }
 
     protected void refreshToken(HttpServletRequest request,
                                 HttpServletResponse response,
                                 @RequestParam(value = "redirect", required = false) String redirectUri) throws IOException {
-        log.info("Token refresh request received. Redirect URI: '{}'.", redirectUri);
+        log.info(format("Token refresh request received. Redirect URI: '%s'.", redirectUri));
 
         try {
             TokenData tokenData = tokenRefresher.refreshToken(request);
@@ -107,13 +115,15 @@ public abstract class AuthorizationCodeFlow {
             setCookies(response, tokenData);
             decodeAndRedirect(response, redirectUri);
         } catch (MissingTokenException e) {
-            log.warn("Missing token. Message: '{}'.", e.getMessage());
+            log.warn(format("Missing token. Message: '%s'.", e.getMessage()));
             unauthorized(response);
         } catch (JwtException e) {
-            log.warn("Bad JWT. Message: '{}'.", e.getMessage());
+            log.warn(format("Bad JWT. Message: '%s'.", e.getMessage()));
             unauthorized(response);
         }
     }
+
+    protected abstract boolean isUserAuthorized(String accessToken);
 
     protected abstract String oauth2Scope();
 
@@ -127,7 +137,7 @@ public abstract class AuthorizationCodeFlow {
 
     private String encryptedState(String redirectUri) throws CryptoException {
         String uri = hasText(redirectUri) ? redirectUri : defaultAfterCallbackRedirectUri();
-        String state = String.format("%s:%s", currentTimeMillis(), URLEncoder.encode(uri, StandardCharsets.UTF_8));
+        String state = format("%s:%s", currentTimeMillis(), URLEncoder.encode(uri, StandardCharsets.UTF_8));
         return crypto.encrypt(state);
     }
 
@@ -137,7 +147,7 @@ public abstract class AuthorizationCodeFlow {
     }
 
     private void redirect(HttpServletResponse response, String uri) throws IOException {
-        log.info("Redirecting to '{}'.", uri);
+        log.info(format("Redirecting to '%s'.", uri));
         response.sendRedirect(uri);
     }
 

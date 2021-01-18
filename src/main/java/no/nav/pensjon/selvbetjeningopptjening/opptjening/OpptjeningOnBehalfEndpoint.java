@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
 
 @RestController
-@RequestMapping("api/")
+@RequestMapping("api")
 @Unprotected // not protected by token-service, but a custom protection is used (due to split ID token cookie)
 public class OpptjeningOnBehalfEndpoint {
 
