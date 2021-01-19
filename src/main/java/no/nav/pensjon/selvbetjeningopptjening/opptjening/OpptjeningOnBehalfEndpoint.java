@@ -4,6 +4,7 @@ import io.jsonwebtoken.JwtException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
+import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieType;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.SplitCookieAssembler;
 import no.nav.pensjon.selvbetjeningopptjening.security.jwt.JwsValidator;
@@ -20,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static java.util.Objects.requireNonNull;
 import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
 
 @RestController
@@ -30,10 +32,12 @@ public class OpptjeningOnBehalfEndpoint {
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final OpptjeningProvider provider;
     private final JwsValidator jwsValidator;
+    private final GroupChecker groupChecker;
 
-    public OpptjeningOnBehalfEndpoint(OpptjeningProvider provider, JwsValidator jwsValidator) {
-        this.provider = provider;
-        this.jwsValidator = jwsValidator;
+    public OpptjeningOnBehalfEndpoint(OpptjeningProvider provider, JwsValidator jwsValidator, GroupChecker groupChecker) {
+        this.provider = requireNonNull(provider);
+        this.jwsValidator = requireNonNull(jwsValidator);
+        this.groupChecker = requireNonNull(groupChecker);
     }
 
     @GetMapping("/opptjeningonbehalf")
@@ -50,6 +54,13 @@ public class OpptjeningOnBehalfEndpoint {
             }
 
             jwsValidator.validate(idToken);
+            String accessToken = SplitCookieAssembler.getCookieValue(request, CookieType.INTERNAL_USER_ACCESS_TOKEN);
+
+            if (!isUserAllowed(accessToken)) {
+                log.info("User is not allowed");
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The service is not made available for the specified user yet");
+            }
+
             var pid = new Pid(fnr, true);
             return provider.calculateOpptjeningForFnr(pid, LoginSecurityLevel.INTERNAL);
         } catch (JwtException e) {
@@ -62,5 +73,9 @@ public class OpptjeningOnBehalfEndpoint {
             log.error("Failed calling external service. Message: {}.", e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
+    }
+
+    private boolean isUserAllowed(String accessToken) {
+        return groupChecker.isUserAuthorized(accessToken);
     }
 }

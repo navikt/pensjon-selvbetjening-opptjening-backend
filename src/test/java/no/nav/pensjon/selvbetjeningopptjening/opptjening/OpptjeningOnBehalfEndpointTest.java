@@ -7,6 +7,7 @@ import no.nav.pensjon.selvbetjeningopptjening.config.OpptjeningFeature;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
+import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
 import no.nav.pensjon.selvbetjeningopptjening.security.jwt.JwsValidator;
 import no.nav.pensjon.selvbetjeningopptjening.unleash.UnleashProvider;
 import org.junit.jupiter.api.BeforeAll;
@@ -21,6 +22,7 @@ import javax.servlet.http.Cookie;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -40,6 +42,8 @@ class OpptjeningOnBehalfEndpointTest {
     private OpptjeningProvider provider;
     @MockBean
     private JwsValidator jwsValidator; // needed to satisfy dependency
+    @MockBean
+    private GroupChecker groupChecker;
 
 
     @BeforeAll
@@ -52,6 +56,7 @@ class OpptjeningOnBehalfEndpointTest {
     void getOpptjeningForFnr_returns_opptjeningJson_when_feature_enabled() throws Exception {
         featureToggler.enable(OpptjeningFeature.PL1441);
         when(provider.calculateOpptjeningForFnr(PID, LoginSecurityLevel.INTERNAL)).thenReturn(response());
+        when(groupChecker.isUserAuthorized(anyString())).thenReturn(true);
 
         mvc.perform(
                 get(URI)
@@ -75,6 +80,18 @@ class OpptjeningOnBehalfEndpointTest {
                         "  'fodselsaar': 1950,\n" +
                         "  'andelPensjonBasertPaBeholdning': 10\n" +
                         "}"));
+    }
+
+    @Test
+    void getOpptjeningForFnr_returns_statusForbidden_when_userNotMemberOfGroup() throws Exception {
+        featureToggler.enable(OpptjeningFeature.PL1441);
+        when(provider.calculateOpptjeningForFnr(PID, LoginSecurityLevel.INTERNAL)).thenReturn(response());
+        when(groupChecker.isUserAuthorized(anyString())).thenReturn(false);
+
+        mvc.perform(
+                get(URI)
+                        .cookie(new Cookie("iu-idtoken", "foo")))
+                .andExpect(status().isForbidden());
     }
 
     private static OpptjeningResponse response() {

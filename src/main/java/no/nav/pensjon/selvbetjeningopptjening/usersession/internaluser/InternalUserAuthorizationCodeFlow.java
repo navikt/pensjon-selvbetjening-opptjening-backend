@@ -6,7 +6,6 @@ import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieSetter;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieType;
 import no.nav.pensjon.selvbetjeningopptjening.security.jwt.JwsValidator;
 import no.nav.pensjon.selvbetjeningopptjening.security.oidc.OidcConfigGetter;
-import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.AuthorizationCodeFlow;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.token.TokenData;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.token.TokenGetter;
@@ -22,8 +21,6 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
  */
@@ -35,13 +32,11 @@ public class InternalUserAuthorizationCodeFlow extends AuthorizationCodeFlow {
     private static final String SCOPE_URI = "https://graph.microsoft.com/user.read";
     private static final String OAUTH_2_SCOPE = "openid+profile+offline_access+" + encodedScopeUri();
     private static final String DEFAULT_AFTER_CALLBACK_REDIRECT_URI = "/api/opptjening";
-    private final GroupChecker groupChecker;
 
     public InternalUserAuthorizationCodeFlow(@Qualifier("internal-user") OidcConfigGetter oidcConfigGetter,
                                              @Qualifier("internal-user") TokenGetter tokenGetter,
                                              @Qualifier("internal-user") TokenRefresher tokenRefresher,
                                              @Qualifier("internal-user") JwsValidator jwsValidator,
-                                             GroupChecker groupChecker,
                                              CookieSetter cookieSetter,
                                              Crypto crypto,
                                              @Value("${internal-user.openid.client-id}") String clientId,
@@ -54,7 +49,6 @@ public class InternalUserAuthorizationCodeFlow extends AuthorizationCodeFlow {
                 crypto,
                 clientId,
                 callbackUri);
-        this.groupChecker = requireNonNull(groupChecker);
     }
 
     @GetMapping("login")
@@ -78,11 +72,6 @@ public class InternalUserAuthorizationCodeFlow extends AuthorizationCodeFlow {
                              HttpServletResponse response,
                              @RequestParam(value = "redirect", required = false) String redirectUri) throws IOException {
         super.refreshToken(request, response, redirectUri);
-    }
-
-    @Override
-    protected boolean isUserAuthorized(String accessToken) {
-        return groupChecker.isUserAuthorized(accessToken);
     }
 
     @Override

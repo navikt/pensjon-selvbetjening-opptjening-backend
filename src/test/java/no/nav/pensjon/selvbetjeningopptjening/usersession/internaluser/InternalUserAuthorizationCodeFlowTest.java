@@ -66,9 +66,6 @@ class InternalUserAuthorizationCodeFlowTest {
     CookieSetter cookieSetter;
 
     @MockBean
-    GroupChecker groupChecker;
-
-    @MockBean
     Crypto crypto;
 
     @Test
@@ -109,7 +106,6 @@ class InternalUserAuthorizationCodeFlowTest {
         var tokenData = new TokenData("access-token", "ID-token", "refresh-token");
         when(tokenGetter.getTokenData(any(TokenAccessParam.class))).thenReturn(tokenData);
         when(crypto.decrypt(anyString())).thenReturn(currentTimeMillis() + ":/api/foo");
-        when(groupChecker.isUserAuthorized(anyString())).thenReturn(true);
 
         mvc.perform(post(CALLBACK_URL)
                 .param("code", "abc")
@@ -119,19 +115,6 @@ class InternalUserAuthorizationCodeFlowTest {
 
         verifyCookie(CookieType.INTERNAL_USER_ID_TOKEN, "ID-token");
         verifyCookie(CookieType.REFRESH_TOKEN, "refresh-token");
-    }
-
-    @Test
-    void callback_when_userUnauthorized_then_responseStatusIsUnauthorized() throws Exception {
-        var tokenData = new TokenData("access-token", "ID-token", "refresh-token");
-        when(tokenGetter.getTokenData(any(TokenAccessParam.class))).thenReturn(tokenData);
-        when(crypto.decrypt(anyString())).thenReturn(currentTimeMillis() + ":/api/foo");
-        when(groupChecker.isUserAuthorized(anyString())).thenReturn(false);
-
-        mvc.perform(post(CALLBACK_URL)
-                .param("code", "abc")
-                .param("state", "cryptic"))
-                .andExpect(status().isUnauthorized());
     }
 
     @Test

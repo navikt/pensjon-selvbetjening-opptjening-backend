@@ -86,13 +86,6 @@ public abstract class AuthorizationCodeFlow {
             String redirectUri = new StateValidator(crypto).extractRedirectUri(state);
             TokenData tokenData = tokenGetter.getTokenData(TokenAccessParam.authorizationCode(code));
             jwsValidator.validate(tokenData.getIdToken());
-
-            if (!isUserAuthorized(tokenData.getAccessToken())) {
-                log.info("User not authorized");
-                unauthorized(response);
-                return;
-            }
-
             setCookies(response, tokenData);
             decodeAndRedirect(response, redirectUri);
         } catch (JwtException e) {
@@ -122,8 +115,6 @@ public abstract class AuthorizationCodeFlow {
             unauthorized(response);
         }
     }
-
-    protected abstract boolean isUserAuthorized(String accessToken);
 
     protected abstract String oauth2Scope();
 
