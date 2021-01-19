@@ -29,8 +29,6 @@ spec:
       value: selvbetjening-idtoken
     - name: HTTP_PROXY_PARAMETERNAME
       value: "http.proxy"
-    - name: HTTP_PROXY
-      value: http://webproxy-nais.nav.no:8088
     - name: SERVICEUSERTOKEN_ENDPOINT_URL
       value: https://security-token-service.nais.adeo.no/rest/v1/sts/token
     - name: PEN_ENDPOINT_URL
@@ -43,6 +41,8 @@ spec:
       value: https://unleash.nais.io/api
     - name: APP_ENVIRONMENT
       value: p
+    - name: AZURE_APP_REDIRECT_URI
+      value: https://pensjon-selvbetjening-opptjening-frontend.intern.nav.no/pensjon/opptjening/oauth2/internal/callback
   envFrom:
     - configmap: loginservice-idporten
   azure:
