@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 
+import static java.util.Objects.requireNonNull;
 import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
 
 @Service
@@ -21,11 +22,7 @@ public class PersonService {
     private final PdlConsumer pdlConsumer;
 
     public PersonService(PdlConsumer pdlConsumer) {
-        this.pdlConsumer = pdlConsumer;
-    }
-
-    public void ping(){
-        pdlConsumer.ping();
+        this.pdlConsumer = requireNonNull(pdlConsumer);
     }
 
     public LocalDate getBirthDate(Pid pid, LoginSecurityLevel securityLevel) {

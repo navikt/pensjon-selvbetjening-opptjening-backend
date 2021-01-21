@@ -18,6 +18,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
@@ -90,7 +91,7 @@ class PersonConsumerTest {
     @Test
     void should_get_Uforehistorikk_when_getUforeHistorikkForPerson() {
         var historikkDto = new UforeHistorikkDto();
-        UforeperiodeDto uforeperiode = new UforeperiodeDto();
+        var uforeperiode = new UforeperiodeDto();
         uforeperiode.setUforegrad(50);
         historikkDto.setUforeperiodeListe(singletonList(uforeperiode));
         ResponseEntity<UforeHistorikkDto> entity = new ResponseEntity<>(historikkDto, HttpStatus.OK);
@@ -122,7 +123,7 @@ class PersonConsumerTest {
         when(restTemplateMock.exchange(eq(AFP_HISTORIKK_URL), any(), any(), eq(AfpHistorikkDto.class)))
                 .thenThrow(new RestClientResponseException("", HttpStatus.UNAUTHORIZED.value(), "", null, null, null));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getAfpHistorikkForPerson(""));
 
@@ -134,7 +135,7 @@ class PersonConsumerTest {
         when(restTemplateMock.exchange(eq(AFP_HISTORIKK_URL), any(), any(), eq(AfpHistorikkDto.class)))
                 .thenThrow(new RestClientResponseException("", HttpStatus.INTERNAL_SERVER_ERROR.value(), "", null, null, null));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getAfpHistorikkForPerson(""));
 
@@ -147,7 +148,7 @@ class PersonConsumerTest {
         when(restTemplateMock.exchange(eq(AFP_HISTORIKK_URL), any(), any(), eq(AfpHistorikkDto.class)))
                 .thenThrow(new RestClientResponseException("", HttpStatus.BAD_REQUEST.value(), "", null, null, null));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getAfpHistorikkForPerson(""));
 
@@ -155,15 +156,15 @@ class PersonConsumerTest {
     }
 
     @Test
-    void should_throw_FailedCallingExternalServiceException_when_RuntimeException_from_getUttaksgradForVedtak() {
+    void should_throw_FailedCallingExternalServiceException_when_RestClientException_from_getUttaksgradForVedtak() {
         when(restTemplateMock.exchange(eq(AFP_HISTORIKK_URL), any(), any(), eq(AfpHistorikkDto.class)))
-                .thenThrow(new RuntimeException());
+                .thenThrow(new RestClientException("oops"));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getAfpHistorikkForPerson(""));
 
-        assertThat(thrown.getMessage(), is("Error when calling the external service " + EXPECTED_AFP_HISTORIKK_IDENTIFIER + " in " + PEN + ". An error occurred in the consumer"));
+        assertThat(thrown.getMessage(), is("Error when calling the external service " + EXPECTED_AFP_HISTORIKK_IDENTIFIER + " in " + PEN + ". Failed to access service"));
     }
 
     @Test
@@ -171,7 +172,7 @@ class PersonConsumerTest {
         when(restTemplateMock.exchange(eq(UFOREHISTORIKK_URL), any(), any(), eq(UforeHistorikkDto.class)))
                 .thenThrow(new RestClientResponseException("", HttpStatus.UNAUTHORIZED.value(), "", null, null, null));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getUforeHistorikkForPerson(""));
 
@@ -183,7 +184,7 @@ class PersonConsumerTest {
         when(restTemplateMock.exchange(eq(UFOREHISTORIKK_URL), any(), any(), eq(UforeHistorikkDto.class)))
                 .thenThrow(new RestClientResponseException("", HttpStatus.INTERNAL_SERVER_ERROR.value(), "", null, null, null));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getUforeHistorikkForPerson(""));
 
@@ -196,7 +197,7 @@ class PersonConsumerTest {
         when(restTemplateMock.exchange(eq(UFOREHISTORIKK_URL), any(), any(), eq(UforeHistorikkDto.class)))
                 .thenThrow(new RestClientResponseException("", HttpStatus.BAD_REQUEST.value(), "", null, null, null));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getUforeHistorikkForPerson(""));
 
@@ -204,15 +205,15 @@ class PersonConsumerTest {
     }
 
     @Test
-    void should_throw_FailedCallingExternalServiceException_when_RuntimeException_from_getAlderSakUttaksgradhistorikkForPerson() {
+    void should_throw_FailedCallingExternalServiceException_when_RestClientException_from_getAlderSakUttaksgradhistorikkForPerson() {
         when(restTemplateMock.exchange(eq(UFOREHISTORIKK_URL), any(), any(), eq(UforeHistorikkDto.class)))
-                .thenThrow(new RuntimeException());
+                .thenThrow(new RestClientException("oops"));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getUforeHistorikkForPerson(""));
 
         assertThat(thrown.getMessage(),
-                is("Error when calling the external service " + EXPECTED_UFOREHISTORIKK_IDENTIFIER + " in " + PEN + ". An error occurred in the consumer"));
+                is("Error when calling the external service " + EXPECTED_UFOREHISTORIKK_IDENTIFIER + " in " + PEN + ". Failed to access service"));
     }
 }

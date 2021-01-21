@@ -25,7 +25,7 @@ class OidcAuthTokenInterceptorTest {
     ServiceUserToken token;
 
     @Test
-    void intercept_adds_authorization_header() {
+    void intercept_adds_authorization_header() throws Exception {
         when(tokenGetter.getServiceUserToken()).thenReturn(token);
         when(token.getAccessToken()).thenReturn(ACCESS_TOKEN);
         var headers = spy(new HttpHeaders());

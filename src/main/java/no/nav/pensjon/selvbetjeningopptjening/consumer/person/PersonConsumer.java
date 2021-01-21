@@ -1,8 +1,8 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.person;
 
+import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikkDto;
 import no.nav.pensjon.selvbetjeningopptjening.model.UforeHistorikkDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.AfpHistorikk;
@@ -15,6 +15,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -23,6 +24,9 @@ import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.PEN;
 
 public class PersonConsumer implements Pingable {
 
+    private static final String AFP_HISTORIKK_SERVICE = "PROPEN2602 getAfphistorikkForPerson";
+    private static final String UFORE_HISTORIKK_SERVICE = "PROPEN2603 getUforehistorikkForPerson";
+    private static final String PING_SERVICE = "ping";
     private String endpoint;
     private RestTemplate restTemplate;
     //TODO Migrate to WebClient
@@ -42,9 +46,9 @@ public class PersonConsumer implements Pingable {
 
             return AfpHistorikkMapper.fromDto(historikk);
         } catch (RestClientResponseException e) {
-            throw handle(e, "PROPEN2602 getAfphistorikkForPerson");
-        } catch (Exception e) {
-            throw new FailedCallingExternalServiceException(PEN, "PROPEN2602 getAfphistorikkForPerson", "An error occurred in the consumer", e);
+            throw handle(e, AFP_HISTORIKK_SERVICE);
+        } catch (RestClientException e) {
+            throw handle(e, AFP_HISTORIKK_SERVICE);
         }
     }
 
@@ -59,9 +63,9 @@ public class PersonConsumer implements Pingable {
 
             return UforeHistorikkMapper.fromDto(historikk);
         } catch (RestClientResponseException e) {
-            throw handle(e, "PROPEN2603 getUforehistorikkForPerson");
-        } catch (Exception e) {
-            throw new FailedCallingExternalServiceException(PEN, "PROPEN2603 getUforehistorikkForPerson", "An error occurred in the consumer", e);
+            throw handle(e, UFORE_HISTORIKK_SERVICE);
+        } catch (RestClientException e) {
+            throw handle(e, UFORE_HISTORIKK_SERVICE);
         }
     }
 
@@ -74,13 +78,15 @@ public class PersonConsumer implements Pingable {
                     null,
                     String.class).getBody();
         } catch (RestClientResponseException e) {
-            throw handle(e, "Error in PEN Person");
+            throw handle(e, PING_SERVICE);
+        } catch (RestClientException e) {
+            throw handle(e, PING_SERVICE);
         }
     }
 
     @Override
     public PingInfo getPingInfo() {
-        return new PingInfo("REST", "PEN", UriComponentsBuilder.fromHttpUrl(endpoint).path("/person/ping").toUriString());
+        return new PingInfo("REST", "PEN person", UriComponentsBuilder.fromHttpUrl(endpoint).path("/person/ping").toUriString());
     }
 
     private FailedCallingExternalServiceException handle(RestClientResponseException e, String serviceIdentifier) {
@@ -97,6 +103,10 @@ public class PersonConsumer implements Pingable {
         }
 
         return new FailedCallingExternalServiceException(PEN, serviceIdentifier, "An error occurred in the consumer", e);
+    }
+
+    private static FailedCallingExternalServiceException handle(RestClientException e, String service) {
+        return new FailedCallingExternalServiceException(PEN, service, "Failed to access service", e);
     }
 
     @Autowired

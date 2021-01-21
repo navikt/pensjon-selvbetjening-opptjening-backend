@@ -1,6 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
@@ -25,6 +26,10 @@ public class PoppUtil {
         }
 
         return new FailedCallingExternalServiceException(POPP, service, "An error occurred in the provider", e);
+    }
+
+    public static FailedCallingExternalServiceException handle(RestClientException e, String service) {
+        return new FailedCallingExternalServiceException(POPP, service, "Failed to access service", e);
     }
 
     private static boolean isPersonDoesNotExistMessage(String exceptionMessage) {

@@ -1,6 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 
 import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
+import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.StsException;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
 import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
@@ -39,7 +40,7 @@ public class PdlConsumer implements Pingable {
     private final Log log = LogFactory.getLog(getClass());
     private final TokenValidationContextHolder context;
     private final ServiceUserTokenGetter serviceUserTokenGetter;
-    private final WebClient webclient;
+    private final WebClient webClient;
     private final String endpoint;
 
     public PdlConsumer(@Value("${pdl.endpoint.url}") String endpoint,
@@ -48,12 +49,39 @@ public class PdlConsumer implements Pingable {
         this.context = context;
         this.endpoint = endpoint;
         this.serviceUserTokenGetter = serviceUserTokenGetter;
-        this.webclient = pdlWebClient(endpoint);
+        this.webClient = pdlWebClient(endpoint);
     }
 
     public List<BirthDate> getBirthDates(Pid pid, LoginSecurityLevel securityLevel) throws PdlException {
+        PdlResponse response = getBirthDateResponse(pid, securityLevel);
+        handleErrors(response);
+        return fromDtos(getBirths(response));
+    }
+
+    @Override
+    public void ping() {
         try {
-            PdlResponse response = webclient
+            webClient
+                    .options()
+                    .retrieve()
+                    .toBodilessEntity()
+                    .block();
+        } catch (WebClientResponseException e) {
+            throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, "", e.getResponseBodyAsString(), e);
+        } catch (RuntimeException e) {
+            // E.g. Exceptions$ReactiveException when connection is broken
+            throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, e);
+        }
+    }
+
+    @Override
+    public PingInfo getPingInfo() {
+        return new PingInfo("REST", CONSUMED_SERVICE, endpoint);
+    }
+
+    private PdlResponse getBirthDateResponse(Pid pid, LoginSecurityLevel securityLevel)  {
+        try {
+            return webClient
                     .post()
                     .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue(securityLevel))
                     .header(PdlHttpHeaders.CONSUMER_TOKEN, consumerToken())
@@ -61,33 +89,19 @@ public class PdlConsumer implements Pingable {
                     .retrieve()
                     .bodyToMono(PdlResponse.class)
                     .block();
-
-            handleErrors(response);
-            return fromDtos(getBirths(response));
         } catch (JSONException e) {
             return handleJsonError(e);
-        }
-    }
-
-    @Override
-    public void ping() {
-        try {
-            webclient
-                    .options()
-                    .retrieve()
-                    .toBodilessEntity()
-                    .block();
+        } catch (StsException e) {
+            return handleStsError(e);
         } catch (WebClientResponseException e) {
-            throw new FailedCallingExternalServiceException("PDL", "", "", e);
+            throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, "", e.getResponseBodyAsString(), e);
+        } catch (RuntimeException e) {
+            // E.g. Exceptions$ReactiveException when connection is broken
+            throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, e);
         }
     }
 
-    @Override
-    public PingInfo getPingInfo() {
-        return new PingInfo("REST", "PDL", endpoint);
-    }
-
-    private String getAuthHeaderValue(LoginSecurityLevel securityLevel) {
+    private String getAuthHeaderValue(LoginSecurityLevel securityLevel) throws StsException {
         return AUTH_TYPE + " " +
                 (securityLevel == LoginSecurityLevel.INTERNAL
                         ? getServiceUserAccessToken()
@@ -103,7 +117,7 @@ public class PdlConsumer implements Pingable {
                 .build();
     }
 
-    private String getServiceUserAccessToken() {
+    private String getServiceUserAccessToken() throws StsException {
         return serviceUserTokenGetter.getServiceUserToken().getAccessToken();
     }
 
@@ -111,12 +125,18 @@ public class PdlConsumer implements Pingable {
         return context.getTokenValidationContext().getJwtToken(TOKEN_ISSUER).getTokenAsString();
     }
 
-    private String consumerToken() {
+    private String consumerToken() throws StsException {
         return AUTH_TYPE + " " + getServiceUserAccessToken();
     }
 
-    private List<BirthDate> handleJsonError(JSONException e) {
+    private PdlResponse handleJsonError(JSONException e) {
         String cause = "Failed deserializing JSON response";
+        log.error(CONSUMED_SERVICE + " error: " + cause, e);
+        throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, cause);
+    }
+
+    private PdlResponse handleStsError(StsException e) {
+        String cause = "Failed to acquire token for accessing PDL";
         log.error(CONSUMED_SERVICE + " error: " + cause, e);
         throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, cause);
     }

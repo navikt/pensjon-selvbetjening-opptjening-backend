@@ -23,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
@@ -65,7 +66,7 @@ class RestpensjonConsumerTest {
     }
 
     @Test
-    void should_add_fnr_as_pathrparam_when_GET_getRestpensjonListe() {
+    void should_add_fnr_as_queryParam_when_GET_getRestpensjonListe() {
         String expectedFnr = "fnrValue";
         when(rest.exchange(
                 urlCaptor.capture(),
@@ -86,7 +87,7 @@ class RestpensjonConsumerTest {
                 null,
                 RestpensjonListeResponse.class)).thenThrow(new RestClientResponseException("", HttpStatus.UNAUTHORIZED.value(), "", null, null, null));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getRestpensjonListe(""));
 
@@ -100,7 +101,7 @@ class RestpensjonConsumerTest {
                 null,
                 RestpensjonListeResponse.class)).thenThrow(new RestClientResponseException("PersonDoesNotExistExceptionDto", 512, "", null, null, null));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getRestpensjonListe(""));
 
@@ -114,7 +115,7 @@ class RestpensjonConsumerTest {
                 null,
                 RestpensjonListeResponse.class)).thenThrow(new RestClientResponseException("", HttpStatus.INTERNAL_SERVER_ERROR.value(), "", null, null, null));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getRestpensjonListe(""));
 
@@ -124,16 +125,16 @@ class RestpensjonConsumerTest {
     }
 
     @Test
-    void should_return_FailedCallingExternalServiceException_when_RuntimeException() {
+    void should_return_FailedCallingExternalServiceException_when_RestClientException() {
         when(rest.exchange("http://poppEndpoint.test/restpensjon/?hentSiste=false",
                 HttpMethod.GET,
                 null,
-                RestpensjonListeResponse.class)).thenThrow(new RuntimeException());
+                RestpensjonListeResponse.class)).thenThrow(new RestClientException("oops"));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getRestpensjonListe(""));
 
-        assertThat(thrown.getMessage(), is("Error when calling the external service " + CONSUMED_SERVICE + " in " + POPP + ". An error occurred in the consumer"));
+        assertThat(thrown.getMessage(), is("Error when calling the external service " + CONSUMED_SERVICE + " in " + POPP + ". Failed to access service"));
     }
 }

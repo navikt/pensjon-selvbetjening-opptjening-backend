@@ -23,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
@@ -35,26 +36,23 @@ class OpptjeningsgrunnlagConsumerTest {
 
     private static final String CONSUMED_SERVICE = "PROPOPP007 hentOpptjeningsgrunnlag";
     private static final String ENDPOINT = "http://poppEndpoint.test";
+    private OpptjeningsgrunnlagConsumer consumer;
 
     @Mock
     private RestTemplate restTemplateMock;
-
-    private OpptjeningsgrunnlagConsumer consumer;
-
     @Captor
     private ArgumentCaptor<String> urlCaptor;
-
     @Captor
     private ArgumentCaptor<HttpMethod> httpMethodCaptor;
 
     @BeforeEach
-    void setup() {
+    void setUp() {
         consumer = new OpptjeningsgrunnlagConsumer(ENDPOINT);
         consumer.setRestTemplate(restTemplateMock);
     }
 
     @Test
-    void should_return_list_of_Inntekt_when_getInntektListeFromOpptjeningsgrunnlag() {
+    void should_return_listOfInntekt_when_getInntektListeFromOpptjeningsgrunnlag() {
         var response = new HentOpptjeningsGrunnlagResponse();
         var grunnlag = new OpptjeningsGrunnlagDto();
         grunnlag.setInntektListe(List.of(inntektDto()));
@@ -88,7 +86,7 @@ class OpptjeningsgrunnlagConsumerTest {
                 null,
                 HentOpptjeningsGrunnlagResponse.class)).thenThrow(new RestClientResponseException("", HttpStatus.UNAUTHORIZED.value(), "", null, null, null));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getInntektListeFromOpptjeningsgrunnlag("", 0, 0));
 
@@ -102,7 +100,7 @@ class OpptjeningsgrunnlagConsumerTest {
                 null,
                 HentOpptjeningsGrunnlagResponse.class)).thenThrow(new RestClientResponseException("PersonDoesNotExistExceptionDto", 512, "", null, null, null));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getInntektListeFromOpptjeningsgrunnlag("", 0, 0));
 
@@ -116,7 +114,7 @@ class OpptjeningsgrunnlagConsumerTest {
                 null,
                 HentOpptjeningsGrunnlagResponse.class)).thenThrow(new RestClientResponseException("", HttpStatus.INTERNAL_SERVER_ERROR.value(), "", null, null, null));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getInntektListeFromOpptjeningsgrunnlag("", 0, 0));
 
@@ -126,17 +124,17 @@ class OpptjeningsgrunnlagConsumerTest {
     }
 
     @Test
-    void should_return_FailedCallingExternalServiceException_when_RuntimeException() {
+    void should_return_FailedCallingExternalServiceException_when_RestClientException() {
         when(restTemplateMock.exchange("http://poppEndpoint.test/opptjeningsgrunnlag/?fomAr=0&tomAr=0",
                 HttpMethod.GET,
                 null,
-                HentOpptjeningsGrunnlagResponse.class)).thenThrow(new RuntimeException());
+                HentOpptjeningsGrunnlagResponse.class)).thenThrow(new RestClientException("oops"));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getInntektListeFromOpptjeningsgrunnlag("", 0, 0));
 
-        assertThat(thrown.getMessage(), is("Error when calling the external service " + CONSUMED_SERVICE + " in " + POPP + ". An error occurred in the consumer"));
+        assertThat(thrown.getMessage(), is("Error when calling the external service " + CONSUMED_SERVICE + " in " + POPP + ". Failed to access service"));
     }
 
     private static InntektDto inntektDto() {
