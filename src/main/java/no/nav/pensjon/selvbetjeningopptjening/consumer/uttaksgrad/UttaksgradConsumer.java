@@ -27,7 +27,7 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
 
     private static final String UTTAKSGRAD_SERVICE = "PROPEN3000 getUttaksgradForVedtak";
     private static final String UTTAKSGRAD_HISTORIKK_SERVICE = "PROPEN3001 getAlderSakUttaksgradhistorikkForPerson";
-    private static final String PING_SERVICE = "ping";
+    private static final String PING_SERVICE = "PEN uttaksgrad ping";
     private final String endpoint;
     private RestTemplate restTemplate;
     //TODO use WebClient

@@ -26,7 +26,7 @@ public class PersonConsumer implements Pingable {
 
     private static final String AFP_HISTORIKK_SERVICE = "PROPEN2602 getAfphistorikkForPerson";
     private static final String UFORE_HISTORIKK_SERVICE = "PROPEN2603 getUforehistorikkForPerson";
-    private static final String PING_SERVICE = "ping";
+    private static final String PING_SERVICE = "PEN person ping";
     private String endpoint;
     private RestTemplate restTemplate;
     //TODO Migrate to WebClient
