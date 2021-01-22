@@ -1,9 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken;
 
-import java.util.Base64;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -11,16 +9,19 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.Base64;
 
 @Component
 public class ServiceUserTokenRestClient implements ServiceUserTokenGetter {
 
     private static final String USERNAME = System.getenv("SERVICEUSER_USERNAME");
     private static final String PASSWORD = System.getenv("SERVICEUSER_PASSWORD");
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private static final String AUTH_TYPE = "Basic";
+    private final Log log = LogFactory.getLog(getClass());
     private RestTemplate restTemplate;
     private String endpointUrl;
     private ServiceUserToken lastFetchedUserToken;
@@ -36,12 +37,12 @@ public class ServiceUserTokenRestClient implements ServiceUserTokenGetter {
     }
 
     @Override
-    public ServiceUserToken getServiceUserToken() {
+    public ServiceUserToken getServiceUserToken() throws StsException {
         return isCachedTokenValid() ? lastFetchedUserToken : refreshedToken();
     }
 
-    private ServiceUserToken fetch() {
-        logger.trace("Retrieving new token for service user");
+    private ServiceUserToken fetch() throws StsException {
+        log.debug("Retrieving new token for service user");
 
         var uriBuilder = UriComponentsBuilder.fromHttpUrl(endpointUrl)
                 .queryParam("grant_type", "client_credentials")
@@ -54,9 +55,9 @@ public class ServiceUserTokenRestClient implements ServiceUserTokenGetter {
                     prepareRequestEntityWithAuth(),
                     ServiceUserToken.class);
             return response.getBody();
-        } catch (HttpStatusCodeException e) {
-            logger.error("Error when getting ServiceUserToken: " + e.getMessage(), e);
-            return null;
+        } catch (RestClientException e) {
+            log.error("Failed to acquire service user token: " + e.getMessage(), e);
+            throw new StsException("Failed to access STS: " + e.getMessage(), e);
         }
     }
 
@@ -64,13 +65,13 @@ public class ServiceUserTokenRestClient implements ServiceUserTokenGetter {
         boolean valid = lastFetchedUserToken != null && !lastFetchedUserToken.isExpired(expirationLeeway);
 
         if (valid) {
-            logger.trace("Cached token is valid");
+            log.debug("Cached token is valid");
         }
 
         return valid;
     }
 
-    private ServiceUserToken refreshedToken() {
+    private ServiceUserToken refreshedToken() throws StsException {
         ServiceUserToken token = fetch();
         lastFetchedUserToken = token;
         return token;
@@ -78,7 +79,7 @@ public class ServiceUserTokenRestClient implements ServiceUserTokenGetter {
 
     private static HttpEntity prepareRequestEntityWithAuth() {
         var headers = new HttpHeaders();
-        headers.add(HttpHeaders.AUTHORIZATION, "Basic " + getBasicAuthHeader());
+        headers.add(HttpHeaders.AUTHORIZATION, AUTH_TYPE + " " + getBasicAuthHeader());
         return new HttpEntity<>(headers);
     }
 

@@ -3,6 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 import no.nav.pensjon.selvbetjeningopptjening.TestFnrs;
 import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserToken;
 import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
+import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.StsException;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
@@ -56,7 +57,7 @@ class PdlConsumerTest {
     }
 
     @BeforeEach
-    void initialize() {
+    void initialize() throws StsException {
         when(tokenValidationContextHolder.getTokenValidationContext()).thenReturn(tokenValidationContext());
         when(serviceUserTokenGetter.getServiceUserToken()).thenReturn(new ServiceUserToken());
         consumer = new PdlConsumer(baseUrl, tokenValidationContextHolder, serviceUserTokenGetter);
@@ -78,7 +79,7 @@ class PdlConsumerTest {
     void getBirthDates_shall_throwPdlException_when_PDL_returns_error() {
         server.enqueue(pdlErrorResponse());
 
-        PdlException exception = assertThrows(PdlException.class,
+        var exception = assertThrows(PdlException.class,
                 () -> consumer.getBirthDates(PID, LoginSecurityLevel.LEVEL4));
 
         assertEquals("Ikke tilgang til å se person", exception.getMessage());
@@ -89,7 +90,7 @@ class PdlConsumerTest {
     void getBirthDates_shall_throwFailedCallingExternalServiceException_when_PDL_returns_multipleErrors() {
         server.enqueue(pdlMultipleErrorResponse());
 
-        FailedCallingExternalServiceException exception = assertThrows(FailedCallingExternalServiceException.class,
+        var exception = assertThrows(FailedCallingExternalServiceException.class,
                 () -> consumer.getBirthDates(PID, LoginSecurityLevel.LEVEL4));
 
         assertEquals("Error when calling the external service PDL." +

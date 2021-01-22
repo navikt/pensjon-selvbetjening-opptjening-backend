@@ -2,6 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad;
 
 import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
+import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uttaksgrad;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.UttaksgradMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -21,10 +23,14 @@ import java.util.List;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.PEN;
 
 @Component
-public class UttaksgradConsumer implements UttaksgradGetter {
+public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
 
+    private static final String UTTAKSGRAD_SERVICE = "PROPEN3000 getUttaksgradForVedtak";
+    private static final String UTTAKSGRAD_HISTORIKK_SERVICE = "PROPEN3001 getAlderSakUttaksgradhistorikkForPerson";
+    private static final String PING_SERVICE = "PEN uttaksgrad ping";
     private final String endpoint;
     private RestTemplate restTemplate;
+    //TODO use WebClient
 
     public UttaksgradConsumer(@Value("${pen.endpoint.url}") String endpoint) {
         this.endpoint = endpoint;
@@ -42,18 +48,13 @@ public class UttaksgradConsumer implements UttaksgradGetter {
 
             return response == null ? null : UttaksgradMapper.fromDtos(response.getUttaksgradList());
         } catch (RestClientResponseException e) {
-            throw handle(e, "PROPEN3000 getUttaksgradForVedtak");
-        } catch (Exception e) {
-            throw new FailedCallingExternalServiceException(PEN, "PROPEN3000 getUttaksgradForVedtak", "An error occurred in the consumer", e);
+            throw handle(e, UTTAKSGRAD_SERVICE);
+        } catch (RestClientException e) {
+            throw handle(e, UTTAKSGRAD_SERVICE);
         }
     }
 
-    private String buildUrl(String endpoint, List<Long> vedtakIds) {
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(endpoint).path("/uttaksgrad/search");
-        vedtakIds.forEach(vedtakId -> uriBuilder.queryParam("vedtakId", vedtakId));
-        return uriBuilder.toUriString();
-    }
-
+    @Override
     public List<Uttaksgrad> getAlderSakUttaksgradhistorikkForPerson(String fnr) {
         try {
             UttaksgradListResponse response = restTemplate.exchange(
@@ -65,9 +66,9 @@ public class UttaksgradConsumer implements UttaksgradGetter {
 
             return response == null ? null : UttaksgradMapper.fromDtos(response.getUttaksgradList());
         } catch (RestClientResponseException e) {
-            throw handle(e, "PROPEN3001 getAlderSakUttaksgradhistorikkForPerson");
-        } catch (Exception e) {
-            throw new FailedCallingExternalServiceException(PEN, "PROPEN3001 getAlderSakUttaksgradhistorikkForPerson", "An error occurred in the consumer", e);
+            throw handle(e, UTTAKSGRAD_HISTORIKK_SERVICE);
+        } catch (RestClientException e) {
+            throw handle(e, UTTAKSGRAD_HISTORIKK_SERVICE);
         }
     }
 
@@ -80,13 +81,21 @@ public class UttaksgradConsumer implements UttaksgradGetter {
                     null,
                     String.class).getBody();
         } catch (RestClientResponseException e) {
-            throw handle(e, "Error in PEN Uttaksgrad");
+            throw handle(e, PING_SERVICE);
+        } catch (RestClientException e) {
+            throw handle(e, PING_SERVICE);
         }
     }
 
     @Override
     public PingInfo getPingInfo() {
-        return new PingInfo("REST", "PEN", UriComponentsBuilder.fromHttpUrl(endpoint).path("/uttaksgrad/ping").toUriString());
+        return new PingInfo("REST", "PEN uttaksgrad", UriComponentsBuilder.fromHttpUrl(endpoint).path("/uttaksgrad/ping").toUriString());
+    }
+
+    private String buildUrl(String endpoint, List<Long> vedtakIds) {
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(endpoint).path("/uttaksgrad/search");
+        vedtakIds.forEach(vedtakId -> uriBuilder.queryParam("vedtakId", vedtakId));
+        return uriBuilder.toUriString();
     }
 
     private FailedCallingExternalServiceException handle(RestClientResponseException e, String serviceIdentifier) {
@@ -103,6 +112,10 @@ public class UttaksgradConsumer implements UttaksgradGetter {
         }
 
         return new FailedCallingExternalServiceException(PEN, serviceIdentifier, "An error occurred in the consumer", e);
+    }
+
+    private static FailedCallingExternalServiceException handle(RestClientException e, String service) {
+        return new FailedCallingExternalServiceException(PEN, service, "Failed to access service", e);
     }
 
     @Autowired

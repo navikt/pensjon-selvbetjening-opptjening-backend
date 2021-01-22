@@ -27,6 +27,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
@@ -52,13 +53,13 @@ class UttaksgradConsumerTest {
     private ArgumentCaptor<HttpEntity<Object>> httpEntityCaptor;
 
     @BeforeEach
-    void setup() {
+    void setUp() {
         consumer = new UttaksgradConsumer(ENDPOINT);
         consumer.setRestTemplate(rest);
     }
 
     @Test
-    void should_return_list_of_uttaksgrad_when_getUttaksgradForVedtak() {
+    void should_return_listOfUttaksgrad_when_getUttaksgradForVedtak() {
         var expectedResponse = new UttaksgradListResponse();
         var uttaksgradDto = new UttaksgradDto();
         uttaksgradDto.setFomDato(DATE);
@@ -118,7 +119,7 @@ class UttaksgradConsumerTest {
         when(rest.exchange(eq(SEARCH_ENDPOINT_PATH), any(), any(), eq(UttaksgradListResponse.class)))
                 .thenThrow(new RestClientResponseException("", HttpStatus.UNAUTHORIZED.value(), "", null, null, null));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getUttaksgradForVedtak(new ArrayList<>()));
 
@@ -130,7 +131,7 @@ class UttaksgradConsumerTest {
         when(rest.exchange(eq(SEARCH_ENDPOINT_PATH), any(), any(), eq(UttaksgradListResponse.class)))
                 .thenThrow(new RestClientResponseException("", HttpStatus.INTERNAL_SERVER_ERROR.value(), "", null, null, null));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getUttaksgradForVedtak(new ArrayList<>()));
 
@@ -143,7 +144,7 @@ class UttaksgradConsumerTest {
         when(rest.exchange(eq(SEARCH_ENDPOINT_PATH), any(), any(), eq(UttaksgradListResponse.class)))
                 .thenThrow(new RestClientResponseException("", HttpStatus.BAD_REQUEST.value(), "", null, null, null));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getUttaksgradForVedtak(new ArrayList<>()));
 
@@ -151,15 +152,15 @@ class UttaksgradConsumerTest {
     }
 
     @Test
-    void should_throw_FailedCallingExternalServiceException_when_RuntimeException_from_getUttaksgradForVedtak() {
+    void should_throw_FailedCallingExternalServiceException_when_RestClientException_from_getUttaksgradForVedtak() {
         when(rest.exchange(eq(SEARCH_ENDPOINT_PATH), any(), any(), eq(UttaksgradListResponse.class)))
-                .thenThrow(new RuntimeException());
+                .thenThrow(new RestClientException("oops"));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getUttaksgradForVedtak(new ArrayList<>()));
 
-        assertThat(thrown.getMessage(), is("Error when calling the external service PROPEN3000 getUttaksgradForVedtak in " + PEN + ". An error occurred in the consumer"));
+        assertThat(thrown.getMessage(), is("Error when calling the external service PROPEN3000 getUttaksgradForVedtak in " + PEN + ". Failed to access service"));
     }
 
     @Test
@@ -167,7 +168,7 @@ class UttaksgradConsumerTest {
         when(rest.exchange(eq(PERSON_ENDPOINT_PATH), any(), any(), eq(UttaksgradListResponse.class)))
                 .thenThrow(new RestClientResponseException("", HttpStatus.UNAUTHORIZED.value(), "", null, null, null));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getAlderSakUttaksgradhistorikkForPerson(""));
 
@@ -179,7 +180,7 @@ class UttaksgradConsumerTest {
         when(rest.exchange(eq(PERSON_ENDPOINT_PATH), any(), any(), eq(UttaksgradListResponse.class)))
                 .thenThrow(new RestClientResponseException("", HttpStatus.INTERNAL_SERVER_ERROR.value(), "", null, null, null));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getAlderSakUttaksgradhistorikkForPerson(""));
 
@@ -192,7 +193,7 @@ class UttaksgradConsumerTest {
         when(rest.exchange(eq(PERSON_ENDPOINT_PATH), any(), any(), eq(UttaksgradListResponse.class)))
                 .thenThrow(new RestClientResponseException("", HttpStatus.BAD_REQUEST.value(), "", null, null, null));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getAlderSakUttaksgradhistorikkForPerson(""));
 
@@ -200,15 +201,15 @@ class UttaksgradConsumerTest {
     }
 
     @Test
-    void should_throw_FailedCallingExternalServiceException_when_RuntimeException_from_getAlderSakUttaksgradhistorikkForPerson() {
+    void should_throw_FailedCallingExternalServiceException_when_RestClientException_from_getAlderSakUttaksgradhistorikkForPerson() {
         when(rest.exchange(eq(PERSON_ENDPOINT_PATH), any(), any(), eq(UttaksgradListResponse.class)))
-                .thenThrow(new RuntimeException());
+                .thenThrow(new RestClientException("oops"));
 
-        FailedCallingExternalServiceException thrown = assertThrows(
+        var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
                 () -> consumer.getAlderSakUttaksgradhistorikkForPerson(""));
 
         assertThat(thrown.getMessage(),
-                is("Error when calling the external service PROPEN3001 getAlderSakUttaksgradhistorikkForPerson in " + PEN + ". An error occurred in the consumer"));
+                is("Error when calling the external service PROPEN3001 getAlderSakUttaksgradhistorikkForPerson in " + PEN + ". Failed to access service"));
     }
 }

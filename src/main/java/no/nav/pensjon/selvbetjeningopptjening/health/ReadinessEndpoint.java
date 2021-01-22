@@ -1,24 +1,24 @@
 package no.nav.pensjon.selvbetjeningopptjening.health;
 
-import no.nav.pensjon.selvbetjeningopptjening.opptjening.OpptjeningProvider;
+import no.nav.security.token.support.core.api.Unprotected;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import no.nav.security.token.support.core.api.Unprotected;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("api/internal")
 @Unprotected
 public class ReadinessEndpoint {
-    private OpptjeningProvider opptjeningProvider;
 
-    public ReadinessEndpoint(OpptjeningProvider opptjeningProvider) {
-        this.opptjeningProvider = opptjeningProvider;
+    private final Selftest selftest;
+
+    public ReadinessEndpoint(Selftest selftest) {
+        this.selftest = selftest;
     }
 
     @RequestMapping(path = "isAlive", method = RequestMethod.GET)
@@ -32,7 +32,13 @@ public class ReadinessEndpoint {
     }
 
     @RequestMapping(path = "selftest", method = RequestMethod.GET)
-    public void ping() {
-         opptjeningProvider.ping();
+    public ResponseEntity selftest() {
+        return new ResponseEntity<>(selftest.perform(), jsonContentType(), HttpStatus.OK);
+    }
+
+    private static MultiValueMap<String, String> jsonContentType() {
+        MultiValueMap<String, String> headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        return headers;
     }
 }

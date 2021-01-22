@@ -1,11 +1,10 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad;
 
-import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uttaksgrad;
 
 import java.util.List;
 
-public interface UttaksgradGetter extends Pingable {
+public interface UttaksgradGetter {
 
     List<Uttaksgrad> getUttaksgradForVedtak(List<Long> vedtakIdList);
 
