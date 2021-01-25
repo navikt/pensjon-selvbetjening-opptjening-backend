@@ -1,6 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.msgraph;
 
-import no.nav.pensjon.selvbetjeningopptjening.security.group.Group;
+import no.nav.pensjon.selvbetjeningopptjening.security.group.AadGroup;
 import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupApi;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,11 +38,11 @@ public class MicrosoftGraphConsumer implements GroupApi {
      * https://docs.microsoft.com/en-us/graph/api/user-checkmembergroups
      */
     @Override
-    public List<Group> checkMemberGroups(List<String> groupIds, String accessToken) {
-        String body = format("{\"groupIds\": [%s]}", jsonize(groupIds));
+    public List<AadGroup> checkMemberGroups(List<AadGroup> groups, String accessToken) {
+        String body = format("{\"groupIds\": [%s]}", idsAsJson(groups));
 
         try {
-            GroupsDto groups = webClient
+            GroupsDto dtos = webClient
                     .post()
                     .uri(baseUrl + CHECK_MEMBER_GROUPS_ENDPOINT)
                     .header(HttpHeaders.AUTHORIZATION, accessToken)
@@ -52,7 +52,7 @@ public class MicrosoftGraphConsumer implements GroupApi {
                     .bodyToMono(GroupsDto.class)
                     .block();
 
-            return groups == null ? emptyList() : fromDto(groups.getValue());
+            return dtos == null ? emptyList() : fromDto(dtos.getValue());
         } catch (WebClientResponseException e) {
             log.error(format("Call to MS Graph API failed: %s. Response body: %s.",
                     e.getMessage(), e.getResponseBodyAsString()));
@@ -60,19 +60,19 @@ public class MicrosoftGraphConsumer implements GroupApi {
         }
     }
 
-    private static String jsonize(List<String> groupIds) {
-        return groupIds
+    private static String idsAsJson(List<AadGroup> groups) {
+        return groups
                 .stream()
-                .map(id -> format("\"%s\"", id))
+                .map(group -> format("\"%s\"", group.getId()))
                 .collect(joining(","));
     }
 
-    private static List<Group> fromDto(List<String> groupIds) {
+    private static List<AadGroup> fromDto(List<String> groupIds) {
         return groupIds == null ? emptyList()
                 :
                 groupIds
                         .stream()
-                        .map(Group::new)
+                        .map(AadGroup::findById)
                         .collect(toList());
     }
 }

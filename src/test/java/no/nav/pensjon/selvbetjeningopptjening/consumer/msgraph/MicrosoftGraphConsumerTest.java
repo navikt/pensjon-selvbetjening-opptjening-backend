@@ -1,6 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.msgraph;
 
-import no.nav.pensjon.selvbetjeningopptjening.security.group.Group;
+import no.nav.pensjon.selvbetjeningopptjening.security.group.AadGroup;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
@@ -18,7 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MicrosoftGraphConsumerTest {
 
-    private static final List<String> GROUP_IDS = List.of("foo", "bar", "baz");
+    private static final List<AadGroup> GROUPS = List.of(AadGroup.VEILEDER, AadGroup.OKONOMI);
+    private static final String TOKEN = "token";
     private static MockWebServer server;
     private static String baseUrl;
     private MicrosoftGraphConsumer consumer;
@@ -44,45 +45,45 @@ class MicrosoftGraphConsumerTest {
     void getMemberGroups_returnsGroups_when_userAuthorized() {
         server.enqueue(okResponse());
 
-        List<Group> groups = consumer.checkMemberGroups(GROUP_IDS, "token");
+        List<AadGroup> groups = consumer.checkMemberGroups(GROUPS, TOKEN);
 
         assertEquals(2, groups.size());
-        assertEquals("foo", groups.get(0).getId());
-        assertEquals("bar", groups.get(1).getId());
+        assertEquals(AadGroup.VEILEDER, groups.get(0));
+        assertEquals(AadGroup.OKONOMI, groups.get(1));
     }
 
     @Test
     void getMemberGroups_returnsNoGroups_when_expiredToken() {
         server.enqueue(expiredTokenResponse());
-        List<Group> groups = consumer.checkMemberGroups(GROUP_IDS, "token");
+        List<AadGroup> groups = consumer.checkMemberGroups(GROUPS, TOKEN);
         assertEquals(0, groups.size());
     }
 
     @Test
     void getMemberGroups_returnsNoGroups_when_missingToken() {
         server.enqueue(missingTokenResponse());
-        List<Group> groups = consumer.checkMemberGroups(GROUP_IDS, "token");
+        List<AadGroup> groups = consumer.checkMemberGroups(GROUPS, TOKEN);
         assertEquals(0, groups.size());
     }
 
     @Test
-    void getMemberGroups_returnsNoGroups_when_unparsableToken() {
-        server.enqueue(unparsableTokenResponse());
-        List<Group> groups = consumer.checkMemberGroups(GROUP_IDS, "token");
+    void getMemberGroups_returnsNoGroups_when_tokenCannotBeParsed() {
+        server.enqueue(parsingFailureTokenResponse());
+        List<AadGroup> groups = consumer.checkMemberGroups(GROUPS, TOKEN);
         assertEquals(0, groups.size());
     }
 
     @Test
     void getMemberGroups_returnsNoGroups_when_methodNotAllowed() {
         server.enqueue(methodNotAllowedResponse());
-        List<Group> groups = consumer.checkMemberGroups(GROUP_IDS, "token");
+        List<AadGroup> groups = consumer.checkMemberGroups(GROUPS, TOKEN);
         assertEquals(0, groups.size());
     }
 
     @Test
     void getMemberGroups_returnsNoGroups_when_invalidGroupId() {
         server.enqueue(invalidGroupIdResponse());
-        List<Group> groups = consumer.checkMemberGroups(GROUP_IDS, "token");
+        List<AadGroup> groups = consumer.checkMemberGroups(GROUPS, TOKEN);
         assertEquals(0, groups.size());
     }
 
@@ -91,7 +92,7 @@ class MicrosoftGraphConsumerTest {
                 .addHeader(HttpHeaders.CONTENT_TYPE, "application/json")
                 .setBody("{\n" +
                         "  \"@odata.context\": \"https://graph.microsoft.com/v1.0/$metadata#Collection(Edm.String)\",\n" +
-                        "  \"value\": [\"foo\", \"bar\"]\n" +
+                        "  \"value\": [\"959ead5b-99b5-466b-a0ff-5fdbc687517b\", \"70ef8e7f-7456-4298-95e0-b13c0ef2422b\"]\n" +
                         "}");
     }
 
@@ -129,7 +130,7 @@ class MicrosoftGraphConsumerTest {
                         "}");
     }
 
-    private static MockResponse unparsableTokenResponse() {
+    private static MockResponse parsingFailureTokenResponse() {
         return new MockResponse()
                 .addHeader(HttpHeaders.CONTENT_TYPE, "application/json")
                 .setResponseCode(HttpStatus.UNAUTHORIZED.value())

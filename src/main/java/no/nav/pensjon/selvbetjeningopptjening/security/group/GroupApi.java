@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface GroupApi {
 
-    List<Group> checkMemberGroups(List<String> groupIds, String accessToken);
+    List<AadGroup> checkMemberGroups(List<AadGroup> groups, String accessToken);
 }
