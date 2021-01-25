@@ -1,10 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.usersession.internaluser;
 
+import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.security.oidc.OidcConfigGetter;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,7 +9,6 @@ import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.io.IOException;
 import java.security.cert.CertificateException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,63 +16,48 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-class InternalUserCertificateGetterTest {
+class InternalUserCertificateGetterTest extends WebClientTest {
 
     private static final String CERTIFICATE = "x5c";
     private static final String KEY_ID = "jibNbkFSSbmxPYrN9CFqRk4K4gw";
-    private static MockWebServer server;
-    private static String baseUrl;
-    private static String keySetResponse;
+    private static String keySetResponse = prepareKeySetResponse(CERTIFICATE);
     private InternalUserCertificateGetter certificateGetter;
     private WebClient webClient;
 
     @Mock
     OidcConfigGetter oidcConfigGetter;
 
-    @BeforeAll
-    static void setUp() throws IOException {
-        server = new MockWebServer();
-        server.start();
-        baseUrl = String.format("http://localhost:%s", server.getPort());
-        keySetResponse = prepareKeySetResponse(CERTIFICATE);
-    }
-
-    @AfterAll
-    static void tearDown() throws IOException {
-        server.shutdown();
-    }
-
     @BeforeEach
     void initialize() {
         webClient = spy(WebClient.create());
         certificateGetter = new InternalUserCertificateGetter(webClient, oidcConfigGetter);
-        when(oidcConfigGetter.getJsonWebKeySetUri()).thenReturn(baseUrl);
+        when(oidcConfigGetter.getJsonWebKeySetUri()).thenReturn(baseUrl());
     }
 
     @Test
     void when_matching_key_then_getX509Certificate_returns_certificate() throws Exception {
-        enqueueResponse(keySetResponse);
+        prepareResponse(keySetResponse);
         String certificate = certificateGetter.getCertificate(KEY_ID);
         assertEquals(CERTIFICATE, certificate);
     }
 
     @Test
     void when_no_matching_key_then_getX509Certificate_throws_RuntimeException() {
-        enqueueResponse(keySetResponse);
-        CertificateException e = assertThrows(CertificateException.class, () -> certificateGetter.getCertificate("no-match"));
-        assertEquals("No certificate found for key ID 'no-match'", e.getMessage());
+        prepareResponse(keySetResponse);
+        var exception = assertThrows(CertificateException.class, () -> certificateGetter.getCertificate("no-match"));
+        assertEquals("No certificate found for key ID 'no-match'", exception.getMessage());
     }
 
     @Test
     void getX509Certificate_uses_refreshable_cache() throws Exception {
         String newCertificate = "new-cert";
-        enqueueResponse(keySetResponse);
+        prepareResponse(keySetResponse);
 
         String initialCertificate = certificateGetter.getCertificate(KEY_ID);
         verify(webClient, times(1)).get();
         assertEquals(CERTIFICATE, initialCertificate);
 
-        enqueueResponse(prepareKeySetResponse(newCertificate));
+        prepareResponse(prepareKeySetResponse(newCertificate));
         String cachedCertificate = certificateGetter.getCertificate(KEY_ID);
         verify(webClient, times(1)).get();
         assertEquals(CERTIFICATE, cachedCertificate);
@@ -87,12 +68,8 @@ class InternalUserCertificateGetterTest {
         assertEquals(newCertificate, freshCertificate);
     }
 
-    private static void enqueueResponse(String responseBody) {
-        var response = new MockResponse()
-                .setBody(responseBody)
-                .addHeader("Content-Type", "application/json");
-
-        server.enqueue(response);
+    private static void prepareResponse(String responseBody) {
+        prepare(jsonResponse().setBody(responseBody));
     }
 
     private static String prepareKeySetResponse(String certificate) {

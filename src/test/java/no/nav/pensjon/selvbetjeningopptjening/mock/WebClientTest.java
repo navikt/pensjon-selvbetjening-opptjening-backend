@@ -5,6 +5,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import java.io.IOException;
@@ -33,6 +34,11 @@ public class WebClientTest {
     protected static MockResponse jsonResponse() {
         return new MockResponse()
                 .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+    }
+
+    protected static MockResponse jsonResponse(HttpStatus status) {
+        return jsonResponse()
+                .setResponseCode(status.value());
     }
 
     protected static String baseUrl() {

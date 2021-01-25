@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 class SkjermingConsumerTest extends WebClientTest {
 
@@ -44,7 +45,7 @@ class SkjermingConsumerTest extends WebClientTest {
     }
 
     private static MockResponse badRequestResponse() {
-        return jsonResponse()
+        return jsonResponse(BAD_REQUEST)
                 .setBody("{\n" +
                         "    \"timestamp\": 1611593149366,\n" +
                         "    \"status\": 400,\n" +

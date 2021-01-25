@@ -1,95 +1,78 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.msgraph;
 
+import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.security.group.AadGroup;
 import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.io.IOException;
 import java.util.List;
 
+import static no.nav.pensjon.selvbetjeningopptjening.security.group.AadGroup.OKONOMI;
+import static no.nav.pensjon.selvbetjeningopptjening.security.group.AadGroup.VEILEDER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.http.HttpStatus.*;
 
-class MicrosoftGraphConsumerTest {
+class MicrosoftGraphConsumerTest extends WebClientTest {
 
-    private static final List<AadGroup> GROUPS = List.of(AadGroup.VEILEDER, AadGroup.OKONOMI);
+    private static final List<AadGroup> GROUPS = List.of(VEILEDER, OKONOMI);
     private static final String TOKEN = "token";
-    private static MockWebServer server;
-    private static String baseUrl;
     private MicrosoftGraphConsumer consumer;
-
-    @BeforeAll
-    static void setUp() throws IOException {
-        server = new MockWebServer();
-        server.start();
-        baseUrl = String.format("http://localhost:%s", server.getPort());
-    }
-
-    @AfterAll
-    static void tearDown() throws IOException {
-        server.shutdown();
-    }
 
     @BeforeEach
     void initialize() {
-        consumer = new MicrosoftGraphConsumer(WebClient.create(), baseUrl);
+        consumer = new MicrosoftGraphConsumer(WebClient.create(), baseUrl());
     }
 
     @Test
-    void getMemberGroups_returnsGroups_when_userAuthorized() {
-        server.enqueue(okResponse());
+    void checkMemberGroups_returnsGroups_when_userAuthorized() {
+        prepare(okResponse());
 
         List<AadGroup> groups = consumer.checkMemberGroups(GROUPS, TOKEN);
 
         assertEquals(2, groups.size());
-        assertEquals(AadGroup.VEILEDER, groups.get(0));
-        assertEquals(AadGroup.OKONOMI, groups.get(1));
+        assertEquals(VEILEDER, groups.get(0));
+        assertEquals(OKONOMI, groups.get(1));
     }
 
     @Test
-    void getMemberGroups_returnsNoGroups_when_expiredToken() {
-        server.enqueue(expiredTokenResponse());
+    void checkMemberGroups_returnsNoGroups_when_expiredToken() {
+        prepare(expiredTokenResponse());
         List<AadGroup> groups = consumer.checkMemberGroups(GROUPS, TOKEN);
         assertEquals(0, groups.size());
     }
 
     @Test
-    void getMemberGroups_returnsNoGroups_when_missingToken() {
-        server.enqueue(missingTokenResponse());
+    void checkMemberGroups_returnsNoGroups_when_missingToken() {
+        prepare(missingTokenResponse());
         List<AadGroup> groups = consumer.checkMemberGroups(GROUPS, TOKEN);
         assertEquals(0, groups.size());
     }
 
     @Test
-    void getMemberGroups_returnsNoGroups_when_tokenCannotBeParsed() {
-        server.enqueue(parsingFailureTokenResponse());
+    void checkMemberGroups_returnsNoGroups_when_tokenCannotBeParsed() {
+        prepare(parsingFailureTokenResponse());
         List<AadGroup> groups = consumer.checkMemberGroups(GROUPS, TOKEN);
         assertEquals(0, groups.size());
     }
 
     @Test
-    void getMemberGroups_returnsNoGroups_when_methodNotAllowed() {
-        server.enqueue(methodNotAllowedResponse());
+    void checkMemberGroups_returnsNoGroups_when_methodNotAllowed() {
+        prepare(methodNotAllowedResponse());
         List<AadGroup> groups = consumer.checkMemberGroups(GROUPS, TOKEN);
         assertEquals(0, groups.size());
     }
 
     @Test
-    void getMemberGroups_returnsNoGroups_when_invalidGroupId() {
-        server.enqueue(invalidGroupIdResponse());
+    void checkMemberGroups_returnsNoGroups_when_invalidGroupId() {
+        prepare(invalidGroupIdResponse());
         List<AadGroup> groups = consumer.checkMemberGroups(GROUPS, TOKEN);
         assertEquals(0, groups.size());
     }
 
     private static MockResponse okResponse() {
-        return new MockResponse()
-                .addHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+        return jsonResponse()
                 .setBody("{\n" +
                         "  \"@odata.context\": \"https://graph.microsoft.com/v1.0/$metadata#Collection(Edm.String)\",\n" +
                         "  \"value\": [\"959ead5b-99b5-466b-a0ff-5fdbc687517b\", \"70ef8e7f-7456-4298-95e0-b13c0ef2422b\"]\n" +
@@ -97,9 +80,7 @@ class MicrosoftGraphConsumerTest {
     }
 
     private static MockResponse expiredTokenResponse() {
-        return new MockResponse()
-                .addHeader(HttpHeaders.CONTENT_TYPE, "application/json")
-                .setResponseCode(HttpStatus.UNAUTHORIZED.value())
+        return jsonResponse(UNAUTHORIZED)
                 .setBody("{\n" +
                         "  \"error\": {\n" +
                         "    \"code\": \"InvalidAuthenticationToken\",\n" +
@@ -114,9 +95,7 @@ class MicrosoftGraphConsumerTest {
     }
 
     private static MockResponse missingTokenResponse() {
-        return new MockResponse()
-                .addHeader(HttpHeaders.CONTENT_TYPE, "application/json")
-                .setResponseCode(HttpStatus.UNAUTHORIZED.value())
+        return jsonResponse(UNAUTHORIZED)
                 .setBody("{\n" +
                         "  \"error\": {\n" +
                         "    \"code\": \"InvalidAuthenticationToken\",\n" +
@@ -131,9 +110,7 @@ class MicrosoftGraphConsumerTest {
     }
 
     private static MockResponse parsingFailureTokenResponse() {
-        return new MockResponse()
-                .addHeader(HttpHeaders.CONTENT_TYPE, "application/json")
-                .setResponseCode(HttpStatus.UNAUTHORIZED.value())
+        return jsonResponse(UNAUTHORIZED)
                 .setBody("{\n" +
                         "  \"error\": {\n" +
                         "    \"code\": \"InvalidAuthenticationToken\",\n" +
@@ -148,9 +125,7 @@ class MicrosoftGraphConsumerTest {
     }
 
     private static MockResponse methodNotAllowedResponse() {
-        return new MockResponse()
-                .addHeader(HttpHeaders.CONTENT_TYPE, "application/json")
-                .setResponseCode(HttpStatus.METHOD_NOT_ALLOWED.value())
+        return jsonResponse(METHOD_NOT_ALLOWED)
                 .setBody("{\n" +
                         "  \"error\": {\n" +
                         "    \"code\": \"Request_BadRequest\",\n" +
@@ -165,9 +140,7 @@ class MicrosoftGraphConsumerTest {
     }
 
     private static MockResponse invalidGroupIdResponse() {
-        return new MockResponse()
-                .addHeader(HttpHeaders.CONTENT_TYPE, "application/json")
-                .setResponseCode(HttpStatus.BAD_REQUEST.value())
+        return jsonResponse(BAD_REQUEST)
                 .setBody("{\n" +
                         "  \"error\": {\n" +
                         "    \"code\": \"Request_BadRequest\",\n" +

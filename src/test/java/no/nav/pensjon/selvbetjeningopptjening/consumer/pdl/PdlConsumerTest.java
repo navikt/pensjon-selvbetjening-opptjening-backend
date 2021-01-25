@@ -6,22 +6,19 @@ import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserT
 import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.StsException;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
+import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import no.nav.security.token.support.core.context.TokenValidationContext;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
 import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -31,12 +28,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-class PdlConsumerTest {
+class PdlConsumerTest extends WebClientTest {
 
     private static final Pid PID = new Pid(TestFnrs.NORMAL);
     private static final String BIRTH_DATE = "2001-01-01";
-    private static MockWebServer server;
-    private static String baseUrl;
     private PdlConsumer consumer;
 
     @Mock
@@ -44,28 +39,16 @@ class PdlConsumerTest {
     @Mock
     ServiceUserTokenGetter serviceUserTokenGetter;
 
-    @BeforeAll
-    static void setUp() throws IOException {
-        server = new MockWebServer();
-        server.start();
-        baseUrl = String.format("http://localhost:%s", server.getPort());
-    }
-
-    @AfterAll
-    static void tearDown() throws IOException {
-        server.shutdown();
-    }
-
     @BeforeEach
     void initialize() throws StsException {
         when(tokenValidationContextHolder.getTokenValidationContext()).thenReturn(tokenValidationContext());
         when(serviceUserTokenGetter.getServiceUserToken()).thenReturn(new ServiceUserToken());
-        consumer = new PdlConsumer(baseUrl, tokenValidationContextHolder, serviceUserTokenGetter);
+        consumer = new PdlConsumer(baseUrl(), tokenValidationContextHolder, serviceUserTokenGetter);
     }
 
     @Test
     void getBirthDates_shall_return_birthDate_when_one_exists() throws PdlException {
-        server.enqueue(pdlDataResponse());
+        prepare(pdlDataResponse());
 
         List<BirthDate> birthDates = consumer.getBirthDates(PID, LoginSecurityLevel.LEVEL4);
 
@@ -77,7 +60,7 @@ class PdlConsumerTest {
 
     @Test
     void getBirthDates_shall_throwPdlException_when_PDL_returns_error() {
-        server.enqueue(pdlErrorResponse());
+        prepare(pdlErrorResponse());
 
         var exception = assertThrows(PdlException.class,
                 () -> consumer.getBirthDates(PID, LoginSecurityLevel.LEVEL4));
@@ -88,7 +71,7 @@ class PdlConsumerTest {
 
     @Test
     void getBirthDates_shall_throwFailedCallingExternalServiceException_when_PDL_returns_multipleErrors() {
-        server.enqueue(pdlMultipleErrorResponse());
+        prepare(pdlMultipleErrorResponse());
 
         var exception = assertThrows(FailedCallingExternalServiceException.class,
                 () -> consumer.getBirthDates(PID, LoginSecurityLevel.LEVEL4));
@@ -111,8 +94,7 @@ class PdlConsumerTest {
     }
 
     private static MockResponse pdlDataResponse() {
-        return new MockResponse()
-                .addHeader("Content-Type", "application/json")
+        return jsonResponse()
                 .setBody("{\n" +
                         "  \"data\": {\n" +
                         "    \"hentPerson\": {\n" +
@@ -126,8 +108,7 @@ class PdlConsumerTest {
     }
 
     private static MockResponse pdlErrorResponse() {
-        return new MockResponse()
-                .addHeader("Content-Type", "application/json")
+        return jsonResponse()
                 .setBody("{\n" +
                         "  \"errors\": [{\n" +
                         "    \"message\": \"Ikke tilgang til å se person\",\n" +
@@ -145,8 +126,7 @@ class PdlConsumerTest {
     }
 
     private static MockResponse pdlMultipleErrorResponse() {
-        return new MockResponse()
-                .addHeader("Content-Type", "application/json")
+        return jsonResponse()
                 .setBody("{\n" +
                         "  \"errors\": [{\n" +
                         "    \"message\": \"Fant ikke person\",\n" +
