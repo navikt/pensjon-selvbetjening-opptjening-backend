@@ -26,6 +26,8 @@ spec:
       value: selvbetjening-idtoken
     - name: HTTP_PROXY_PARAMETERNAME
       value: "http.proxy"
+    - name: SKJERMING_ENDPOINT_URL
+      value: https://skjermede-personer-pip.dev.adeo.no/
     - name: UNLEASH_ENDPOINT_URL
       value: https://unleash.nais.io/api
     - name: APP_ENVIRONMENT

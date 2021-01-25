@@ -37,6 +37,8 @@ spec:
       value: https://pensjon-popp.nais.adeo.no/popp/api
     - name: PDL_ENDPOINT_URL
       value: https://pdl-api.nais.adeo.no/graphql
+    - name: SKJERMING_ENDPOINT_URL
+      value: https://skjermede-personer-pip.nais.adeo.no/
     - name: UNLEASH_ENDPOINT_URL
       value: https://unleash.nais.io/api
     - name: APP_ENVIRONMENT

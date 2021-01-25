@@ -16,6 +16,7 @@ public class GroupChecker {
             BRUKERHJELPA,
             OKONOMI,
             SAKSBEHANDLER,
+            UTVIDET,
             VEILEDER);
 
     private final GroupApi groupApi;
@@ -24,8 +25,14 @@ public class GroupChecker {
         this.groupApi = requireNonNull(groupApi);
     }
 
-    public boolean isUserAuthorized(String accessToken) {
+    public boolean isUserAuthorized(String accessToken, boolean isEgenAnsatt) {
         List<Group> memberGroups = groupApi.checkMemberGroups(AUTHORIZED_GROUPS, accessToken);
-        return !memberGroups.isEmpty();
+        return isEgenAnsatt ? isMemberOfUtvidet(memberGroups) : !memberGroups.isEmpty();
+    }
+
+    private boolean isMemberOfUtvidet(List<Group> memberGroups) {
+        return memberGroups
+                .stream()
+                .anyMatch(group -> group.getId().equals(UTVIDET));
     }
 }
