@@ -16,6 +16,9 @@ class AadGroupIds {
     // 0000-GA-PENSJON_SAKSBEHANDLER
     static final String SAKSBEHANDLER = "0af3955f-df85-4eb0-b5b2-45bf2c8aeb9e";
 
+    // 0000-GA-Pensjon_UTVIDET
+    static final String UTVIDET = "676b5e1f-84e6-46e5-8814-04233699ed4b";
+
     // 0000-GA-Pensjon_VEILEDER
     static final String VEILEDER = "959ead5b-99b5-466b-a0ff-5fdbc687517b";
 }
