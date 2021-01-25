@@ -4,5 +4,5 @@ import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 
 public interface SkjermingApi {
 
-    boolean isEgenAnsatt(Pid pid);
+    boolean isSkjermet(Pid pid);
 }

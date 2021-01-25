@@ -7,7 +7,6 @@ import no.nav.pensjon.selvbetjeningopptjening.config.OpptjeningFeature;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
-import no.nav.pensjon.selvbetjeningopptjening.security.group.EgenAnsattChecker;
 import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
 import no.nav.pensjon.selvbetjeningopptjening.security.jwt.JwsValidator;
 import no.nav.pensjon.selvbetjeningopptjening.unleash.UnleashProvider;
@@ -23,7 +22,8 @@ import javax.servlet.http.Cookie;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -42,12 +42,9 @@ class OpptjeningOnBehalfEndpointTest {
     @MockBean
     private OpptjeningProvider provider;
     @MockBean
-    private JwsValidator jwsValidator; // needed to satisfy dependency
-    @MockBean
     private GroupChecker groupChecker;
     @MockBean
-    private EgenAnsattChecker egenAnsattChecker;
-
+    private JwsValidator jwsValidator; // needed to satisfy dependency
 
     @BeforeAll
     static void setUp() {
@@ -59,8 +56,7 @@ class OpptjeningOnBehalfEndpointTest {
     void getOpptjeningForFnr_returns_opptjeningJson_when_feature_enabled() throws Exception {
         featureToggler.enable(OpptjeningFeature.PL1441);
         when(provider.calculateOpptjeningForFnr(PID, LoginSecurityLevel.INTERNAL)).thenReturn(response());
-        when(groupChecker.isUserAuthorized(anyString(), eq(true))).thenReturn(true);
-        when(egenAnsattChecker.isEgenAnsatt(any())).thenReturn(true);
+        when(groupChecker.isUserAuthorized(eq(PID), anyString())).thenReturn(true);
 
         mvc.perform(
                 get(URI)
@@ -90,7 +86,7 @@ class OpptjeningOnBehalfEndpointTest {
     void getOpptjeningForFnr_returns_statusForbidden_when_userNotMemberOfGroup() throws Exception {
         featureToggler.enable(OpptjeningFeature.PL1441);
         when(provider.calculateOpptjeningForFnr(PID, LoginSecurityLevel.INTERNAL)).thenReturn(response());
-        when(groupChecker.isUserAuthorized(anyString(), eq(false))).thenReturn(false);
+        when(groupChecker.isUserAuthorized(eq(PID), anyString())).thenReturn(false);
 
         mvc.perform(
                 get(URI)

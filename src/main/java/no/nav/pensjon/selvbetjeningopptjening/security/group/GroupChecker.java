@@ -1,5 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.security.group;
 
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -20,15 +21,18 @@ public class GroupChecker {
             VEILEDER);
 
     private final GroupApi groupApi;
+    private final SkjermingApi skjermingApi;
     private final List<AadGroup> relevantGroups;
 
-    public GroupChecker(GroupApi groupApi) {
+    public GroupChecker(GroupApi groupApi, SkjermingApi skjermingApi) {
         this.groupApi = requireNonNull(groupApi);
+        this.skjermingApi = skjermingApi;
         this.relevantGroups = listOf(AUTHORIZED_GROUPS, UTVIDET);
     }
 
-    public boolean isUserAuthorized(String accessToken, boolean targetIsSkjermet) {
+    public boolean isUserAuthorized(Pid pid, String accessToken) {
         List<AadGroup> memberGroups = groupApi.checkMemberGroups(relevantGroups, accessToken);
+        boolean targetIsSkjermet = skjermingApi.isSkjermet(pid);
         return targetIsSkjermet ? hasAccessToSkjermede(memberGroups) : hasNormalAccess(memberGroups);
     }
 

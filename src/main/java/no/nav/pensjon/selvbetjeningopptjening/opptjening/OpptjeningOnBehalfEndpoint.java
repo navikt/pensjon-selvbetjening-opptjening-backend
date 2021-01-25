@@ -4,7 +4,6 @@ import io.jsonwebtoken.JwtException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
-import no.nav.pensjon.selvbetjeningopptjening.security.group.EgenAnsattChecker;
 import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieType;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.SplitCookieAssembler;
@@ -34,13 +33,13 @@ public class OpptjeningOnBehalfEndpoint {
     private final OpptjeningProvider provider;
     private final JwsValidator jwsValidator;
     private final GroupChecker groupChecker;
-    private final EgenAnsattChecker egenAnsattChecker;
 
-    public OpptjeningOnBehalfEndpoint(OpptjeningProvider provider, JwsValidator jwsValidator, GroupChecker groupChecker, EgenAnsattChecker egenAnsattChecker) {
+    public OpptjeningOnBehalfEndpoint(OpptjeningProvider provider,
+                                      JwsValidator jwsValidator,
+                                      GroupChecker groupChecker) {
         this.provider = requireNonNull(provider);
         this.jwsValidator = requireNonNull(jwsValidator);
         this.groupChecker = requireNonNull(groupChecker);
-        this.egenAnsattChecker = egenAnsattChecker;
     }
 
     @GetMapping("/opptjeningonbehalf")
@@ -59,11 +58,9 @@ public class OpptjeningOnBehalfEndpoint {
             jwsValidator.validate(idToken);
             String accessToken = SplitCookieAssembler.getCookieValue(request, CookieType.INTERNAL_USER_ACCESS_TOKEN);
             var pid = new Pid(fnr, true);
-            boolean isEgenAnsatt = egenAnsattChecker.isEgenAnsatt(pid);
 
-            if (!isUserAllowed(accessToken, isEgenAnsatt)) {
-                log.info("User is not allowed");
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The service is not made available for the specified user yet");
+            if (!isUserAllowed(pid, accessToken)) {
+                return forbidden();
             }
 
             return provider.calculateOpptjeningForFnr(pid, LoginSecurityLevel.INTERNAL);
@@ -79,7 +76,13 @@ public class OpptjeningOnBehalfEndpoint {
         }
     }
 
-    private boolean isUserAllowed(String accessToken, boolean isEgenAnsatt) {
-        return groupChecker.isUserAuthorized(accessToken, isEgenAnsatt);
+    private boolean isUserAllowed(Pid pid, String accessToken) {
+        return groupChecker.isUserAuthorized(pid, accessToken);
+    }
+
+    private OpptjeningResponse forbidden() {
+        String message = "User is not allowed";
+        log.info(message);
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, message);
     }
 }
