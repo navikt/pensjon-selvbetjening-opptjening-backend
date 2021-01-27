@@ -26,14 +26,4 @@ public class InntektMapper {
                         dto.getInntektType(),
                         dto.getBelop());
     }
-
-    // public static InntektDto toDto(Inntekt domain) {
-    //     if (domain == null) {
-    //         return null;
-    //     }
-
-    //     var dto = new InntektDto();
-    //    // dto.setInntektId(domain.getId());
-    //     return dto;
-    // }
 }

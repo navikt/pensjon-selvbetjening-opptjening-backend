@@ -2,6 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.mock;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.http.HttpHeaders;
@@ -29,6 +30,10 @@ public class WebClientTest {
 
     protected static void prepare(MockResponse response) {
         server.enqueue(response);
+    }
+
+    protected static RecordedRequest takeRequest() throws InterruptedException {
+        return server.takeRequest();
     }
 
     protected static MockResponse jsonResponse() {

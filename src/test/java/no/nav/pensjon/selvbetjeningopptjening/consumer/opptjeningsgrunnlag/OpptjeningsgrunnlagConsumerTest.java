@@ -1,145 +1,165 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-
-import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
-
-import java.util.List;
-
+import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
+import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Inntekt;
+import okhttp3.HttpUrl;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestClientResponseException;
-import org.springframework.web.client.RestTemplate;
 
-import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.pensjon.selvbetjeningopptjening.model.InntektDto;
-import no.nav.pensjon.selvbetjeningopptjening.model.OpptjeningsGrunnlagDto;
+import java.util.List;
+
+import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @ExtendWith(MockitoExtension.class)
-class OpptjeningsgrunnlagConsumerTest {
+class OpptjeningsgrunnlagConsumerTest extends WebClientTest {
 
     private static final String CONSUMED_SERVICE = "PROPOPP007 hentOpptjeningsgrunnlag";
-    private static final String ENDPOINT = "http://poppEndpoint.test";
+    private static final String MOCK_FNR = "01020312345";
     private OpptjeningsgrunnlagConsumer consumer;
 
-    @Mock
-    private RestTemplate restTemplateMock;
-    @Captor
-    private ArgumentCaptor<String> urlCaptor;
-    @Captor
-    private ArgumentCaptor<HttpMethod> httpMethodCaptor;
+    private static final String EXPECTED_GENERAL_ERROR_MESSAGE = "Error when calling the external service " +
+            CONSUMED_SERVICE + " in " + POPP + ".";
 
     @BeforeEach
-    void setUp() {
-        consumer = new OpptjeningsgrunnlagConsumer(ENDPOINT);
-        consumer.setRestTemplate(restTemplateMock);
+    void initialize() {
+        consumer = new OpptjeningsgrunnlagConsumer(baseUrl());
     }
 
     @Test
-    void should_return_listOfInntekt_when_getInntektListeFromOpptjeningsgrunnlag() {
-        var response = new HentOpptjeningsGrunnlagResponse();
-        var grunnlag = new OpptjeningsGrunnlagDto();
-        grunnlag.setInntektListe(List.of(inntektDto()));
-        response.setOpptjeningsGrunnlag(grunnlag);
-        ResponseEntity<HentOpptjeningsGrunnlagResponse> entity = new ResponseEntity<>(response, null, HttpStatus.OK);
-        when(restTemplateMock.exchange(urlCaptor.capture(), any(), any(), eq(HentOpptjeningsGrunnlagResponse.class))).thenReturn(entity);
+    void should_return_listOfInntekt_when_getInntektListeFromOpptjeningsgrunnlag() throws InterruptedException {
+        prepare(okResponse());
 
-        List<Inntekt> inntekter = consumer.getInntektListeFromOpptjeningsgrunnlag("fnr", 0, 0);
+        List<Inntekt> inntekter = consumer.getInntektListeFromOpptjeningsgrunnlag(MOCK_FNR, 2017, 2018);
 
-        assertEquals(1, inntekter.size());
-        assertEquals(1991, inntekter.get(0).getYear());
-    }
-
-    @Test
-    void should_add_fnr_as_pathparam_and_fom_and_tom_as_queryparams_when_GET_getInntektListeFromOpptjeningsgrunnlag() {
-        String fnr = "fnrValue";
-        Integer fom = 1988;
-        Integer tom = 2018;
-        when(restTemplateMock.exchange(urlCaptor.capture(), httpMethodCaptor.capture(), any(), eq(HentOpptjeningsGrunnlagResponse.class))).thenReturn(new ResponseEntity<>(HttpStatus.OK));
-
-        consumer.getInntektListeFromOpptjeningsgrunnlag(fnr, fom, tom);
-
-        assertThat(httpMethodCaptor.getValue(), is(HttpMethod.GET));
-        assertThat(urlCaptor.getValue(), is(ENDPOINT + "/opptjeningsgrunnlag/" + fnr + "?fomAr=" + fom + "&tomAr=" + tom));
+        RecordedRequest request = takeRequest();
+        HttpUrl requestUrl = request.getRequestUrl();
+        assertNotNull(requestUrl);
+        assertEquals("GET", request.getMethod());
+        assertEquals("fomAr", requestUrl.queryParameterName(0));
+        assertEquals("2017", requestUrl.queryParameterValue(0));
+        assertEquals("tomAr", requestUrl.queryParameterName(1));
+        assertEquals("2018", requestUrl.queryParameterValue(1));
+        assertEquals(2, inntekter.size());
+        assertInntekt(inntekter.get(0), 2017, "INN_LON", 280241L);
+        assertInntekt(inntekter.get(1), 2018, "SUM_PI", 280242L);
     }
 
     @Test
     void should_return_FailedCallingExternalServiceException_when_401() {
-        when(restTemplateMock.exchange("http://poppEndpoint.test/opptjeningsgrunnlag/?fomAr=0&tomAr=0",
-                HttpMethod.GET,
-                null,
-                HentOpptjeningsGrunnlagResponse.class)).thenThrow(new RestClientResponseException("", HttpStatus.UNAUTHORIZED.value(), "", null, null, null));
+        prepare(unauthorizedResponse());
 
         var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
-                () -> consumer.getInntektListeFromOpptjeningsgrunnlag("", 0, 0));
+                () -> consumer.getInntektListeFromOpptjeningsgrunnlag(MOCK_FNR, 2017, 2018));
 
-        assertThat(thrown.getMessage(), is("Error when calling the external service " + CONSUMED_SERVICE + " in " + POPP + ". Received 401 UNAUTHORIZED"));
+        assertThat(thrown.getMessage(), is(EXPECTED_GENERAL_ERROR_MESSAGE + " Received 401 UNAUTHORIZED"));
     }
 
     @Test
-    void should_return_FailedCallingExternalServiceException_when_512() {
-        when(restTemplateMock.exchange("http://poppEndpoint.test/opptjeningsgrunnlag/?fomAr=0&tomAr=0",
-                HttpMethod.GET,
-                null,
-                HentOpptjeningsGrunnlagResponse.class)).thenThrow(new RestClientResponseException("PersonDoesNotExistExceptionDto", 512, "", null, null, null));
+    void should_return_FailedCallingExternalServiceException_when_nonExistentPerson() {
+        prepare(nonExistentPersonResponse());
 
         var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
-                () -> consumer.getInntektListeFromOpptjeningsgrunnlag("", 0, 0));
+                () -> consumer.getInntektListeFromOpptjeningsgrunnlag(MOCK_FNR, 2017, 2018));
 
-        assertThat(thrown.getMessage(), is("Error when calling the external service " + CONSUMED_SERVICE + " in " + POPP + ". Person ikke funnet"));
+        assertThat(thrown.getMessage(), is(EXPECTED_GENERAL_ERROR_MESSAGE + " Person ikke funnet"));
     }
 
+
     @Test
-    void should_return_FailedCallingExternalServiceException_when_500() {
-        when(restTemplateMock.exchange("http://poppEndpoint.test/opptjeningsgrunnlag/?fomAr=0&tomAr=0",
-                HttpMethod.GET,
-                null,
-                HentOpptjeningsGrunnlagResponse.class)).thenThrow(new RestClientResponseException("", HttpStatus.INTERNAL_SERVER_ERROR.value(), "", null, null, null));
+    void should_return_FailedCallingExternalServiceException_when_invalidPid() {
+        prepare(invalidPidResponse());
 
         var thrown = assertThrows(
                 FailedCallingExternalServiceException.class,
-                () -> consumer.getInntektListeFromOpptjeningsgrunnlag("", 0, 0));
+                () -> consumer.getInntektListeFromOpptjeningsgrunnlag(MOCK_FNR, 2017, 2018));
 
         assertThat(thrown.getMessage(),
-                is("Error when calling the external service " + CONSUMED_SERVICE + " in " + POPP
-                        + ". An error occurred in the provider, received 500 INTERNAL SERVER ERROR"));
+                is(EXPECTED_GENERAL_ERROR_MESSAGE +
+                        " An error occurred in the provider, received 500 INTERNAL SERVER ERROR"));
     }
 
-    @Test
-    void should_return_FailedCallingExternalServiceException_when_RestClientException() {
-        when(restTemplateMock.exchange("http://poppEndpoint.test/opptjeningsgrunnlag/?fomAr=0&tomAr=0",
-                HttpMethod.GET,
-                null,
-                HentOpptjeningsGrunnlagResponse.class)).thenThrow(new RestClientException("oops"));
-
-        var thrown = assertThrows(
-                FailedCallingExternalServiceException.class,
-                () -> consumer.getInntektListeFromOpptjeningsgrunnlag("", 0, 0));
-
-        assertThat(thrown.getMessage(), is("Error when calling the external service " + CONSUMED_SERVICE + " in " + POPP + ". Failed to access service"));
+    private static void assertInntekt(Inntekt actual, int expectedYear, String expectedType, long expectedBelop) {
+        assertEquals(expectedYear, actual.getYear());
+        assertEquals(expectedType, actual.getType());
+        assertEquals(expectedBelop, actual.getBelop());
     }
 
-    private static InntektDto inntektDto() {
-        var dto = new InntektDto();
-        dto.setInntektAr(1991);
-        return dto;
+    private static MockResponse okResponse() {
+        return jsonResponse()
+                .setBody("{\n" +
+                        "    \"opptjeningsGrunnlag\": {\n" +
+                        "        \"fnr\": \"12117121168\",\n" +
+                        "        \"inntektListe\": [\n" +
+                        "            {\n" +
+                        "                \"changeStamp\": {\n" +
+                        "                    \"createdBy\": \"TESTDATA\",\n" +
+                        "                    \"createdDate\": 1586931866460,\n" +
+                        "                    \"updatedBy\": \"srvpensjon\",\n" +
+                        "                    \"updatedDate\": 1586931866775\n" +
+                        "                },\n" +
+                        "                \"inntektId\": 585473583,\n" +
+                        "                \"fnr\": \"12117121168\",\n" +
+                        "                \"inntektAr\": 2017,\n" +
+                        "                \"kilde\": \"PEN\",\n" +
+                        "                \"kommune\": \"1337\",\n" +
+                        "                \"piMerke\": null,\n" +
+                        "                \"inntektType\": \"INN_LON\",\n" +
+                        "                \"belop\": 280241\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"changeStamp\": {\n" +
+                        "                    \"createdBy\": \"srvpensjon\",\n" +
+                        "                    \"createdDate\": 1586931866782,\n" +
+                        "                    \"updatedBy\": \"srvpensjon\",\n" +
+                        "                    \"updatedDate\": 1586931866946\n" +
+                        "                },\n" +
+                        "                \"inntektId\": 585473584,\n" +
+                        "                \"fnr\": \"12117121168\",\n" +
+                        "                \"inntektAr\": 2018,\n" +
+                        "                \"kilde\": \"POPP\",\n" +
+                        "                \"kommune\": null,\n" +
+                        "                \"piMerke\": null,\n" +
+                        "                \"inntektType\": \"SUM_PI\",\n" +
+                        "                \"belop\": 280242\n" +
+                        "            }\n" +
+                        "        ],\n" +
+                        "        \"omsorgListe\": [],\n" +
+                        "        \"dagpengerListe\": [],\n" +
+                        "        \"forstegangstjeneste\": null\n" +
+                        "    }\n" +
+                        "}");
+    }
+
+    private static MockResponse nonExistentPersonResponse() {
+        return jsonResponse().setResponseCode(512)
+                .setBody("{\n" +
+                        "    \"exception\": \"PersonDoesNotExistExceptionDto\",\n" +
+                        "    \"message\": \"Person with pid = 01020312345 does not exist\"\n" +
+                        "}");
+    }
+
+    private static MockResponse invalidPidResponse() {
+        return jsonResponse(INTERNAL_SERVER_ERROR)
+                .setBody("{\n" +
+                        "    \"message\": \"Pid validation failed, Pid validation failed," +
+                        " 01020312345 is not a valid personal identification number" +
+                        " is not a valid personal identification number\"\n" +
+                        "}");
+    }
+
+    private static MockResponse unauthorizedResponse() {
+        return jsonResponse(UNAUTHORIZED);
     }
 }
