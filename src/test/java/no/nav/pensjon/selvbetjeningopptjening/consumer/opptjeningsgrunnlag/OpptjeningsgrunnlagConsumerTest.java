@@ -1,5 +1,8 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag;
 
+import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserToken;
+import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
+import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.StsException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Inntekt;
@@ -9,7 +12,9 @@ import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
 
 import java.util.List;
 
@@ -17,6 +22,7 @@ import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -25,18 +31,23 @@ class OpptjeningsgrunnlagConsumerTest extends WebClientTest {
 
     private static final String CONSUMED_SERVICE = "PROPOPP007 hentOpptjeningsgrunnlag";
     private static final String MOCK_FNR = "01020312345";
+    private static final ServiceUserToken TOKEN = new ServiceUserToken("token", 1L, "type");
     private OpptjeningsgrunnlagConsumer consumer;
 
     private static final String EXPECTED_GENERAL_ERROR_MESSAGE = "Error when calling the external service " +
             CONSUMED_SERVICE + " in " + POPP + ".";
 
+    @Mock
+    ServiceUserTokenGetter tokenGetter;
+
     @BeforeEach
-    void initialize() {
-        consumer = new OpptjeningsgrunnlagConsumer(baseUrl());
+    void initialize() throws StsException {
+        when(tokenGetter.getServiceUserToken()).thenReturn(TOKEN);
+        consumer = new OpptjeningsgrunnlagConsumer(baseUrl(), tokenGetter);
     }
 
     @Test
-    void should_return_listOfInntekt_when_getInntektListeFromOpptjeningsgrunnlag() throws InterruptedException {
+    void should_return_listOfInntekt_when_getInntektListeFromOpptjeningsgrunnlag() throws Exception {
         prepare(okResponse());
 
         List<Inntekt> inntekter = consumer.getInntektListeFromOpptjeningsgrunnlag(MOCK_FNR, 2017, 2018);
@@ -45,6 +56,7 @@ class OpptjeningsgrunnlagConsumerTest extends WebClientTest {
         HttpUrl requestUrl = request.getRequestUrl();
         assertNotNull(requestUrl);
         assertEquals("GET", request.getMethod());
+        assertEquals("Bearer token", request.getHeader(HttpHeaders.AUTHORIZATION));
         assertEquals("fomAr", requestUrl.queryParameterName(0));
         assertEquals("2017", requestUrl.queryParameterValue(0));
         assertEquals("tomAr", requestUrl.queryParameterName(1));

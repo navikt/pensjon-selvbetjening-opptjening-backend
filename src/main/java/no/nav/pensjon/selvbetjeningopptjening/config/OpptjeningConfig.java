@@ -62,11 +62,6 @@ public class OpptjeningConfig {
     }
 
     @Bean
-    public OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer(@Value("${popp.endpoint.url}") String endpoint) {
-        return new OpptjeningsgrunnlagConsumer(endpoint);
-    }
-
-    @Bean
     public PersonConsumer personConsumer(@Value("${pen.endpoint.url}") String endpoint) {
         return new PersonConsumer(endpoint);
     }
