@@ -4,6 +4,7 @@ import no.finn.unleash.FakeUnleash;
 import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
 import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
 import no.nav.pensjon.selvbetjeningopptjening.config.OpptjeningFeature;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
@@ -45,6 +46,8 @@ class OpptjeningOnBehalfEndpointTest {
     private GroupChecker groupChecker;
     @MockBean
     private JwsValidator jwsValidator; // needed to satisfy dependency
+    @MockBean
+    private UttaksgradGetter uttaksgradGetter; // needed to satisfy dependency
 
     @BeforeAll
     static void setUp() {
