@@ -1,6 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import io.jsonwebtoken.JwtException;
+import no.nav.pensjon.selvbetjeningopptjening.config.OpptjeningFeature;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import static java.util.Objects.requireNonNull;
 import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
+import static no.nav.pensjon.selvbetjeningopptjening.unleash.UnleashProvider.toggle;
 
 @RestController
 @RequestMapping("api")
@@ -63,7 +65,11 @@ public class OpptjeningOnBehalfEndpoint {
                 return forbidden();
             }
 
-            return provider.calculateOpptjeningForFnr(pid, LoginSecurityLevel.INTERNAL);
+            if (toggle(OpptjeningFeature.PL1441).isEnabled()) {
+                return provider.calculateOpptjeningForFnr(pid, LoginSecurityLevel.INTERNAL);
+            }
+
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The service is not made available for the specified user yet");
         } catch (JwtException e) {
             log.error("JwtException. Message: {}.", e.getMessage());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
