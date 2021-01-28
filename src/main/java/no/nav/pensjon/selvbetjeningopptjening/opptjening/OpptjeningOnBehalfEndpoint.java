@@ -1,8 +1,8 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import io.jsonwebtoken.JwtException;
-import no.nav.pensjon.selvbetjeningopptjening.config.OpptjeningFeature;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import static java.util.Objects.requireNonNull;
 import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
-import static no.nav.pensjon.selvbetjeningopptjening.unleash.UnleashProvider.toggle;
 
 @RestController
 @RequestMapping("api")
@@ -35,13 +34,16 @@ public class OpptjeningOnBehalfEndpoint {
     private final OpptjeningProvider provider;
     private final JwsValidator jwsValidator;
     private final GroupChecker groupChecker;
+    private final UttaksgradGetter uttaksgradGetter;
 
     public OpptjeningOnBehalfEndpoint(OpptjeningProvider provider,
                                       JwsValidator jwsValidator,
-                                      GroupChecker groupChecker) {
+                                      GroupChecker groupChecker,
+                                      UttaksgradGetter uttaksgradGetter) {
         this.provider = requireNonNull(provider);
         this.jwsValidator = requireNonNull(jwsValidator);
         this.groupChecker = requireNonNull(groupChecker);
+        this.uttaksgradGetter = requireNonNull(uttaksgradGetter);
     }
 
     @GetMapping("/opptjeningonbehalf")
@@ -65,7 +67,8 @@ public class OpptjeningOnBehalfEndpoint {
                 return forbidden();
             }
 
-            if (toggle(OpptjeningFeature.PL1441).isEnabled()) {
+            // TODO Fix this hack
+            if (uttaksgradGetter.getAlderSakUttaksgradhistorikkForPerson(pid.getPid()).isEmpty()) {
                 return provider.calculateOpptjeningForFnr(pid, LoginSecurityLevel.INTERNAL);
             }
 
