@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -65,6 +66,28 @@ class ByProfileStrategyTest {
         boolean isEnabled = strategy.isEnabled(params);
 
         assertFalse(isEnabled);
+    }
+
+    @Test
+    void isEnabled_returns_false_when_noUttakProfile_and_uttaksgrad() {
+        setToggleValue("noUttak");
+        when(uttaksgradGetter.getAlderSakUttaksgradhistorikkForPerson(anyString())).thenReturn(singletonList(uttaksgrad()));
+        strategy.setFnrBefore1962();
+
+        boolean isEnabled = strategy.isEnabled(params);
+
+        assertFalse(isEnabled);
+    }
+
+    @Test
+    void isEnabled_returns_true_when_noUttakProfile_and_no_uttaksgrad() {
+        setToggleValue("noUttak");
+        when(uttaksgradGetter.getAlderSakUttaksgradhistorikkForPerson(anyString())).thenReturn(emptyList());
+        strategy.setFnrBefore1962();
+
+        boolean isEnabled = strategy.isEnabled(params);
+
+        assertTrue(isEnabled);
     }
 
     @Test
