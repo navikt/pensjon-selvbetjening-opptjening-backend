@@ -24,13 +24,13 @@ public class ByProfileStrategy extends BeanStrategy {
         }
 
         String profile = parameters.get("profile");
-
-        if (!("noUttakAndBornAfter" + TIPPING_POINT).equals(profile)) {
-            return false;
-        }
-
         Pid pid = getBean(LoginInfoGetter.class).getLoginInfo().getPid();
-        return uttaksgrader(pid.getPid()).isEmpty() && pid.getFodselsdato().getYear() > TIPPING_POINT;
+        if (("noUttakAndBornAfter" + TIPPING_POINT).equals(profile)) {
+            return uttaksgrader(pid.getPid()).isEmpty() && pid.getFodselsdato().getYear() > TIPPING_POINT;
+        } else if ("noUttak".equals(profile)) {
+            return uttaksgrader(pid.getPid()).isEmpty();
+        }
+        return false;
     }
 
     private List<Uttaksgrad> uttaksgrader(String fnr) {
