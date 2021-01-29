@@ -67,7 +67,7 @@ class OpptjeningsgrunnlagConsumerTest extends WebClientTest {
     }
 
     @Test
-    void should_return_FailedCallingExternalServiceException_when_401() {
+    void should_return_FailedCallingExternalServiceException_when_unauthorized() {
         prepare(unauthorizedResponse());
 
         var thrown = assertThrows(

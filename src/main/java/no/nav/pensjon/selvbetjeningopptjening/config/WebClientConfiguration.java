@@ -10,10 +10,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
-import reactor.netty.tcp.ProxyProvider;
-import reactor.netty.tcp.TcpClient;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 
 @Configuration
@@ -44,44 +41,24 @@ public class WebClientConfiguration {
         }
 
         try {
-            return proxiedWebClient(proxyUri);
+            return webClientWithProxySupport(proxyUri);
         } catch (URISyntaxException e) {
             log.warn("Proxy not used. Reason: Bad URI: '{}'. Message: '{}'.", proxyUri, e.getMessage());
             return WebClient.create();
         }
     }
 
-    private WebClient proxiedWebClient(String proxyUri) throws URISyntaxException {
-        URI uri = getValidUri(proxyUri);
-
-        var httpClient = HttpClient.create()
-                .tcpConfiguration(c -> tcpClient(c, uri.getHost(), uri.getPort()));
-
+    @Bean
+    @Qualifier("epoch-support")
+    WebClient webClientWithEpochSupport() {
         return WebClient.builder()
-                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .exchangeStrategies(JsonEpochExchangeStrategies.build())
                 .build();
     }
 
-    private URI getValidUri(String value) throws URISyntaxException {
-        var uri = new URI(value);
-        log.info("URI: Host: '{}'. Port: {}.", uri.getHost(), uri.getPort());
-
-        if (uri.getPort() < 0) {
-            throw new URISyntaxException(value, "No URI port specified");
-        }
-
-        return uri;
-    }
-
-    private TcpClient tcpClient(TcpClient client, String proxyHost, int proxyPort) {
-        return client.proxy(p -> proxySpec(p, proxyHost, proxyPort));
-    }
-
-    @SuppressWarnings("UnusedReturnValue")
-    private ProxyProvider.Builder proxySpec(ProxyProvider.TypeSpec proxy, String host, int port) {
-        return proxy
-                .type(ProxyProvider.Proxy.HTTP)
-                .host(host)
-                .port(port);
+    private WebClient webClientWithProxySupport(String proxyUri) throws URISyntaxException {
+        return WebClient.builder()
+                .clientConnector(WebClientProxyConfig.getClientHttpConnector(proxyUri))
+                .build();
     }
 }

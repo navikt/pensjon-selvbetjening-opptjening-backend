@@ -18,6 +18,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
+import static java.util.Objects.requireNonNull;
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.PoppUtil.handle;
 
 @Component
@@ -34,15 +35,15 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
     public OpptjeningsgrunnlagConsumer(@Value("${popp.endpoint.url}") String endpoint,
                                        ServiceUserTokenGetter tokenGetter) {
         this.webClient = WebClient.create();
-        this.endpoint = endpoint;
-        this.tokenGetter = tokenGetter;
+        this.endpoint = requireNonNull(endpoint);
+        this.tokenGetter = requireNonNull(tokenGetter);
     }
 
     public List<Inntekt> getInntektListeFromOpptjeningsgrunnlag(String fnr, Integer fomAr, Integer tomAr) {
         try {
             var response = webClient
                     .get()
-                    .uri(buildUrl(fnr, fomAr, tomAr))
+                    .uri(opptjeningUri(fnr, fomAr, tomAr))
                     .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue())
                     .retrieve()
                     .bodyToMono(HentOpptjeningsGrunnlagResponse.class)
@@ -65,9 +66,13 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
             webClient
                     .get()
                     .uri(pingUri())
+                    .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue())
                     .retrieve()
                     .toBodilessEntity()
                     .block();
+        } catch (StsException e) {
+            log.error(String.format("STS error in %s: %s", CONSUMED_SERVICE, e.getMessage()), e);
+            throw handle(e, CONSUMED_SERVICE);
         } catch (WebClientResponseException e) {
             throw handle(e, CONSUMED_SERVICE);
         } catch (RuntimeException e) { // e.g. when connection broken
@@ -80,9 +85,8 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
         return new PingInfo("REST", "POPP opptjeningsgrunnlag", pingUri());
     }
 
-    private String buildUrl(String fnr, Integer fomAr, Integer tomAr) {
-        var builder = UriComponentsBuilder
-                .fromHttpUrl(endpoint)
+    private String opptjeningUri(String fnr, Integer fomAr, Integer tomAr) {
+        var builder = UriComponentsBuilder.fromHttpUrl(endpoint)
                 .path(ENDPOINT_PATH + fnr);
 
         if (fomAr != null) {
@@ -96,15 +100,14 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
         return builder.toUriString();
     }
 
-    private String getAuthHeaderValue() throws StsException {
-        return AUTH_TYPE + " " + tokenGetter.getServiceUserToken().getAccessToken();
-    }
-
     private String pingUri() {
-        return UriComponentsBuilder
-                .fromHttpUrl(endpoint)
+        return UriComponentsBuilder.fromHttpUrl(endpoint)
                 .path(ENDPOINT_PATH + "ping")
                 .toUriString();
+    }
+
+    private String getAuthHeaderValue() throws StsException {
+        return AUTH_TYPE + " " + tokenGetter.getServiceUserToken().getAccessToken();
     }
 
     private static List<Inntekt> fromDto(OpptjeningsGrunnlagDto grunnlag) {

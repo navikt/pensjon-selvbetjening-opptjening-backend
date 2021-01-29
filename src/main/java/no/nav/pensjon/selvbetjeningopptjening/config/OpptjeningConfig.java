@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.OidcAuthTokenInterceptor;
 import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
@@ -52,13 +50,6 @@ public class OpptjeningConfig {
     @Bean
     public RestpensjonConsumer restpensjonConsumer(@Value("${popp.endpoint.url}") String endpoint) {
         return new RestpensjonConsumer(endpoint);
-    }
-
-    @Bean
-    public PensjonsbeholdningConsumer pensjonsbeholdningConsumer(
-            @Value("${popp.endpoint.url}") String endpoint,
-            @Qualifier("conf.opptjening.resttemplate.oidc") RestTemplate restTemplate) {
-        return new PensjonsbeholdningConsumer(endpoint, restTemplate);
     }
 
     @Bean

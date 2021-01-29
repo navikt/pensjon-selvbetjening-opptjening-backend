@@ -104,7 +104,7 @@ public class Beholdning implements Periode {
         return vedtakId;
     }
 
-    boolean hasVedtak() {
+    public boolean hasVedtak() {
         return hasVedtak;
     }
 
