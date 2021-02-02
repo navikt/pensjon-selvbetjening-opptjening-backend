@@ -39,7 +39,7 @@ public class OpptjeningEndpoint {
                 return provider.calculateOpptjeningForFnr(login.getPid(), login.getSecurityLevel());
             }
 
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The service is not made available for the specified user yet");
+            throw new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, "The service is not made available for the specified user yet");
         } catch (PidValidationException e) {
             log.error(e);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);

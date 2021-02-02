@@ -74,7 +74,7 @@ public class OpptjeningOnBehalfEndpoint {
                 return provider.calculateOpptjeningForFnr(pid, LoginSecurityLevel.INTERNAL);
             }
 
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The service is not made available for the specified user yet");
+            throw new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, "The service is not made available for the specified user yet");
         } catch (JwtException e) {
             log.error("JwtException. Message: {}.", e.getMessage());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
