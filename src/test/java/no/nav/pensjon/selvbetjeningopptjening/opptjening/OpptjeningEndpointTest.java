@@ -67,14 +67,14 @@ class OpptjeningEndpointTest {
     }
 
     @Test
-    void getOpptjeningForFnr_returns_statusForbidden_when_feature_disabled() throws Exception {
+    void getOpptjeningForFnr_returns_statusIAmATeaPot_when_feature_disabled() throws Exception {
         featureToggler.disable(OpptjeningFeature.PL1441);
         when(provider.calculateOpptjeningForFnr(PID, LoginSecurityLevel.LEVEL4)).thenReturn(response());
 
         mvc.perform(get(URI))
-                .andExpect(status().isForbidden())
+                .andExpect(status().isIAmATeapot())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResponseStatusException))
-                .andExpect(result -> assertEquals("403 FORBIDDEN \"The service is not made available for the specified user yet\"", getExceptionMessage(result)))
+                .andExpect(result -> assertEquals("418 I_AM_A_TEAPOT \"The service is not made available for the specified user yet\"", getExceptionMessage(result)))
                 .andExpect(content().string(""));
     }
 
