@@ -20,8 +20,8 @@ class LocalDateFromEpochDeserializerTest {
 
     @Test
     void deserialize_gets_localDate_from_epoch() throws IOException {
-        when(parser.readValueAs(Long.class)).thenReturn(1600000000000L);
+        when(parser.readValueAs(Long.class)).thenReturn(757378900000L);
         LocalDate date = new LocalDateTimeFromEpochDeserializer().deserialize(parser, null);
-        assertEquals(LocalDate.of(2020, 9, 13), date);
+        assertEquals(LocalDate.of(1994, 1, 1), date);
     }
 }
