@@ -53,11 +53,6 @@ public class OpptjeningConfig {
     }
 
     @Bean
-    public PersonConsumer personConsumer(@Value("${pen.endpoint.url}") String endpoint) {
-        return new PersonConsumer(endpoint);
-    }
-
-    @Bean
     public EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator() {
         return new EndringPensjonsbeholdningCalculator();
     }

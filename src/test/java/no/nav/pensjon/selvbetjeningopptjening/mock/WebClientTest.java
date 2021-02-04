@@ -41,6 +41,11 @@ public class WebClientTest {
                 .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
     }
 
+    protected static MockResponse plaintextResponse() {
+        return new MockResponse()
+                .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
+    }
+
     protected static MockResponse jsonResponse(HttpStatus status) {
         return jsonResponse()
                 .setResponseCode(status.value());
