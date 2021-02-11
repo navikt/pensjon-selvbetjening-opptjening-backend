@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 public class LocalDateTimeFromEpochDeserializer extends StdDeserializer<LocalDate> {
 
-    private static final String TIME_ZONE = "UTC+1"; // Norway winter time
+    private static final String TIME_ZONE = "UTC+2"; // Norway daylight saving time
 
     public LocalDateTimeFromEpochDeserializer() {
         super(LocalDate.class);
