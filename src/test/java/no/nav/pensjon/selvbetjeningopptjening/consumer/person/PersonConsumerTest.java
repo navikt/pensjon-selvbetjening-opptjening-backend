@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -31,6 +30,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @SpringBootTest
 @ContextConfiguration(classes = SelvbetjeningOpptjeningApplication.class)
@@ -71,6 +72,9 @@ class PersonConsumerTest extends WebClientTest {
         assertEquals("GET", request.getMethod());
         assertEquals("Bearer token", request.getHeader(HttpHeaders.AUTHORIZATION));
         assertEquals("fnr", request.getHeader("pid"));
+        List<String> segments = requestUrl.pathSegments();
+        assertEquals("person", segments.get(0));
+        assertEquals("uforehistorikk", segments.get(1));
         List<Uforeperiode> perioder = historikk.getUforeperioder();
         assertEquals(1, perioder.size());
         Uforeperiode periode = perioder.get(0);
@@ -107,6 +111,9 @@ class PersonConsumerTest extends WebClientTest {
         assertEquals("GET", request.getMethod());
         assertEquals("Bearer token", request.getHeader(HttpHeaders.AUTHORIZATION));
         assertEquals("fnr", request.getHeader("pid"));
+        List<String> segments = requestUrl.pathSegments();
+        assertEquals("person", segments.get(0));
+        assertEquals("afphistorikk", segments.get(1));
         assertNull(historikk);
     }
 
@@ -122,6 +129,9 @@ class PersonConsumerTest extends WebClientTest {
         assertNotNull(requestUrl);
         assertEquals("GET", request.getMethod());
         assertEquals("Bearer token", request.getHeader(HttpHeaders.AUTHORIZATION));
+        List<String> segments = requestUrl.pathSegments();
+        assertEquals("person", segments.get(0));
+        assertEquals("ping", segments.get(1));
     }
 
     @Test
@@ -222,7 +232,7 @@ class PersonConsumerTest extends WebClientTest {
 
     private static MockResponse invalidPidResponse() {
         // Actual response from PEN
-        return jsonResponse(HttpStatus.BAD_REQUEST)
+        return jsonResponse(BAD_REQUEST)
                 .setBody("{\n" +
                         "    \"feil\": \"SimplePidParamConverter: Invalid pid as input to REST service\"\n" +
                         "}");
@@ -231,7 +241,7 @@ class PersonConsumerTest extends WebClientTest {
     private static MockResponse expiredTokenResponse() {
         // Based on actual response from PEN
         return plaintextResponse()
-                .setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .setResponseCode(INTERNAL_SERVER_ERROR.value())
                 .setBody("<!doctype html>\n" +
                         "<html lang=\"en\">\n" +
                         "<head>\n" +
@@ -255,7 +265,7 @@ class PersonConsumerTest extends WebClientTest {
     private static MockResponse invalidTokenResponse() {
         // Based on actual response from PEN
         return plaintextResponse()
-                .setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .setResponseCode(INTERNAL_SERVER_ERROR.value())
                 .setBody("<!doctype html>\n" +
                         "<html lang=\"en\">\n" +
                         "<body>\n" +

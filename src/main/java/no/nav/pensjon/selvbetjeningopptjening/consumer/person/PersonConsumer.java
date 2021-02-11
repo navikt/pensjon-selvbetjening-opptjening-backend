@@ -109,8 +109,7 @@ public class PersonConsumer extends AuthorizedPenConsumer implements Pingable {
 
     private String path(String end) {
         return UriComponentsBuilder.fromHttpUrl(endpoint)
-                .path(ENDPOINT_PATH)
-                .path(end)
+                .pathSegment(ENDPOINT_PATH, end)
                 .toUriString();
     }
 }
