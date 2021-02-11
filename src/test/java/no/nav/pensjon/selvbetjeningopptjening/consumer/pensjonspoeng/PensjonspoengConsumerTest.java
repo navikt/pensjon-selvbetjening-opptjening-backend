@@ -1,145 +1,175 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-
-import static no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer.CONSUMED_SERVICE;
-import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
+import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
+import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserToken;
+import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
+import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.StsException;
+import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Inntekt;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pensjonspoeng;
+import okhttp3.HttpUrl;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.RecordedRequest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 
-import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pensjonspoeng;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestClientResponseException;
-import org.springframework.web.client.RestTemplate;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
-import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.pensjon.selvbetjeningopptjening.model.PensjonspoengDto;
+@SpringBootTest
+@ContextConfiguration(classes = SelvbetjeningOpptjeningApplication.class)
+@TestPropertySource(properties = "fnr=dummy")
+class PensjonspoengConsumerTest extends WebClientTest {
 
-@ExtendWith(MockitoExtension.class)
-class PensjonspoengConsumerTest {
-
-    private static final String ENDPOINT = "http://poppEndpoint.test";
+    private static final ServiceUserToken TOKEN = new ServiceUserToken("token", 1L, "type");
     private PensjonspoengConsumer consumer;
 
+    @Autowired
+    @Qualifier("epoch-support")
+    WebClient webClient;
+
     @Mock
-    private RestTemplate restTemplateMock;
-    @Captor
-    private ArgumentCaptor<String> urlCaptor;
-    @Captor
-    private ArgumentCaptor<HttpMethod> httpMethodCaptor;
+    ServiceUserTokenGetter tokenGetter;
 
     @BeforeEach
-    void setUp() {
-        consumer = new PensjonspoengConsumer(ENDPOINT);
-        consumer.setRestTemplate(restTemplateMock);
+    void initialize() throws StsException {
+        when(tokenGetter.getServiceUserToken()).thenReturn(TOKEN);
+        consumer = new PensjonspoengConsumer(webClient, baseUrl(), tokenGetter);
     }
 
     @Test
-    void should_return_listOfPensjonspoeng_when_getPensjonspoengListe() {
-        var response = new PensjonspoengListeResponse();
-        response.setPensjonspoeng(List.of(pensjonspoengDto()));
-        ResponseEntity<PensjonspoengListeResponse> entity = new ResponseEntity<>(response, null, HttpStatus.OK);
-        when(restTemplateMock.exchange(urlCaptor.capture(), any(), any(), eq(PensjonspoengListeResponse.class))).thenReturn(entity);
+    void getPensjonspoengList_returns_pensjonspoengList_when_ok() throws InterruptedException {
+        prepare(pensjonspoengResponse());
 
         List<Pensjonspoeng> pensjonspoengList = consumer.getPensjonspoengListe("fnr");
 
-        assertEquals(1, pensjonspoengList.size());
-        assertEquals(1991, pensjonspoengList.get(0).getYear());
+        RecordedRequest request = takeRequest();
+        HttpUrl requestUrl = request.getRequestUrl();
+        assertNotNull(requestUrl);
+        assertEquals("GET", request.getMethod());
+        assertEquals("Bearer token", request.getHeader(HttpHeaders.AUTHORIZATION));
+        List<String> segments = requestUrl.pathSegments();
+        assertEquals("pensjonspoeng", segments.get(0));
+        assertEquals("fnr", segments.get(1));
+        assertEquals(2, pensjonspoengList.size());
+        Pensjonspoeng pensjonspoeng = pensjonspoengList.get(0);
+        assertEquals(2018, pensjonspoeng.getYear());
+        assertEquals(3.51D, pensjonspoeng.getPoeng());
+        assertEquals("PPI", pensjonspoeng.getType());
+        Inntekt inntekt = pensjonspoeng.getInntekt();
+        assertEquals(431713L, inntekt.getBelop());
+        assertEquals("SUM_PI", inntekt.getType());
+        assertEquals(2018, inntekt.getYear());
+        assertEquals(2009, pensjonspoengList.get(1).getYear());
+        assertFalse(pensjonspoeng.hasOmsorg());
+        assertNull(pensjonspoeng.getOmsorg());
     }
 
     @Test
-    void should_add_fnr_as_queryParam_when_GET_getPensjonspoengListe() {
-        String expectedFnr = "fnrValue";
+    void ping_ok() throws InterruptedException {
+        prepare(pingResponse());
 
-        when(restTemplateMock.exchange(
-                urlCaptor.capture(),
-                httpMethodCaptor.capture(),
-                eq(null),
-                eq(PensjonspoengListeResponse.class))).thenReturn(new ResponseEntity<>(HttpStatus.OK));
+        consumer.ping();
 
-        consumer.getPensjonspoengListe(expectedFnr);
-
-        assertThat(httpMethodCaptor.getValue(), is(HttpMethod.GET));
-        assertThat(urlCaptor.getValue(), is(ENDPOINT + "/pensjonspoeng/" + expectedFnr));
+        RecordedRequest request = takeRequest();
+        HttpUrl requestUrl = request.getRequestUrl();
+        assertNotNull(requestUrl);
+        assertEquals("GET", request.getMethod());
+        assertEquals("Bearer token", request.getHeader(HttpHeaders.AUTHORIZATION));
+        List<String> segments = requestUrl.pathSegments();
+        assertEquals("pensjonspoeng", segments.get(0));
+        assertEquals("ping", segments.get(1));
     }
 
-    @Test
-    void should_return_FailedCallingExternalServiceException_when_401() {
-        when(restTemplateMock.exchange("http://poppEndpoint.test/pensjonspoeng/",
-                HttpMethod.GET,
-                null,
-                PensjonspoengListeResponse.class)).thenThrow(new RestClientResponseException("", HttpStatus.UNAUTHORIZED.value(), "", null, null, null));
-
-        var thrown = assertThrows(
-                FailedCallingExternalServiceException.class,
-                () -> consumer.getPensjonspoengListe(""));
-
-        assertThat(thrown.getMessage(), is("Error when calling the external service " + CONSUMED_SERVICE + " in " + POPP + ". Received 401 UNAUTHORIZED"));
+    private static MockResponse pensjonspoengResponse() {
+        // Based on actual response from POPP
+        return jsonResponse()
+                .setBody("{\n" +
+                        "    \"pensjonspoeng\": [\n" +
+                        "        {\n" +
+                        "            \"pensjonspoengId\": 543589853,\n" +
+                        "            \"changeStamp\": {\n" +
+                        "                \"createdBy\": \"srvpensjon\",\n" +
+                        "                \"createdDate\": 1592309780836,\n" +
+                        "                \"updatedBy\": \"srvpensjon\",\n" +
+                        "                \"updatedDate\": 1592309780836\n" +
+                        "            },\n" +
+                        "            \"fnr\": \"23115225588\",\n" +
+                        "            \"fnrOmsorgFor\": null,\n" +
+                        "            \"kilde\": \"PEN\",\n" +
+                        "            \"pensjonspoengType\": \"PPI\",\n" +
+                        "            \"inntekt\": {\n" +
+                        "                \"changeStamp\": {\n" +
+                        "                    \"createdBy\": \"srvpensjon\",\n" +
+                        "                    \"createdDate\": 1592309780718,\n" +
+                        "                    \"updatedBy\": \"srvpensjon\",\n" +
+                        "                    \"updatedDate\": 1592309780839\n" +
+                        "                },\n" +
+                        "                \"inntektId\": 585516176,\n" +
+                        "                \"fnr\": \"23115225588\",\n" +
+                        "                \"inntektAr\": 2018,\n" +
+                        "                \"kilde\": \"POPP\",\n" +
+                        "                \"kommune\": null,\n" +
+                        "                \"piMerke\": null,\n" +
+                        "                \"inntektType\": \"SUM_PI\",\n" +
+                        "                \"belop\": 431713\n" +
+                        "            },\n" +
+                        "            \"omsorg\": null,\n" +
+                        "            \"ar\": 2018,\n" +
+                        "            \"anvendtPi\": 431713,\n" +
+                        "            \"poeng\": 3.51,\n" +
+                        "            \"maxUforegrad\": null\n" +
+                        "        },\n" +
+                        "        {\n" +
+                        "            \"pensjonspoengId\": 543589757,\n" +
+                        "            \"changeStamp\": {\n" +
+                        "                \"createdBy\": \"srvpensjon\",\n" +
+                        "                \"createdDate\": 1592309877037,\n" +
+                        "                \"updatedBy\": \"srvpensjon\",\n" +
+                        "                \"updatedDate\": 1592309877037\n" +
+                        "            },\n" +
+                        "            \"fnr\": \"23115225588\",\n" +
+                        "            \"fnrOmsorgFor\": null,\n" +
+                        "            \"kilde\": \"PEN\",\n" +
+                        "            \"pensjonspoengType\": \"PPI\",\n" +
+                        "            \"inntekt\": {\n" +
+                        "                \"changeStamp\": {\n" +
+                        "                    \"createdBy\": \"srvpensjon\",\n" +
+                        "                    \"createdDate\": 1592309876937,\n" +
+                        "                    \"updatedBy\": \"srvpensjon\",\n" +
+                        "                    \"updatedDate\": 1592309877041\n" +
+                        "                },\n" +
+                        "                \"inntektId\": 585516080,\n" +
+                        "                \"fnr\": \"23115225588\",\n" +
+                        "                \"inntektAr\": 2009,\n" +
+                        "                \"kilde\": \"POPP\",\n" +
+                        "                \"kommune\": null,\n" +
+                        "                \"piMerke\": null,\n" +
+                        "                \"inntektType\": \"SUM_PI\",\n" +
+                        "                \"belop\": 288434\n" +
+                        "            },\n" +
+                        "            \"omsorg\": null,\n" +
+                        "            \"ar\": 2009,\n" +
+                        "            \"anvendtPi\": 288434,\n" +
+                        "            \"poeng\": 3.01,\n" +
+                        "            \"maxUforegrad\": null\n" +
+                        "        }\n" +
+                        "    ]\n" +
+                        "}");
     }
 
-    @Test
-    void should_return_FailedCallingExternalServiceException_when_512() {
-        when(restTemplateMock.exchange("http://poppEndpoint.test/pensjonspoeng/",
-                HttpMethod.GET,
-                null,
-                PensjonspoengListeResponse.class)).thenThrow(new RestClientResponseException("PersonDoesNotExistExceptionDto", 512, "", null, null, null));
-
-        var thrown = assertThrows(
-                FailedCallingExternalServiceException.class,
-                () -> consumer.getPensjonspoengListe(""));
-
-        assertThat(thrown.getMessage(), is("Error when calling the external service " + CONSUMED_SERVICE + " in " + POPP + ". Person ikke funnet"));
-    }
-
-    @Test
-    void should_return_FailedCallingExternalServiceException_when_500() {
-        when(restTemplateMock.exchange("http://poppEndpoint.test/pensjonspoeng/",
-                HttpMethod.GET,
-                null,
-                PensjonspoengListeResponse.class)).thenThrow(new RestClientResponseException("", HttpStatus.INTERNAL_SERVER_ERROR.value(), "", null, null, null));
-
-        var thrown = assertThrows(
-                FailedCallingExternalServiceException.class,
-                () -> consumer.getPensjonspoengListe(""));
-
-        assertThat(thrown.getMessage(),
-                is("Error when calling the external service " + CONSUMED_SERVICE + " in " + POPP + ". An error occurred in the provider, received 500 INTERNAL SERVER "
-                        + "ERROR"));
-    }
-
-    @Test
-    void should_return_FailedCallingExternalServiceException_when_RestClientException() {
-        when(restTemplateMock.exchange("http://poppEndpoint.test/pensjonspoeng/",
-                HttpMethod.GET,
-                null,
-                PensjonspoengListeResponse.class)).thenThrow(new RestClientException("oops"));
-
-        var thrown = assertThrows(
-                FailedCallingExternalServiceException.class,
-                () -> consumer.getPensjonspoengListe(""));
-
-        assertThat(thrown.getMessage(), is("Error when calling the external service " + CONSUMED_SERVICE + " in " + POPP + ". Failed to access service"));
-    }
-
-    private static PensjonspoengDto pensjonspoengDto() {
-        var dto = new PensjonspoengDto();
-        dto.setAr(1991);
-        return dto;
+    private static MockResponse pingResponse() {
+        // POPP responds with 200 OK, no content
+        return new MockResponse();
     }
 }

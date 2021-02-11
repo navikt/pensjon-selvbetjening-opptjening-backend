@@ -43,16 +43,6 @@ public class OpptjeningConfig {
     }
 
     @Bean
-    public PensjonspoengConsumer pensjonspoengConsumer(@Value("${popp.endpoint.url}") String endpoint) {
-        return new PensjonspoengConsumer(endpoint);
-    }
-
-    @Bean
-    public RestpensjonConsumer restpensjonConsumer(@Value("${popp.endpoint.url}") String endpoint) {
-        return new RestpensjonConsumer(endpoint);
-    }
-
-    @Bean
     public EndringPensjonsbeholdningCalculator endringPensjonsbeholdningCalculator() {
         return new EndringPensjonsbeholdningCalculator();
     }
