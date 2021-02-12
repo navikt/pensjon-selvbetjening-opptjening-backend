@@ -34,7 +34,7 @@ public class StsConsumer implements ServiceTokenGetter {
                        @Value("${sts.username}") String serviceUsername,
                        @Value("${sts.password}") String servicePassword) {
         this.webClient = requireNonNull(webClient);
-        this.expirationChecker = expirationChecker;
+        this.expirationChecker = requireNonNull(expirationChecker);
         this.endpointUrl = requireNonNull(endpointUrl);
         this.authHeader = getBasicAuthHeader(serviceUsername, servicePassword);
     }
