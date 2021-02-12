@@ -1,8 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.StsException;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
@@ -12,6 +11,7 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlError;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlErrorExtension;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,13 +39,13 @@ public class PdlConsumer implements Pingable {
     private static final String THEME = "PEN";
     private final Log log = LogFactory.getLog(getClass());
     private final TokenValidationContextHolder context;
-    private final ServiceUserTokenGetter serviceUserTokenGetter;
+    private final ServiceTokenGetter serviceUserTokenGetter;
     private final WebClient webClient;
     private final String endpoint;
 
     public PdlConsumer(@Value("${pdl.endpoint.url}") String endpoint,
                        TokenValidationContextHolder context,
-                       ServiceUserTokenGetter serviceUserTokenGetter) {
+                       ServiceTokenGetter serviceUserTokenGetter) {
         this.context = context;
         this.endpoint = endpoint;
         this.serviceUserTokenGetter = serviceUserTokenGetter;

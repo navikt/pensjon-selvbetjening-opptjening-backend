@@ -1,10 +1,10 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning;
 
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.StsException;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Beholdning;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,10 +30,11 @@ public class PensjonsbeholdningConsumer implements Pingable {
     private final Log log = LogFactory.getLog(getClass());
     private final String endpoint;
     private final WebClient webClient;
-    private final ServiceUserTokenGetter tokenGetter;
+    private final ServiceTokenGetter tokenGetter;
 
     public PensjonsbeholdningConsumer(@Qualifier("epoch-support") WebClient webClient,
-                                      @Value("${popp.endpoint.url}") String endpoint, ServiceUserTokenGetter tokenGetter) {
+                                      @Value("${popp.endpoint.url}") String endpoint,
+                                      ServiceTokenGetter tokenGetter) {
         this.webClient = requireNonNull(webClient);
         this.endpoint = requireNonNull(endpoint);
         this.tokenGetter = requireNonNull(tokenGetter);

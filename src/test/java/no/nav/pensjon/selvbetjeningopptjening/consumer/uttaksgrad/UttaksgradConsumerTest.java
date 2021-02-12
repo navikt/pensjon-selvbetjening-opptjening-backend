@@ -1,11 +1,11 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad;
 
 import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserToken;
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.StsException;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uttaksgrad;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.ServiceTokenData;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -20,6 +20,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
@@ -32,7 +33,7 @@ import static org.mockito.Mockito.when;
 @TestPropertySource(properties = "fnr=dummy")
 class UttaksgradConsumerTest extends WebClientTest {
 
-    private static final ServiceUserToken TOKEN = new ServiceUserToken("token", 1L, "type");
+    private static final ServiceTokenData TOKEN = new ServiceTokenData("token", "type", LocalDateTime.MIN, 1L);
     private UttaksgradConsumer consumer;
 
     @Autowired
@@ -40,7 +41,7 @@ class UttaksgradConsumerTest extends WebClientTest {
     WebClient webClient;
 
     @Mock
-    ServiceUserTokenGetter tokenGetter;
+    ServiceTokenGetter tokenGetter;
 
     @BeforeEach
     void initialize() throws StsException {

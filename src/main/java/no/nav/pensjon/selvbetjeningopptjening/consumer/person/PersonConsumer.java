@@ -1,7 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.person;
 
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pen.AuthorizedPenConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikkDto;
@@ -35,7 +35,7 @@ public class PersonConsumer extends AuthorizedPenConsumer implements Pingable {
 
     public PersonConsumer(@Qualifier("epoch-support") WebClient webClient,
                           @Value("${pen.endpoint.url}") String endpoint,
-                          ServiceUserTokenGetter tokenGetter) {
+                          ServiceTokenGetter tokenGetter) {
         super(tokenGetter);
         this.webClient = requireNonNull(webClient);
         this.endpoint = requireNonNull(endpoint);
@@ -66,13 +66,13 @@ public class PersonConsumer extends AuthorizedPenConsumer implements Pingable {
 
     private AfpHistorikkDto getAfpHistorikkDto(String fnr, String authHeaderValue) {
         return webClient
-                    .get()
-                    .uri(path(AFP_HISTORIKK_RESOURCE))
-                    .header(HttpHeaders.AUTHORIZATION, authHeaderValue)
-                    .header(PersonHttpHeaders.PID, fnr)
-                    .retrieve()
-                    .bodyToMono(AfpHistorikkDto.class)
-                    .block();
+                .get()
+                .uri(path(AFP_HISTORIKK_RESOURCE))
+                .header(HttpHeaders.AUTHORIZATION, authHeaderValue)
+                .header(PersonHttpHeaders.PID, fnr)
+                .retrieve()
+                .bodyToMono(AfpHistorikkDto.class)
+                .block();
     }
 
     private UforeHistorikk getUforeHistorikk(String fnr, String authHeaderValue) {

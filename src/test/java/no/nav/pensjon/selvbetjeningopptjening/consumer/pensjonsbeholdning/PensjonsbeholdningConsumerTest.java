@@ -1,12 +1,12 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning;
 
 import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserToken;
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.StsException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Beholdning;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.ServiceTokenData;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -21,6 +21,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
@@ -38,7 +39,7 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 class PensjonsbeholdningConsumerTest extends WebClientTest {
 
     private static final String CONSUMED_SERVICE = "PROPOPP006 hentPensjonsbeholdningListe";
-    private static final ServiceUserToken TOKEN = new ServiceUserToken("token", 1L, "type");
+    private static final ServiceTokenData TOKEN = new ServiceTokenData("token", "type", LocalDateTime.MIN, 1L);
     private PensjonsbeholdningConsumer consumer;
 
     private static final String EXPECTED_GENERAL_ERROR_MESSAGE = "Error when calling the external service " +
@@ -49,7 +50,7 @@ class PensjonsbeholdningConsumerTest extends WebClientTest {
     WebClient webClient;
 
     @Mock
-    ServiceUserTokenGetter tokenGetter;
+    ServiceTokenGetter tokenGetter;
 
     @BeforeEach
     void initialize() throws StsException {

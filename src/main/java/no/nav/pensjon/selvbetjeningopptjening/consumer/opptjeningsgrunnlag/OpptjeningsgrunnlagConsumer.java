@@ -1,12 +1,12 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag;
 
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.StsException;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.model.OpptjeningsGrunnlagDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Inntekt;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.InntektMapper;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,10 +30,10 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
     private final Log log = LogFactory.getLog(getClass());
     private final String endpoint;
     private final WebClient webClient;
-    private final ServiceUserTokenGetter tokenGetter;
+    private final ServiceTokenGetter tokenGetter;
 
     public OpptjeningsgrunnlagConsumer(@Value("${popp.endpoint.url}") String endpoint,
-                                       ServiceUserTokenGetter tokenGetter) {
+                                       ServiceTokenGetter tokenGetter) {
         this.webClient = WebClient.create();
         this.endpoint = requireNonNull(endpoint);
         this.tokenGetter = requireNonNull(tokenGetter);
