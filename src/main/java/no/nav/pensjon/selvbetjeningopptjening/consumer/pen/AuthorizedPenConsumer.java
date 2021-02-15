@@ -1,8 +1,8 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pen;
 
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.StsException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
@@ -16,10 +16,10 @@ import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.PEN;
 public abstract class AuthorizedPenConsumer {
 
     private static final String AUTH_TYPE = "Bearer";
-    private final ServiceUserTokenGetter tokenGetter;
+    private final ServiceTokenGetter tokenGetter;
     private final Log log = LogFactory.getLog(getClass());
 
-    public AuthorizedPenConsumer(ServiceUserTokenGetter tokenGetter) {
+    public AuthorizedPenConsumer(ServiceTokenGetter tokenGetter) {
         this.tokenGetter = requireNonNull(tokenGetter);
     }
 

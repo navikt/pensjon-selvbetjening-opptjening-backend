@@ -1,6 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer;
 
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.StsException;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;

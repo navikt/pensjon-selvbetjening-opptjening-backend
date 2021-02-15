@@ -29,7 +29,7 @@ spec:
       value: selvbetjening-idtoken
     - name: HTTP_PROXY_PARAMETERNAME
       value: "http.proxy"
-    - name: SERVICEUSERTOKEN_ENDPOINT_URL
+    - name: STS_ENDPOINT_URL
       value: https://security-token-service.nais.adeo.no/rest/v1/sts/token
     - name: PEN_ENDPOINT_URL
       value: https://pensjon-pen.nais.adeo.no/pen/api/

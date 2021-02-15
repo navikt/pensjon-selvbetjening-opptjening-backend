@@ -1,14 +1,14 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 
 import no.nav.pensjon.selvbetjeningopptjening.TestFnrs;
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserToken;
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.StsException;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.ServiceTokenData;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import no.nav.security.token.support.core.context.TokenValidationContext;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,17 +33,17 @@ class PdlConsumerTest extends WebClientTest {
 
     private static final Pid PID = new Pid(TestFnrs.NORMAL);
     private static final String BIRTH_DATE = "2001-01-01";
-    private PdlConsumer consumer;
+    private static final ServiceTokenData TOKEN = new ServiceTokenData("token", "type", LocalDateTime.MIN, 1L);    private PdlConsumer consumer;
 
     @Mock
     TokenValidationContextHolder tokenValidationContextHolder;
     @Mock
-    ServiceUserTokenGetter serviceUserTokenGetter;
+    ServiceTokenGetter serviceUserTokenGetter;
 
     @BeforeEach
     void initialize() throws StsException {
         when(tokenValidationContextHolder.getTokenValidationContext()).thenReturn(tokenValidationContext());
-        when(serviceUserTokenGetter.getServiceUserToken()).thenReturn(new ServiceUserToken());
+        when(serviceUserTokenGetter.getServiceUserToken()).thenReturn(TOKEN);
         consumer = new PdlConsumer(baseUrl(), tokenValidationContextHolder, serviceUserTokenGetter);
     }
 

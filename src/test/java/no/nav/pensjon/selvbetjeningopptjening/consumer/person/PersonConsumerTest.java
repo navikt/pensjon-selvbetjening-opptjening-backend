@@ -1,15 +1,15 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.person;
 
 import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserToken;
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.ServiceUserTokenGetter;
-import no.nav.pensjon.selvbetjeningopptjening.auth.serviceusertoken.StsException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UforeTypeCode;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.AfpHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.UforeHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uforeperiode;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.ServiceTokenData;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -24,6 +24,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -43,7 +44,7 @@ class PersonConsumerTest extends WebClientTest {
     private static final String EXPECTED_UFOREHISTORIKK_IDENTIFIER = "PROPEN2603 getUforehistorikkForPerson";
     private static final String EXPECTED_AFP_HISTORIKK_ERROR_MESSAGE = "Error when calling the external service " + EXPECTED_AFP_HISTORIKK_IDENTIFIER + " in PEN.";
     private static final String EXPECTED_UFORE_HISTORIKK_ERROR_MESSAGE = "Error when calling the external service " + EXPECTED_UFOREHISTORIKK_IDENTIFIER + " in PEN.";
-    private static final ServiceUserToken TOKEN = new ServiceUserToken("token", 1L, "type");
+    private static final ServiceTokenData TOKEN = new ServiceTokenData("token", "type", LocalDateTime.MIN, 1L);
     private PersonConsumer consumer;
 
     @Autowired
@@ -51,7 +52,7 @@ class PersonConsumerTest extends WebClientTest {
     WebClient webClient;
 
     @Mock
-    ServiceUserTokenGetter tokenGetter;
+    ServiceTokenGetter tokenGetter;
 
     @BeforeEach
     void initialize() throws StsException {
