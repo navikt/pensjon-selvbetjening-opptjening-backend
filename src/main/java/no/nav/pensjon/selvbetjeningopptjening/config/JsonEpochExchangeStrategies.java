@@ -15,6 +15,9 @@ class JsonEpochExchangeStrategies {
     static ExchangeStrategies build() {
         return ExchangeStrategies.builder()
                 .codecs(JsonEpochExchangeStrategies::jsonEpochCodec)
+                .codecs(configurer -> configurer
+                        .defaultCodecs()
+                        .maxInMemorySize(16 * 1024 * 1024))
                 .build();
     }
 
