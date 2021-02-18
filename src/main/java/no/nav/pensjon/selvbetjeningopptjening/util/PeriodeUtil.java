@@ -31,6 +31,6 @@ public class PeriodeUtil {
 
         return fom.isAfter(start)
                 && (tom == null && (end == null || end.isAfter(fom))
-                || (tom != null && (end == null || tom.isBefore(end))));
+                || (tom != null && (end == null || tom.isBefore(end) || tom.isEqual(end))));
     }
 }
