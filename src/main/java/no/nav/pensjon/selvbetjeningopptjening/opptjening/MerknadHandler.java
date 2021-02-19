@@ -24,8 +24,8 @@ public class MerknadHandler {
         }
     }
 
-    static void setMerknadOverforOmsorgsopptjeningPensjonspoeng(Opptjening opptjening, Pensjonspoeng pensjonspoeng) {
-        if (opptjening.hasMerknad(MerknadCode.OVERFORE_OMSORGSOPPTJENING)) {
+    static void setMerknadOverforOmsorgsopptjeningPensjonspoeng(Opptjening opptjening, Pensjonspoeng pensjonspoeng, List<Uttaksgrad> uttaksgrader) {
+        if (opptjening.hasMerknad(MerknadCode.OVERFORE_OMSORGSOPPTJENING) || !uttaksgrader.isEmpty()) {
             return;
         }
 
@@ -37,7 +37,7 @@ public class MerknadHandler {
     static void addMerknaderOnOpptjening(int year,
                                          Opptjening opptjening,
                                          List<Beholdning> beholdninger,
-                                         List<Uttaksgrad> uttaksgradhistorikk,
+                                         List<Uttaksgrad> uttaksgrader,
                                          AfpHistorikk afpHistorikk,
                                          UforeHistorikk uforehistorikk) {
         List<MerknadCode> merknader = new ArrayList<>();
@@ -47,7 +47,7 @@ public class MerknadHandler {
         //When beholdninger is null the user is not in Usergroup 4 or 5 and these merknads do not apply
         if (beholdninger != null) {
             addMerknadReform2010(year, merknader);
-            addMerknadOmsorgFromPensjonsbeholdning(year, opptjening, merknader, beholdninger);
+            addMerknadOmsorgFromPensjonsbeholdning(year, opptjening, merknader, beholdninger, uttaksgrader);
             addMerknadDagpengerAndForstegangstjeneste(year, merknader, beholdninger);
         }
 
@@ -154,18 +154,20 @@ public class MerknadHandler {
         }
     }
 
-    private static void addMerknadOmsorgFromPensjonsbeholdning(int year, Opptjening opptjening, List<MerknadCode> merknader, List<Beholdning> beholdninger) {
+    private static void addMerknadOmsorgFromPensjonsbeholdning(int year, Opptjening opptjening, List<MerknadCode> merknader, List<Beholdning> beholdninger, List<Uttaksgrad> uttaksgradhistorikk) {
         beholdninger
                 .stream()
                 .filter(beholdning -> hasOmsorgsopptjening(year, beholdning))
                 .findFirst()
                 .ifPresent(beholdning -> addOmsorgsopptjeningMerknad(opptjening, merknader));
 
-        beholdninger
-                .stream()
-                .filter(beholdning -> hasOverforeOmsorgsopptjening(year, beholdning))
-                .findFirst()
-                .ifPresent(beholdning -> addOverforeOmsorgsopptjeningMerknad(opptjening, merknader));
+        if (uttaksgradhistorikk.isEmpty()) {
+            beholdninger
+                    .stream()
+                    .filter(beholdning -> hasOverforeOmsorgsopptjening(year, beholdning))
+                    .findFirst()
+                    .ifPresent(beholdning -> addOverforeOmsorgsopptjeningMerknad(opptjening, merknader));
+        }
     }
 
     private static boolean hasOmsorgsopptjening(int year, Beholdning beholdning) {

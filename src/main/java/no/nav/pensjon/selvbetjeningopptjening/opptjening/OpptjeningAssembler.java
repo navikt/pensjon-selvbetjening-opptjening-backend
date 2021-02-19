@@ -163,10 +163,10 @@ abstract class OpptjeningAssembler {
                 .forEach(entry -> setEndringer(beholdninger, uttaksgraderForBeholdningAfter2009, entry.getKey(), entry.getValue()));
     }
 
-    void populatePensjonspoeng(Map<Integer, Opptjening> opptjeningerByYear, List<Pensjonspoeng> pensjonspoengList) {
+    void populatePensjonspoeng(Map<Integer, Opptjening> opptjeningerByYear, List<Pensjonspoeng> pensjonspoengList, List<Uttaksgrad> uttaksgrader) {
         pensjonspoengList.stream()
                 .filter(Pensjonspoeng::hasYear)
-                .forEach(poeng -> populatePensjonspoeng(opptjeningerByYear, poeng));
+                .forEach(poeng -> populatePensjonspoeng(opptjeningerByYear, poeng, uttaksgrader));
     }
 
     int countNumberOfYearsWithPensjonspoeng(Map<Integer, Opptjening> opptjeningerByYear) {
@@ -195,12 +195,12 @@ abstract class OpptjeningAssembler {
                 .collect(toList());
     }
 
-    private static void populatePensjonspoeng(Map<Integer, Opptjening> opptjeningerByYear, Pensjonspoeng poeng) {
+    private static void populatePensjonspoeng(Map<Integer, Opptjening> opptjeningerByYear, Pensjonspoeng poeng, List<Uttaksgrad> uttaksgrader) {
         Opptjening opptjening = opptjeningerByYear.get(poeng.getYear());
-        populateOpptjeningMapWithPensjonspoeng(opptjening, poeng);
+        populateOpptjeningMapWithPensjonspoeng(opptjening, poeng, uttaksgrader);
     }
 
-    private static void populateOpptjeningMapWithPensjonspoeng(Opptjening opptjening, Pensjonspoeng pensjonspoeng) {
+    private static void populateOpptjeningMapWithPensjonspoeng(Opptjening opptjening, Pensjonspoeng pensjonspoeng, List<Uttaksgrad> uttaksgrader) {
         String pensjonspoengType = pensjonspoeng.getType();
 
         if (isOpptjeningTypeInntekt(pensjonspoengType)) {
@@ -218,7 +218,7 @@ abstract class OpptjeningAssembler {
             opptjening.setPensjonspoeng(opptjening.getOmsorgspoeng());
         }
 
-        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng);
+        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng, uttaksgrader);
     }
 
     private static void putOpptjeningYear(Map<Integer, Opptjening> opptjeningerByYear, int year) {

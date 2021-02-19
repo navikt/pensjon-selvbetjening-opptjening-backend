@@ -1,10 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.model.*;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UforeTypeCode;
-import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
-
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -52,14 +49,14 @@ class MerknadHandlerTest {
     @Test
     void when_Omsorg_in_Pensjonspoeng_is_Null_then_setMerknadOverforOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList() {
         Opptjening opptjening = opptjening();
-        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng());
+        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng(), emptyList());
         assertTrue(opptjening.getMerknader().isEmpty());
     }
 
     @Test
     void when_OmsorgType_is_not_OBU6_or_OBU7_then_setMerknadOverforOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList() {
         Opptjening opptjening = opptjening();
-        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng(""));
+        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng(""), emptyList());
         assertTrue(opptjening.getMerknader().isEmpty());
     }
 
@@ -68,9 +65,22 @@ class MerknadHandlerTest {
         Opptjening opptjening = opptjening();
         Pensjonspoeng pensjonspoeng = pensjonspoeng("OBU6");
 
-        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng);
+        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng, emptyList());
 
         assertSingleMerknad(OVERFORE_OMSORGSOPPTJENING, opptjening.getMerknader());
+    }
+
+    @Test
+    void when_uttak_then_setMerknadOverforOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList() {
+        Opptjening opptjening = opptjening();
+        Pensjonspoeng pensjonspoeng = pensjonspoeng("OBU6");
+
+        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(
+                opptjening,
+                pensjonspoeng,
+                List.of(new Uttaksgrad(1L, 100, LocalDate.of(2003, 5, 6), null)));
+
+        assertTrue(opptjening.getMerknader().isEmpty());
     }
 
     @Test
@@ -78,7 +88,7 @@ class MerknadHandlerTest {
         Opptjening opptjening = opptjening();
         Pensjonspoeng pensjonspoeng = pensjonspoeng("OBU7");
 
-        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng);
+        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng, emptyList());
 
         assertSingleMerknad(OVERFORE_OMSORGSOPPTJENING, opptjening.getMerknader());
     }
@@ -181,23 +191,37 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_OmsorgOpptjeningBelop_with_BelopType_OBU7_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_OVERFORE_OMSORGSOPPTJENING() {
+    void when_OmsorgOpptjeningBelop_with_BelopType_OBU7_and_Year_same_as_BelopAr_with_uttak_then_addMerknaderOnOpptjening_should_only_return_OMSROGSOPPTJENING() {
+        Opptjening opptjening = opptjeningBasedOnPensjonsbeholdning();
+        Beholdning beholdning = beholdning("OBU7");
+
+        List<Uttaksgrad> uttaksgradhistorkk = List.of(new Uttaksgrad(1L, 50, LocalDate.of(2000, 2, 6), null));
+
+        MerknadHandler.addMerknaderOnOpptjening(YEAR, opptjening, singletonList(beholdning), uttaksgradhistorkk, null, null);
+
+        assertSingleMerknad(OMSORGSOPPTJENING, opptjening.getMerknader());
+    }
+
+    @Test
+    void when_OmsorgOpptjeningBelop_with_BelopType_OBU7_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCodes_OVERFORE_OMSORGSOPPTJENING_and_OMSORGSOPPTJENING() {
+        List<MerknadCode> expectedMerknads = List.of(OVERFORE_OMSORGSOPPTJENING, OMSORGSOPPTJENING);
         Opptjening opptjening = opptjeningBasedOnPensjonsbeholdning();
         Beholdning beholdning = beholdning("OBU7");
 
         MerknadHandler.addMerknaderOnOpptjening(YEAR, opptjening, singletonList(beholdning), emptyList(), null, null);
 
-        assertSingleMerknad(OVERFORE_OMSORGSOPPTJENING, opptjening.getMerknader());
+        assertTrue(opptjening.getMerknader().containsAll(expectedMerknads));
     }
 
     @Test
-    void when_OmsorgOpptjeningBelop_with_BelopType_OBU6_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_OVERFORE_OMSORGSOPPTJENING() {
+    void when_OmsorgOpptjeningBelop_with_BelopType_OBU6_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCodes_OVERFORE_OMSORGSOPPTJENING_and_OMSORGSOPPTJENING() {
+        List<MerknadCode> expectedMerknads = List.of(OVERFORE_OMSORGSOPPTJENING, OMSORGSOPPTJENING);
         Opptjening opptjening = opptjeningBasedOnPensjonsbeholdning();
         Beholdning beholdning = beholdning("OBU6");
 
         MerknadHandler.addMerknaderOnOpptjening(YEAR, opptjening, singletonList(beholdning), emptyList(), null, null);
 
-        assertSingleMerknad(OVERFORE_OMSORGSOPPTJENING, opptjening.getMerknader());
+        assertTrue(opptjening.getMerknader().containsAll(expectedMerknads));
     }
 
     @Test
@@ -251,7 +275,7 @@ class MerknadHandlerTest {
         return new Pensjonspoeng(null, "", null, null, null);
     }
 
-    private static Beholdning beholdning(Forstegangstjenesteopptjening forstegangstjenesteopptjening){
+    private static Beholdning beholdning(Forstegangstjenesteopptjening forstegangstjenesteopptjening) {
         return new Beholdning(
                 null, "", "", "", null, null, LocalDate.MIN,
                 null, null, null, null, null,
@@ -259,7 +283,7 @@ class MerknadHandlerTest {
                 null, forstegangstjenesteopptjening, null);
     }
 
-    private static Beholdning beholdning(Dagpengeopptjening dagpengeopptjening){
+    private static Beholdning beholdning(Dagpengeopptjening dagpengeopptjening) {
         return new Beholdning(
                 null, "", "", "", null, null, LocalDate.MIN,
                 null, null, null, null, null,
@@ -277,7 +301,7 @@ class MerknadHandlerTest {
 
     private static Beholdning beholdning(String omsorgType) {
         var omsorg = new Omsorg(omsorgType);
-        var opptjening = new Omsorgsopptjening(YEAR, 0D, singletonList(omsorg));
+        var opptjening = new Omsorgsopptjening(YEAR, 100000D, singletonList(omsorg));
         return beholdning(opptjening);
     }
 

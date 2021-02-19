@@ -33,7 +33,7 @@ public class OpptjeningAssemblerForUserGroup4 extends OpptjeningAssembler {
                                               UforeHistorikk uforeHistorikk) {
         OpptjeningResponse response = new OpptjeningResponse(fodselsdato.getYear(), calculateAndelNyttRegelverkUsergroup4(fodselsdato.getYear()));
         Map<Integer, Opptjening> opptjeningerByYear = getOpptjeningerByYear(pensjonspoengList, restpensjoner);
-        populatePensjonspoeng(opptjeningerByYear, pensjonspoengList);
+        populatePensjonspoeng(opptjeningerByYear, pensjonspoengList, uttaksgrader);
         populatePensjonsbeholdning(opptjeningerByYear, getBeholdningerByYear(beholdninger));
 
         if (opptjeningerByYear.isEmpty()) {
