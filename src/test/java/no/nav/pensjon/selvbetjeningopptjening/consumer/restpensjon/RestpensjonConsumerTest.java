@@ -27,9 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@ContextConfiguration(classes = SelvbetjeningOpptjeningApplication.class)
-@TestPropertySource(properties = "fnr=dummy")
 class RestpensjonConsumerTest extends WebClientTest {
 
     private static final ServiceTokenData TOKEN = new ServiceTokenData("token", "type", LocalDateTime.MIN, 1L);

@@ -1,20 +1,41 @@
 package no.nav.pensjon.selvbetjeningopptjening.mock;
 
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
+import java.io.IOException;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 
-import java.io.IOException;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 
+import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
+
+@SpringBootTest
+@ContextConfiguration(classes = SelvbetjeningOpptjeningApplication.class)
+@TestPropertySource(properties = "fnr=dummy")
 public class WebClientTest {
 
     private static MockWebServer server;
     private static String baseUrl;
+
+    @DynamicPropertySource
+    @SuppressWarnings("unused")
+    static void uimageProperties(DynamicPropertyRegistry registry) {
+        // Running SpringBootTest-annotated tests on Utviklerimage requires proxy,
+        // since the token-support framework makes a web call during application context load
+        if ("http://webproxy-utvikler.nav.no:8088".equals(System.getenv("HTTP_PROXY"))) {
+            registry.add("http.proxy.parametername", () -> "http.proxy");
+        }
+    }
 
     @BeforeAll
     static void setUp() throws IOException {

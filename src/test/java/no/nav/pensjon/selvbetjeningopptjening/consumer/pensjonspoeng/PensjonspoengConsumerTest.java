@@ -1,6 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng;
 
-import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Inntekt;
@@ -15,10 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDateTime;
@@ -27,9 +23,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@ContextConfiguration(classes = SelvbetjeningOpptjeningApplication.class)
-@TestPropertySource(properties = "fnr=dummy")
 class PensjonspoengConsumerTest extends WebClientTest {
 
     private static final ServiceTokenData TOKEN = new ServiceTokenData("token", "type", LocalDateTime.MIN, 1L);

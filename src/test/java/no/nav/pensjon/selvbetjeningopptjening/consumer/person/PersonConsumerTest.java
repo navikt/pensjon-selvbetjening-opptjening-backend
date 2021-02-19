@@ -1,6 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.person;
 
-import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
@@ -17,10 +16,7 @@ import org.junit.jupiter.api.*;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDate;
@@ -34,9 +30,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
-@SpringBootTest
-@ContextConfiguration(classes = SelvbetjeningOpptjeningApplication.class)
-@TestPropertySource(properties = "fnr=dummy")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class PersonConsumerTest extends WebClientTest {
 
