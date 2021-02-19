@@ -100,16 +100,16 @@ class MerknadHandlerTest {
         assertSingleMerknad(INGEN_OPPTJENING, opptjening.getMerknader());
     }
 
-//    @Test
-//    void when_Opptjening_with_AfpHistorikk_and_without_PensjonsBeholdning_then_addMerknaderOnOpptjening_returns_MerknadCode_AFP_and_INGEN_OPPTJENING() {
-//        Opptjening opptjening = opptjening();
-//
-//        MerknadHandler.addMerknaderOnOpptjening(YEAR, opptjening, null, emptyList(), afpHistorikk(), null);
-//
-//        assertEquals(2, opptjening.getMerknader().size());
-//        assertEquals(AFP, opptjening.getMerknader().get(0));
-//        assertEquals(INGEN_OPPTJENING, opptjening.getMerknader().get(1));
-//    }
+    @Test
+    void when_Opptjening_with_AfpHistorikk_and_without_PensjonsBeholdning_then_addMerknaderOnOpptjening_returns_MerknadCode_AFP_and_INGEN_OPPTJENING() {
+        Opptjening opptjening = opptjening();
+
+        MerknadHandler.addMerknaderOnOpptjening(YEAR, opptjening, null, emptyList(), afpHistorikk(), null);
+
+        assertEquals(2, opptjening.getMerknader().size());
+        assertEquals(AFP, opptjening.getMerknader().get(0));
+        assertEquals(INGEN_OPPTJENING, opptjening.getMerknader().get(1));
+    }
 
     @Test
     void when_UforeHistorikk_with_Uforetype_UFORE_Year_mellom_UfgFom_and_UfgTom_and_Uforegrad_then_addMerknaderOnOpptjening_returns_MerknadCode_UFOREGRAD() {

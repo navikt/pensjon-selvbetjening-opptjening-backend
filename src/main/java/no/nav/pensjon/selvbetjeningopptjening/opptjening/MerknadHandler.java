@@ -41,7 +41,7 @@ public class MerknadHandler {
                                          AfpHistorikk afpHistorikk,
                                          UforeHistorikk uforehistorikk) {
         List<MerknadCode> merknader = new ArrayList<>();
-        //addMerknadAfp(year, merknader, afpHistorikk);
+        addMerknadAfp(year, merknader, afpHistorikk);
         addMerknadUforegrad(year, uforehistorikk, opptjening, merknader);
 
         //When beholdninger is null the user is not in Usergroup 4 or 5 and these merknads do not apply
