@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("api/internal")
 @Unprotected
@@ -32,13 +34,24 @@ public class ReadinessEndpoint {
     }
 
     @RequestMapping(path = "selftest", method = RequestMethod.GET)
-    public ResponseEntity selftest() {
-        return new ResponseEntity<>(selftest.perform(), jsonContentType(), HttpStatus.OK);
+    public ResponseEntity selftest(HttpServletRequest request) {
+        String accept = request.getHeader(HttpHeaders.ACCEPT);
+
+        return MediaType.APPLICATION_JSON_VALUE.equals(accept)
+                ? responseEntity(selftest.performJson(), MediaType.APPLICATION_JSON_VALUE)
+                : responseEntity(selftest.performHtml(), MediaType.TEXT_HTML_VALUE);
     }
 
-    private static MultiValueMap<String, String> jsonContentType() {
+    private static ResponseEntity<String> responseEntity(String body, String mediaType) {
+        return new ResponseEntity<>(
+                body,
+                contentTypeHeaders(mediaType),
+                HttpStatus.OK);
+    }
+
+    private static MultiValueMap<String, String> contentTypeHeaders(String mediaType) {
         MultiValueMap<String, String> headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        headers.add(HttpHeaders.CONTENT_TYPE, mediaType);
         return headers;
     }
 }
