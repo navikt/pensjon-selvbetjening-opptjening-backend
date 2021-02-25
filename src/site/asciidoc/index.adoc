@@ -1,11 +1,11 @@
 = Pensjon Selvbetjening Opptjening Backend
-Pesys
+Opptjening Backend
 :toc: left
 :toclevels: 2
 :doctype: book
-:revnumber: 1.0
-:revdate: 01-01-2020
-:revremark: Første utkast av {doctitle}
+:revnumber: 1.1
+:revdate: 2020-02-24
+:revremark: Andre utkast av {doctitle}
 :version-label!:
 
 :sectnums:
@@ -16,5 +16,3 @@ Pesys
 :imagesdir: {dir}/site/asciidoc/images/
 
 include::{dir}../main/java/no/nav/pensjon/selvbetjeningopptjening/docs/samleside.adoc[]
-
-include::adr/introADR.adoc[]
