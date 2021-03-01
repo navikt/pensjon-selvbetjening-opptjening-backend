@@ -1,6 +1,11 @@
 package no.nav.pensjon.selvbetjeningopptjening.security.group;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
+import static java.lang.String.format;
+import static java.util.Arrays.stream;
 
 /**
  * Azure Active Directory (AAD) groups.
@@ -15,12 +20,11 @@ public enum AadGroup {
     VEILEDER("959ead5b-99b5-466b-a0ff-5fdbc687517b", "0000-GA-Pensjon_VEILEDER", false),
     UTVIDET("676b5e1f-84e6-46e5-8814-04233699ed4b", "0000-GA-Pensjon_UTVIDET", true);
 
-    private static final List<AadGroup> ALL = List.of(
-            BRUKERHJELPA,
-            OKONOMI,
-            SAKSBEHANDLER,
-            VEILEDER,
-            UTVIDET);
+    private static final Map<String, AadGroup> GROUPS_BY_ID = new HashMap<>();
+
+    static {
+        stream(values()).forEach(group -> GROUPS_BY_ID.put(group.id, group));
+    }
 
     private final String id;
     private final String name;
@@ -45,10 +49,11 @@ public enum AadGroup {
     }
 
     public static AadGroup findById(String id) {
-        return ALL
-                .stream()
-                .filter(group -> group.id.equals(id))
-                .findFirst()
-                .orElseThrow();
+        AadGroup group = GROUPS_BY_ID.get(id);
+        return group == null ? noSuchElement(id) : group;
+    }
+
+    private static AadGroup noSuchElement(String id) {
+        throw new NoSuchElementException(format("No '%s' value present", id));
     }
 }
