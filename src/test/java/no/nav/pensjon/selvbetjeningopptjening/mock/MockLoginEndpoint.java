@@ -8,12 +8,16 @@ import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @RestController
 @RequestMapping("api")
@@ -31,8 +35,13 @@ public class MockLoginEndpoint {
     }
 
     @GetMapping("/mocklogin")
-    public void login(HttpServletResponse response) {
+    public void login(HttpServletResponse response,
+                      @RequestParam(value = "redirect", required = false) String redirectUri) throws IOException {
         response.addCookie(authCookie());
+
+        if (!isEmpty(redirectUri)) {
+            response.sendRedirect(redirectUri);
+        }
     }
 
     private Cookie authCookie() {
