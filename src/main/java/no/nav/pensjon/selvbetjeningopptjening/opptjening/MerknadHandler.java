@@ -166,7 +166,7 @@ public class MerknadHandler {
                 .filter(beholdning -> hasOverforeOmsorgsopptjening(year, beholdning))
                 .findFirst()
                 .ifPresent(beholdning -> {
-                    if (!beholdning.isOmsorgGrunnlagForBeholdning() || uttaksgrader.isEmpty())
+                    if (!beholdning.isOmsorgGrunnlagForBeholdning() || uttaksgrader == null || uttaksgrader.isEmpty())
                         addOverforeOmsorgsopptjeningMerknad(opptjening, merknader);
                 });
     }
