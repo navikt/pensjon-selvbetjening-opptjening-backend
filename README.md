@@ -7,20 +7,11 @@ Applikasjonen er laget med utgangspunkt i logikk fra det gamle JSF-baserte skjer
 
 ## Dokumentasjon
 
-Dokumentasjon for applikasjonen er lagt sammen med koden og eksponeres på følgende URL: https://pensjon-selvbetjening-opptjening-backend.nais.preprod.local
-(tilgjengelig i fagsystemsonen)
+Dokumentasjon for applikasjonen er lagt sammen med koden og er [tilgjengelig i NAVs fagsystemsone](https://pensjon-selvbetjening-opptjening-backend.nais.preprod.local).
 
 ## Kjøring av appen lokalt
 
-I et Java-IDE kjør `LocalOpptjeningApplication`.
-
-Bruk Spring-profil `laptop` for kjøring på mobilitetsløsning, eller `uimage` på Utviklerimage.
-
-Angi fødselsnummeret/D-nummeret til personen man skal hente data for med VM-option `fnr`.
-
-Eksempel VM-options i Run/Debug config: `-Dspring.profiles.active=laptop -Dfnr=01020312345`
-
-På laptop bruk Kubernetes port-forwarding for tjenestene PEN, POPP, PDL og STS (se [application-laptop.properties](https://github.com/navikt/pensjon-selvbetjening-opptjening-backend/blob/feature/PL-3090/src/main/resources/application-laptop.properties) for detaljer).
+Se NAV-intern dokumentasjon: [Confluence: Opptjening backend: Kjøring av appen lokalt](https://confluence.adeo.no/display/PEN/Opptjening+backend#Opptjeningbackend-Kj%C3%B8ringavappenlokalt)
 
 ### Endepunkter
 
