@@ -26,22 +26,56 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_Omsorgspoeng_and_Pensjonspoeng_in_OpptjeningDto_is_Null_then_setMerknadOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList() {
+    void when_Omsorgspoeng_and_Pensjonspoeng_in_Opptjening_is_Null_then_setMerknadOverforOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList() {
         Opptjening opptjening = opptjening();
-        MerknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng());
+        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng(), null);
         assertTrue(opptjening.getMerknader().isEmpty());
     }
 
     @Test
-    void when_Omsorgspoeng_is_greater_than_Pensjonspoeng_in_OpptjeningDto_then_setMerknadOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList() {
-        Opptjening opptjening = opptjeningBasedOnOmsorgAndPensjonspoeng(100d, 10d);
-        MerknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng());
+    void when_Omsorgspoeng_for_barn_is_greater_than_Pensjonspoeng_in_Opptjening_and_uttak_then_setMerknadOverforOmsorgsopptjeningPensjonspoeng_returns_empty_MerknanderList() {
+        Opptjening opptjening = opptjeningBasedOnOmsorgForBarnAndPensjonspoeng(100d, 10d);
+        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(
+                opptjening,
+                pensjonspoeng(new Omsorg("OBU6")),
+                List.of(new Uttaksgrad(1L, 50, LocalDate.now(), null)));
+
         assertTrue(opptjening.getMerknader().isEmpty());
     }
 
     @Test
-    void when_Omsorgspoeng_is_less_than_Pensjonspoeng_in_OpptjeningDto_then_setMerknadOmsorgsopptjeningPensjonspoeng_returns_MerknadCode_OMSORGSOPPTJENING() {
-        Opptjening opptjening = opptjeningBasedOnOmsorgAndPensjonspoeng(10d, 100d);
+    void when_Omsorgspoeng_for_barn_is_less_than_Pensjonspoeng_in_Opptjening_and_uttak_then_setMerknadOverforOmsorgsopptjeningPensjonspoeng_returns_OVERFORE_OMSORGSOPPTJENING() {
+        Opptjening opptjening = opptjeningBasedOnOmsorgForBarnAndPensjonspoeng(10d, 100d);
+        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(
+                opptjening,
+                pensjonspoeng(new Omsorg("OBU6")),
+                List.of(new Uttaksgrad(1L, 50, LocalDate.now(), null)));
+
+        assertSingleMerknad(OVERFORE_OMSORGSOPPTJENING, opptjening.getMerknader());
+    }
+
+    @Test
+    void when_Omsorgspoeng_for_barn_is_greater_than_Pensjonspoeng_in_Opptjening_and_no_uttak_then_setMerknadOverforOmsorgsopptjeningPensjonspoeng_returns_OVERFORE_OMSORGSOPPTJENING() {
+        Opptjening opptjening = opptjeningBasedOnOmsorgForBarnAndPensjonspoeng(100d, 10d);
+        MerknadHandler.setMerknadOverforOmsorgsopptjeningPensjonspoeng(
+                opptjening,
+                pensjonspoeng(new Omsorg("OBU6")),
+                null
+                );
+
+        assertSingleMerknad(OVERFORE_OMSORGSOPPTJENING, opptjening.getMerknader());
+    }
+
+    @Test
+    void when_Omsorgspoeng_for_barn_is_less_than_Pensjonspoeng_in_Opptjening_then_setMerknadOmsorgsopptjeningPensjonspoeng_returns_MerknadCode_OMSORGSOPPTJENING() {
+        Opptjening opptjening = opptjeningBasedOnOmsorgForBarnAndPensjonspoeng(10d, 100d);
+        MerknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng());
+        assertSingleMerknad(OMSORGSOPPTJENING, opptjening.getMerknader());
+    }
+
+    @Test
+    void when_Omsorgspoeng_for_barn_is_greater_than_Pensjonspoeng_in_Opptjening_then_setMerknadOmsorgsopptjeningPensjonspoeng_returns_MerknadCode_OMSORGSOPPTJENING() {
+        Opptjening opptjening = opptjeningBasedOnOmsorgForBarnAndPensjonspoeng(100d, 10d);
         MerknadHandler.setMerknadOmsorgsopptjeningPensjonspoeng(opptjening, pensjonspoeng());
         assertSingleMerknad(OMSORGSOPPTJENING, opptjening.getMerknader());
     }
@@ -191,9 +225,9 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_OmsorgOpptjeningBelop_with_BelopType_OBU7_and_Year_same_as_BelopAr_with_uttak_then_addMerknaderOnOpptjening_should_only_return_OMSROGSOPPTJENING() {
+    void when_OmsorgOpptjeningBelop_for_barn_is_grunnlag_and_Year_same_as_BelopAr_with_uttak_then_addMerknaderOnOpptjening_should_only_return_OMSROGSOPPTJENING() {
         Opptjening opptjening = opptjeningBasedOnPensjonsbeholdning();
-        Beholdning beholdning = beholdning("OBU7");
+        Beholdning beholdning = beholdning("OBU7", 10D, 10D);
 
         List<Uttaksgrad> uttaksgradhistorkk = List.of(new Uttaksgrad(1L, 50, LocalDate.of(2000, 2, 6), null));
 
@@ -203,7 +237,20 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_OmsorgOpptjeningBelop_with_BelopType_OBU7_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCodes_OVERFORE_OMSORGSOPPTJENING_and_OMSORGSOPPTJENING() {
+    void when_OmsorgOpptjeningBelop_for_barn_is_not_grunnlag_and_Year_same_as_BelopAr_with_uttak_then_addMerknaderOnOpptjening_should_only_return_OVERFORE_OMSORGSOPPTJENING_and_OMSORGSOPPTJENING() {
+        List<MerknadCode> expectedMerknads = List.of(OVERFORE_OMSORGSOPPTJENING, OMSORGSOPPTJENING);
+        Opptjening opptjening = opptjeningBasedOnPensjonsbeholdning();
+        Beholdning beholdning = beholdning("OBU6", 10D, 9D);
+
+        List<Uttaksgrad> uttaksgradhistorkk = List.of(new Uttaksgrad(1L, 50, LocalDate.of(2000, 2, 6), null));
+
+        MerknadHandler.addMerknaderOnOpptjening(YEAR, opptjening, singletonList(beholdning), uttaksgradhistorkk, null, null);
+
+        assertTrue(opptjening.getMerknader().containsAll(expectedMerknads));
+    }
+
+    @Test
+    void when_OmsorgOpptjeningBelop_for_barn_and_Year_same_as_BelopAr_with_no_uttak_then_addMerknaderOnOpptjening_returns_MerknadCodes_OVERFORE_OMSORGSOPPTJENING_and_OMSORGSOPPTJENING() {
         List<MerknadCode> expectedMerknads = List.of(OVERFORE_OMSORGSOPPTJENING, OMSORGSOPPTJENING);
         Opptjening opptjening = opptjeningBasedOnPensjonsbeholdning();
         Beholdning beholdning = beholdning("OBU7");
@@ -214,7 +261,7 @@ class MerknadHandlerTest {
     }
 
     @Test
-    void when_OmsorgOpptjeningBelop_with_BelopType_OBU6_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCodes_OVERFORE_OMSORGSOPPTJENING_and_OMSORGSOPPTJENING() {
+    void when_OmsorgOpptjeningBelop_Type_omsorg_for_barn_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCodes_OVERFORE_OMSORGSOPPTJENING_and_OMSORGSOPPTJENING() {
         List<MerknadCode> expectedMerknads = List.of(OVERFORE_OMSORGSOPPTJENING, OMSORGSOPPTJENING);
         Opptjening opptjening = opptjeningBasedOnPensjonsbeholdning();
         Beholdning beholdning = beholdning("OBU6");
@@ -299,6 +346,16 @@ class MerknadHandlerTest {
                 null, null, null);
     }
 
+    private static Beholdning beholdning(String omsorgType, double grunnlag, double omsorgBelop) {
+        var omsorg = new Omsorg(omsorgType);
+        var opptjening = new Omsorgsopptjening(YEAR, omsorgBelop, singletonList(omsorg));
+        return new Beholdning(
+                null, "", "", "", null, null, LocalDate.MIN,
+                null, grunnlag, null, null, null,
+                "", null, null, opptjening,
+                null, null, null);
+    }
+
     private static Beholdning beholdning(String omsorgType) {
         var omsorg = new Omsorg(omsorgType);
         var opptjening = new Omsorgsopptjening(YEAR, 100000D, singletonList(omsorg));
@@ -319,7 +376,7 @@ class MerknadHandlerTest {
         return opptjening;
     }
 
-    private static Opptjening opptjeningBasedOnOmsorgAndPensjonspoeng(double omsorgspoeng, double pensjonspoeng) {
+    private static Opptjening opptjeningBasedOnOmsorgForBarnAndPensjonspoeng(double omsorgspoeng, double pensjonspoeng) {
         Opptjening opptjening = opptjening();
         opptjening.setOmsorgspoeng(omsorgspoeng);
         opptjening.setPensjonspoeng(pensjonspoeng);

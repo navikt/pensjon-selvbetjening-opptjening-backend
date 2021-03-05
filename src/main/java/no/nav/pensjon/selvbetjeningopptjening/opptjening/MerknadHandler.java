@@ -10,26 +10,22 @@ import static no.nav.pensjon.selvbetjeningopptjening.opptjening.OmsorgTypes.OMSO
 import static no.nav.pensjon.selvbetjeningopptjening.opptjening.OmsorgTypes.OMSORG_BARN_UNDER_7;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
 
-//TODO: Denne klassen må gjennomgås når man skal utvide mvp for å finne ut hvordan merknadene skal håndteres.
-//      For mvp er de fleste merknader kommentert bort da mvp håndterer disse i EndringPensjonspptjeningCalculator i stedet.
 public class MerknadHandler {
 
     static void setMerknadOmsorgsopptjeningPensjonspoeng(Opptjening opptjening, Pensjonspoeng pensjonspoeng) {
         if (opptjening.hasMerknad(MerknadCode.OMSORGSOPPTJENING) || !pensjonspoeng.hasOmsorg()) {
             return;
         }
-
-        if (opptjening.isOmsorgspoengLessThanOrEqualToPensjonspoeng()) {
-            opptjening.addMerknad(MerknadCode.OMSORGSOPPTJENING);
-        }
+        opptjening.addMerknad(MerknadCode.OMSORGSOPPTJENING);
     }
 
     static void setMerknadOverforOmsorgsopptjeningPensjonspoeng(Opptjening opptjening, Pensjonspoeng pensjonspoeng, List<Uttaksgrad> uttaksgrader) {
-        if (opptjening.hasMerknad(MerknadCode.OVERFORE_OMSORGSOPPTJENING) || !uttaksgrader.isEmpty()) {
+        if (opptjening.hasMerknad(MerknadCode.OVERFORE_OMSORGSOPPTJENING)) {
             return;
         }
 
-        if (isTypeOmsorgBarn(pensjonspoeng.getOmsorg())) {
+        if (isTypeOmsorgBarn(pensjonspoeng.getOmsorg()) && (uttaksgrader == null || uttaksgrader.isEmpty() ||
+                opptjening.isOmsorgspoengLessThanPensjonspoeng())) {
             opptjening.addMerknad(MerknadCode.OVERFORE_OMSORGSOPPTJENING);
         }
     }
@@ -154,20 +150,25 @@ public class MerknadHandler {
         }
     }
 
-    private static void addMerknadOmsorgFromPensjonsbeholdning(int year, Opptjening opptjening, List<MerknadCode> merknader, List<Beholdning> beholdninger, List<Uttaksgrad> uttaksgradhistorikk) {
+    private static void addMerknadOmsorgFromPensjonsbeholdning(int year,
+                                                               Opptjening opptjening,
+                                                               List<MerknadCode> merknader,
+                                                               List<Beholdning> beholdninger,
+                                                               List<Uttaksgrad> uttaksgrader) {
         beholdninger
                 .stream()
                 .filter(beholdning -> hasOmsorgsopptjening(year, beholdning))
                 .findFirst()
                 .ifPresent(beholdning -> addOmsorgsopptjeningMerknad(opptjening, merknader));
 
-        if (uttaksgradhistorikk.isEmpty()) {
-            beholdninger
-                    .stream()
-                    .filter(beholdning -> hasOverforeOmsorgsopptjening(year, beholdning))
-                    .findFirst()
-                    .ifPresent(beholdning -> addOverforeOmsorgsopptjeningMerknad(opptjening, merknader));
-        }
+        beholdninger
+                .stream()
+                .filter(beholdning -> hasOverforeOmsorgsopptjening(year, beholdning))
+                .findFirst()
+                .ifPresent(beholdning -> {
+                    if (!beholdning.isOmsorgGrunnlagForBeholdning() || uttaksgrader.isEmpty())
+                        addOverforeOmsorgsopptjeningMerknad(opptjening, merknader);
+                });
     }
 
     private static boolean hasOmsorgsopptjening(int year, Beholdning beholdning) {

@@ -56,13 +56,12 @@ class OpptjeningTest {
     }
 
     @Test
-    void test_isOmsorgspoengLessThanOrEqualToPensjonspoeng() {
-        assertFalse(poengOpptjening(null, null).isOmsorgspoengLessThanOrEqualToPensjonspoeng());
-        assertFalse(poengOpptjening(1D, null).isOmsorgspoengLessThanOrEqualToPensjonspoeng());
-        assertFalse(poengOpptjening(null, 1D).isOmsorgspoengLessThanOrEqualToPensjonspoeng());
-        assertFalse(poengOpptjening(1D, 1.1D).isOmsorgspoengLessThanOrEqualToPensjonspoeng());
-        assertTrue(poengOpptjening(1D, 1D).isOmsorgspoengLessThanOrEqualToPensjonspoeng());
-        assertTrue(poengOpptjening(1.1D, 1D).isOmsorgspoengLessThanOrEqualToPensjonspoeng());
+    void test_isOmsorgspoengLessThanPensjonspoeng() {
+        assertFalse(poengOpptjening(null, null).isOmsorgspoengLessThanPensjonspoeng());
+        assertFalse(poengOpptjening(1D, null).isOmsorgspoengLessThanPensjonspoeng());
+        assertFalse(poengOpptjening(null, 1D).isOmsorgspoengLessThanPensjonspoeng());
+        assertFalse(poengOpptjening(1D, 1.1D).isOmsorgspoengLessThanPensjonspoeng());
+        assertTrue(poengOpptjening(1.1D, 1D).isOmsorgspoengLessThanPensjonspoeng());
     }
 
     private static Opptjening filledOpptjening() {

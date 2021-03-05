@@ -140,8 +140,8 @@ public class Opptjening {
                 && pensjonspoeng <= 0;
     }
 
-    boolean isOmsorgspoengLessThanOrEqualToPensjonspoeng() {
+    boolean isOmsorgspoengLessThanPensjonspoeng() {
         return hasOmsorgspoeng && hasPensjonspoeng
-                && omsorgspoeng <= pensjonspoeng;
+                && omsorgspoeng < pensjonspoeng;
     }
 }

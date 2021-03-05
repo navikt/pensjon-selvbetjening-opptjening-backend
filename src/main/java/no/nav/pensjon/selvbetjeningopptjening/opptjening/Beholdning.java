@@ -249,6 +249,10 @@ public class Beholdning implements Periode {
         return grunnlagTypes.isEmpty() ? List.of(NO_GRUNNLAG) : grunnlagTypes;
     }
 
+    boolean isOmsorgGrunnlagForBeholdning(){
+        return grunnlag == omsorgsopptjening.getBelop();
+    }
+
     static final Beholdning NULL = new Beholdning(
             null,
             "",
