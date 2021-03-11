@@ -36,7 +36,6 @@ class OpptjeningOnBehalfEndpointTest {
 
     private static final Pid PID = PidGenerator.generatePidAtAge(65);
     private static final String URI = "/api/opptjeningonbehalf?fnr=" + PID;
-    private static FakeUnleash featureToggler;
 
     @Autowired
     private MockMvc mvc;
@@ -46,18 +45,9 @@ class OpptjeningOnBehalfEndpointTest {
     private GroupChecker groupChecker;
     @MockBean
     private JwsValidator jwsValidator; // needed to satisfy dependency
-    @MockBean
-    private UttaksgradGetter uttaksgradGetter; // needed to satisfy dependency
-
-    @BeforeAll
-    static void setUp() {
-        featureToggler = new FakeUnleash();
-        UnleashProvider.initialize(featureToggler);
-    }
 
     @Test
     void getOpptjeningForFnr_returns_opptjeningJson_when_feature_enabled() throws Exception {
-        featureToggler.enable(OpptjeningFeature.PL1441);
         when(provider.calculateOpptjeningForFnr(PID, LoginSecurityLevel.INTERNAL)).thenReturn(response());
         when(groupChecker.isUserAuthorized(eq(PID), anyString())).thenReturn(true);
 
@@ -87,7 +77,6 @@ class OpptjeningOnBehalfEndpointTest {
 
     @Test
     void getOpptjeningForFnr_returns_statusForbidden_when_userNotMemberOfGroup() throws Exception {
-        featureToggler.enable(OpptjeningFeature.PL1441);
         when(provider.calculateOpptjeningForFnr(PID, LoginSecurityLevel.INTERNAL)).thenReturn(response());
         when(groupChecker.isUserAuthorized(eq(PID), anyString())).thenReturn(false);
 

@@ -36,16 +36,13 @@ public class OpptjeningOnBehalfEndpoint {
     private final OpptjeningProvider provider;
     private final JwsValidator jwsValidator;
     private final GroupChecker groupChecker;
-    private final UttaksgradGetter uttaksgradGetter;
 
     public OpptjeningOnBehalfEndpoint(OpptjeningProvider provider,
                                       JwsValidator jwsValidator,
-                                      GroupChecker groupChecker,
-                                      UttaksgradGetter uttaksgradGetter) {
+                                      GroupChecker groupChecker) {
         this.provider = requireNonNull(provider);
         this.jwsValidator = requireNonNull(jwsValidator);
         this.groupChecker = requireNonNull(groupChecker);
-        this.uttaksgradGetter = requireNonNull(uttaksgradGetter);
     }
 
     @GetMapping("/opptjeningonbehalf")
@@ -69,12 +66,7 @@ public class OpptjeningOnBehalfEndpoint {
                 return forbidden();
             }
 
-            // TODO Fix this hack
-            if (uttaksgradGetter.getAlderSakUttaksgradhistorikkForPerson(pid.getPid()).isEmpty()) {
-                return provider.calculateOpptjeningForFnr(pid, LoginSecurityLevel.INTERNAL);
-            }
-
-            throw new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, "The service is not made available for the specified user yet");
+            return provider.calculateOpptjeningForFnr(pid, LoginSecurityLevel.INTERNAL);
         } catch (JwtException e) {
             log.error("JwtException. Message: {}.", e.getMessage());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
