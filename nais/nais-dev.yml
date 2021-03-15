@@ -39,6 +39,7 @@ spec:
   azure:
     application:
       enabled: true
+      tenant: nav.no
       replyURLs:
         - https://pensjon-selvbetjening-opptjening-frontend.dev.adeo.no/pensjon/opptjening/oauth2/internal/callback
         - http://localhost:8080/oauth2/internal/callback

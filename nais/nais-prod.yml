@@ -50,6 +50,7 @@ spec:
   azure:
     application:
       enabled: true
+      tenant: nav.no
       replyURLs:
         - https://pensjon-selvbetjening-opptjening-frontend.intern.nav.no/pensjon/opptjening/oauth2/internal/callback
   webproxy: true
