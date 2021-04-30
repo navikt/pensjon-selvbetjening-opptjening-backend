@@ -6,8 +6,8 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 class PdlRequest {
 
-    static String getBirthQuery(Pid pid) throws JSONException {
-        String query = "query($ident: ID!){hentPerson(ident: $ident){foedsel{foedselsdato foedselsaar}}}";
+    static String getPersonQuery(Pid pid) throws JSONException {
+        String query = "query($ident: ID!){hentPerson(ident: $ident){navn(historikk: false){fornavn mellomnavn etternavn} foedsel{foedselsdato foedselsaar}}}";
         var variables = new JSONObject();
         variables.put("ident", pid.getPid());
 

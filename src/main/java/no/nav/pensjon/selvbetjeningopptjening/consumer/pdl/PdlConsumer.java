@@ -82,7 +82,7 @@ public class PdlConsumer implements Pingable {
                     .post()
                     .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue(securityLevel))
                     .header(PdlHttpHeaders.CONSUMER_TOKEN, consumerToken())
-                    .bodyValue(PdlRequest.getBirthQuery(pid))
+                    .bodyValue(PdlRequest.getPersonQuery(pid))
                     .retrieve()
                     .bodyToMono(PdlResponse.class)
                     .block();
