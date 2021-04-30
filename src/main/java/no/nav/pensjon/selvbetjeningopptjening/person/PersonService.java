@@ -29,7 +29,7 @@ public class PersonService {
             handle(e, pid, securityLevel);
             return new Person(pid, null, null, null, null);
         } catch (Exception e) {
-            log.error("Call to PDL failed: " + e.getMessage());
+            log.error("Call to PDL failed: " + e.getMessage(), e);
             return new Person(pid, null, null, null, null);
         }
     }
