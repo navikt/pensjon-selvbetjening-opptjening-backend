@@ -1,5 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 
@@ -13,9 +14,9 @@ public class OpptjeningAssemblerForUserGroup4 extends OpptjeningAssembler {
         super(uttaksgradGetter);
     }
 
-    public OpptjeningResponse createResponse(LocalDate fodselsdato, OpptjeningBasis basis) {
+    public OpptjeningResponse createResponse(LocalDate fodselsdato, Person person, OpptjeningBasis basis) {
         return createResponse(
-                fodselsdato,
+                person,
                 basis.getPensjonspoengList(),
                 basis.getPensjonsbeholdninger(),
                 basis.getRestpensjoner(),
@@ -24,14 +25,15 @@ public class OpptjeningAssemblerForUserGroup4 extends OpptjeningAssembler {
                 basis.getUforeHistorikk());
     }
 
-    private OpptjeningResponse createResponse(LocalDate fodselsdato,
+    private OpptjeningResponse createResponse(Person person,
                                               List<Pensjonspoeng> pensjonspoengList,
                                               List<Beholdning> beholdninger,
                                               List<Restpensjon> restpensjoner,
                                               List<Uttaksgrad> uttaksgrader,
                                               AfpHistorikk afpHistorikk,
                                               UforeHistorikk uforeHistorikk) {
-        OpptjeningResponse response = new OpptjeningResponse(fodselsdato.getYear(), calculateAndelNyttRegelverkUsergroup4(fodselsdato.getYear()));
+        LocalDate fodselsdato = person.getFodselsdato();
+        OpptjeningResponse response = new OpptjeningResponse(person, calculateAndelNyttRegelverkUsergroup4(fodselsdato.getYear()));
         Map<Integer, Opptjening> opptjeningerByYear = getOpptjeningerByYear(pensjonspoengList, restpensjoner);
         populatePensjonspoeng(opptjeningerByYear, pensjonspoengList, uttaksgrader);
         populatePensjonsbeholdning(opptjeningerByYear, getBeholdningerByYear(beholdninger));

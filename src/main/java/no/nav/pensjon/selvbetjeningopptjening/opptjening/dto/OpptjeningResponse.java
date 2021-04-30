@@ -1,5 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening.dto;
 
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
+
 import java.util.Map;
 
 public class OpptjeningResponse {
@@ -7,10 +9,16 @@ public class OpptjeningResponse {
     private Map<Integer, OpptjeningDto> opptjeningData;
     private Integer numberOfYearsWithPensjonspoeng;
     private Integer fodselsaar;
+    private String fornavn;
+    private String mellomnavn;
+    private String etternavn;
     private int andelPensjonBasertPaBeholdning;
 
-    public OpptjeningResponse(Integer fodselsaar, int andelPensjonBasertPaBeholdning) {
-        this.fodselsaar = fodselsaar;
+    public OpptjeningResponse(Person person, int andelPensjonBasertPaBeholdning) {
+        fodselsaar = person.getFodselsdato().getYear();
+        fornavn = person.getFornavn();
+        mellomnavn = person.getMellomnavn();
+        etternavn = person.getEtternavn();
         this.andelPensjonBasertPaBeholdning = andelPensjonBasertPaBeholdning;
     }
 
@@ -32,6 +40,18 @@ public class OpptjeningResponse {
 
     public Integer getFodselsaar() {
         return fodselsaar;
+    }
+
+    public String getFornavn() {
+        return fornavn;
+    }
+
+    public String getMellomnavn() {
+        return mellomnavn;
+    }
+
+    public String getEtternavn() {
+        return etternavn;
     }
 
     public int getAndelPensjonBasertPaBeholdning() {

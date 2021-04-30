@@ -2,6 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 
 import no.nav.pensjon.selvbetjeningopptjening.TestFnrs;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
@@ -51,10 +52,10 @@ class PdlConsumerTest extends WebClientTest {
     void getBirthDates_shall_return_birthDate_when_one_exists() throws PdlException {
         prepare(pdlDataResponse());
 
-        List<BirthDate> birthDates = consumer.getBirthDates(PID, LoginSecurityLevel.LEVEL4);
+        Person person = consumer.getPerson(PID, LoginSecurityLevel.LEVEL4);
 
-        assertEquals(1, birthDates.size());
-        BirthDate birthDate = birthDates.get(0);
+        assertNotNull(person.getBirthDate());
+        BirthDate birthDate = person.getBirthDate();
         assertFalse(birthDate.isBasedOnYearOnly());
         assertEquals(LocalDate.of(2001, 1, 1), birthDate.getValue());
     }
@@ -64,7 +65,7 @@ class PdlConsumerTest extends WebClientTest {
         prepare(pdlErrorResponse());
 
         var exception = assertThrows(PdlException.class,
-                () -> consumer.getBirthDates(PID, LoginSecurityLevel.LEVEL4));
+                () -> consumer.getPerson(PID, LoginSecurityLevel.LEVEL4));
 
         assertEquals("Ikke tilgang til å se person", exception.getMessage());
         assertEquals("unauthorized", exception.getErrorCode());
@@ -75,7 +76,7 @@ class PdlConsumerTest extends WebClientTest {
         prepare(pdlMultipleErrorResponse());
 
         var exception = assertThrows(FailedCallingExternalServiceException.class,
-                () -> consumer.getBirthDates(PID, LoginSecurityLevel.LEVEL4));
+                () -> consumer.getPerson(PID, LoginSecurityLevel.LEVEL4));
 
         assertEquals("Error when calling the external service PDL." +
                         " Fant ikke person, Ukjent problem oppsto, feilen har blitt logget og følges opp",

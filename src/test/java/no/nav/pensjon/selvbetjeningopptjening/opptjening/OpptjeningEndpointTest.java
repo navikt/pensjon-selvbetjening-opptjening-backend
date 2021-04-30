@@ -101,7 +101,7 @@ class OpptjeningEndpointTest {
     }
 
     private static OpptjeningResponse response() {
-        var response = new OpptjeningResponse(1950, 10);
+        var response = new OpptjeningResponse(1950, null, 10);
         response.setNumberOfYearsWithPensjonspoeng(1);
         return response;
     }

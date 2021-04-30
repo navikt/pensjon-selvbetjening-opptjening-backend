@@ -45,7 +45,7 @@ class OpptjeningAssemblerForUserGroup4Test {
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> (Integer) data[1]));
 
         expectedValuesForEachYear.keySet().forEach(year -> {
-            OpptjeningResponse response = assembler.createResponse(LocalDate.of(year, 5, 5), emptyOpptjeningBasis());
+            OpptjeningResponse response = assembler.createResponse(LocalDate.of(year, 5, 5), null, emptyOpptjeningBasis());
             int expectedAndelRegelverkBeholdning = expectedValuesForEachYear.get(year);
             assertThat("For " + year + " andelNyttRegelverk should be " + expectedAndelRegelverkBeholdning, response.getAndelPensjonBasertPaBeholdning(), is(expectedAndelRegelverkBeholdning));
         });

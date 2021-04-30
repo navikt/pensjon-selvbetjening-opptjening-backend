@@ -28,7 +28,7 @@ class OpptjeningAssemblerForUserGroups123Test {
 
     @Test
     void should_return_andel_RegelverkBeholdning_equal_to_0_when_usergroup5() {
-        OpptjeningResponse response = assembler.createResponse(LocalDate.of(1950, 5, 5), emptyOpptjeningBasis());
+        OpptjeningResponse response = assembler.createResponse(LocalDate.of(1950, 5, 5), null, emptyOpptjeningBasis());
         assertEquals(response.getAndelPensjonBasertPaBeholdning(), 0);
     }
 

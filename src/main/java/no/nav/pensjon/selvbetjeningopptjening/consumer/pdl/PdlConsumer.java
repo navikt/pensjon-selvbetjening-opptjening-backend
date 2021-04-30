@@ -1,14 +1,12 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 
-import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlError;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlErrorExtension;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedsel;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlData;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlError;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlErrorExtension;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
@@ -26,9 +24,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import java.util.List;
 
-import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
-import static no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.mapping.BirthDateMapper.fromDtos;
+import static no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.mapping.PersonMapper.fromDto;
 
 @Component
 public class PdlConsumer implements Pingable {
@@ -52,10 +49,10 @@ public class PdlConsumer implements Pingable {
         this.webClient = pdlWebClient(endpoint);
     }
 
-    public List<BirthDate> getBirthDates(Pid pid, LoginSecurityLevel securityLevel) throws PdlException {
-        PdlResponse response = getBirthDateResponse(pid, securityLevel);
+    public Person getPerson(Pid pid, LoginSecurityLevel securityLevel) throws PdlException {
+        PdlResponse response = getPersonResponse(pid, securityLevel);
         handleErrors(response);
-        return fromDtos(getBirths(response));
+        return fromDto(response, pid);
     }
 
     @Override
@@ -79,7 +76,7 @@ public class PdlConsumer implements Pingable {
         return new PingInfo("REST", CONSUMED_SERVICE, endpoint);
     }
 
-    private PdlResponse getBirthDateResponse(Pid pid, LoginSecurityLevel securityLevel)  {
+    private PdlResponse getPersonResponse(Pid pid, LoginSecurityLevel securityLevel)  {
         try {
             return webClient
                     .post()
@@ -180,17 +177,5 @@ public class PdlConsumer implements Pingable {
 
         log.error(String.format("%s error: %s; %s", CONSUMED_SERVICE, error.getMessage(), extensions.getCode()));
         throw new PdlException(error.getMessage(), extensions.getCode());
-    }
-
-    private static List<Foedsel> getBirths(PdlResponse response) {
-        return response == null
-                ? emptyList()
-                : getBirths(response.getData());
-    }
-
-    private static List<Foedsel> getBirths(PdlData data) {
-        return data == null || data.getHentPerson() == null
-                ? emptyList()
-                : data.getHentPerson().getFoedsel();
     }
 }

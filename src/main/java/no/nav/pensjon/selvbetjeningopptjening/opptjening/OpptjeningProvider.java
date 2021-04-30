@@ -1,5 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
@@ -10,9 +11,10 @@ import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.person.PersonService;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +30,7 @@ public class OpptjeningProvider {
     private final PersonConsumer personConsumer;
     private final PersonService personService;
     private final UttaksgradGetter uttaksgradGetter;
+    private final Log log = LogFactory.getLog(getClass());
 
     public OpptjeningProvider(PensjonsbeholdningConsumer pensjonsbeholdningConsumer,
                               OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer,
@@ -46,9 +49,9 @@ public class OpptjeningProvider {
     }
 
     OpptjeningResponse calculateOpptjeningForFnr(Pid pid, LoginSecurityLevel securityLevel) {
-        LocalDate birthDate = personService.getBirthDate(pid, securityLevel);
+        Person person = personService.getPerson(pid, securityLevel);
         String fnr = pid.getPid();
-        UserGroup userGroup = findUserGroup(birthDate);
+        UserGroup userGroup = findUserGroup(person.getFodselsdato());
         List<Uttaksgrad> uttaksgrader = uttaksgradGetter.getAlderSakUttaksgradhistorikkForPerson(fnr);
         AfpHistorikk afpHistorikk = personConsumer.getAfpHistorikkForPerson(fnr);
         UforeHistorikk uforehistorikk = personConsumer.getUforeHistorikkForPerson(fnr);
@@ -59,8 +62,7 @@ public class OpptjeningProvider {
 
         return userGroup.getOpptjeningAssembler().apply(
                 new OpptjeningArguments(
-                        fnr,
-                        birthDate,
+                        person,
                         restpensjoner,
                         uttaksgrader,
                         afpHistorikk,

@@ -1,17 +1,12 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.finn.unleash.FakeUnleash;
 import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
 import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
-import no.nav.pensjon.selvbetjeningopptjening.config.OpptjeningFeature;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
 import no.nav.pensjon.selvbetjeningopptjening.security.jwt.JwsValidator;
-import no.nav.pensjon.selvbetjeningopptjening.unleash.UnleashProvider;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -87,7 +82,7 @@ class OpptjeningOnBehalfEndpointTest {
     }
 
     private static OpptjeningResponse response() {
-        var response = new OpptjeningResponse(1950, 10);
+        var response = new OpptjeningResponse(1950, null, 10);
         response.setOpptjeningData(opptjeningerByYear());
         response.setNumberOfYearsWithPensjonspoeng(1);
         return response;

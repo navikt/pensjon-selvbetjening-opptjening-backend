@@ -1,5 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
@@ -9,9 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class OpptjeningArguments {
-
-    private final String fnr;
-    private final LocalDate fodselsdato;
+    private final Person person;
     private final List<Restpensjon> restpensjoner;
     private final List<Uttaksgrad> uttaksgrader;
     private final AfpHistorikk afpHistorikk;
@@ -21,8 +20,7 @@ public class OpptjeningArguments {
     private final PensjonsbeholdningConsumer beholdningConsumer;
     private final UttaksgradGetter uttaksgradGetter;
 
-    OpptjeningArguments(String fnr,
-                        LocalDate fodselsdato,
+    OpptjeningArguments(Person person,
                         List<Restpensjon> restpensjoner,
                         List<Uttaksgrad> uttaksgrader,
                         AfpHistorikk afpHistorikk,
@@ -31,8 +29,7 @@ public class OpptjeningArguments {
                         PensjonspoengConsumer pensjonspoengConsumer,
                         PensjonsbeholdningConsumer beholdningConsumer,
                         UttaksgradGetter uttaksgradGetter) {
-        this.fnr = fnr;
-        this.fodselsdato = fodselsdato;
+        this.person = person;
         this.restpensjoner = restpensjoner;
         this.uttaksgrader = uttaksgrader;
         this.afpHistorikk = afpHistorikk;
@@ -43,12 +40,8 @@ public class OpptjeningArguments {
         this.uttaksgradGetter = uttaksgradGetter;
     }
 
-    public String getFnr() {
-        return fnr;
-    }
-
-    public LocalDate getFodselsdato() {
-        return fodselsdato;
+    public Person getPerson() {
+        return person;
     }
 
     public List<Restpensjon> getRestpensjoner() {
