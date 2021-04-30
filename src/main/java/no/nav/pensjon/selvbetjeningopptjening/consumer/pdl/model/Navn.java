@@ -5,21 +5,27 @@ public class Navn {
     private String mellomnavn;
     private String etternavn;
 
-    public Navn(String fornavn, String mellomnavn, String etternavn) {
-        this.fornavn = fornavn;
-        this.mellomnavn = mellomnavn;
-        this.etternavn = etternavn;
-    }
-
     public String getFornavn() {
         return fornavn;
+    }
+
+    public void setFornavn(String fornavn) {
+        this.fornavn = fornavn;
     }
 
     public String getMellomnavn() {
         return mellomnavn;
     }
 
+    public void setMellomnavn(String mellomnavn) {
+        this.mellomnavn = mellomnavn;
+    }
+
     public String getEtternavn() {
         return etternavn;
+    }
+
+    public void setEtternavn(String etternavn) {
+        this.etternavn = etternavn;
     }
 }

@@ -6,16 +6,19 @@ public class HentPersonResponse {
     private List<Foedsel> foedsel;
     private List<Navn> navn;
 
-    public HentPersonResponse(List<Foedsel> foedsel, List<Navn> navn) {
-        this.foedsel = foedsel;
-        this.navn = navn;
-    }
-
     public List<Foedsel> getFoedsel() {
         return foedsel;
     }
 
+    public void setFoedsel(List<Foedsel> foedsel) {
+        this.foedsel = foedsel;
+    }
+
     public List<Navn> getNavn() {
         return navn;
+    }
+
+    public void setNavn(List<Navn> navn) {
+        this.navn = navn;
     }
 }
