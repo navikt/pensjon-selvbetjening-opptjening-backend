@@ -1,5 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.person;
 
+import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
 import no.nav.pensjon.selvbetjeningopptjening.TestFnrs;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
@@ -42,9 +43,14 @@ class PersonServiceTest {
     @Test
     void when_pdl_returns_oneBirthDate_then_getBirthDate_shall_use_that_birthDate() throws PdlException {
         when(pdlConsumer.getPerson(any(Pid.class), eq(LoginSecurityLevel.LEVEL4)))
-                .thenReturn(new Person(null, null, null, new BirthDate(LocalDate.of(1982, 3, 4))));
+                .thenReturn(new Person(
+                        PID,
+                        null,
+                        null,
+                        null,
+                        new BirthDate(LocalDate.of(1982, 3, 4))));
 
-        LocalDate birthDate = personService.getPerson(PID, LoginSecurityLevel.LEVEL4).orElseGet(fail()).getBirthDate().getValue();
+        LocalDate birthDate = personService.getPerson(PID, LoginSecurityLevel.LEVEL4).getFodselsdato();
 
         assertEquals(LocalDate.of(1982, 3, 4), birthDate);
     }

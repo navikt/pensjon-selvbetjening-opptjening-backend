@@ -107,7 +107,7 @@ public enum UserGroup {
                 afpHistorikk,
                 uforeHistorikk);
 
-        return new OpptjeningAssemblerForUserGroup4(uttaksgradGetter).createResponse(person.getFodselsdato(), person, basis);
+        return new OpptjeningAssemblerForUserGroup4(uttaksgradGetter).createResponse(person, basis);
     }
 
     private static OpptjeningResponse getOpptjeningForUserGroup5(Person person,

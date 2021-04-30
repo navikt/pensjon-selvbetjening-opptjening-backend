@@ -14,7 +14,7 @@ public class OpptjeningAssemblerForUserGroup4 extends OpptjeningAssembler {
         super(uttaksgradGetter);
     }
 
-    public OpptjeningResponse createResponse(LocalDate fodselsdato, Person person, OpptjeningBasis basis) {
+    public OpptjeningResponse createResponse(Person person, OpptjeningBasis basis) {
         return createResponse(
                 person,
                 basis.getPensjonspoengList(),

@@ -3,6 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 import no.finn.unleash.FakeUnleash;
 import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
 import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.config.OpptjeningFeature;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
@@ -101,7 +102,13 @@ class OpptjeningEndpointTest {
     }
 
     private static OpptjeningResponse response() {
-        var response = new OpptjeningResponse(1950, null, 10);
+        var response = new OpptjeningResponse(new Person(
+                PID,
+                null,
+                null,
+                null,
+                null),
+                10);
         response.setNumberOfYearsWithPensjonspoeng(1);
         return response;
     }

@@ -2,6 +2,8 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
 import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
@@ -15,6 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.servlet.http.Cookie;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -82,7 +85,14 @@ class OpptjeningOnBehalfEndpointTest {
     }
 
     private static OpptjeningResponse response() {
-        var response = new OpptjeningResponse(1950, null, 10);
+        LocalDate birthDate = LocalDate.of(1950, 1, 1);
+        var response = new OpptjeningResponse(new Person(
+                PidGenerator.generatePid(birthDate),
+                null,
+                null,
+                null,
+                new BirthDate(birthDate)),
+                10);
         response.setOpptjeningData(opptjeningerByYear());
         response.setNumberOfYearsWithPensjonspoeng(1);
         return response;
