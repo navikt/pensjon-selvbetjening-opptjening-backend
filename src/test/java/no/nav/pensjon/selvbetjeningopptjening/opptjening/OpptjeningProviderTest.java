@@ -537,35 +537,26 @@ class OpptjeningProviderTest {
         assertEquals(beholdning.getInntektsopptjening().getSumPensjonsgivendeInntekt().getBelop(), opptjeningerByYear.get(1980).getPensjonsgivendeInntekt().longValue());
     }
 
-    //TODO: Disse tester ikke det de sier at de skal teste
-//    /* Tests for PDL response */
-//    @Test
-//    void when_PdlResponse_not_contains_foedselsdato_then_use_foedselsaar_from_pdl_instead() {
-//        int expectedFoedselsaar = 1970;
-//        when(personService.getPerson(any(Pid.class), eq(LoginSecurityLevel.LEVEL4))).thenReturn(LocalDate.of(expectedFoedselsaar, 1, 1));
-//        when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-//        when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
-//        when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
-//        when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), yearCaptor.capture(), anyInt())).thenReturn(emptyList());
-//
-//        opptjeningProvider.calculateOpptjeningForFnr(generatePid(LocalDate.now()), LoginSecurityLevel.LEVEL4);
-//
-//        assertThat(yearCaptor.getValue() - 13, is(expectedFoedselsaar));
-//    }
-//
-//    @Test
-//    void when_PdlResponse_contains_foedselsdato_then_use_foedselsaar_from_pdl_foedselsdato() {
-//        int expectedFoedselsaar = 1970;
-//        when(personService.getPerson(any(Pid.class), eq(LoginSecurityLevel.LEVEL4))).thenReturn(LocalDate.of(expectedFoedselsaar, 8, 9));
-//        when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-//        when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
-//        when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
-//        when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), yearCaptor.capture(), anyInt())).thenReturn(emptyList());
-//
-//        opptjeningProvider.calculateOpptjeningForFnr(generatePid(LocalDate.now()), LoginSecurityLevel.LEVEL4);
-//
-//        assertThat(yearCaptor.getValue() - 13, is(expectedFoedselsaar));
-//    }
+    /* Tests for PDL response */
+
+    @Test
+    void when_PdlResponse_contains_foedselsdato_then_use_foedselsaar_from_pdl_foedselsdato() {
+        int expectedFoedselsaar = 1970;
+        when(personService.getPerson(any(Pid.class), eq(LoginSecurityLevel.LEVEL4))).thenReturn(new Person(
+                PidGenerator.generatePid(LocalDate.of(1990, 1, 1)),
+                null,
+                null,
+                null,
+                new BirthDate(LocalDate.of(expectedFoedselsaar, 8, 9))));
+        when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
+        when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
+        when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
+        when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), yearCaptor.capture(), anyInt())).thenReturn(emptyList());
+
+        opptjeningProvider.calculateOpptjeningForFnr(generatePid(LocalDate.now()), LoginSecurityLevel.LEVEL4);
+
+        assertThat(yearCaptor.getValue() - 13, is(expectedFoedselsaar));
+    }
 
     private void mockPerson(LocalDate fodselsdato) {
         when(personService.getPerson(any(Pid.class), eq(LoginSecurityLevel.LEVEL4))).thenReturn(

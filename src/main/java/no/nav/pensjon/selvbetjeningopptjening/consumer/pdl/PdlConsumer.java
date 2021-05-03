@@ -22,6 +22,10 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static java.util.stream.Collectors.joining;
@@ -76,16 +80,18 @@ public class PdlConsumer implements Pingable {
         return new PingInfo("REST", CONSUMED_SERVICE, endpoint);
     }
 
-    private PdlResponse getPersonResponse(Pid pid, LoginSecurityLevel securityLevel)  {
+    private PdlResponse getPersonResponse(Pid pid, LoginSecurityLevel securityLevel) {
         try {
             return webClient
                     .post()
                     .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue(securityLevel))
                     .header(PdlHttpHeaders.CONSUMER_TOKEN, consumerToken())
-                    .bodyValue(PdlRequest.getPersonQuery(pid))
+                    .bodyValue(PdlRequest.getPersonQuery(pid, getPdlQueryFromFile()))
                     .retrieve()
                     .bodyToMono(PdlResponse.class)
                     .block();
+        } catch (IOException | URISyntaxException e) {
+            throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, "Error when constructing graphQL-query for request");
         } catch (JSONException e) {
             return handleJsonError(e);
         } catch (StsException e) {
@@ -177,5 +183,9 @@ public class PdlConsumer implements Pingable {
 
         log.error(String.format("%s error: %s; %s", CONSUMED_SERVICE, error.getMessage(), extensions.getCode()));
         throw new PdlException(error.getMessage(), extensions.getCode());
+    }
+
+    private String getPdlQueryFromFile() throws URISyntaxException, IOException {
+        return new String(Files.readAllBytes(Paths.get(getClass().getResource("/pdl/person.graphql").toURI()))).replace("\r\n", "");
     }
 }

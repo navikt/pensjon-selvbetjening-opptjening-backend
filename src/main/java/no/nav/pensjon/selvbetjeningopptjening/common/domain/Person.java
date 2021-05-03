@@ -16,19 +16,19 @@ public class Person {
     private final String etternavn;
     private final LocalDate fodselsdato;
 
-    public Person(Pid pid, String fornavn, String mellomnavn, String etternavn, BirthDate birthDate) {
+    public Person(Pid pid, String fornavn, String mellomnavn, String etternavn, BirthDate fodselsdato) {
         this.pid = pid;
         this.fornavn = fornavn;
         this.mellomnavn = mellomnavn;
         this.etternavn = etternavn;
-        if (birthDate == null) {
+        if (fodselsdato == null) {
             log.warn("No birth dates found for PID " + maskFnr(pid.getPid()));
-            fodselsdato = getDefaultFodselsdato(pid);
+            this.fodselsdato = getDefaultFodselsdato(pid);
         } else {
-            if (birthDate.isBasedOnYearOnly()) {
+            if (fodselsdato.isBasedOnYearOnly()) {
                 log.info("Birth date set to first day in birth year");
             }
-            fodselsdato = birthDate.getValue();
+            this.fodselsdato = fodselsdato.getValue();
         }
 
     }
