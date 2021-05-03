@@ -8,6 +8,7 @@ query($ident: ID!){
                 ajourholdstidspunkt
             }
             metadata {
+                master
                 endringer {
                     registrert
                 }

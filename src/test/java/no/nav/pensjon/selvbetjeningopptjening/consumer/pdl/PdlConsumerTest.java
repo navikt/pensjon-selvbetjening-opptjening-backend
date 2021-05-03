@@ -62,6 +62,18 @@ class PdlConsumerTest extends WebClientTest {
 //    }
 
     @Test
+    void should_get_name_and_fodselsdato_when_calling_PDL() throws PdlException {
+        prepare(pdlNoErrorsResponse());
+
+        Person response = consumer.getPerson(PID, LoginSecurityLevel.LEVEL4);
+
+        assertEquals("SMART", response.getFornavn());
+        assertNull(response.getMellomnavn());
+        assertEquals("POTET", response.getEtternavn());
+        assertEquals(LocalDate.of(1972,11,5), response.getFodselsdato());
+    }
+
+    @Test
     void getBirthDates_shall_throwPdlException_when_PDL_returns_error() {
         prepare(pdlErrorResponse());
 
@@ -162,5 +174,41 @@ class PdlConsumerTest extends WebClientTest {
                         "    \"hentPerson\": null\n" +
                         "  }\n" +
                         "}");
+    }
+
+    private static MockResponse pdlNoErrorsResponse(){
+        return jsonResponse()
+                .setBody(
+                        "{\n" +
+                                "    \"data\": {\n" +
+                                "        \"hentPerson\": {\n" +
+                                "            \"navn\": [\n" +
+                                "                {\n" +
+                                "                    \"fornavn\": \"SMART\",\n" +
+                                "                    \"mellomnavn\": null,\n" +
+                                "                    \"etternavn\": \"POTET\",\n" +
+                                "                    \"folkeregistermetadata\": {\n" +
+                                "                        \"ajourholdstidspunkt\": \"2021-03-26T10:56:01\"\n" +
+                                "                    },\n" +
+                                "                    \"metadata\": {\n" +
+                                "                        \"master\": \"FREG\",\n" +
+                                "                        \"endringer\": [\n" +
+                                "                            {\n" +
+                                "                                \"registrert\": \"2021-03-26T10:56:01\"\n" +
+                                "                            }\n" +
+                                "                        ]\n" +
+                                "                    }\n" +
+                                "                }\n" +
+                                "            ],\n" +
+                                "            \"foedsel\": [\n" +
+                                "                {\n" +
+                                "                    \"foedselsdato\": \"1972-11-05\",\n" +
+                                "                    \"foedselsaar\": null\n" +
+                                "                }\n" +
+                                "            ]\n" +
+                                "        }\n" +
+                                "    }\n" +
+                                "}"
+                );
     }
 }
