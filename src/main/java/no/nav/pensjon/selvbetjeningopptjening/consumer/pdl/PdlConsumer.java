@@ -2,6 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.helper.PdlQueryFileReader;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlError;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlErrorExtension;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
@@ -86,12 +87,12 @@ public class PdlConsumer implements Pingable {
                     .post()
                     .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue(securityLevel))
                     .header(PdlHttpHeaders.CONSUMER_TOKEN, consumerToken())
-                    .bodyValue(PdlRequest.getPersonQuery(pid, getPdlQueryFromFile()))
+                    .bodyValue(PdlRequest.getPersonQuery(pid))
                     .retrieve()
                     .bodyToMono(PdlResponse.class)
                     .block();
-        } catch (IOException | URISyntaxException e) {
-            throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, "Error when constructing graphQL-query for request");
+        } catch (IOException e) {
+            return handleIoError(e);
         } catch (JSONException e) {
             return handleJsonError(e);
         } catch (StsException e) {
@@ -100,8 +101,6 @@ public class PdlConsumer implements Pingable {
             throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, "", e.getResponseBodyAsString(), e);
         } catch (RuntimeException e) {
             // E.g. Exceptions$ReactiveException when connection is broken
-            e.printStackTrace();
-            log.error(e.getStackTrace());
             throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, e);
         }
     }
@@ -136,6 +135,12 @@ public class PdlConsumer implements Pingable {
 
     private PdlResponse handleJsonError(JSONException e) {
         String cause = "Failed deserializing JSON response";
+        log.error(CONSUMED_SERVICE + " error: " + cause, e);
+        throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, cause);
+    }
+
+    private PdlResponse handleIoError(IOException e) {
+        String cause = "Error when trying to read graphQL-query from file: " + e.getMessage();
         log.error(CONSUMED_SERVICE + " error: " + cause, e);
         throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, cause);
     }
