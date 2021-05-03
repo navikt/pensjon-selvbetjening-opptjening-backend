@@ -3,13 +3,13 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model;
 import java.time.LocalDate;
 
 public class PdlFolkeregisterMetadata {
-    private LocalDate ajourholdTidspunkt;
+    private LocalDate ajourholdsTidspunkt;
 
-    public LocalDate getAjourholdTidspunkt() {
-        return ajourholdTidspunkt;
+    public LocalDate getAjourholdsTidspunkt() {
+        return ajourholdsTidspunkt;
     }
 
-    public void setAjourholdTidspunkt(LocalDate ajourholdTidspunkt) {
-        this.ajourholdTidspunkt = ajourholdTidspunkt;
+    public void setAjourholdsTidspunkt(LocalDate ajourholdsTidspunkt) {
+        this.ajourholdsTidspunkt = ajourholdsTidspunkt;
     }
 }
