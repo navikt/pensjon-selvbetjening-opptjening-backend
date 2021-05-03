@@ -100,6 +100,8 @@ public class PdlConsumer implements Pingable {
             throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, "", e.getResponseBodyAsString(), e);
         } catch (RuntimeException e) {
             // E.g. Exceptions$ReactiveException when connection is broken
+            e.printStackTrace();
+            log.error(e.getStackTrace());
             throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, e);
         }
     }
