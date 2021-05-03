@@ -5,7 +5,7 @@ public class Navn {
     private String mellomnavn;
     private String etternavn;
     private PdlMetadata metadata;
-    private PdlFolkeregisterMetadata folkeregisterMetadata;
+    private PdlFolkeregisterMetadata folkeregistermetadata;
 
     public String getFornavn() {
         return fornavn;
@@ -39,11 +39,11 @@ public class Navn {
         this.metadata = metadata;
     }
 
-    public PdlFolkeregisterMetadata getFolkeregisterMetadata() {
-        return folkeregisterMetadata;
+    public PdlFolkeregisterMetadata getFolkeregistermetadata() {
+        return folkeregistermetadata;
     }
 
-    public void setFolkeregisterMetadata(PdlFolkeregisterMetadata folkeregisterMetadata) {
-        this.folkeregisterMetadata = folkeregisterMetadata;
+    public void setFolkeregistermetadata(PdlFolkeregisterMetadata folkeregistermetadata) {
+        this.folkeregistermetadata = folkeregistermetadata;
     }
 }
