@@ -2,7 +2,6 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.helper.PdlQueryFileReader;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlError;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlErrorExtension;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
