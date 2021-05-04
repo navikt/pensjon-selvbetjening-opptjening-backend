@@ -190,8 +190,4 @@ public class PdlConsumer implements Pingable {
         log.error(String.format("%s error: %s; %s", CONSUMED_SERVICE, error.getMessage(), extensions.getCode()));
         throw new PdlException(error.getMessage(), extensions.getCode());
     }
-
-    private String getPdlQueryFromFile() throws URISyntaxException, IOException {
-        return new String(Files.readAllBytes(Paths.get(getClass().getResource("/pdl/person.graphql").toURI()))).replace("\r\n", "");
-    }
 }
