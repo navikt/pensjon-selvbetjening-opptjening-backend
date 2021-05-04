@@ -48,19 +48,6 @@ class PdlConsumerTest extends WebClientTest {
         consumer = new PdlConsumer(baseUrl(), tokenValidationContextHolder, serviceUserTokenGetter);
     }
 
-    //TODO: Move to PersonTest
-//    @Test
-//    void getBirthDates_shall_return_birthDate_when_one_exists() throws PdlException {
-//        prepare(pdlDataResponse());
-//
-//        Person person = consumer.getPerson(PID, LoginSecurityLevel.LEVEL4);
-//
-//        assertNotNull(person.getBirthDate());
-//        BirthDate birthDate = person.getBirthDate();
-//        assertFalse(birthDate.isBasedOnYearOnly());
-//        assertEquals(LocalDate.of(2001, 1, 1), birthDate.getValue());
-//    }
-
     @Test
     void should_get_name_and_fodselsdato_when_calling_PDL() throws PdlException {
         prepare(pdlNoErrorsResponse());
