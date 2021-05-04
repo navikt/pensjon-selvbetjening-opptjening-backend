@@ -32,7 +32,10 @@ public class Person {
         }
 
     }
-
+    private LocalDate getDefaultFodselsdato(Pid pid) {
+        log.info("Deriving birth date directly from PID");
+        return pid.getFodselsdato();
+    }
     public Pid getPid() {
         return pid;
     }
@@ -57,8 +60,5 @@ public class Person {
         return fodselsdato;
     }
 
-    private LocalDate getDefaultFodselsdato(Pid pid) {
-        log.info("Deriving birth date directly from PID");
-        return pid.getFodselsdato();
-    }
+
 }
