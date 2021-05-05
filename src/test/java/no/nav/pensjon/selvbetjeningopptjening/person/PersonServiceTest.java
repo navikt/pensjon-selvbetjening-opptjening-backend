@@ -55,46 +55,25 @@ class PersonServiceTest {
         assertEquals(LocalDate.of(1982, 3, 4), birthDate);
     }
 
-//    @Test
-//    void when_pdl_returns_multipleBirthDates_then_getBirthDate_shall_use_first_birthDate() throws PdlException {
-//        when(pdlConsumer.getPerson(any(Pid.class), eq(LoginSecurityLevel.LEVEL4)))
-//                .thenReturn(List.of(
-//                        new BirthDate(LocalDate.of(1982, 3, 4)),
-//                        new BirthDate(LocalDate.of(1982, 3, 3)),
-//                        new BirthDate(LocalDate.of(1982, 3, 5))));
-//
-//        LocalDate birthDate = personService.getPerson(PID, LoginSecurityLevel.LEVEL4);
-//
-//        assertEquals(LocalDate.of(1982, 3, 4), birthDate);
-//    }
-//
-//    @Test
-//    void when_pdl_returns_noBirthDates_then_getBirthDate_shall_use_birthDate_from_Pid() throws PdlException {
-//        when(pdlConsumer.getPerson(any(Pid.class), eq(LoginSecurityLevel.LEVEL4)))
-//                .thenReturn(emptyList());
-//
-//        LocalDate birthDate = personService.getPerson(PID, LoginSecurityLevel.LEVEL4);
-//
-//        assertEquals(BIRTH_DATE_FROM_PID, birthDate);
-//    }
-//
-//    @Test
-//    void when_pdlCall_unauthorized_then_getBirthDate_shall_use_birthDate_from_Pid() throws PdlException {
-//        when(pdlConsumer.getPerson(any(Pid.class), eq(LoginSecurityLevel.LEVEL4)))
-//                .thenThrow(new PdlException("message", "unauthorized"));
-//
-//        LocalDate birthDate = personService.getPerson(PID, LoginSecurityLevel.LEVEL4);
-//
-//        assertEquals(BIRTH_DATE_FROM_PID, birthDate);
-//    }
-//
-//    @Test
-//    void when_pdlCall_fails_then_getBirthDate_shall_use_birthDate_from_Pid() throws PdlException {
-//        when(pdlConsumer.getPerson(any(Pid.class), eq(LoginSecurityLevel.LEVEL4)))
-//                .thenThrow(new FailedCallingExternalServiceException("", ""));
-//
-//        LocalDate birthDate = personService.getPerson(PID, LoginSecurityLevel.LEVEL4);
-//
-//        assertEquals(BIRTH_DATE_FROM_PID, birthDate);
-//    }
+
+
+    @Test
+    void when_pdlCall_unauthorized_then_getBirthDate_shall_use_birthDate_from_Pid() throws PdlException {
+        when(pdlConsumer.getPerson(any(Pid.class), eq(LoginSecurityLevel.LEVEL4)))
+                .thenThrow(new PdlException("message", "unauthorized"));
+
+        Person person = personService.getPerson(PID, LoginSecurityLevel.LEVEL4);
+
+        assertEquals(BIRTH_DATE_FROM_PID, person.getFodselsdato());
+    }
+
+    @Test
+    void when_pdlCall_fails_then_getBirthDate_shall_use_birthDate_from_Pid() throws PdlException {
+        when(pdlConsumer.getPerson(any(Pid.class), eq(LoginSecurityLevel.LEVEL4)))
+                .thenThrow(new FailedCallingExternalServiceException("", ""));
+
+        Person person = personService.getPerson(PID, LoginSecurityLevel.LEVEL4);
+
+        assertEquals(BIRTH_DATE_FROM_PID, person.getFodselsdato());
+    }
 }

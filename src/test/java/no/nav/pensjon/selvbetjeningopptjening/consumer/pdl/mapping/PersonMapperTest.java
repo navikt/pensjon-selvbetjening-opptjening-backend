@@ -1,7 +1,9 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.mapping;
 
 import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlResponse;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedsel;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.HentPersonResponse;
@@ -10,6 +12,8 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlData;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlFolkeregisterMetadata;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlMetadata;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlMetadataEndring;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
+import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -17,10 +21,13 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 class PersonMapperTest {
     @Test
-    void should_return_person_with_navn_and_fodselsdato_when_all_data_present(){
+    void should_return_person_with_navn_and_fodselsdato_when_all_data_present() {
         Navn navn = new Navn();
         navn.setFornavn("fornavn");
         navn.setEtternavn("etternavn");
@@ -42,7 +49,7 @@ class PersonMapperTest {
     }
 
     @Test
-    void should_handle_that_birthday_is_null(){
+    void should_return_fodselsdato_from_pid_when_no_fodselsdato_returned_from_PDL() {
         LocalDate expectedFodselsdato = LocalDate.of(1980, 4, 5);
         PdlResponse pdlResponse = getPdlResponseWithFoedselAndNavn(Collections.emptyList(), List.of(new Navn()));
 
@@ -52,7 +59,7 @@ class PersonMapperTest {
     }
 
     @Test
-    void should_handle_that_navn_is_null(){
+    void should_handle_that_navn_is_null() {
         PdlResponse pdlResponse = getPdlResponseWithFoedselAndNavn(List.of(new Foedsel()), Collections.emptyList());
 
         Person person = PersonMapper.fromDto(pdlResponse, PidGenerator.generatePidAtAge(66));
@@ -65,7 +72,7 @@ class PersonMapperTest {
     }
 
     @Test
-    void should_pick_FREG_navn_when_only_this_navn_occurrs(){
+    void should_pick_FREG_navn_when_only_this_navn_occurs() {
         String expectedNavnToBePicked = "navn";
         Navn navn = new Navn();
         navn.setFornavn(expectedNavnToBePicked);
@@ -80,7 +87,7 @@ class PersonMapperTest {
     }
 
     @Test
-    void should_pick_other_navn_when_only_this_navn_occurrs(){
+    void should_pick_non_FREG_navn_when_only_this_navn_occurs() {
         String expectedNavnToBePicked = "navn";
         Navn navn = new Navn();
         navn.setFornavn(expectedNavnToBePicked);
@@ -96,7 +103,7 @@ class PersonMapperTest {
     }
 
     @Test
-    void should_pick_other_navn_when_other_navn_is_latest_navn_when_more_than_one_navn(){
+    void should_pick_non_FREG_navn_when_other_navn_is_latest_navn_when_more_than_one_navn() {
         String expectedNavnToBePicked = "navn2";
         Navn navn1 = new Navn();
         navn1.setFornavn("navn1");
@@ -111,9 +118,11 @@ class PersonMapperTest {
         navn2.setFornavn(expectedNavnToBePicked);
         PdlMetadata metadata2 = new PdlMetadata();
         metadata2.setMaster("PDL");
-        PdlMetadataEndring endring = new PdlMetadataEndring();
-        endring.setRegistrert(LocalDate.of(1990, 4, 2));
-        metadata2.setEndringer(List.of(endring));
+        PdlMetadataEndring endring1 = new PdlMetadataEndring();
+        endring1.setRegistrert(LocalDate.of(1990, 4, 2));
+        PdlMetadataEndring endring2 = new PdlMetadataEndring();
+        endring2.setRegistrert(LocalDate.of(1955, 4, 2));
+        metadata2.setEndringer(List.of(endring1, endring2));
         navn2.setMetadata(metadata2);
         PdlResponse pdlResponse = getPdlResponseWithFoedselAndNavn(null, List.of(navn1, navn2));
 
@@ -124,7 +133,7 @@ class PersonMapperTest {
     }
 
     @Test
-    void should_pick_FREG_navn_when_FREG_navn_is_latest_navn_when_more_than_one_navn(){
+    void should_pick_FREG_navn_when_FREG_navn_is_latest_navn_when_more_than_one_navn() {
         String expectedNavnToBePicked = "navn1";
         Navn navn1 = new Navn();
         navn1.setFornavn(expectedNavnToBePicked);
@@ -151,7 +160,19 @@ class PersonMapperTest {
 
     }
 
-    private PdlResponse getPdlResponseWithFoedselAndNavn(List<Foedsel> foedsel, List<Navn> navn){
+    @Test
+    void should_pick_first_fodselsdato_when_multiple_fodselsdato_from_PDL() {
+        LocalDate expectedFodselsdato = LocalDate.of(1982, 3, 4);
+
+        Person person = PersonMapper.fromDto(getPdlResponseWithFoedselAndNavn(List.of(
+                createFoedsel(expectedFodselsdato),
+                createFoedsel(LocalDate.of(1982, 3, 3)),
+                createFoedsel(LocalDate.of(1982, 3, 5))), null), PidGenerator.generatePidAtAge(50));
+
+        assertEquals(expectedFodselsdato, person.getFodselsdato());
+    }
+
+    private PdlResponse getPdlResponseWithFoedselAndNavn(List<Foedsel> foedsel, List<Navn> navn) {
         HentPersonResponse hentPersonResponse = new HentPersonResponse();
         hentPersonResponse.setFoedsel(foedsel);
         hentPersonResponse.setNavn(navn);
@@ -161,6 +182,12 @@ class PersonMapperTest {
         pdlResponse.setData(pdlData);
 
         return pdlResponse;
+    }
+
+    private Foedsel createFoedsel(LocalDate date) {
+        Foedsel foedsel = new Foedsel();
+        foedsel.setFoedselsdato(date);
+        return foedsel;
     }
 
 }

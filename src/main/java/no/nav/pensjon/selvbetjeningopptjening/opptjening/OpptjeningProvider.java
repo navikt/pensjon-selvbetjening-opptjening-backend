@@ -11,8 +11,6 @@ import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.person.PersonService;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -30,7 +28,6 @@ public class OpptjeningProvider {
     private final PersonConsumer personConsumer;
     private final PersonService personService;
     private final UttaksgradGetter uttaksgradGetter;
-    private final Log log = LogFactory.getLog(getClass());
 
     public OpptjeningProvider(PensjonsbeholdningConsumer pensjonsbeholdningConsumer,
                               OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer,

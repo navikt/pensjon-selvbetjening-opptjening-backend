@@ -139,7 +139,7 @@ public class PdlConsumer implements Pingable {
     }
 
     private PdlResponse handleIoError(IOException e) {
-        String cause = "Error when trying to read graphQL-query from file: " + e.getMessage();
+        String cause = "Error when trying to read graphQL-query from file";
         log.error(CONSUMED_SERVICE + " error: " + cause, e);
         throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, cause);
     }

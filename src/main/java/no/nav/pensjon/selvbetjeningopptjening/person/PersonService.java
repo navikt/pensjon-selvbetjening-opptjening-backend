@@ -27,10 +27,10 @@ public class PersonService {
             return pdlConsumer.getPerson(pid, securityLevel);
         } catch (PdlException e) {
             handle(e, pid, securityLevel);
-            return new Person(pid, null, null, null, null);
+            return new Person(pid);
         } catch (Exception e) {
             log.error("Call to PDL failed: " + e.getMessage());
-            return new Person(pid, null, null, null, null);
+            return new Person(pid);
         }
     }
 

@@ -22,19 +22,19 @@ public class PersonMapper {
     public static Person fromDto(PdlResponse response, Pid pid) {
         List<BirthDate> birthDates = fromDtos(getBirths(response));
         BirthDate birthDate = birthDates.isEmpty() ? null : birthDates.get(0);
-        Navn navn = getLatestRegisteredNavn(getNames(response));
+        Navn navn = getLatestRegisteredNavn(getAllNavn(response));
         if (navn != null) {
             return new Person(pid, navn.getFornavn(), navn.getMellomnavn(), navn.getEtternavn(), birthDate);
         } else {
-            return new Person(pid, null, null, null, birthDate);
+            return new Person(pid, birthDate);
         }
     }
 
-    private static List<Navn> getNames(PdlResponse response) {
-        return response == null ? emptyList() : getNames(response.getData());
+    private static List<Navn> getAllNavn(PdlResponse response) {
+        return response == null ? emptyList() : getAllNavn(response.getData());
     }
 
-    private static List<Navn> getNames(PdlData data) {
+    private static List<Navn> getAllNavn(PdlData data) {
         return data == null || data.getHentPerson() == null
                 ? emptyList()
                 : data.getHentPerson().getNavn();
@@ -42,17 +42,17 @@ public class PersonMapper {
 
     private static Navn getLatestRegisteredNavn(List<Navn> navn) {
         Comparator<Navn> navnComparator = (navn1, navn2) -> {
-            LocalDate navn1Endringstidpunkt = getEndringstidspunkt(navn1);
-            LocalDate navn2Endringstidpunkt = getEndringstidspunkt(navn2);
-            if (navn2Endringstidpunkt == null || navn1Endringstidpunkt != null && navn1Endringstidpunkt.isAfter(navn2Endringstidpunkt)) {
+            LocalDate navn1Endringstidspunkt = getEndringstidspunkt(navn1);
+            LocalDate navn2Endringstidspunkt = getEndringstidspunkt(navn2);
+            if (navn2Endringstidspunkt == null || navn1Endringstidspunkt != null && navn1Endringstidspunkt.isAfter(navn2Endringstidspunkt)) {
                 return 1;
-            } else if (navn1Endringstidpunkt == null || navn1Endringstidpunkt.isBefore(navn2Endringstidpunkt)) {
+            } else if (navn1Endringstidspunkt == null || navn1Endringstidspunkt.isBefore(navn2Endringstidspunkt)) {
                 return -1;
             }
             return 0;
         };
 
-        return navn.stream().max(navnComparator).orElse(null);
+        return navn != null ? navn.stream().max(navnComparator).orElse(null) : null;
     }
 
     private static LocalDate getEndringstidspunkt(Navn navn) {

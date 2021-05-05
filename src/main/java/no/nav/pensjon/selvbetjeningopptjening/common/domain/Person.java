@@ -32,6 +32,15 @@ public class Person {
         }
 
     }
+
+    public Person(Pid pid, BirthDate fodselsdato){
+        this(pid, null, null, null, fodselsdato);
+    }
+
+    public Person(Pid pid){
+        this(pid, null);
+    }
+
     private LocalDate getDefaultFodselsdato(Pid pid) {
         log.info("Deriving birth date directly from PID");
         return pid.getFodselsdato();
@@ -50,10 +59,6 @@ public class Person {
 
     public String getEtternavn() {
         return etternavn;
-    }
-
-    public Log getLog() {
-        return log;
     }
 
     public LocalDate getFodselsdato() {

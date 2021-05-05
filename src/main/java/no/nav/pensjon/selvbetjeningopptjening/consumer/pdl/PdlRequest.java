@@ -28,15 +28,12 @@ class PdlRequest {
         String path = "pdl/" + filename + ".graphql";
         String query;
         Resource resource = new ClassPathResource(path);
-        InputStream inputStream = resource.getInputStream();
-        try {
+
+        try(InputStream inputStream = resource.getInputStream()) {
             byte[] bdata = FileCopyUtils.copyToByteArray(inputStream);
             query = new String(bdata, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new IOException("Failed when trying to read file on path " + path);
-        } finally {
-            IOUtils.closeQuietly(inputStream);
         }
+
         return query.replace("\r\n", "");
     }
 }
