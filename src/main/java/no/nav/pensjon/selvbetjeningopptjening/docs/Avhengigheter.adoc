@@ -145,7 +145,7 @@ Disse domeneobjektene tilhører PEN, se PEN-dokumentasjon for ytterligere detalj
 
 === Avhengigheter til PDL
 PDL (persondataløsningen) er NAVs interne register for grunnleggende personopplysninger. Registeret inneholder
-opplysninger om alle personer i Folkeregisteret.
+opplysninger om alle personer i Folkeregisteret og andre kilder til persondata som Nav har tilgang til.
 
 .Bruk av data fra PDL
 Applikasjonen trenger å identifisere en brukers fødselsdato for å plassere brukeren i riktig <<index.adoc#userGroup,brukergruppe>>.
@@ -157,6 +157,12 @@ fordi man først og fremst er interessert i fødselsåret for å plassere bruker
 feile fullstendig vil applikasjonen prøve å utlede fødselsdato fra selve fødselsnummeret som en siste backup. Hvis
 dette også feiler har applikasjonen ikke noe annet valg enn å returnere feilmelding til frontend, fordi ingenting kan
 gjøres uten å vite når brukeren er født.
+
+I tillegg til fødselsdato hentes også brukers navn fra PDL. Navnet brukes kun i visning til bruker. Det hentes fornavn,
+mellomnavn og etternavn. En bruker kan ha registrert flere navn. Ett navn i folkeregisteret og ett navn som er registrert
+hos NAV. I valg av navn velges den av disse som det sist ble gjort endring på. For å finne ut når et navn ble endret
+sist brukes ajourholdstidspunkt for navn fra Folkeregisteret. Ajourholdstidspunkt hentes fra folkeregistermaetadata
+som returneres av PDL. For NAV-navn brukes listen endringer i metadata for å avgjøre når navnet sist ble endret.
 
 .Strategi for henting av data
 Data fra PDL hentes ved å spesifisere en GraphQL-spørring som beskriver hvilke data som man vil ha. PDL inneholder
@@ -173,14 +179,28 @@ i dette kallet, i stedet for å spørre en gang til senere hvis man plutselig tr
 {
     "data": {
         "hentPerson": {
+            "navn": [
+                {
+                    "fornavn": "KLØKTIG",
+                    "mellomnavn": null,
+                    "etternavn": "POTET",
+                    "folkeregistermetadata": {
+                        "ajourholdstidspunkt": "2021-03-26T10:56:01"
+                    },
+                    "metadata": {
+                        "master": "FREG",
+                        "endringer": [
+                            {
+                                "registrert": "2021-03-26T10:56:01"
+                            }
+                        ]
+                    }
+                }
+            ],
             "foedsel": [
                 {
-                    "foedselsdato": "1958-01-09",
-                    "foedselsaar": 1958
-                },
-                {
-                    "foedselsdato": "1958-01-10",
-                    "foedselsaar": 1958
+                    "foedselsdato": "1972-11-05",
+                    "foedselsaar": null
                 }
             ]
         }
