@@ -19,6 +19,6 @@ class PdlRequestTest {
                 "            fornavn            mellomnavn            etternavn            folkeregistermetadata {                " +
                 "ajourholdstidspunkt            }            metadata {                master                endringer {         " +
                 "           registrert                }            }        }        foedsel{            foedselsdato            " +
-                "foedselsaar        }    }}\",\"variables\":{\"ident\":\"03029119367\"}}", query.replace("\n",""));
+                "foedselsaar        }    }}\",\"variables\":{\"ident\":\"03029119367\"}}", query);
     }
 }

@@ -28,11 +28,11 @@ class PdlRequest {
         String query;
         Resource resource = new ClassPathResource(path);
 
-        try(InputStream inputStream = resource.getInputStream()) {
+        try (InputStream inputStream = resource.getInputStream()) {
             byte[] bdata = FileCopyUtils.copyToByteArray(inputStream);
             query = new String(bdata, StandardCharsets.UTF_8);
         }
 
-        return query.replace("\r\n", "");
+        return query.replace("\r", "").replace("\n", "");
     }
 }
