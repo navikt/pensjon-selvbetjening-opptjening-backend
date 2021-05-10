@@ -75,6 +75,9 @@ Applikasjonen eksponeres som REST-endepunkt og har følgende API:
             ]
         },
         "numberOfYearsWithPensjonspoeng": 0,
-        "fodselsaar":1988
+        "fodselsaar":1988,
+        "fornavn": "Ola",
+        "etternavn": "Normann",
+        "mellomnavn": "Olasen"
 }
 ----

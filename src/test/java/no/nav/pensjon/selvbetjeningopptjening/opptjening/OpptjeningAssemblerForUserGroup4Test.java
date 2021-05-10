@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +35,7 @@ class OpptjeningAssemblerForUserGroup4Test {
 
     @Test
     void should_increase_andel_regelverk_beholdning_with_1_for_each_year_in_usergroup4() {
-        Map<Integer, Integer> expectedValuesForEachYear = Stream.of(new Integer[][] {
+        Map<Integer, Integer> expectedValuesForEachYear = Stream.of(new Integer[][]{
                 {1954, 1},
                 {1955, 2},
                 {1956, 3},
@@ -45,7 +48,14 @@ class OpptjeningAssemblerForUserGroup4Test {
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> (Integer) data[1]));
 
         expectedValuesForEachYear.keySet().forEach(year -> {
-            OpptjeningResponse response = assembler.createResponse(LocalDate.of(year, 5, 5), emptyOpptjeningBasis());
+            LocalDate fodselsdato = LocalDate.of(year, 5, 5);
+            OpptjeningResponse response = assembler.createResponse(new Person(
+                            PidGenerator.generatePid(fodselsdato),
+                            null,
+                            null,
+                            null,
+                            null),
+                    emptyOpptjeningBasis());
             int expectedAndelRegelverkBeholdning = expectedValuesForEachYear.get(year);
             assertThat("For " + year + " andelNyttRegelverk should be " + expectedAndelRegelverkBeholdning, response.getAndelPensjonBasertPaBeholdning(), is(expectedAndelRegelverkBeholdning));
         });

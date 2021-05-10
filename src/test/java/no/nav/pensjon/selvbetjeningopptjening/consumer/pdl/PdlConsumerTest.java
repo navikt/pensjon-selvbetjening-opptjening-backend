@@ -2,6 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 
 import no.nav.pensjon.selvbetjeningopptjening.TestFnrs;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
@@ -48,15 +49,15 @@ class PdlConsumerTest extends WebClientTest {
     }
 
     @Test
-    void getBirthDates_shall_return_birthDate_when_one_exists() throws PdlException {
-        prepare(pdlDataResponse());
+    void should_get_name_and_fodselsdato_when_calling_PDL() throws PdlException {
+        prepare(pdlNoErrorsResponse());
 
-        List<BirthDate> birthDates = consumer.getBirthDates(PID, LoginSecurityLevel.LEVEL4);
+        Person response = consumer.getPerson(PID, LoginSecurityLevel.LEVEL4);
 
-        assertEquals(1, birthDates.size());
-        BirthDate birthDate = birthDates.get(0);
-        assertFalse(birthDate.isBasedOnYearOnly());
-        assertEquals(LocalDate.of(2001, 1, 1), birthDate.getValue());
+        assertEquals("SMART", response.getFornavn());
+        assertNull(response.getMellomnavn());
+        assertEquals("POTET", response.getEtternavn());
+        assertEquals(LocalDate.of(1972,11,5), response.getFodselsdato());
     }
 
     @Test
@@ -64,7 +65,7 @@ class PdlConsumerTest extends WebClientTest {
         prepare(pdlErrorResponse());
 
         var exception = assertThrows(PdlException.class,
-                () -> consumer.getBirthDates(PID, LoginSecurityLevel.LEVEL4));
+                () -> consumer.getPerson(PID, LoginSecurityLevel.LEVEL4));
 
         assertEquals("Ikke tilgang til å se person", exception.getMessage());
         assertEquals("unauthorized", exception.getErrorCode());
@@ -75,7 +76,7 @@ class PdlConsumerTest extends WebClientTest {
         prepare(pdlMultipleErrorResponse());
 
         var exception = assertThrows(FailedCallingExternalServiceException.class,
-                () -> consumer.getBirthDates(PID, LoginSecurityLevel.LEVEL4));
+                () -> consumer.getPerson(PID, LoginSecurityLevel.LEVEL4));
 
         assertEquals("Error when calling the external service PDL." +
                         " Fant ikke person, Ukjent problem oppsto, feilen har blitt logget og følges opp",
@@ -160,5 +161,41 @@ class PdlConsumerTest extends WebClientTest {
                         "    \"hentPerson\": null\n" +
                         "  }\n" +
                         "}");
+    }
+
+    private static MockResponse pdlNoErrorsResponse(){
+        return jsonResponse()
+                .setBody(
+                        "{\n" +
+                                "    \"data\": {\n" +
+                                "        \"hentPerson\": {\n" +
+                                "            \"navn\": [\n" +
+                                "                {\n" +
+                                "                    \"fornavn\": \"SMART\",\n" +
+                                "                    \"mellomnavn\": null,\n" +
+                                "                    \"etternavn\": \"POTET\",\n" +
+                                "                    \"folkeregistermetadata\": {\n" +
+                                "                        \"ajourholdstidspunkt\": \"2021-03-26T10:56:01\"\n" +
+                                "                    },\n" +
+                                "                    \"metadata\": {\n" +
+                                "                        \"master\": \"FREG\",\n" +
+                                "                        \"endringer\": [\n" +
+                                "                            {\n" +
+                                "                                \"registrert\": \"2021-03-26T10:56:01\"\n" +
+                                "                            }\n" +
+                                "                        ]\n" +
+                                "                    }\n" +
+                                "                }\n" +
+                                "            ],\n" +
+                                "            \"foedsel\": [\n" +
+                                "                {\n" +
+                                "                    \"foedselsdato\": \"1972-11-05\",\n" +
+                                "                    \"foedselsaar\": null\n" +
+                                "                }\n" +
+                                "            ]\n" +
+                                "        }\n" +
+                                "    }\n" +
+                                "}"
+                );
     }
 }

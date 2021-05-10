@@ -12,6 +12,9 @@ OpptjeningResponse-objektet inneholder et map som lister opptjeningsdata for hve
 |numberOfYearsWithPensjonspoeng|Number (heltall)                                          |10      |Antall av årene i opptjeningData hvor brukeren har opptjening i form av pensjonspoeng.
 |fodselsaar                    |Number (år)                                               |1960    |Året den aktuelle brukeren er født.
 |andelPensjonBasertPaBeholdning|Number (heltall)                                          |10      |Andelen av pensjonen som er basert på beholdning. Verdien er 0–10.
+|fornavn                       |String                                                    |Ola     |Fornavnet til personen opptjeningen gjelder for
+|etternavn                     |String                                                    |Normann |Etternavnet til personen opptjeningen gjelder for
+|mellomnavn                    |String                                                    |Olasen  |Mellomnavnet til personen opptjeningen gjelder for, hvis personen har mellomnavn.
 |=======================
 
 === Opptjening

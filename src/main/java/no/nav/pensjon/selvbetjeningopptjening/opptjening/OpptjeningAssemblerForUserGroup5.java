@@ -1,5 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 
@@ -15,9 +16,9 @@ public class OpptjeningAssemblerForUserGroup5 extends OpptjeningAssembler {
         super(uttaksgradGetter);
     }
 
-    public OpptjeningResponse createResponse(LocalDate fodselsdato, OpptjeningBasis basis) {
+    public OpptjeningResponse createResponse(Person person, OpptjeningBasis basis) {
         return createResponse(
-                fodselsdato,
+                person,
                 basis.getPensjonsbeholdninger(),
                 basis.getRestpensjoner(),
                 basis.getInntekter(),
@@ -26,14 +27,14 @@ public class OpptjeningAssemblerForUserGroup5 extends OpptjeningAssembler {
                 basis.getUforeHistorikk());
     }
 
-    private OpptjeningResponse createResponse(LocalDate fodselsdato,
+    private OpptjeningResponse createResponse(Person person,
                                               List<Beholdning> beholdninger,
                                               List<Restpensjon> restpensjoner,
                                               List<Inntekt> inntekter,
                                               List<Uttaksgrad> uttaksgrader,
                                               AfpHistorikk afpHistorikk,
                                               UforeHistorikk uforeHistorikk) {
-        OpptjeningResponse response = new OpptjeningResponse(fodselsdato.getYear(), ANDEL_PENSJON_BASERT_PA_BEHOLDNING_USERGROUP5);
+        OpptjeningResponse response = new OpptjeningResponse(person, ANDEL_PENSJON_BASERT_PA_BEHOLDNING_USERGROUP5);
         Map<Integer, Opptjening> opptjeningerByYear = getOpptjeningerByYear(new ArrayList<>(), restpensjoner);
         Map<Integer, Long> inntekterByYear = getSumPensjonsgivendeInntekterByYear(inntekter);
         populatePensjonsbeholdning(opptjeningerByYear, getBeholdningerByYear(beholdninger));
@@ -42,7 +43,7 @@ public class OpptjeningAssemblerForUserGroup5 extends OpptjeningAssembler {
             return response;
         }
 
-        int firstYearWithOpptjening = getFirstYearWithOpptjening(fodselsdato);
+        int firstYearWithOpptjening = getFirstYearWithOpptjening(person.getFodselsdato());
         int lastYearWithOpptjening = findLatestOpptjeningYear(opptjeningerByYear);
         setRestpensjoner(opptjeningerByYear, restpensjoner);
         removeFutureOpptjening(opptjeningerByYear, lastYearWithOpptjening);

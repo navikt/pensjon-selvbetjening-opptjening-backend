@@ -5,6 +5,8 @@ import static junit.framework.TestCase.assertEquals;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +30,13 @@ class OpptjeningAssemblerForUserGroup5Test {
 
     @Test
     void should_return_andel_RegelverkBeholdning_equal_to_10_when_usergroup5() {
-        OpptjeningResponse response = assembler.createResponse(LocalDate.of(1964, 5, 5), emptyOpptjeningBasis());
+        OpptjeningResponse response = assembler.createResponse(new Person(
+                        PidGenerator.generatePidAtAge(50),
+                        null,
+                        null,
+                        null,
+                        null),
+                emptyOpptjeningBasis());
         assertEquals(response.getAndelPensjonBasertPaBeholdning(), 10);
     }
 

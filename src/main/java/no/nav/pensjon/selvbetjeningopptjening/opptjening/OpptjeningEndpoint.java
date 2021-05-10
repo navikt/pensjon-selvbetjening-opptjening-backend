@@ -1,6 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.config.OpptjeningFeature;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.LoginInfo;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import static no.nav.pensjon.selvbetjeningopptjening.unleash.UnleashProvider.toggle;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.ISSUER;
 
 @RestController
@@ -23,8 +21,8 @@ import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.ISSUER;
 public class OpptjeningEndpoint {
 
     private final Log log = LogFactory.getLog(getClass());
-    private OpptjeningProvider provider;
-    private LoginInfoGetter loginInfoGetter;
+    private final OpptjeningProvider provider;
+    private final LoginInfoGetter loginInfoGetter;
 
     public OpptjeningEndpoint(OpptjeningProvider provider, LoginInfoGetter loginInfoGetter) {
         this.provider = provider;
@@ -34,12 +32,8 @@ public class OpptjeningEndpoint {
     @GetMapping("/opptjening")
     public OpptjeningResponse getOpptjeningForFnr() {
         try {
-            if (toggle(OpptjeningFeature.PL1441).isEnabled()) {
-                LoginInfo login = loginInfoGetter.getLoginInfo();
-                return provider.calculateOpptjeningForFnr(login.getPid(), login.getSecurityLevel());
-            }
-
-            throw new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, "The service is not made available for the specified user yet");
+            LoginInfo login = loginInfoGetter.getLoginInfo();
+            return provider.calculateOpptjeningForFnr(login.getPid(), login.getSecurityLevel());
         } catch (PidValidationException e) {
             log.error(e);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);

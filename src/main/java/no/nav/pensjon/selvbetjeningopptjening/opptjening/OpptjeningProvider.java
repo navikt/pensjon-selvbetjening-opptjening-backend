@@ -1,5 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
@@ -12,7 +13,6 @@ import no.nav.pensjon.selvbetjeningopptjening.person.PersonService;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,9 +46,9 @@ public class OpptjeningProvider {
     }
 
     OpptjeningResponse calculateOpptjeningForFnr(Pid pid, LoginSecurityLevel securityLevel) {
-        LocalDate birthDate = personService.getBirthDate(pid, securityLevel);
+        Person person = personService.getPerson(pid, securityLevel);
         String fnr = pid.getPid();
-        UserGroup userGroup = findUserGroup(birthDate);
+        UserGroup userGroup = findUserGroup(person.getFodselsdato());
         List<Uttaksgrad> uttaksgrader = uttaksgradGetter.getAlderSakUttaksgradhistorikkForPerson(fnr);
         AfpHistorikk afpHistorikk = personConsumer.getAfpHistorikkForPerson(fnr);
         UforeHistorikk uforehistorikk = personConsumer.getUforeHistorikkForPerson(fnr);
@@ -59,8 +59,7 @@ public class OpptjeningProvider {
 
         return userGroup.getOpptjeningAssembler().apply(
                 new OpptjeningArguments(
-                        fnr,
-                        birthDate,
+                        person,
                         restpensjoner,
                         uttaksgrader,
                         afpHistorikk,

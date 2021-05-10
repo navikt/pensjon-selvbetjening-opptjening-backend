@@ -1,5 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.model.code;
 
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
@@ -31,8 +32,7 @@ public enum UserGroup {
 
     static OpptjeningResponse getOpptjeningForUserGroups123(OpptjeningArguments args) {
         return getOpptjeningForUserGroups123(
-                args.getFnr(),
-                args.getFodselsdato(),
+                args.getPerson(),
                 args.getRestpensjoner(),
                 args.getUttaksgrader(),
                 args.getAfpHistorikk(),
@@ -43,8 +43,7 @@ public enum UserGroup {
 
     static OpptjeningResponse getOpptjeningForUserGroup4(OpptjeningArguments args) {
         return getOpptjeningForUserGroup4(
-                args.getFnr(),
-                args.getFodselsdato(),
+                args.getPerson(),
                 args.getRestpensjoner(),
                 args.getUttaksgrader(),
                 args.getAfpHistorikk(),
@@ -56,8 +55,7 @@ public enum UserGroup {
 
     static OpptjeningResponse getOpptjeningForUserGroup5(OpptjeningArguments args) {
         return getOpptjeningForUserGroup5(
-                args.getFnr(),
-                args.getFodselsdato(),
+                args.getPerson(),
                 args.getRestpensjoner(),
                 args.getUttaksgrader(),
                 args.getAfpHistorikk(),
@@ -67,15 +65,14 @@ public enum UserGroup {
                 args.getUttaksgradGetter());
     }
 
-    private static OpptjeningResponse getOpptjeningForUserGroups123(String fnr,
-                                                                    LocalDate fodselsdato,
+    private static OpptjeningResponse getOpptjeningForUserGroups123(Person person,
                                                                     List<Restpensjon> restpensjoner,
                                                                     List<Uttaksgrad> uttaksgrader,
                                                                     AfpHistorikk afpHistorikk,
                                                                     UforeHistorikk uforeHistorikk,
                                                                     PensjonspoengConsumer pensjonspoengConsumer,
                                                                     UttaksgradGetter uttaksgradGetter) {
-        List<Pensjonspoeng> pensjonspoengList = pensjonspoengConsumer.getPensjonspoengListe(fnr);
+        List<Pensjonspoeng> pensjonspoengList = pensjonspoengConsumer.getPensjonspoengListe(person.getPid().getPid());
 
         var basis = new OpptjeningBasis(
                 pensjonspoengList,
@@ -86,11 +83,10 @@ public enum UserGroup {
                 afpHistorikk,
                 uforeHistorikk);
 
-        return new OpptjeningAssemblerForUserGroups123(uttaksgradGetter).createResponse(fodselsdato, basis);
+        return new OpptjeningAssemblerForUserGroups123(uttaksgradGetter).createResponse(person, basis);
     }
 
-    private static OpptjeningResponse getOpptjeningForUserGroup4(String fnr,
-                                                                 LocalDate fodselsdato,
+    private static OpptjeningResponse getOpptjeningForUserGroup4(Person person,
                                                                  List<Restpensjon> restpensjoner,
                                                                  List<Uttaksgrad> uttaksgrader,
                                                                  AfpHistorikk afpHistorikk,
@@ -98,8 +94,9 @@ public enum UserGroup {
                                                                  PensjonspoengConsumer pensjonspoengConsumer,
                                                                  PensjonsbeholdningConsumer beholdningConsumer,
                                                                  UttaksgradGetter uttaksgradGetter) {
-        List<Beholdning> beholdninger = beholdningConsumer.getPensjonsbeholdning(fnr);
-        List<Pensjonspoeng> pensjonspoengList = pensjonspoengConsumer.getPensjonspoengListe(fnr);
+        String pid = person.getPid().getPid();
+        List<Beholdning> beholdninger = beholdningConsumer.getPensjonsbeholdning(pid);
+        List<Pensjonspoeng> pensjonspoengList = pensjonspoengConsumer.getPensjonspoengListe(pid);
 
         var basis = new OpptjeningBasis(
                 pensjonspoengList,
@@ -110,11 +107,10 @@ public enum UserGroup {
                 afpHistorikk,
                 uforeHistorikk);
 
-        return new OpptjeningAssemblerForUserGroup4(uttaksgradGetter).createResponse(fodselsdato, basis);
+        return new OpptjeningAssemblerForUserGroup4(uttaksgradGetter).createResponse(person, basis);
     }
 
-    private static OpptjeningResponse getOpptjeningForUserGroup5(String fnr,
-                                                                 LocalDate fodselsdato,
+    private static OpptjeningResponse getOpptjeningForUserGroup5(Person person,
                                                                  List<Restpensjon> restpensjoner,
                                                                  List<Uttaksgrad> uttaksgrader,
                                                                  AfpHistorikk afpHistorikk,
@@ -122,9 +118,10 @@ public enum UserGroup {
                                                                  OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer,
                                                                  PensjonsbeholdningConsumer beholdningConsumer,
                                                                  UttaksgradGetter uttaksgradGetter) {
-        List<Beholdning> beholdninger = beholdningConsumer.getPensjonsbeholdning(fnr);
-        int firstPossibleInntektYear = fodselsdato.getYear() + 13;
-        List<Inntekt> inntekter = opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(fnr, firstPossibleInntektYear, LocalDate.now().getYear());
+        String pid = person.getPid().getPid();
+        List<Beholdning> beholdninger = beholdningConsumer.getPensjonsbeholdning(pid);
+        int firstPossibleInntektYear = person.getFodselsdato().getYear() + 13;
+        List<Inntekt> inntekter = opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(pid, firstPossibleInntektYear, LocalDate.now().getYear());
 
         var basis = new OpptjeningBasis(
                 emptyList(), // No pensjonspoeng
@@ -135,7 +132,7 @@ public enum UserGroup {
                 afpHistorikk,
                 uforeHistorikk);
 
-        return new OpptjeningAssemblerForUserGroup5(uttaksgradGetter).createResponse(fodselsdato, basis);
+        return new OpptjeningAssemblerForUserGroup5(uttaksgradGetter).createResponse(person, basis);
     }
 
     public Function<OpptjeningArguments, OpptjeningResponse> getOpptjeningAssembler() {

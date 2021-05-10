@@ -1,6 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.person;
 
-import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
+import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
@@ -8,9 +8,6 @@ import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
@@ -25,34 +22,16 @@ public class PersonService {
         this.pdlConsumer = requireNonNull(pdlConsumer);
     }
 
-    public LocalDate getBirthDate(Pid pid, LoginSecurityLevel securityLevel) {
+    public Person getPerson(Pid pid, LoginSecurityLevel securityLevel) {
         try {
-            List<BirthDate> birthDates = pdlConsumer.getBirthDates(pid, securityLevel);
-
-            if (birthDates.isEmpty()) {
-                log.warn("No birth dates found for PID " + mask(pid));
-                return getDefaultBirthdate(pid);
-            }
-
-            BirthDate birthDate = birthDates.get(0);
-
-            if (birthDate.isBasedOnYearOnly()) {
-                log.info("Birth date set to first day in birth year");
-            }
-
-            return birthDate.getValue();
+            return pdlConsumer.getPerson(pid, securityLevel);
         } catch (PdlException e) {
             handle(e, pid, securityLevel);
-            return getDefaultBirthdate(pid);
+            return new Person(pid);
         } catch (Exception e) {
             log.error("Call to PDL failed: " + e.getMessage());
-            return getDefaultBirthdate(pid);
+            return new Person(pid);
         }
-    }
-
-    private LocalDate getDefaultBirthdate(Pid pid) {
-        log.info("Deriving birth date directly from PID");
-        return pid.getFodselsdato();
     }
 
     private void handle(PdlException exception, Pid pid, LoginSecurityLevel securityLevel) {
