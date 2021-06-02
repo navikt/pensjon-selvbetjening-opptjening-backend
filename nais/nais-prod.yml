@@ -45,6 +45,8 @@ spec:
       value: p
     - name: AZURE_APP_REDIRECT_URI
       value: https://pensjon-selvbetjening-opptjening-frontend.intern.nav.no/pensjon/opptjening/oauth2/internal/callback
+    - name: AUDIT_LOG_OUTPUT
+      value: SYSLOG
   envFrom:
     - configmap: loginservice-idporten
   azure:
