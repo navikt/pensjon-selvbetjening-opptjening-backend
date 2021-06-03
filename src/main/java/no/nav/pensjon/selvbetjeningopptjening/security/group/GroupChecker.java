@@ -5,18 +5,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static no.nav.pensjon.selvbetjeningopptjening.security.group.AadGroup.*;
-
 @Component
 public class GroupChecker {
 
-    // The list of authorized groups is the same as the internal user groups in
-    // github.com/navikt/pesys/blob/master/pselv/presentation/nav-presentation-pensjon-pselv-web-core/src/main/resources/menu_pensjon.xml#L66
-    private static final List<AadGroup> AUTHORIZED_GROUPS = List.of(
-            BRUKERHJELPA,
-            OKONOMI,
-            SAKSBEHANDLER,
-            VEILEDER);
+    // Members of this group has access to skjermede personer if also member of group giving regular access:
+    private static final String UTVIDET = "676b5e1f-84e6-46e5-8814-04233699ed4b"; // 0000-GA-Pensjon_UTVIDET
 
     private final SkjermingApi skjermingApi;
 
@@ -24,23 +17,18 @@ public class GroupChecker {
         this.skjermingApi = skjermingApi;
     }
 
-    public boolean isUserAuthorized(Pid pid, List<AadGroup> memberGroups) {
+    public boolean isUserAuthorized(Pid pid, List<String> groupIds) {
         return skjermingApi.isSkjermet(pid)
-                ? hasAccessToSkjermede(memberGroups)
-                : hasNormalAccess(memberGroups);
+                ? hasAccessToSkjermede(groupIds)
+                : hasNormalAccess(groupIds);
     }
 
-    private boolean hasNormalAccess(List<AadGroup> memberGroups) {
-        return memberGroups
-                .stream()
-                .anyMatch(AUTHORIZED_GROUPS::contains);
+    private boolean hasNormalAccess(List<String> groupIds) {
+        return groupIds.size() > 1
+                || groupIds.size() == 1 && !groupIds.get(0).equals(UTVIDET);
     }
 
-    private boolean hasAccessToSkjermede(List<AadGroup> memberGroups) {
-        return memberGroups.size() > 1
-                &&
-                memberGroups
-                        .stream()
-                        .anyMatch(AadGroup::hasAccessToSkjermede);
+    private boolean hasAccessToSkjermede(List<String> groupIds) {
+        return groupIds.size() > 1 && groupIds.contains(UTVIDET);
     }
 }

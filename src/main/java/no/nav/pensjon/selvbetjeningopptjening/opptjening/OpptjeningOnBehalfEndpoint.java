@@ -7,7 +7,6 @@ import no.nav.pensjon.selvbetjeningopptjening.audit.CefEntry;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
-import no.nav.pensjon.selvbetjeningopptjening.security.group.AadGroup;
 import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieType;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.SplitCookieAssembler;
@@ -92,10 +91,9 @@ public class OpptjeningOnBehalfEndpoint {
             return false;
         }
 
-        List<AadGroup> groups = groupIds
+        List<String> groups = groupIds
                 .stream()
-                .filter(id -> AadGroup.exists(id.toString()))
-                .map(id -> AadGroup.findById(id.toString()))
+                .map(Object::toString)
                 .collect(toList());
 
         return groupChecker.isUserAuthorized(pid, groups);
