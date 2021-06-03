@@ -24,6 +24,16 @@ class AadGroupTest {
     }
 
     @Test
+    void exists_returns_true_when_groupWithGivenIdExists() {
+        assertTrue(AadGroup.exists("70ef8e7f-7456-4298-95e0-b13c0ef2422b"));
+    }
+
+    @Test
+    void exists_returns_false_when_groupWithGivenIdDoesNotExist() {
+        assertFalse(AadGroup.exists("no such group"));
+    }
+
+    @Test
     void findById_returns_id_when_found() {
         assertEquals(AadGroup.BRUKERHJELPA, AadGroup.findById("7845a796-1516-4d14-b500-fd65c001f35c"));
     }

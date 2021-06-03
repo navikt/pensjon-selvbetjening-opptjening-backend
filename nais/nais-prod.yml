@@ -53,6 +53,15 @@ spec:
     application:
       enabled: true
       tenant: nav.no
+      claims:
+        groups:
+          - id: "7845a796-1516-4d14-b500-fd65c001f35c" # 0000-GA-PENSJON_BRUKERHJELPA
+          - id: "70ef8e7f-7456-4298-95e0-b13c0ef2422b" # 0000-GA-Pensjon_Okonomi
+          - id: "0af3955f-df85-4eb0-b5b2-45bf2c8aeb9e" # 0000-GA-PENSJON_SAKSBEHANDLER
+          - id: "959ead5b-99b5-466b-a0ff-5fdbc687517b" # 0000-GA-Pensjon_VEILEDER
+          - id: "676b5e1f-84e6-46e5-8814-04233699ed4b" # 0000-GA-Pensjon_UTVIDET
+        extra:
+          - NAVident
       replyURLs:
         - https://pensjon-selvbetjening-opptjening-frontend.intern.nav.no/pensjon/opptjening/oauth2/internal/callback
   webproxy: true

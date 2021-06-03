@@ -22,10 +22,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import javax.servlet.http.Cookie;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -37,6 +37,7 @@ class OpptjeningOnBehalfEndpointTest {
 
     private static final Pid PID = PidGenerator.generatePidAtAge(65);
     private static final String URI = "/api/opptjeningonbehalf?fnr=" + PID;
+    private static final String VEILEDER_GROUP_ID = "959ead5b-99b5-466b-a0ff-5fdbc687517b";
 
     @Autowired
     private MockMvc mvc;
@@ -52,11 +53,10 @@ class OpptjeningOnBehalfEndpointTest {
     private Claims claims;
 
     @Test
-    void getOpptjeningForFnr_returns_opptjeningJson_when_feature_enabled() throws Exception {
+    void getOpptjeningForFnr_returns_opptjeningJson_when_authorized() throws Exception {
         when(provider.calculateOpptjeningForFnr(PID, LoginSecurityLevel.INTERNAL)).thenReturn(response());
-        when(groupChecker.isUserAuthorized(eq(PID), anyString())).thenReturn(true);
-        when(jwsValidator.validate(anyString())).thenReturn(jws);
-        when(jws.getBody()).thenReturn(claims);
+        when(groupChecker.isUserAuthorized(eq(PID), any())).thenReturn(true);
+        logInAsAuthorizedInternalUser();
 
         mvc.perform(
                 get(URI)
@@ -85,7 +85,8 @@ class OpptjeningOnBehalfEndpointTest {
     @Test
     void getOpptjeningForFnr_returns_statusForbidden_when_userNotMemberOfGroup() throws Exception {
         when(provider.calculateOpptjeningForFnr(PID, LoginSecurityLevel.INTERNAL)).thenReturn(response());
-        when(groupChecker.isUserAuthorized(eq(PID), anyString())).thenReturn(false);
+        when(groupChecker.isUserAuthorized(eq(PID), any())).thenReturn(false);
+        logInAsUnauthorizedInternalUser();
 
         mvc.perform(
                 get(URI)
@@ -93,8 +94,23 @@ class OpptjeningOnBehalfEndpointTest {
                 .andExpect(status().isForbidden());
     }
 
+    private void logInAsAuthorizedInternalUser() {
+        logIn(VEILEDER_GROUP_ID);
+    }
+
+    private void logInAsUnauthorizedInternalUser() {
+        logIn("some irrelevant group");
+    }
+
+    private void logIn(String groupId) {
+        when(jwsValidator.validate(anyString())).thenReturn(jws);
+        when(jws.getBody()).thenReturn(claims);
+        when(claims.get("groups")).thenReturn(List.of(groupId));
+    }
+
     private static OpptjeningResponse response() {
         LocalDate birthDate = LocalDate.of(1950, 1, 1);
+
         var response = new OpptjeningResponse(new Person(
                 PidGenerator.generatePid(birthDate),
                 null,
@@ -102,6 +118,7 @@ class OpptjeningOnBehalfEndpointTest {
                 null,
                 new BirthDate(birthDate)),
                 10);
+
         response.setOpptjeningData(opptjeningerByYear());
         response.setNumberOfYearsWithPensjonspoeng(1);
         return response;

@@ -48,6 +48,10 @@ public enum AadGroup {
         return accessToSkjermede;
     }
 
+    public static boolean exists(String id) {
+        return GROUPS_BY_ID.containsKey(id);
+    }
+
     public static AadGroup findById(String id) {
         AadGroup group = GROUPS_BY_ID.get(id);
         return group == null ? noSuchElement(id) : group;

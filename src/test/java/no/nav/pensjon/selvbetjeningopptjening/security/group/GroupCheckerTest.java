@@ -8,76 +8,63 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static java.util.Arrays.asList;
+import java.util.Collections;
+import java.util.List;
+
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static no.nav.pensjon.selvbetjeningopptjening.security.group.AadGroup.UTVIDET;
 import static no.nav.pensjon.selvbetjeningopptjening.security.group.AadGroup.VEILEDER;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 class GroupCheckerTest {
 
     private static final Pid PID = new Pid(TestFnrs.NORMAL);
-    private static final String TOKEN = "token";
     private GroupChecker checker;
 
-    @Mock
-    GroupApi groupApi;
     @Mock
     SkjermingApi skjermingApi;
 
     @BeforeEach
     void setUp() {
-        checker = new GroupChecker(groupApi, skjermingApi);
+        checker = new GroupChecker(skjermingApi);
     }
 
     @Test
     void isUserAuthorized_returnsTrue_when_userIsMemberOfAuthorizedGroup() {
-        membership(VEILEDER);
         skjermet(false);
-        assertTrue(checker.isUserAuthorized(PID, TOKEN));
+        assertTrue(checker.isUserAuthorized(PID, List.of(VEILEDER)));
     }
 
     @Test
     void isUserAuthorized_returnsFalse_when_userIsNotMemberOfAuthorizedGroup() {
-        membership();
         skjermet(false);
-        assertFalse(checker.isUserAuthorized(PID, TOKEN));
+        assertFalse(checker.isUserAuthorized(PID, Collections.emptyList()));
     }
 
     @Test
     void isUserAuthorized_returnsFalse_when_skjermet_and_userIsNotMemberOfUtvidet() {
-        membership(VEILEDER);
         skjermet(true);
-        assertFalse(checker.isUserAuthorized(PID, TOKEN));
+        assertFalse(checker.isUserAuthorized(PID, List.of(VEILEDER)));
     }
 
     @Test
     void isUserAuthorized_returnsFalse_when_notSkjermet_and_userIsOnlyMemberOfUtvidet() {
-        membership(UTVIDET);
         skjermet(false);
-        assertFalse(checker.isUserAuthorized(PID, TOKEN));
+        assertFalse(checker.isUserAuthorized(PID, List.of(UTVIDET)));
     }
 
     @Test
     void isUserAuthorized_returnsFalse_when_skjermet_and_userIsOnlyMemberOfUtvidet() {
-        membership(UTVIDET);
         skjermet(true);
-        assertFalse(checker.isUserAuthorized(PID, TOKEN));
+        assertFalse(checker.isUserAuthorized(PID, List.of(UTVIDET)));
     }
 
     @Test
     void isUserAuthorized_returnsTrue_when_skjermet_and_userIsMemberOfUtvidet() {
-        membership(VEILEDER, UTVIDET);
         skjermet(true);
-        assertTrue(checker.isUserAuthorized(PID, TOKEN));
-    }
-
-    private void membership(AadGroup... groups) {
-        when(groupApi.checkMemberGroups(any(), eq(TOKEN))).thenReturn(asList(groups));
+        assertTrue(checker.isUserAuthorized(PID, List.of(VEILEDER, UTVIDET)));
     }
 
     private void skjermet(boolean value) {

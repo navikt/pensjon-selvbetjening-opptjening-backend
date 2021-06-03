@@ -7,6 +7,7 @@ import no.nav.pensjon.selvbetjeningopptjening.audit.CefEntry;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
+import no.nav.pensjon.selvbetjeningopptjening.security.group.AadGroup;
 import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieType;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.SplitCookieAssembler;
@@ -16,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,8 +25,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
+import static org.springframework.util.StringUtils.isEmpty;
 import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
 
 @RestController
@@ -56,16 +59,15 @@ public class OpptjeningOnBehalfEndpoint {
         try {
             String idToken = SplitCookieAssembler.getCookieValue(request, CookieType.INTERNAL_USER_ID_TOKEN);
 
-            if (StringUtils.isEmpty(idToken)) {
+            if (isEmpty(idToken)) {
                 LOG.info("No JWT in request");
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No JWT");
             }
 
             Jws<Claims> claims = jwsValidator.validate(idToken);
-            String accessToken = SplitCookieAssembler.getCookieValue(request, CookieType.INTERNAL_USER_ACCESS_TOKEN);
             var pid = new Pid(fnr, true);
 
-            if (!isUserAllowed(pid, accessToken)) {
+            if (!isUserAllowed(pid, claims)) {
                 return forbidden();
             }
 
@@ -83,8 +85,20 @@ public class OpptjeningOnBehalfEndpoint {
         }
     }
 
-    private boolean isUserAllowed(Pid pid, String accessToken) {
-        return groupChecker.isUserAuthorized(pid, accessToken);
+    private boolean isUserAllowed(Pid pid, Jws<Claims> claims) {
+        var groupIds = (List<?>) claims.getBody().get("groups");
+
+        if (groupIds == null) {
+            return false;
+        }
+
+        List<AadGroup> groups = groupIds
+                .stream()
+                .filter(id -> AadGroup.exists(id.toString()))
+                .map(id -> AadGroup.findById(id.toString()))
+                .collect(toList());
+
+        return groupChecker.isUserAuthorized(pid, groups);
     }
 
     private CefEntry getAuditInfo(String fnr, Jws<Claims> claims) {

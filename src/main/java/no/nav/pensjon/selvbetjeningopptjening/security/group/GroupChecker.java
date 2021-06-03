@@ -5,9 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static java.util.Objects.requireNonNull;
 import static no.nav.pensjon.selvbetjeningopptjening.security.group.AadGroup.*;
-import static no.nav.pensjon.selvbetjeningopptjening.util.ListUtil.listOf;
 
 @Component
 public class GroupChecker {
@@ -20,20 +18,16 @@ public class GroupChecker {
             SAKSBEHANDLER,
             VEILEDER);
 
-    private final GroupApi groupApi;
     private final SkjermingApi skjermingApi;
-    private final List<AadGroup> relevantGroups;
 
-    public GroupChecker(GroupApi groupApi, SkjermingApi skjermingApi) {
-        this.groupApi = requireNonNull(groupApi);
+    public GroupChecker(SkjermingApi skjermingApi) {
         this.skjermingApi = skjermingApi;
-        this.relevantGroups = listOf(AUTHORIZED_GROUPS, UTVIDET);
     }
 
-    public boolean isUserAuthorized(Pid pid, String accessToken) {
-        List<AadGroup> memberGroups = groupApi.checkMemberGroups(relevantGroups, accessToken);
-        boolean targetIsSkjermet = skjermingApi.isSkjermet(pid);
-        return targetIsSkjermet ? hasAccessToSkjermede(memberGroups) : hasNormalAccess(memberGroups);
+    public boolean isUserAuthorized(Pid pid, List<AadGroup> memberGroups) {
+        return skjermingApi.isSkjermet(pid)
+                ? hasAccessToSkjermede(memberGroups)
+                : hasNormalAccess(memberGroups);
     }
 
     private boolean hasNormalAccess(List<AadGroup> memberGroups) {
