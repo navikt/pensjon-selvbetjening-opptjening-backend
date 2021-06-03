@@ -34,12 +34,17 @@ spec:
       value: q2
     - name: AZURE_APP_REDIRECT_URI
       value: https://pensjon-selvbetjening-opptjening-frontend.dev.adeo.no/pensjon/opptjening/oauth2/internal/callback
+    - name: AUDIT_LOG_OUTPUT
+      value: SYSLOG
   envFrom:
     - configmap: loginservice-idporten
   azure:
     application:
       enabled: true
       tenant: nav.no
+      claims:
+        extra:
+          - NAVident
       replyURLs:
         - https://pensjon-selvbetjening-opptjening-frontend.dev.adeo.no/pensjon/opptjening/oauth2/internal/callback
         - http://localhost:8080/oauth2/internal/callback
