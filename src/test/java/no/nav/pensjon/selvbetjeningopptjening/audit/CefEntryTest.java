@@ -12,7 +12,7 @@ class CefEntryTest {
         var cefEntry = new CefEntry(
                 123456789L,
                 Level.INFO,
-                "audit:read",
+                "audit:access",
                 "Hendelse",
                 "Noe blir gjort",
                 "X123456",
@@ -20,7 +20,7 @@ class CefEntryTest {
 
         String formattedInfo = cefEntry.format();
 
-        assertEquals("CEF:0|pensjon-selvbetjening|pensjon-selvbetjening-opptjening|1.0|audit:read|Hendelse|" +
+        assertEquals("CEF:0|pensjon-selvbetjening|pensjon-selvbetjening-opptjening-backend|1.0|audit:access|Hendelse|" +
                 "INFO|end=123456789 suid=X123456 duid=01020345678 act=Noe blir gjort", formattedInfo);
     }
 }

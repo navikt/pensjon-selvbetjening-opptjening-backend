@@ -88,13 +88,16 @@ public class OpptjeningOnBehalfEndpoint {
     }
 
     private CefEntry getAuditInfo(String fnr, Jws<Claims> claims) {
+        var navIdent = (String) claims.getBody().get("NAVident");
+        LOG.info("NAV-ident: {}", navIdent == null ? "null" : navIdent.substring(0, 1) + "*****");
+
         return new CefEntry(
                 ZonedDateTime.now().toInstant().toEpochMilli(),
                 Level.INFO,
                 "audit:access",
                 "Datahenting paa vegne av",
                 "Internbruker henter pensjonsopptjeningsdata for innbygger",
-                (String) claims.getBody().get("NAVident"),
+                navIdent,
                 fnr);
     }
 

@@ -3,9 +3,6 @@ package no.nav.pensjon.selvbetjeningopptjening.audit;
 import org.slf4j.event.Level;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.joining;
 
 /**
  * CEF = ArcSight Common Event Format
@@ -17,7 +14,7 @@ public class CefEntry {
     private static final String PREAMBLE = "CEF:";
     private static final String SEPARATOR = "|";
     private static final String DEVICE_VENDOR = "pensjon-selvbetjening";
-    private static final String DEVICE_PRODUCT = "pensjon-selvbetjening-opptjening";
+    private static final String DEVICE_PRODUCT = "pensjon-selvbetjening-opptjening-backend";
     private static final String DEVICE_VERSION = "1.0";
     private final long timestamp;
     private final Level level;
