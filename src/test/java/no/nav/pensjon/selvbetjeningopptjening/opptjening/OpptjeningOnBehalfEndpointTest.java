@@ -1,5 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
 import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
@@ -10,6 +12,7 @@ import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
 import no.nav.pensjon.selvbetjeningopptjening.security.jwt.JwsValidator;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -42,12 +45,18 @@ class OpptjeningOnBehalfEndpointTest {
     @MockBean
     private GroupChecker groupChecker;
     @MockBean
-    private JwsValidator jwsValidator; // needed to satisfy dependency
+    private JwsValidator jwsValidator;
+    @MockBean
+    private Jws<Claims> jws;
+    @Mock
+    private Claims claims;
 
     @Test
     void getOpptjeningForFnr_returns_opptjeningJson_when_feature_enabled() throws Exception {
         when(provider.calculateOpptjeningForFnr(PID, LoginSecurityLevel.INTERNAL)).thenReturn(response());
         when(groupChecker.isUserAuthorized(eq(PID), anyString())).thenReturn(true);
+        when(jwsValidator.validate(anyString())).thenReturn(jws);
+        when(jws.getBody()).thenReturn(claims);
 
         mvc.perform(
                 get(URI)
