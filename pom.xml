@@ -22,7 +22,7 @@
         <graphviz-java.version>0.14.1</graphviz-java.version>
         <unleash-client-java.version>3.3.3</unleash-client-java.version>
         <spring-security.version>5.3.4.RELEASE</spring-security.version>
-        <okhttp3.version>4.0.1</okhttp3.version>
+        <okhttp3.version>4.9.1</okhttp3.version>
         <jjwt-version>0.11.2</jjwt-version>
     </properties>
 
