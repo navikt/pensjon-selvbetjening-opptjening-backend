@@ -20,7 +20,8 @@ class CefEntryTest {
 
         String formattedInfo = cefEntry.format();
 
-        assertEquals("CEF:0|pensjon-selvbetjening|pensjon-selvbetjening-opptjening-backend|1.0|audit:access|Hendelse|" +
-                "INFO|end=123456789 suid=X123456 duid=01020345678 act=Noe blir gjort", formattedInfo);
+        assertEquals("CEF:0|pensjon|pensjon-selvbetjening-opptjening-backend|1.0|audit:access|Hendelse|INFO" +
+                "|end=123456789 suid=X123456 duid=01020345678 msg=Noe blir gjort" +
+                " flexString1Label=Decision flexString1=Permit", formattedInfo);
     }
 }

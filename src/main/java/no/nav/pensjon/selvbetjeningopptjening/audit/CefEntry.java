@@ -13,14 +13,14 @@ public class CefEntry {
     private static final int CEF_VERSION = 0;
     private static final String PREAMBLE = "CEF:";
     private static final String SEPARATOR = "|";
-    private static final String DEVICE_VENDOR = "pensjon-selvbetjening";
+    private static final String DEVICE_VENDOR = "pensjon";
     private static final String DEVICE_PRODUCT = "pensjon-selvbetjening-opptjening-backend";
     private static final String DEVICE_VERSION = "1.0";
     private final long timestamp;
     private final Level level;
     private final String deviceEventClassId;
     private final String name;
-    private final String deviceAction;
+    private final String message;
     private final String sourceUserId;
     private final String destinationUserId;
 
@@ -28,14 +28,14 @@ public class CefEntry {
                     Level level,
                     String deviceEventClassId,
                     String name,
-                    String deviceAction,
+                    String message,
                     String sourceUserId,
                     String destinationUserId) {
         this.timestamp = timestamp;
         this.level = level;
         this.deviceEventClassId = deviceEventClassId;
         this.name = name;
-        this.deviceAction = deviceAction;
+        this.message = message;
         this.sourceUserId = sourceUserId;
         this.destinationUserId = destinationUserId;
     }
@@ -58,10 +58,16 @@ public class CefEntry {
         return level == Level.INFO ? "INFO" : "WARN";
     }
 
+    /**
+     * Note that it is recommended by #tech-logg_analyse_og_datainnsikt
+     * to use 'msg' rather than 'act', since the latter has max. length 63
+     */
     private String extension() {
         return "end=" + timestamp +
                 " suid=" + sourceUserId +
                 " duid=" + destinationUserId +
-                " act=" + deviceAction;
+                " msg=" + message +
+                " flexString1Label=Decision" +
+                " flexString1=Permit";
     }
 }
