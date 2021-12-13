@@ -1,36 +1,28 @@
 package no.nav.pensjon.selvbetjeningopptjening.config;
 
+import no.nav.pensjon.selvbetjeningopptjening.util.net.UriUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import reactor.netty.http.client.HttpClient;
-import reactor.netty.tcp.ProxyProvider;
-import reactor.netty.tcp.TcpClient;
+import reactor.netty.transport.ProxyProvider;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
-class WebClientProxyConfig {
+public class WebClientProxyConfig {
 
-    static ReactorClientHttpConnector getClientHttpConnector(String proxyUri) throws URISyntaxException {
-        URI uri = getValidUri(proxyUri);
+    private static final Logger log = LoggerFactory.getLogger(WebClientProxyConfig.class);
 
-        var httpClient = HttpClient.create()
-                .tcpConfiguration(c -> tcpClient(c, uri.getHost(), uri.getPort()));
+    public static ReactorClientHttpConnector clientHttpConnector(String proxyUri) throws URISyntaxException {
+        URI uri = UriUtil.uriFrom(proxyUri);
+        log.info("URI: Host: '{}'. Port: {}.", uri.getHost(), uri.getPort());
+
+        var httpClient = HttpClient
+                .create()
+                .proxy(p -> proxySpec(p, uri.getHost(), uri.getPort()));
 
         return new ReactorClientHttpConnector(httpClient);
-    }
-
-    private static URI getValidUri(String value) throws URISyntaxException {
-        var uri = new URI(value);
-
-        if (uri.getPort() < 0) {
-            throw new URISyntaxException(value, "No URI port specified");
-        }
-
-        return uri;
-    }
-
-    private static TcpClient tcpClient(TcpClient client, String proxyHost, int proxyPort) {
-        return client.proxy(p -> proxySpec(p, proxyHost, proxyPort));
     }
 
     @SuppressWarnings("UnusedReturnValue")

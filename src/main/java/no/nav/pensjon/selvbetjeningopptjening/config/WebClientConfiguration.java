@@ -11,8 +11,6 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 
-import java.net.URISyntaxException;
-
 @Configuration
 public class WebClientConfiguration {
 
@@ -35,17 +33,8 @@ public class WebClientConfiguration {
             @Value("${http.proxy.parametername}") String proxyParameterName,
             @Value("${http.proxy.uri}") String proxyUri) {
         log.info("WebClient proxy: Parameter: '{}'. URI: '{}'.", proxyParameterName, proxyUri);
-
-        if ("notinuse".equalsIgnoreCase(proxyParameterName)) {
-            return WebClient.create();
-        }
-
-        try {
-            return webClientWithProxySupport(proxyUri);
-        } catch (URISyntaxException e) {
-            log.warn("Proxy not used. Reason: Bad URI: '{}'. Message: '{}'.", proxyUri, e.getMessage());
-            return WebClient.create();
-        }
+        boolean requiresProxy = !"notinuse".equalsIgnoreCase(proxyParameterName);
+        return WebClientPreparer.webClient(requiresProxy, proxyUri);
     }
 
     @Bean
@@ -53,12 +42,6 @@ public class WebClientConfiguration {
     WebClient webClientWithEpochSupport() {
         return WebClient.builder()
                 .exchangeStrategies(JsonEpochExchangeStrategies.build())
-                .build();
-    }
-
-    private WebClient webClientWithProxySupport(String proxyUri) throws URISyntaxException {
-        return WebClient.builder()
-                .clientConnector(WebClientProxyConfig.getClientHttpConnector(proxyUri))
                 .build();
     }
 }
