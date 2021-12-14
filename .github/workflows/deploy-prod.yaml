@@ -20,4 +20,4 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-fss
           IMAGE: docker.pkg.github.com/${{ github.repository }}/pensjon-selvbetjening-opptjening-backend:${{ github.event.inputs.version }}
-          RESOURCE: nais/nais-prod.yml
+          RESOURCE: .nais/prod-fss.yml
