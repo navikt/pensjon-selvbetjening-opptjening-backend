@@ -14,7 +14,6 @@ import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -23,9 +22,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 
 import static java.util.stream.Collectors.joining;
@@ -92,8 +88,6 @@ public class PdlConsumer implements Pingable {
                     .block();
         } catch (IOException e) {
             return handleIoError(e);
-        } catch (JSONException e) {
-            return handleJsonError(e);
         } catch (StsException e) {
             return handleStsError(e);
         } catch (WebClientResponseException e) {
@@ -130,12 +124,6 @@ public class PdlConsumer implements Pingable {
 
     private String consumerToken() throws StsException {
         return AUTH_TYPE + " " + getServiceUserAccessToken();
-    }
-
-    private PdlResponse handleJsonError(JSONException e) {
-        String cause = "Failed deserializing JSON response";
-        log.error(CONSUMED_SERVICE + " error: " + cause, e);
-        throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, cause);
     }
 
     private PdlResponse handleIoError(IOException e) {
@@ -183,7 +171,7 @@ public class PdlConsumer implements Pingable {
         PdlError error = errors.get(0);
         PdlErrorExtension extensions = error.getExtensions();
 
-        if (extensions == null || StringUtils.isEmpty(extensions.getCode())) {
+        if (extensions == null || !StringUtils.hasText(extensions.getCode())) {
             return;
         }
 

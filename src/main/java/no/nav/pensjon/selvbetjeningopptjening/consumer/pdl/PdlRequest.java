@@ -1,10 +1,8 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.json.JSONObject;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.IOException;
@@ -13,26 +11,27 @@ import java.nio.charset.StandardCharsets;
 
 class PdlRequest {
 
-    static String getPersonQuery(Pid pid) throws JSONException, IOException {
+    private static final String QUERY_TEMPLATE_PATH = "pdl/person.graphql";
+
+    static String getPersonQuery(Pid pid) throws IOException {
         var variables = new JSONObject();
         variables.put("ident", pid.getPid());
 
         return new JSONObject()
-                .put("query", getQuery("person"))
+                .put("query", getQuery())
                 .put("variables", variables)
                 .toString();
     }
 
-    private static String getQuery(String filename) throws IOException {
-        String path = "pdl/" + filename + ".graphql";
-        String query;
-        Resource resource = new ClassPathResource(path);
+    private static String getQuery() throws IOException {
+        var resource = new ClassPathResource(QUERY_TEMPLATE_PATH);
 
         try (InputStream inputStream = resource.getInputStream()) {
-            byte[] bdata = FileCopyUtils.copyToByteArray(inputStream);
-            query = new String(bdata, StandardCharsets.UTF_8);
-        }
+            byte[] bytes = FileCopyUtils.copyToByteArray(inputStream);
 
-        return query.replace("\r", "").replace("\n", "");
+            return new String(bytes, StandardCharsets.UTF_8)
+                    .replace("\r", "")
+                    .replace("\n", "");
+        }
     }
 }

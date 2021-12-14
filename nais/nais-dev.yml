@@ -36,6 +36,8 @@ spec:
       value: https://pensjon-selvbetjening-opptjening-frontend.dev.adeo.no/pensjon/opptjening/oauth2/internal/callback
     - name: AUDIT_LOG_OUTPUT
       value: SYSLOG
+    - name: STDOUT_LOG_OUTPUT
+      value: CONSOLE
   envFrom:
     - configmap: loginservice-idporten
   azure:
