@@ -10,7 +10,7 @@
     </parent>
     <groupId>no.nav.pensjon</groupId>
     <artifactId>selvbetjening-opptjening</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
     <name>selvbetjening-opptjening</name>
     <description>Backend for pensjon selvbetjening opptjening</description>
 
@@ -23,7 +23,7 @@
         <unleash-client-java.version>3.3.3</unleash-client-java.version>
         <spring-security.version>5.3.10.RELEASE</spring-security.version>
         <jjwt-version>0.11.2</jjwt-version>
-        <log4j2.version>2.15.0</log4j2.version>
+        <log4j2.version>2.17.0</log4j2.version>
         <okhttp3.version>4.9.1</okhttp3.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
