@@ -19,6 +19,13 @@ spec:
     failureThreshold: 5
   ingresses:
     - https://pensjon-selvbetjening-opptjening-backend.nais.preprod.local
+    - https://pensjon-selvbetjening-opptjening-backend.dev.intern.nav.no
+    - https://pensjon-selvbetjening-opptjening-backend.dev-fss-pub.nais.io
+  accessPolicy:
+    inbound:
+      rules:
+        - application: pensjon-selvbetjening-opptjening-frontend
+          cluster: dev-gcp
   readiness:
     path: "/api/internal/isReady"
   env:
