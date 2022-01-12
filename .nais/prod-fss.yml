@@ -20,6 +20,13 @@ spec:
   ingresses:
     - https://pensjon-selvbetjening-opptjening-backend.adeo.no
     - https://pensjon-selvbetjening-opptjening-backend.nais.adeo.no
+    - https://pensjon-selvbetjening-opptjening-backend.intern.nav.no
+    - https://pensjon-selvbetjening-opptjening-backend.prod-fss-pub.nais.io
+  accessPolicy:
+    inbound:
+      rules:
+        - application: pensjon-selvbetjening-opptjening-frontend
+          cluster: prod-gcp
   readiness:
     path: "/api/internal/isReady"
     initialDelay: 3
