@@ -51,7 +51,7 @@ spec:
     - name: APP_ENVIRONMENT
       value: p
     - name: AZURE_APP_REDIRECT_URI
-      value: https://pensjon-selvbetjening-opptjening-frontend.intern.nav.no/pensjon/opptjening/oauth2/internal/callback
+      value: https://pensjon-selvbetjening-opptjening-frontend.nais.adeo.no/pensjon/opptjening/oauth2/internal/callback
     - name: AUDIT_LOG_OUTPUT
       value: SYSLOG
     - name: STDOUT_LOG_OUTPUT
@@ -72,6 +72,7 @@ spec:
         extra:
           - NAVident
       replyURLs:
+        - https://pensjon-selvbetjening-opptjening-frontend.nais.adeo.no/pensjon/opptjening/oauth2/internal/callback
         - https://pensjon-selvbetjening-opptjening-frontend.intern.nav.no/pensjon/opptjening/oauth2/internal/callback
   webproxy: true
   prometheus:
