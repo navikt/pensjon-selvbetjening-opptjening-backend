@@ -1,6 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.logging;
 
 import no.nav.security.token.support.core.api.Unprotected;
+import no.nav.pensjon.selvbetjeningopptjening.logging.LogMessage;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
