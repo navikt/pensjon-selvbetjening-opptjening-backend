@@ -8,6 +8,7 @@ import no.finn.unleash.repository.ToggleFetcher;
 
 public class UnleashBean implements UnleashConsumerService {
 
+    private static final String PATH = "/api";
     private Unleash unleash;
     private ToggleFetcher toggleFetcher;
     private String endpointUrl;
@@ -17,9 +18,9 @@ public class UnleashBean implements UnleashConsumerService {
         return unleash.isEnabled(feature);
     }
 
-    @Value(value = "${unleash.endpoint.url}")
-    public void setEndpointUrl(String endpointUrl) {
-        this.endpointUrl = endpointUrl;
+    @Value(value = "${unleash.url}")
+    public void setEndpointUrl(String baseUrl) {
+        this.endpointUrl = baseUrl + PATH;
     }
 
     @Autowired

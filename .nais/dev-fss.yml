@@ -33,10 +33,18 @@ spec:
       value: selvbetjening-idtoken
     - name: HTTP_PROXY_PARAMETERNAME
       value: "http.proxy"
-    - name: SKJERMING_ENDPOINT_URL
-      value: https://skjermede-personer-pip.dev.adeo.no/
-    - name: UNLEASH_ENDPOINT_URL
-      value: https://unleash.nais.io/api
+    - name: PDL_URL
+      value: https://pdl-api.dev-fss.nais.io
+    - name: PEN_URL
+      value: https://pensjon-pen-q2.dev.adeo.no
+    - name: POPP_URL
+      value: https://pensjon-popp-q2.dev.adeo.no
+    - name: SKJERMING_URL
+      value: https://skjermede-personer-pip.dev.adeo.no
+    - name: STS_URL
+      value: https://security-token-service.dev.adeo.no
+    - name: UNLEASH_URL
+      value: https://unleash.nais.io
     - name: APP_ENVIRONMENT
       value: q2
     - name: AZURE_APP_REDIRECT_URI

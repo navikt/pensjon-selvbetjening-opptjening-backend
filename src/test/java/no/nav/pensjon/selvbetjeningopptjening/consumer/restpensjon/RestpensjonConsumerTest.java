@@ -1,6 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon;
 
-import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Restpensjon;
@@ -14,10 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDateTime;
@@ -57,8 +53,8 @@ class RestpensjonConsumerTest extends WebClientTest {
         assertEquals("GET", request.getMethod());
         assertEquals("Bearer token", request.getHeader(HttpHeaders.AUTHORIZATION));
         List<String> segments = requestUrl.pathSegments();
-        assertEquals("restpensjon", segments.get(0));
-        assertEquals("fnr", segments.get(1));
+        assertEquals("restpensjon", segments.get(2));
+        assertEquals("fnr", segments.get(3));
         assertEquals("false", requestUrl.queryParameter("hentSiste"));
         assertEquals(0, restpensjoner.size());
     }
@@ -75,16 +71,17 @@ class RestpensjonConsumerTest extends WebClientTest {
         assertEquals("GET", request.getMethod());
         assertEquals("Bearer token", request.getHeader(HttpHeaders.AUTHORIZATION));
         List<String> segments = requestUrl.pathSegments();
-        assertEquals("restpensjon", segments.get(0));
-        assertEquals("ping", segments.get(1));
+        assertEquals("restpensjon", segments.get(2));
+        assertEquals("ping", segments.get(3));
     }
 
     private static MockResponse restpensjonResponse() {
         // Actual response from POPP
         return jsonResponse()
-                .setBody("{\n" +
-                        "    \"restpensjoner\": []\n" +
-                        "}");
+                .setBody("""
+                        {
+                            "restpensjoner": []
+                        }""");
     }
 
     private static MockResponse pingResponse() {

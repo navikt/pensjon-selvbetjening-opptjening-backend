@@ -25,18 +25,20 @@ import no.nav.pensjon.selvbetjeningopptjening.unleash.strategies.IsNotProdStrate
 @Configuration
 public class UnleashEndpointConfig {
 
-    @Value("${unleash.endpoint.url}")
-    private String endpoint;
+    private static final String PATH = "/api";
+
+    @Value("${unleash.url}")
+    private String baseUrl;
     @Value("${unleash.toggle.interval}")
     private String togglesInterval;
 
     @Bean
     public UnleashConfig unleashConfig() {
         String envName = getProperty("environment.name");
-        String environmentName = null != envName ? envName : "local";
+        String environmentName = envName == null ? "local" : envName;
         String instanceId = getProperty("instance.id");
 
-        if (null == instanceId) {
+        if (instanceId == null) {
             instanceId = "local";
         }
 
@@ -45,15 +47,22 @@ public class UnleashEndpointConfig {
                 .environment(environmentName)
                 .instanceId(instanceId)
                 .fetchTogglesInterval(parseLong(togglesInterval))
-                .unleashAPI(endpoint)
+                .unleashAPI(baseUrl + PATH)
                 .build();
     }
 
     @Bean
     @Autowired
     public Unleash defaultUnleash(UnleashConfig unleashConfig) {
-        Strategy[] strategies = {new IsNotProdStrategy(), new ByEnvironmentStrategy(), new ByInstanceIdStrategy(), new ByUserIdStrategy(), new ByProfileStrategy()};
-        DefaultUnleash unleash = new DefaultUnleash(unleashConfig, strategies);
+        Strategy[] strategies = {
+                new IsNotProdStrategy(),
+                new ByEnvironmentStrategy(),
+                new ByInstanceIdStrategy(),
+                new ByUserIdStrategy(),
+                new ByProfileStrategy()
+        };
+
+        var unleash = new DefaultUnleash(unleashConfig, strategies);
         UnleashProvider.initialize(unleash);
         return unleash;
     }

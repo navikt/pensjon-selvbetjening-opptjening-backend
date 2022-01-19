@@ -7,8 +7,8 @@ import no.nav.pensjon.selvbetjeningopptjening.model.OpptjeningsGrunnlagDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Inntekt;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.InntektMapper;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
@@ -25,18 +25,19 @@ import static no.nav.pensjon.selvbetjeningopptjening.consumer.PoppUtil.handle;
 public class OpptjeningsgrunnlagConsumer implements Pingable {
 
     private static final String CONSUMED_SERVICE = "PROPOPP007 hentOpptjeningsgrunnlag";
-    private static final String ENDPOINT_PATH = "/opptjeningsgrunnlag/";
+    private static final String PATH = "/popp/api";
+    private static final String SUB_PATH = "/opptjeningsgrunnlag/";
     private static final String AUTH_TYPE = "Bearer";
-    private final Log log = LogFactory.getLog(getClass());
-    private final String endpoint;
+    private static final Logger log = LoggerFactory.getLogger(OpptjeningsgrunnlagConsumer.class);
+    private final String url;
     private final WebClient webClient;
     private final ServiceTokenGetter tokenGetter;
 
-    public OpptjeningsgrunnlagConsumer(@Value("${popp.endpoint.url}") String endpoint,
+    public OpptjeningsgrunnlagConsumer(@Value("${popp.url}") String baseUrl,
                                        ServiceTokenGetter tokenGetter) {
         this.webClient = WebClient.create();
-        this.endpoint = requireNonNull(endpoint);
-        this.tokenGetter = requireNonNull(tokenGetter);
+        this.url = requireNonNull(baseUrl, "baseUrl") + PATH;
+        this.tokenGetter = requireNonNull(tokenGetter, "tokenGetter");
     }
 
     public List<Inntekt> getInntektListeFromOpptjeningsgrunnlag(String fnr, Integer fomAr, Integer tomAr) {
@@ -86,8 +87,8 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
     }
 
     private String opptjeningUri(String fnr, Integer fomAr, Integer tomAr) {
-        var builder = UriComponentsBuilder.fromHttpUrl(endpoint)
-                .path(ENDPOINT_PATH + fnr);
+        var builder = UriComponentsBuilder.fromHttpUrl(url)
+                .path(SUB_PATH + fnr);
 
         if (fomAr != null) {
             builder.queryParam("fomAr", Integer.toString(fomAr));
@@ -101,8 +102,8 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
     }
 
     private String pingUri() {
-        return UriComponentsBuilder.fromHttpUrl(endpoint)
-                .path(ENDPOINT_PATH + "ping")
+        return UriComponentsBuilder.fromHttpUrl(url)
+                .path(SUB_PATH + "ping")
                 .toUriString();
     }
 

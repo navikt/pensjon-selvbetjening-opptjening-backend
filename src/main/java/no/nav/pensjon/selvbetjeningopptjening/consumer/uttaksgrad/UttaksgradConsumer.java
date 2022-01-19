@@ -8,8 +8,8 @@ import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uttaksgrad;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.UttaksgradMapper;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -27,23 +27,23 @@ import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.PEN;
 @Component
 public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
 
+    private static final String PATH = "/pen/api/";
     private static final String UTTAKSGRAD_SERVICE = "PROPEN3000 getUttaksgradForVedtak";
     private static final String UTTAKSGRAD_HISTORIKK_SERVICE = "PROPEN3001 getAlderSakUttaksgradhistorikkForPerson";
     private static final String PING_SERVICE = "PEN uttaksgrad ping";
     private static final String ENDPOINT_PATH = "/uttaksgrad";
     private static final String AUTH_TYPE = "Bearer";
-    private final Log log = LogFactory.getLog(getClass());
-    private final String endpoint;
+    private static final Logger log = LoggerFactory.getLogger(UttaksgradConsumer.class);
+    private final String url;
     private final WebClient webClient;
     private final ServiceTokenGetter tokenGetter;
 
-
     public UttaksgradConsumer(@Qualifier("epoch-support") WebClient webClient,
-                              @Value("${pen.endpoint.url}") String endpoint,
+                              @Value("${pen.url}") String baseUrl,
                               ServiceTokenGetter tokenGetter) {
-        this.webClient = requireNonNull(webClient);
-        this.endpoint = endpoint;
-        this.tokenGetter = requireNonNull(tokenGetter);
+        this.webClient = requireNonNull(webClient, "webClient");
+        this.url = requireNonNull(baseUrl, "baseUrl") + PATH;
+        this.tokenGetter = requireNonNull(tokenGetter, "tokenGetter");
     }
 
     @Override
@@ -51,7 +51,7 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
         try {
             var response = webClient
                     .get()
-                    .uri(buildUrl(endpoint, vedtakIds))
+                    .uri(buildUrl(url, vedtakIds))
                     .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue())
                     .retrieve()
                     .bodyToMono(UttaksgradListResponse.class)
@@ -73,7 +73,7 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
         try {
             var response = webClient
                     .get()
-                    .uri(endpoint + ENDPOINT_PATH + "/person?sakType=ALDER")
+                    .uri(url + ENDPOINT_PATH + "/person?sakType=ALDER")
                     .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue())
                     .header(PersonHttpHeaders.PID, fnr)
                     .retrieve()
@@ -117,7 +117,7 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
     }
 
     private String pingUri() {
-        return UriComponentsBuilder.fromHttpUrl(endpoint).path(ENDPOINT_PATH + "/ping").toUriString();
+        return UriComponentsBuilder.fromHttpUrl(url).path(ENDPOINT_PATH + "/ping").toUriString();
     }
 
     private String getAuthHeaderValue() throws StsException {

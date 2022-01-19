@@ -97,7 +97,7 @@ class StsConsumerTest {
         var exception = assertThrows(StsException.class, () -> tokenGetter.getServiceUserToken());
 
         assertEquals(String.format("Failed to acquire service user token." +
-                " Message: 401 Unauthorized from GET %s?grant_type=client_credentials&scope=openid." +
+                " Message: 401 Unauthorized from GET %s/rest/v1/sts/token?grant_type=client_credentials&scope=openid." +
                 " Response: %s.", baseUrl, unauthorizedMessage()),
                 exception.getMessage());
         assertTrue(exception.getCause() instanceof WebClientResponseException);
@@ -110,11 +110,12 @@ class StsConsumerTest {
     private static MockResponse tokenResponse() {
         return new MockResponse()
                 .addHeader("Content-Type", "application/json")
-                .setBody("{\n" +
-                        "  \"access_token\": \"access-token\",\n" +
-                        "  \"token_type\": \"Bearer\",\n" +
-                        "  \"expires_in\": 3600\n" +
-                        "}");
+                .setBody("""
+                        {
+                          "access_token": "access-token",
+                          "token_type": "Bearer",
+                          "expires_in": 3600
+                        }""");
     }
 
     private static MockResponse missingAuthResponse() {
@@ -126,9 +127,10 @@ class StsConsumerTest {
 
     private static String unauthorizedMessage() {
         // Actual response from STS
-        return "{\n" +
-                "    \"error\": \"invalid_client\",\n" +
-                "    \"error_description\": \"Unauthorised: Full authentication is required to access this resource\"\n" +
-                "}";
+        return """
+                {
+                    "error": "invalid_client",
+                    "error_description": "Unauthorised: Full authentication is required to access this resource"
+                }""";
     }
 }

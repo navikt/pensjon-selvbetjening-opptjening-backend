@@ -2,8 +2,8 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.skjerming;
 
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 import no.nav.pensjon.selvbetjeningopptjening.security.group.SkjermingApi;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -15,15 +15,15 @@ import static java.util.Objects.requireNonNull;
 @Component
 public class SkjermingConsumer implements SkjermingApi {
 
-    private static final String SKJERMET_ENDPOINT = "skjermet?personident=";
+    private static final String PATH = "/skjermet?personident=";
     private static final boolean DEFAULT_IS_SKJERMET = true;
+    private static final Logger log = LoggerFactory.getLogger(SkjermingConsumer.class);
     private final WebClient webClient;
-    private final String baseUrl;
-    private final Log log = LogFactory.getLog(getClass());
+    private final String url;
 
-    public SkjermingConsumer(@Value("${skjerming.endpoint.url}") String baseUrl) {
+    public SkjermingConsumer(@Value("${skjerming.url}") String baseUrl) {
         this.webClient = WebClient.create();
-        this.baseUrl = requireNonNull(baseUrl);
+        this.url = requireNonNull(baseUrl, "baseUrl") + PATH;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class SkjermingConsumer implements SkjermingApi {
         try {
             Boolean isSkjermet = webClient
                     .get()
-                    .uri(baseUrl + SKJERMET_ENDPOINT + pid.getPid())
+                    .uri(url + pid.getPid())
                     .retrieve()
                     .bodyToMono(Boolean.class)
                     .block();

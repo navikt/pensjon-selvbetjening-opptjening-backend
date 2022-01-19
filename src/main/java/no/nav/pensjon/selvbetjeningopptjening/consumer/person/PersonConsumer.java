@@ -23,22 +23,23 @@ import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.PEN;
 @Component
 public class PersonConsumer extends AuthorizedPenConsumer implements Pingable {
 
-    private static final String ENDPOINT_PATH = "person";
-    private static final String SERVICE_DESCRIPTION = PEN + " " + ENDPOINT_PATH;
+    private static final String PATH = "/pen/api/";
+    private static final String PERSON_RESOURCE = "person";
+    private static final String SERVICE_DESCRIPTION = PEN + " " + PERSON_RESOURCE;
     private static final String AFP_HISTORIKK_SERVICE = "PROPEN2602 getAfphistorikkForPerson";
     private static final String UFORE_HISTORIKK_SERVICE = "PROPEN2603 getUforehistorikkForPerson";
     private static final String AFP_HISTORIKK_RESOURCE = "afphistorikk";
     private static final String UFORE_HISTORIKK_RESOURCE = "uforehistorikk";
     private static final String PING_RESOURCE = "ping";
     private final WebClient webClient;
-    private final String endpoint;
+    private final String url;
 
     public PersonConsumer(@Qualifier("epoch-support") WebClient webClient,
-                          @Value("${pen.endpoint.url}") String endpoint,
+                          @Value("${pen.url}") String baseUrl,
                           ServiceTokenGetter tokenGetter) {
         super(tokenGetter);
-        this.webClient = requireNonNull(webClient);
-        this.endpoint = requireNonNull(endpoint);
+        this.webClient = requireNonNull(webClient, "webClient");
+        this.url = requireNonNull(baseUrl, "baseUrl") + PATH;
     }
 
     public AfpHistorikk getAfpHistorikkForPerson(String fnr) {
@@ -108,8 +109,8 @@ public class PersonConsumer extends AuthorizedPenConsumer implements Pingable {
     }
 
     private String path(String end) {
-        return UriComponentsBuilder.fromHttpUrl(endpoint)
-                .pathSegment(ENDPOINT_PATH, end)
+        return UriComponentsBuilder.fromHttpUrl(url)
+                .pathSegment(PERSON_RESOURCE, end)
                 .toUriString();
     }
 }

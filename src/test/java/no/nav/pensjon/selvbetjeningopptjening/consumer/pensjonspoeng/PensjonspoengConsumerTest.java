@@ -53,8 +53,8 @@ class PensjonspoengConsumerTest extends WebClientTest {
         assertEquals("GET", request.getMethod());
         assertEquals("Bearer token", request.getHeader(HttpHeaders.AUTHORIZATION));
         List<String> segments = requestUrl.pathSegments();
-        assertEquals("pensjonspoeng", segments.get(0));
-        assertEquals("fnr", segments.get(1));
+        assertEquals("pensjonspoeng", segments.get(2));
+        assertEquals("fnr", segments.get(3));
         assertEquals(2, pensjonspoengList.size());
         Pensjonspoeng pensjonspoeng = pensjonspoengList.get(0);
         assertEquals(2018, pensjonspoeng.getYear());
@@ -81,85 +81,86 @@ class PensjonspoengConsumerTest extends WebClientTest {
         assertEquals("GET", request.getMethod());
         assertEquals("Bearer token", request.getHeader(HttpHeaders.AUTHORIZATION));
         List<String> segments = requestUrl.pathSegments();
-        assertEquals("pensjonspoeng", segments.get(0));
-        assertEquals("ping", segments.get(1));
+        assertEquals("pensjonspoeng", segments.get(2));
+        assertEquals("ping", segments.get(3));
     }
 
     private static MockResponse pensjonspoengResponse() {
         // Based on actual response from POPP
         return jsonResponse()
-                .setBody("{\n" +
-                        "    \"pensjonspoeng\": [\n" +
-                        "        {\n" +
-                        "            \"pensjonspoengId\": 543589853,\n" +
-                        "            \"changeStamp\": {\n" +
-                        "                \"createdBy\": \"srvpensjon\",\n" +
-                        "                \"createdDate\": 1592309780836,\n" +
-                        "                \"updatedBy\": \"srvpensjon\",\n" +
-                        "                \"updatedDate\": 1592309780836\n" +
-                        "            },\n" +
-                        "            \"fnr\": \"23115225588\",\n" +
-                        "            \"fnrOmsorgFor\": null,\n" +
-                        "            \"kilde\": \"PEN\",\n" +
-                        "            \"pensjonspoengType\": \"PPI\",\n" +
-                        "            \"inntekt\": {\n" +
-                        "                \"changeStamp\": {\n" +
-                        "                    \"createdBy\": \"srvpensjon\",\n" +
-                        "                    \"createdDate\": 1592309780718,\n" +
-                        "                    \"updatedBy\": \"srvpensjon\",\n" +
-                        "                    \"updatedDate\": 1592309780839\n" +
-                        "                },\n" +
-                        "                \"inntektId\": 585516176,\n" +
-                        "                \"fnr\": \"23115225588\",\n" +
-                        "                \"inntektAr\": 2018,\n" +
-                        "                \"kilde\": \"POPP\",\n" +
-                        "                \"kommune\": null,\n" +
-                        "                \"piMerke\": null,\n" +
-                        "                \"inntektType\": \"SUM_PI\",\n" +
-                        "                \"belop\": 431713\n" +
-                        "            },\n" +
-                        "            \"omsorg\": null,\n" +
-                        "            \"ar\": 2018,\n" +
-                        "            \"anvendtPi\": 431713,\n" +
-                        "            \"poeng\": 3.51,\n" +
-                        "            \"maxUforegrad\": null\n" +
-                        "        },\n" +
-                        "        {\n" +
-                        "            \"pensjonspoengId\": 543589757,\n" +
-                        "            \"changeStamp\": {\n" +
-                        "                \"createdBy\": \"srvpensjon\",\n" +
-                        "                \"createdDate\": 1592309877037,\n" +
-                        "                \"updatedBy\": \"srvpensjon\",\n" +
-                        "                \"updatedDate\": 1592309877037\n" +
-                        "            },\n" +
-                        "            \"fnr\": \"23115225588\",\n" +
-                        "            \"fnrOmsorgFor\": null,\n" +
-                        "            \"kilde\": \"PEN\",\n" +
-                        "            \"pensjonspoengType\": \"PPI\",\n" +
-                        "            \"inntekt\": {\n" +
-                        "                \"changeStamp\": {\n" +
-                        "                    \"createdBy\": \"srvpensjon\",\n" +
-                        "                    \"createdDate\": 1592309876937,\n" +
-                        "                    \"updatedBy\": \"srvpensjon\",\n" +
-                        "                    \"updatedDate\": 1592309877041\n" +
-                        "                },\n" +
-                        "                \"inntektId\": 585516080,\n" +
-                        "                \"fnr\": \"23115225588\",\n" +
-                        "                \"inntektAr\": 2009,\n" +
-                        "                \"kilde\": \"POPP\",\n" +
-                        "                \"kommune\": null,\n" +
-                        "                \"piMerke\": null,\n" +
-                        "                \"inntektType\": \"SUM_PI\",\n" +
-                        "                \"belop\": 288434\n" +
-                        "            },\n" +
-                        "            \"omsorg\": null,\n" +
-                        "            \"ar\": 2009,\n" +
-                        "            \"anvendtPi\": 288434,\n" +
-                        "            \"poeng\": 3.01,\n" +
-                        "            \"maxUforegrad\": null\n" +
-                        "        }\n" +
-                        "    ]\n" +
-                        "}");
+                .setBody("""
+                        {
+                            "pensjonspoeng": [
+                                {
+                                    "pensjonspoengId": 543589853,
+                                    "changeStamp": {
+                                        "createdBy": "srvpensjon",
+                                        "createdDate": 1592309780836,
+                                        "updatedBy": "srvpensjon",
+                                        "updatedDate": 1592309780836
+                                    },
+                                    "fnr": "23115225588",
+                                    "fnrOmsorgFor": null,
+                                    "kilde": "PEN",
+                                    "pensjonspoengType": "PPI",
+                                    "inntekt": {
+                                        "changeStamp": {
+                                            "createdBy": "srvpensjon",
+                                            "createdDate": 1592309780718,
+                                            "updatedBy": "srvpensjon",
+                                            "updatedDate": 1592309780839
+                                        },
+                                        "inntektId": 585516176,
+                                        "fnr": "23115225588",
+                                        "inntektAr": 2018,
+                                        "kilde": "POPP",
+                                        "kommune": null,
+                                        "piMerke": null,
+                                        "inntektType": "SUM_PI",
+                                        "belop": 431713
+                                    },
+                                    "omsorg": null,
+                                    "ar": 2018,
+                                    "anvendtPi": 431713,
+                                    "poeng": 3.51,
+                                    "maxUforegrad": null
+                                },
+                                {
+                                    "pensjonspoengId": 543589757,
+                                    "changeStamp": {
+                                        "createdBy": "srvpensjon",
+                                        "createdDate": 1592309877037,
+                                        "updatedBy": "srvpensjon",
+                                        "updatedDate": 1592309877037
+                                    },
+                                    "fnr": "23115225588",
+                                    "fnrOmsorgFor": null,
+                                    "kilde": "PEN",
+                                    "pensjonspoengType": "PPI",
+                                    "inntekt": {
+                                        "changeStamp": {
+                                            "createdBy": "srvpensjon",
+                                            "createdDate": 1592309876937,
+                                            "updatedBy": "srvpensjon",
+                                            "updatedDate": 1592309877041
+                                        },
+                                        "inntektId": 585516080,
+                                        "fnr": "23115225588",
+                                        "inntektAr": 2009,
+                                        "kilde": "POPP",
+                                        "kommune": null,
+                                        "piMerke": null,
+                                        "inntektType": "SUM_PI",
+                                        "belop": 288434
+                                    },
+                                    "omsorg": null,
+                                    "ar": 2009,
+                                    "anvendtPi": 288434,
+                                    "poeng": 3.01,
+                                    "maxUforegrad": null
+                                }
+                            ]
+                        }""");
     }
 
     private static MockResponse pingResponse() {

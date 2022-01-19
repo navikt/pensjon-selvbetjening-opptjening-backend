@@ -11,8 +11,8 @@ import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,6 +24,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import java.io.IOException;
 import java.util.List;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.mapping.PersonMapper.fromDto;
 
@@ -31,22 +32,23 @@ import static no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.mapping.Person
 public class PdlConsumer implements Pingable {
 
     private static final String CONSUMED_SERVICE = "PDL";
+    private static final String PATH = "/graphql";
     private static final String TOKEN_ISSUER = "selvbetjening";
     private static final String AUTH_TYPE = "Bearer";
     private static final String THEME = "PEN";
-    private final Log log = LogFactory.getLog(getClass());
+    private static final Logger log = LoggerFactory.getLogger(PdlConsumer.class);
     private final TokenValidationContextHolder context;
     private final ServiceTokenGetter serviceUserTokenGetter;
     private final WebClient webClient;
-    private final String endpoint;
+    private final String url;
 
-    public PdlConsumer(@Value("${pdl.endpoint.url}") String endpoint,
+    public PdlConsumer(@Value("${pdl.url}") String baseUrl,
                        TokenValidationContextHolder context,
                        ServiceTokenGetter serviceUserTokenGetter) {
-        this.context = context;
-        this.endpoint = endpoint;
-        this.serviceUserTokenGetter = serviceUserTokenGetter;
-        this.webClient = pdlWebClient(endpoint);
+        this.context = requireNonNull(context, "context");
+        this.url = requireNonNull(baseUrl, "baseUrl") + PATH;
+        this.serviceUserTokenGetter = requireNonNull(serviceUserTokenGetter, "serviceUserTokenGetter");
+        this.webClient = pdlWebClient();
     }
 
     public Person getPerson(Pid pid, LoginSecurityLevel securityLevel) throws PdlException {
@@ -73,7 +75,7 @@ public class PdlConsumer implements Pingable {
 
     @Override
     public PingInfo getPingInfo() {
-        return new PingInfo("REST", CONSUMED_SERVICE, endpoint);
+        return new PingInfo("REST", CONSUMED_SERVICE, url);
     }
 
     private PdlResponse getPersonResponse(Pid pid, LoginSecurityLevel securityLevel) {
@@ -105,10 +107,10 @@ public class PdlConsumer implements Pingable {
                         : getUserAccessToken());
     }
 
-    private static WebClient pdlWebClient(String endpoint) {
+    private WebClient pdlWebClient() {
         return WebClient
                 .builder()
-                .baseUrl(endpoint)
+                .baseUrl(url)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader(PdlHttpHeaders.THEME, THEME)
                 .build();

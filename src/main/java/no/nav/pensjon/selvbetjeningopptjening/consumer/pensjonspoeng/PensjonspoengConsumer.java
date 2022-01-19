@@ -6,8 +6,8 @@ import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pensjonspoeng;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.PensjonspoengMapper;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -26,21 +26,22 @@ public class PensjonspoengConsumer implements Pingable {
 
     private static final String SYSTEM = "POPP";
     private static final String CONSUMED_SERVICE = "PROPOPP019 hentPensjonspoengListe";
+    private static final String PATH = "/popp/api";
     private static final String RESOURCE = "pensjonspoeng";
     private static final String PING_ACTION = "ping";
     private static final String PING_SERVICE = SYSTEM + " " + RESOURCE + " " + PING_ACTION;
     private static final String AUTH_TYPE = "Bearer";
-    private final Log log = LogFactory.getLog(getClass());
-    private final String endpoint;
+    private static final Logger log = LoggerFactory.getLogger(PensjonspoengConsumer.class);
+    private final String url;
     private final WebClient webClient;
     private final ServiceTokenGetter tokenGetter;
 
     public PensjonspoengConsumer(@Qualifier("epoch-support") WebClient webClient,
-                                 @Value("${popp.endpoint.url}") String endpoint,
+                                 @Value("${popp.url}") String baseUrl,
                                  ServiceTokenGetter tokenGetter) {
-        this.webClient = requireNonNull(webClient);
-        this.endpoint = requireNonNull(endpoint);
-        this.tokenGetter = requireNonNull(tokenGetter);
+        this.webClient = requireNonNull(webClient, "webClient");
+        this.url = requireNonNull(baseUrl, "baseUrl") + PATH;
+        this.tokenGetter = requireNonNull(tokenGetter, "tokenGetter");
     }
 
     public List<Pensjonspoeng> getPensjonspoengListe(String fnr) {
@@ -90,13 +91,13 @@ public class PensjonspoengConsumer implements Pingable {
     }
 
     private String buildUrl(String fnr) {
-        return UriComponentsBuilder.fromHttpUrl(endpoint)
+        return UriComponentsBuilder.fromHttpUrl(url)
                 .pathSegment(RESOURCE, fnr)
                 .toUriString();
     }
 
     private String pingUri() {
-        return UriComponentsBuilder.fromHttpUrl(endpoint)
+        return UriComponentsBuilder.fromHttpUrl(url)
                 .pathSegment(RESOURCE, PING_ACTION)
                 .toUriString();
     }

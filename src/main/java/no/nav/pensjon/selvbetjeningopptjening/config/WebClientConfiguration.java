@@ -40,7 +40,10 @@ public class WebClientConfiguration {
     @Bean
     @Qualifier("epoch-support")
     WebClient webClientWithEpochSupport() {
+        var httpClient = HttpClient.create()
+                .wiretap(true);
         return WebClient.builder()
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .exchangeStrategies(JsonEpochExchangeStrategies.build())
                 .build();
     }
