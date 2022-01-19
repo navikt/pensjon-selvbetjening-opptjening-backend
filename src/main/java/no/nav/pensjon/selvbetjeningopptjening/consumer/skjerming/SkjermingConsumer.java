@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 @Component
@@ -38,11 +37,11 @@ public class SkjermingConsumer implements SkjermingApi {
 
             return isSkjermet == null ? DEFAULT_IS_SKJERMET : isSkjermet;
         } catch (WebClientResponseException e) {
-            log.error(format("Call to Skjerming API failed: %s. Response body: %s.",
-                    e.getMessage(), e.getResponseBodyAsString()));
+            log.error("Call to Skjerming API failed: {}. Response body: {}.",
+                    e.getMessage(), e.getResponseBodyAsString(), e);
             return DEFAULT_IS_SKJERMET;
         } catch (RuntimeException e) { // e.g. when connection broken
-            log.error(format("Call to Skjerming API failed: %s.", e.getMessage()));
+            log.error("Call to Skjerming API failed: {}", e.getMessage(), e);
             return DEFAULT_IS_SKJERMET;
         }
     }

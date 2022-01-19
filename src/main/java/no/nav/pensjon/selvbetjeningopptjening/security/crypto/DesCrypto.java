@@ -23,7 +23,7 @@ public class DesCrypto implements Crypto {
 
     private static final String ALGORITHM = "DES";
     private static final Charset CHARSET = StandardCharsets.UTF_8;
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(DesCrypto.class);
     private final SecretKey secretKey;
 
     public DesCrypto(@Value("${crypto.key}") String key) throws CryptoException {

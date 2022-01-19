@@ -14,7 +14,7 @@ import reactor.netty.http.client.HttpClient;
 @Configuration
 public class WebClientConfiguration {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(WebClientConfiguration.class);
 
     @Bean
     @Primary

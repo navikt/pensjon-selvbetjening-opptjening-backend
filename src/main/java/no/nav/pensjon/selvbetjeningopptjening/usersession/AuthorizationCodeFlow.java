@@ -10,8 +10,8 @@ import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.Oauth2FlowExceptio
 import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.Oauth2ParamBuilder;
 import no.nav.pensjon.selvbetjeningopptjening.security.oidc.OidcConfigGetter;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.token.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -26,11 +26,10 @@ import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Objects.requireNonNull;
 import static org.springframework.util.StringUtils.hasText;
-import static org.springframework.util.StringUtils.isEmpty;
 
 public abstract class AuthorizationCodeFlow {
 
-    private final Log log = LogFactory.getLog(getClass());
+    private static final Logger log = LoggerFactory.getLogger(AuthorizationCodeFlow.class);
     private final TokenGetter tokenGetter;
     private final TokenRefresher tokenRefresher;
     private final JwsValidator jwsValidator;
@@ -48,19 +47,19 @@ public abstract class AuthorizationCodeFlow {
                                     Crypto crypto,
                                     String clientId,
                                     String callbackUri) {
-        this.tokenGetter = requireNonNull(tokenGetter);
-        this.oidcConfigGetter = requireNonNull(oidcConfigGetter);
-        this.tokenRefresher = requireNonNull(tokenRefresher);
-        this.jwsValidator = requireNonNull(jwsValidator);
-        this.cookieSetter = requireNonNull(cookieSetter);
-        this.crypto = requireNonNull(crypto);
-        this.clientId = requireNonNull(clientId);
-        this.callbackUri = requireNonNull(callbackUri);
+        this.tokenGetter = requireNonNull(tokenGetter, "tokenGetter");
+        this.oidcConfigGetter = requireNonNull(oidcConfigGetter, "oidcConfigGetter");
+        this.tokenRefresher = requireNonNull(tokenRefresher, "tokenRefresher");
+        this.jwsValidator = requireNonNull(jwsValidator, "jwsValidator");
+        this.cookieSetter = requireNonNull(cookieSetter, "cookieSetter");
+        this.crypto = requireNonNull(crypto, "crypto");
+        this.clientId = requireNonNull(clientId, "clientId");
+        this.callbackUri = requireNonNull(callbackUri, "callbackUri");
     }
 
     protected void login(HttpServletResponse response,
                          String redirectUri) throws IOException, CryptoException {
-        log.info(format("Login request received. Redirect URI: '%s'.", redirectUri));
+        log.debug("Login request received");
 
         String uri = new Oauth2ParamBuilder()
                 .scope(oauth2Scope())
@@ -80,7 +79,7 @@ public abstract class AuthorizationCodeFlow {
             return;
         }
 
-        log.info(format("Callback received. Code: '%s...'. State: '%s'.", code.substring(0, 3), state));
+        log.info("Callback received. Code: '{}...'. State: '{}'.", code.substring(0, 3), state);
 
         try {
             String redirectUri = new StateValidator(crypto).extractRedirectUri(state);
@@ -100,7 +99,7 @@ public abstract class AuthorizationCodeFlow {
     protected void refreshToken(HttpServletRequest request,
                                 HttpServletResponse response,
                                 @RequestParam(value = "redirect", required = false) String redirectUri) throws IOException {
-        log.info(format("Token refresh request received. Redirect URI: '%s'.", redirectUri));
+        log.info("Token refresh request received");
 
         try {
             TokenData tokenData = tokenRefresher.refreshToken(request);
@@ -138,7 +137,7 @@ public abstract class AuthorizationCodeFlow {
     }
 
     private void redirect(HttpServletResponse response, String uri) throws IOException {
-        log.info(format("Redirecting to '%s'.", uri));
+        log.debug("Redirecting");
         response.sendRedirect(uri);
     }
 
@@ -154,9 +153,9 @@ public abstract class AuthorizationCodeFlow {
     }
 
     private String decodeUri(String encodedUri) {
-        return isEmpty(encodedUri)
-                ? defaultAfterCallbackRedirectUri()
-                : URLDecoder.decode(encodedUri, StandardCharsets.UTF_8);
+        return hasText(encodedUri)
+                ? URLDecoder.decode(encodedUri, StandardCharsets.UTF_8)
+                : defaultAfterCallbackRedirectUri();
     }
 
     private static void unauthorized(HttpServletResponse response) {

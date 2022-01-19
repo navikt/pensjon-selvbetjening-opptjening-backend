@@ -19,13 +19,13 @@ import static java.util.Objects.requireNonNull;
 
 public abstract class OidcTokenGetter implements TokenGetter {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(OidcTokenGetter.class);
     private final WebClient webClient;
     private final OidcConfigGetter oidcConfigGetter;
 
     protected OidcTokenGetter(WebClient webClient, OidcConfigGetter oidcConfigGetter) {
-        this.webClient = requireNonNull(webClient);
-        this.oidcConfigGetter = requireNonNull(oidcConfigGetter);
+        this.webClient = requireNonNull(webClient, "webClient");
+        this.oidcConfigGetter = requireNonNull(oidcConfigGetter, "oidcConfigGetter");
     }
 
     public TokenData getTokenData(TokenAccessParam accessParam) {

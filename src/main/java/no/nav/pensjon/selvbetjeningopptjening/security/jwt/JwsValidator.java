@@ -12,7 +12,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class JwsValidator {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(JwsValidator.class);
     private final OidcConfigGetter oidcConfigGetter;
     private final SigningKeyResolver signingKeyResolver;
     private final String acceptedAudience;
@@ -20,13 +20,13 @@ public class JwsValidator {
     protected JwsValidator(OidcConfigGetter oidcConfigGetter,
                            SigningKeyResolver signingKeyResolver,
                            String acceptedAudience) {
-        this.oidcConfigGetter = requireNonNull(oidcConfigGetter);
-        this.signingKeyResolver = requireNonNull(signingKeyResolver);
-        this.acceptedAudience = requireNonNull(acceptedAudience);
+        this.oidcConfigGetter = requireNonNull(oidcConfigGetter, "oidcConfigGetter");
+        this.signingKeyResolver = requireNonNull(signingKeyResolver, "signingKeyResolver");
+        this.acceptedAudience = requireNonNull(acceptedAudience, "acceptedAudience");
     }
 
     public Jws<Claims> validate(String jwsString) {
-        log.info("Validating '{}'", jwsString);
+        log.debug("Validating '{}'", jwsString);
 
         Jws<Claims> jws = Jwts.parserBuilder()
                 .setSigningKeyResolver(signingKeyResolver)
