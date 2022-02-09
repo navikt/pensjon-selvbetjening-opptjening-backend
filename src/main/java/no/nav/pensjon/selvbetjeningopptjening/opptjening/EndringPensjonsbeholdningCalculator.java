@@ -204,7 +204,8 @@ public class EndringPensjonsbeholdningCalculator {
 
         double vedtakPensjonseringsbelop = 0D;
 
-        if (beholdning.hasLonnsvekstreguleringsbelop()) {
+        if (beholdning.hasLonnsvekstreguleringsbelop()
+                && beholdning.getLonnsvekstregulering().getReguleringsDato().isEqual(beholdning.getFomDato())) {
             double lonnsvekstreguleringsbelop = beholdning.getLonnsvekstreguleringsbelop();
             vedtakPensjonseringsbelop = lonnsvekstreguleringsbelop + lastBeholdningsbelop;
 

@@ -129,7 +129,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_beholdning_list_has_one_element_with_fomDateOnRegulationDate_with_lonnsvekstregulering_and_uttak_then_calculator_returns_3_elements() {
         LocalDate fomDato = LocalDate.of(2020, 5, 1);
-        Beholdning beholdning = newBeholdning(100D, fomDato, new Lonnsvekstregulering(10D));
+        Beholdning beholdning = newBeholdning(100D, fomDato, new Lonnsvekstregulering(10D, fomDato));
         Uttaksgrad uttaksgrad = uttaksgradFom(fomDato);
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
@@ -143,6 +143,38 @@ class EndringPensjonsbeholdningCalculatorTest {
         assertEquals(reguleringsbelop, endringer.get(1).getEndringsbelop());
         assertEquals(beholdning.getBelop() - reguleringsbelop, endringer.get(2).getEndringsbelop());
         assertEquals(beholdning.getBelop(), endringer.get(2).getBeholdningsbelop());
+    }
+
+    @Test
+    void should_not_return_endring_of_type_REGULERING_when_reguleringsDato_not_same_day_as_beholdning_dato_fom() {
+        LocalDate fomDato = LocalDate.of(2021, 5, 1);
+        Beholdning beholdning = newBeholdning(
+                100D,
+                fomDato,
+                new Lonnsvekstregulering(10D, LocalDate.of(2020, 5, 1)));
+        Uttaksgrad uttaksgrad = uttaksgradFom(fomDato);
+
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2021, singletonList(beholdning), singletonList(uttaksgrad));
+
+        assertEquals(2, endringer.size());
+        assertTrue(endringer.stream().noneMatch(endring -> REGULERING.equals(endring.getArsakType())));
+    }
+
+    @Test
+    void should_return_endring_of_type_REGULERING_when_reguleringsDato_same_day_as_beholdning_dato_fom() {
+        LocalDate fomDato = LocalDate.of(2021, 5, 1);
+        Beholdning beholdning = newBeholdning(
+                100D,
+                fomDato,
+                new Lonnsvekstregulering(10D, fomDato));
+        Uttaksgrad uttaksgrad = uttaksgradFom(fomDato);
+
+        List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
+                .calculatePensjonsbeholdningsendringer(2021, singletonList(beholdning), singletonList(uttaksgrad));
+
+        assertEquals(3, endringer.size());
+        assertTrue(endringer.stream().anyMatch(endring -> REGULERING.equals(endring.getArsakType())));
     }
 
     @Test
@@ -185,7 +217,8 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_fomDate_1MayGivenYear_with_Lonnsvekstregulering_then_calculator_returns_ArsakDetailCode_REGULERING() {
-        Beholdning beholdning = newBeholdning(1D, LocalDate.of(2020, 5, 1), new Lonnsvekstregulering(2D));
+        LocalDate fomDato = LocalDate.of(2020, 5, 1);
+        Beholdning beholdning = newBeholdning(1D, fomDato, new Lonnsvekstregulering(2D, fomDato));
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
                 .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
@@ -255,8 +288,9 @@ class EndringPensjonsbeholdningCalculatorTest {
 
     @Test
     void when_fomDate_1MayGivenYear_with_Lonnsvekstregulering_then_calculator_returns_2_ArsakType_values() {
+        LocalDate fomDato = LocalDate.of(2020, 5, 1);
         Beholdning beholdning = beholdningWithInnskudd(
-                LocalDate.of(2020, 5, 1), new Lonnsvekstregulering(10D));
+                fomDato, new Lonnsvekstregulering(10D, fomDato));
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
                 .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
@@ -455,7 +489,7 @@ class EndringPensjonsbeholdningCalculatorTest {
                 null,
                 grunnlag,
                 null, null, null, "",
-                new Lonnsvekstregulering(null),
+                new Lonnsvekstregulering(null, null),
                 new Inntektsopptjening(1990, inntekt, null),
                 new Omsorgsopptjening(1990, omsorgsbelop, null),
                 new Dagpengeopptjening(1990, dagpenger, null),

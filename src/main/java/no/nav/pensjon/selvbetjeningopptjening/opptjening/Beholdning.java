@@ -149,7 +149,9 @@ public class Beholdning implements Periode {
     }
 
     boolean hasLonnsvekstreguleringsbelop() {
-        return lonnsvekstregulering != null && lonnsvekstregulering.hasBelop();
+        return lonnsvekstregulering != null
+                && lonnsvekstregulering.hasBelop()
+                && lonnsvekstregulering.getReguleringsDato() != null;
     }
 
     public Inntektsopptjening getInntektsopptjening() {
@@ -249,7 +251,7 @@ public class Beholdning implements Periode {
         return grunnlagTypes.isEmpty() ? List.of(NO_GRUNNLAG) : grunnlagTypes;
     }
 
-    boolean isOmsorgGrunnlagForBeholdning(){
+    boolean isOmsorgGrunnlagForBeholdning() {
         return grunnlag == omsorgsopptjening.getBelop();
     }
 
