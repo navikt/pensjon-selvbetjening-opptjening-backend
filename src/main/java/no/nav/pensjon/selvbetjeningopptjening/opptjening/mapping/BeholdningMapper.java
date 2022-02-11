@@ -46,7 +46,7 @@ public class BeholdningMapper {
     private static Lonnsvekstregulering fromDto(LonnsvekstreguleringDto dto) {
         return dto == null ? null
                 :
-                new Lonnsvekstregulering(dto.getReguleringsbelop());
+                new Lonnsvekstregulering(dto.getReguleringsbelop(), dto.getReguleringsDato());
     }
 
     private static Inntektsopptjening fromDto(InntektOpptjeningBelopDto dto) {
