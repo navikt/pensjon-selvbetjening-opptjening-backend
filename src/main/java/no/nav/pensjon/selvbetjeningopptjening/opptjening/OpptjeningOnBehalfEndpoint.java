@@ -1,6 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import no.nav.pensjon.selvbetjeningopptjening.audit.CefEntry;
@@ -72,6 +73,9 @@ public class OpptjeningOnBehalfEndpoint {
 
             AUDIT.info(getAuditInfo(fnr, claims).format());
             return provider.calculateOpptjeningForFnr(pid, LoginSecurityLevel.INTERNAL);
+        } catch (ExpiredJwtException e) {
+            LOG.info("ExpiredJwtException. Message: {}.", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
         } catch (JwtException e) {
             LOG.error("JwtException. Message: {}.", e.getMessage());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
