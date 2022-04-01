@@ -13,6 +13,5 @@ Opptjening Backend
 :sectnumlevels: 3
 
 :dir: ../
-:imagesdir: {dir}/site/asciidoc/images/
 
-include::{dir}../main/java/no/nav/pensjon/selvbetjeningopptjening/docs/samleside.adoc[]
+include::samleside.adoc[]
