@@ -223,7 +223,7 @@
                     <doctype>book</doctype>
                     <backend>html5</backend>
                     <requires>asciidoctor-diagram</requires>
-                    <baseDir>src/site/asciidoc</baseDir>
+                    <baseDir>src/site/asciidoc/modules/ROOT/pages</baseDir>
                     <attributes>
                         <toc-title>Innholdsfortegnelse</toc-title>
                         <important-caption>Viktig</important-caption>
