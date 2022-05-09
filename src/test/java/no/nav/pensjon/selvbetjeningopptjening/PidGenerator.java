@@ -7,6 +7,9 @@ import java.util.Random;
 
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 
+import static java.lang.Integer.parseInt;
+import static no.nav.pensjon.selvbetjeningopptjening.person.PidValidator.isValidPid;
+
 public class PidGenerator {
 
     public static Pid generatePidAtAge(int age) {
@@ -27,42 +30,47 @@ public class PidGenerator {
      * @return the {@link Pid}
      */
     private static Pid generatePid(String date, boolean isBornBefore2000) {
-        Random random = new Random();
+        var random = new Random();
         int start = isBornBefore2000 ? 0 : 900;
         int bound = isBornBefore2000 ? 500 : 100;
-        for (int i = 0; i < 100; i++) {
+
+        for (int index = 0; index < 100; index++) {
             int nr = random.nextInt(bound) + start;
-            String pidCandidate = date + getIndividNr(nr);
-            pidCandidate = pidCandidate + getk1k2(pidCandidate);
-            if (Pid.isValidPid(pidCandidate)) {
-                return new Pid(pidCandidate);
+            String candidate = date + padIndividnummer(nr);
+            candidate += getk1k2(candidate);
+
+            if (isValidPid(candidate)) {
+                return new Pid(candidate);
             }
         }
-        throw new RuntimeException("Could not generate a valid Pid for " + date);
+
+        throw new RuntimeException("Could not generate a valid PID for " + date);
     }
 
-    private static String getIndividNr(int individnummer) {
-        StringBuilder sb = new StringBuilder();
+    private static String padIndividnummer(int individnummer) {
+        var builder = new StringBuilder();
+
         if (individnummer < 10) {
-            sb.append("00");
+            builder.append("00");
         } else if (individnummer < 100) {
-            sb.append("0");
+            builder.append("0");
         }
-        sb.append(individnummer);
-        return sb.toString();
+
+        builder.append(individnummer);
+        return builder.toString();
     }
 
     private static String getk1k2(String fnr) {
-        // FORMAT: DDMMYYiiikk
-        int d1 = Integer.parseInt(fnr.substring(0, 1));
-        int d2 = Integer.parseInt(fnr.substring(1, 2));
-        int m1 = Integer.parseInt(fnr.substring(2, 3));
-        int m2 = Integer.parseInt(fnr.substring(3, 4));
-        int a1 = Integer.parseInt(fnr.substring(4, 5));
-        int a2 = Integer.parseInt(fnr.substring(5, 6));
-        int i1 = Integer.parseInt(fnr.substring(6, 7));
-        int i2 = Integer.parseInt(fnr.substring(7, 8));
-        int i3 = Integer.parseInt(fnr.substring(8, 9));
+        // Format: DDMMYYiiikk
+        int d1 = parseInt(fnr.substring(0, 1));
+        int d2 = parseInt(fnr.substring(1, 2));
+        int m1 = parseInt(fnr.substring(2, 3));
+        int m2 = parseInt(fnr.substring(3, 4));
+        int a1 = parseInt(fnr.substring(4, 5));
+        int a2 = parseInt(fnr.substring(5, 6));
+        int i1 = parseInt(fnr.substring(6, 7));
+        int i2 = parseInt(fnr.substring(7, 8));
+        int i3 = parseInt(fnr.substring(8, 9));
 
         // control 1
         int v1 = 3 * d1 + 7 * d2 + 6 * m1 + m2 + 8 * a1 + 9 * a2 + 4 * i1 + 5 * i2 + 2 * i3;

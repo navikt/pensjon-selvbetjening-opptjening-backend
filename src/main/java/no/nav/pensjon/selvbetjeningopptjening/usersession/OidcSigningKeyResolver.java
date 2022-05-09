@@ -13,11 +13,11 @@ import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
-import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 
 public abstract class OidcSigningKeyResolver extends SigningKeyResolverAdapter {
 
@@ -39,7 +39,7 @@ public abstract class OidcSigningKeyResolver extends SigningKeyResolverAdapter {
     private Key getKey(String keyId) {
         String x509certificateString = getX509Certificate(keyId);
 
-        try (var inStream = new ByteArrayInputStream(parseBase64Binary(x509certificateString))) {
+        try (var inStream = new ByteArrayInputStream(Base64.getDecoder().decode(x509certificateString))) {
             PublicKey key = getX509Certificate(inStream).getPublicKey();
             cachedKeysById.put(keyId, key);
             return key;

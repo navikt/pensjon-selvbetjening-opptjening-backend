@@ -1,8 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import org.glassfish.jersey.internal.util.Producer;
-
 import java.time.LocalDate;
+import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
@@ -26,7 +25,7 @@ public class AfpHistorikk {
         return virkningFomDate.getYear();
     }
 
-    public int getEndYearOrDefault(Producer<Integer> defaultYear) {
-        return hasVirkningTomDate ? virkningTomDate.getYear() : defaultYear.call();
+    public int getEndYearOrDefault(Supplier<Integer> defaultYear) {
+        return hasVirkningTomDate ? virkningTomDate.getYear() : defaultYear.get();
     }
 }
