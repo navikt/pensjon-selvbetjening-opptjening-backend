@@ -29,8 +29,8 @@ import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
-import static org.springframework.util.StringUtils.isEmpty;
 import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
+import static org.springframework.util.StringUtils.hasText;
 
 @RestController
 @RequestMapping("api")
@@ -59,7 +59,7 @@ public class OpptjeningOnBehalfEndpoint {
         try {
             String idToken = SplitCookieAssembler.getCookieValue(request, CookieType.INTERNAL_USER_ID_TOKEN);
 
-            if (isEmpty(idToken)) {
+            if (!hasText(idToken)) {
                 LOG.info("No JWT in request");
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No JWT");
             }
@@ -105,7 +105,7 @@ public class OpptjeningOnBehalfEndpoint {
 
     private CefEntry getAuditInfo(String fnr, Jws<Claims> claims) {
         var navIdent = (String) claims.getBody().get("NAVident");
-        LOG.info("NAV-ident: {}", navIdent == null ? "null" : navIdent.substring(0, 1) + "*****");
+        LOG.info("NAV-ident: {}", navIdent == null ? "null" : navIdent.charAt(0) + "*****");
 
         return new CefEntry(
                 ZonedDateTime.now().toInstant().toEpochMilli(),

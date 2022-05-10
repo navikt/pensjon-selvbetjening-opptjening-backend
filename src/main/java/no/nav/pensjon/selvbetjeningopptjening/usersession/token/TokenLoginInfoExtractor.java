@@ -17,6 +17,7 @@ public class TokenLoginInfoExtractor implements LoginInfoGetter {
 
     private static final String TOKEN_ISSUER = "selvbetjening";
     private static final String ACR_CLAIM_KEY = "acr"; // ACR = Authentication context class reference
+    private static final String PID_CLAIM_KEY = "pid"; // PID = Personal identification number
     private final TokenValidationContextHolder contextHolder;
 
     public TokenLoginInfoExtractor(TokenValidationContextHolder contextHolder) {
@@ -25,7 +26,7 @@ public class TokenLoginInfoExtractor implements LoginInfoGetter {
 
     public LoginInfo getLoginInfo() {
         if (getRequestAttributes() == null) {
-            throw new JwtTokenUnauthorizedException("Token not found (no request attributes)");
+            throw new JwtTokenUnauthorizedException();
         }
 
         JwtToken token = contextHolder.getTokenValidationContext().getJwtToken(TOKEN_ISSUER);
@@ -36,8 +37,8 @@ public class TokenLoginInfoExtractor implements LoginInfoGetter {
         return RequestContextHolder.getRequestAttributes();
     }
 
-    private static Pid getPid(JwtToken token) {
-        return new Pid(token.getSubject(), true);
+    private Pid getPid(JwtToken token) {
+        return new Pid(token.getJwtTokenClaims().getStringClaim(PID_CLAIM_KEY), true);
     }
 
     private static LoginSecurityLevel getSecurityLevel(JwtToken token) {
