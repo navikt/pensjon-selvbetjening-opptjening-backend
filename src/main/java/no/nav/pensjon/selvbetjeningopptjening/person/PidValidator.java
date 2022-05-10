@@ -154,9 +154,6 @@ public class PidValidator {
         return isNumeric(value);
     }
 
-    /**
-     * Checks that a value is valid according to the modulus 11 control.
-     */
     private static boolean isStrictlyModulus11Compliant(String value) {
         // Format: DDMMYYiiikk
         int d1 = parseInt(value.substring(0, 1));
@@ -188,7 +185,7 @@ public class PidValidator {
     }
 
     /**
-     * Checks that an FNR is special circumstance. A special circumstance is when the personnummer part is 0 or 1.
+     * Checks that an FNR is formatted according to "special circumstances", i.e. when the personnummer part is 0 or 1.
      */
     private static boolean isSpecialCircumstance(String value) {
         int personnummer = parseInt(value.substring(6));
@@ -240,7 +237,8 @@ public class PidValidator {
     }
 
     private static boolean isLeapYear(int year) {
-        return year % 100 == 0 && year % 400 == 0 || year % 100 != 0 && year % 4 == 0;
+        return year % 100 == 0 && year % 400 == 0 ||
+                year % 100 != 0 && year % 4 == 0;
     }
 
     private static boolean isDayOfMonth(int value) {

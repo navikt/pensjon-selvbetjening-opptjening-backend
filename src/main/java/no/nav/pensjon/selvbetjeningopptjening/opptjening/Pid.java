@@ -10,13 +10,14 @@ import static no.nav.pensjon.selvbetjeningopptjening.person.PidValidator.isValid
 
 /**
  * Represents a personal identification number (PID).
- * A PID can be: Fødselsnummer (FNR), D-nummer (DNR) or BOST-nummer (BNR).
+ * The PID types supported are: Fødselsnummer (FNR), D-nummer (DNR) and BOST-nummer (BNR).
+ * BOST-nummer is an historical NAV-internal PID type.
  */
 public class Pid {
 
     private static final String DATO_PATTERN = "ddMMyyyy";
     private final String value;
-    private LocalDate foedselsdato; // lazily evaluated
+    private LocalDate foedselsdato;
 
     public Pid(String value) throws PidValidationException {
         this(value, false);
@@ -33,6 +34,7 @@ public class Pid {
 
     //TODO This is not a reliable way of getting fødselsdato,
     // since the date part of the PID is not always the fødselsdato
+    @Deprecated
     public LocalDate getFodselsdato() {
         if (foedselsdato != null) {
             return foedselsdato;
