@@ -1,16 +1,16 @@
 package no.nav.pensjon.selvbetjeningopptjening.person;
 
 import static java.lang.Integer.parseInt;
+import static no.nav.pensjon.selvbetjeningopptjening.person.PidIndexes.*;
+import static no.nav.pensjon.selvbetjeningopptjening.util.DateUtil.*;
 import static org.apache.commons.lang3.StringUtils.*;
 
 public class PidValidator {
 
     private static final int FNR_LENGTH = 11;
-    private static final int MAX_DAY_OF_MONTH = 31;
-    private static final int MONTHS_PER_YEAR = 12;
-    private static final int BNR_MONTH_ADDITION = 20;
-    private static final int DNR_DAY_ADDITION = 40;
-    private static final int TESTNORGE_FNR_MONTH_ADDITION = 80;
+    private static final int BNR_MAANED_ADDITION = 20;
+    private static final int DNR_DAG_ADDITION = 40;
+    private static final int TESTNORGE_FNR_MAANED_ADDITION = 80;
 
     /**
      * "Special circumstances" means that the personnummer part (last 5 digits of FNR) does not follow the normal rules,
@@ -28,7 +28,7 @@ public class PidValidator {
         }
 
         String adjustedValue = makeDnrOrBnrAdjustments(trimmedValue);
-        return hasValidDatePart(adjustedValue, isDnr(trimmedValue));
+        return hasValidDatoPart(adjustedValue, isDnr(trimmedValue));
     }
 
     /**
@@ -55,26 +55,26 @@ public class PidValidator {
         }
 
         // D-nummer adjustment:
-        int day = getDay(value) - DNR_DAY_ADDITION;
+        int dag = getDag(value) - DNR_DAG_ADDITION;
 
-        if (isDayOfMonth(day)) {
-            return new StringBuilder(value).replace(0, 2, as2Chars(day)).toString();
+        if (isDayOfMonth(dag)) {
+            return new StringBuilder(value).replace(DAG_START, DAG_END, as2Chars(dag)).toString();
         }
 
         // BOST-nummer adjustment:
-        int month = getMonth(value) - BNR_MONTH_ADDITION;
+        int maaned = getMaaned(value) - BNR_MAANED_ADDITION;
 
-        if (isMonth(month)) {
-            return new StringBuilder(value).replace(2, 4, as2Chars(month)).toString();
+        if (isMonth(maaned)) {
+            return new StringBuilder(value).replace(MAANED_START, MAANED_END, as2Chars(maaned)).toString();
         }
 
         // value is neither BOST- nor D-nummer
         return value;
     }
 
-    public static String getDatePart(String pid) {
+    public static String getDatoPart(String pid) {
         String adjustedPid = makeDnrOrBnrAdjustments(pid);
-        return getDayAndMonth(adjustedPid) + getYear(adjustedPid, isDnr(pid));
+        return getDagAndMaaned(adjustedPid) + getAdjustedAar(adjustedPid, isDnr(pid));
     }
 
     /**
@@ -85,48 +85,64 @@ public class PidValidator {
      * as such PIDs can never be guaranteed.
      */
     private static boolean isDnr(String value) {
-        return isDnrDay(getDay(value));
+        return isDnrDag(getDag(value));
     }
 
-    private static String getDayAndMonth(String pid) {
-        return pid.substring(0, 4);
+    private static String getDagAndMaaned(String pid) {
+        return pid.substring(DAG_START, MAANED_END);
     }
 
-    private static int getDay(String pid) {
-        return parseInt(pid.substring(0, 2));
+    private static int getDag(String pid) {
+        return parseInt(pid.substring(DAG_START, DAG_END));
     }
 
-    private static int getMonth(String pid) {
-        return parseInt(pid.substring(2, 4));
+    private static int getMaaned(String pid) {
+        return parseInt(pid.substring(MAANED_START, MAANED_END));
     }
 
-    private static int getYear(String pid, boolean isDnr) {
+    private static int getAar(String pid) {
+        return parseInt(pid.substring(AAR_START, AAR_END));
+    }
+
+    private static int getIndividnummer(String pid) {
+        return parseInt(pid.substring(INDIVIDNUMMER_START, INDIVIDNUMMER_END));
+    }
+
+    private static int getPersonnummer(String pid) {
+        return parseInt(pid.substring(PERSONNUMMER_START));
+    }
+
+    private static int getAdjustedAar(String pid, boolean isDnr) {
         // Stillborn baby (dødfødt barn)
-        if (!isDnr && parseInt(pid.substring(6)) < 10) {
+        if (!isDnr && getPersonnummer(pid) < 10) {
             return -1;
         }
 
-        return getYear(pid);
+        return getAdjustedAar(pid);
     }
 
-    private static int getYear(String pid) {
-        int individnummer = parseInt(pid.substring(6, 9));
-        int year = parseInt(pid.substring(4, 6));
+    /**
+     * For an explanation of the magic numbers used in this method, see
+     * e.g. http://www.fnrinfo.no/Info/Oppbygging.aspx
+     */
+    private static int getAdjustedAar(String pid) {
+        int individnummer = getIndividnummer(pid);
+        int aar = getAar(pid);
 
         if (individnummer < 500) {
-            return year + 1900;
+            return aar + 1900;
         }
 
-        if (individnummer < 750 && 54 < year) {
-            return year + 1800;
+        if (individnummer < 750 && 54 < aar) {
+            return aar + 1800;
         }
 
-        if (individnummer < 1000 && year < 40) {
-            return year + 2000;
+        if (individnummer < 1000 && aar < 40) {
+            return aar + 2000;
         }
 
         if (900 <= individnummer && individnummer < 1000) {
-            return year + 1900;
+            return aar + 1900;
         }
 
         return -1;
@@ -187,66 +203,50 @@ public class PidValidator {
     /**
      * Checks that an FNR is formatted according to "special circumstances", i.e. when the personnummer part is 0 or 1.
      */
-    private static boolean isSpecialCircumstance(String value) {
-        int personnummer = parseInt(value.substring(6));
+    private static boolean isSpecialCircumstance(String pid) {
+        int personnummer = getPersonnummer(pid);
         return personnummer == 0 || personnummer == 1;
     }
 
-    private static boolean isDnrDay(int value) {
-        int normalDayOfMonth = value - DNR_DAY_ADDITION;
-        return 1 <= normalDayOfMonth && normalDayOfMonth <= MAX_DAY_OF_MONTH;
+    private static boolean isDnrDag(int value) {
+        return isDayOfMonth(value - DNR_DAG_ADDITION);
     }
 
-    private static boolean hasValidDatePart(String pid, boolean isDnr) {
-        boolean validDate = true;
-        int month = getMonth(pid);
+    private static boolean hasValidDatoPart(String pid, boolean isDnr) {
+        boolean validDato = true;
+        int maaned = getMaaned(pid);
 
-        if (month > TESTNORGE_FNR_MONTH_ADDITION) {
-            month -= TESTNORGE_FNR_MONTH_ADDITION;
+        if (maaned > TESTNORGE_FNR_MAANED_ADDITION) {
+            maaned -= TESTNORGE_FNR_MAANED_ADDITION;
         }
 
-        int year = getYear(pid, isDnr);
+        int aar = getAdjustedAar(pid, isDnr);
         boolean isSpecial = isSpecialCircumstance(pid);
 
-        if (year == -1 && !isSpecial) {
+        if (aar == -1 && !isSpecial) {
             return false; // invalid year
         }
 
-        int day = getDay(pid);
+        int dag = getDag(pid);
 
-        if (day < 1) {
-            validDate = false;
+        if (dag < 1) {
+            validDato = false;
         }
 
-        switch (month) {
-            case 1, 3, 5, 7, 8, 10, 12 -> validDate &= (day <= MAX_DAY_OF_MONTH); // 1 = January
-            case 4, 6, 9, 11 -> validDate &= (day <= 30);
-            case 2 -> validDate &= (day <= daysInFebruary(year));
-            default -> validDate = false;
+        try {
+            validDato &= (dag <= getDagerInMaaned(maaned, aar));
+            return validDato;
+        } catch (IllegalArgumentException e) {
+            return false;
         }
-
-        return validDate;
     }
 
-    private static int daysInFebruary(int year) {
-        if (year == -1) {
+    private static int getDagerInMaaned(int maaned, int aar) {
+        if (maaned == 2 && aar == -1) {
             return 29; // For unknown reasons
         }
 
-        return isLeapYear(year) ? 29 : 28;
-    }
-
-    private static boolean isLeapYear(int year) {
-        return year % 100 == 0 && year % 400 == 0 ||
-                year % 100 != 0 && year % 4 == 0;
-    }
-
-    private static boolean isDayOfMonth(int value) {
-        return 1 <= value && value <= MAX_DAY_OF_MONTH;
-    }
-
-    private static boolean isMonth(int value) {
-        return 1 <= value && value <= MONTHS_PER_YEAR;
+        return getDaysInMonth(maaned, aar);
     }
 
     private static String as2Chars(int value) {

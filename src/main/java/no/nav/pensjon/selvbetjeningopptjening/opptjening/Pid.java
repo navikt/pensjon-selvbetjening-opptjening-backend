@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 import static java.lang.String.format;
-import static no.nav.pensjon.selvbetjeningopptjening.person.PidValidator.getDatePart;
+import static no.nav.pensjon.selvbetjeningopptjening.person.PidValidator.getDatoPart;
 import static no.nav.pensjon.selvbetjeningopptjening.person.PidValidator.isValidPid;
 
 /**
@@ -41,7 +41,7 @@ public class Pid {
         }
 
         try {
-            return foedselsdato = LocalDate.parse(getDatePart(value), DateTimeFormatter.ofPattern(DATO_PATTERN));
+            return foedselsdato = LocalDate.parse(getDatoPart(value), DateTimeFormatter.ofPattern(DATO_PATTERN));
         } catch (DateTimeParseException e) {
             throw new PidValidationException(format("The value '%s' does not contain dato", value));
         }
