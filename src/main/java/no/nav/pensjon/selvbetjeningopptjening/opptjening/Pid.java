@@ -10,7 +10,7 @@ import static no.nav.pensjon.selvbetjeningopptjening.person.PidValidator.isValid
 
 /**
  * Represents a personal identification number (PID).
- * The PID types supported are: Fødselsnummer (FNR), D-nummer (DNR) and BOST-nummer (BNR).
+ * The PID types supported are: Fødselsnummer (FNR), D-nummer (DNR) and NPID/BOST-nummer (BNR).
  * BOST-nummer is an historical NAV-internal PID type.
  */
 public class Pid {
