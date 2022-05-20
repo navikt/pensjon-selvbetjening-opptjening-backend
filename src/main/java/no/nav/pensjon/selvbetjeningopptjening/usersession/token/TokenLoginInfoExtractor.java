@@ -18,6 +18,8 @@ public class TokenLoginInfoExtractor implements LoginInfoGetter {
     private static final String TOKEN_ISSUER = "selvbetjening";
     private static final String ACR_CLAIM_KEY = "acr"; // ACR = Authentication context class reference
     private static final String PID_CLAIM_KEY = "pid"; // PID = Personal identification number
+    private static final String SUB_CLAIM_KEY = "sub"; // PID = Personal identification number
+
     private final TokenValidationContextHolder contextHolder;
 
     public TokenLoginInfoExtractor(TokenValidationContextHolder contextHolder) {
@@ -38,7 +40,17 @@ public class TokenLoginInfoExtractor implements LoginInfoGetter {
     }
 
     private Pid getPid(JwtToken token) {
-        return new Pid(token.getJwtTokenClaims().getStringClaim(PID_CLAIM_KEY), true);
+        JwtTokenClaims jwtTokenClaims = token.getJwtTokenClaims();
+        String fnr;
+        if(jwtTokenClaims.getStringClaim(PID_CLAIM_KEY) != null) {
+            fnr = jwtTokenClaims.getStringClaim(PID_CLAIM_KEY);
+        } else if (jwtTokenClaims.getStringClaim(SUB_CLAIM_KEY) != null) {
+            fnr = jwtTokenClaims.getStringClaim(SUB_CLAIM_KEY);
+        } else {
+            throw new RuntimeException("No identifier found");
+        }
+
+        return new Pid(fnr, true);
     }
 
     private static LoginSecurityLevel getSecurityLevel(JwtToken token) {
