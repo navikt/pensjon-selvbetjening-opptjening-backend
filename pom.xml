@@ -16,7 +16,7 @@
 
     <properties>
         <java.version>17</java.version>
-        <token-validation-version>2.0.16</token-validation-version>
+        <token-validation-version>2.0.21</token-validation-version>
         <asciidoctor-maven-plugin.version>1.5.8</asciidoctor-maven-plugin.version>
         <asciidoctorj-diagram.version>1.5.18</asciidoctorj-diagram.version>
         <graphviz-java.version>0.14.1</graphviz-java.version>
