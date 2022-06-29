@@ -20,8 +20,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.util.retry.Retry;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
@@ -87,6 +89,7 @@ public class PdlConsumer implements Pingable {
                     .bodyValue(PdlRequest.getPersonQuery(pid))
                     .retrieve()
                     .bodyToMono(PdlResponse.class)
+                    .retryWhen(Retry.backoff(4, Duration.ofMillis(500L)))
                     .block();
         } catch (IOException e) {
             return handleIoError(e);
