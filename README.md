@@ -7,7 +7,9 @@ Applikasjonen er laget med utgangspunkt i logikk fra det gamle JSF-baserte skjer
 
 ## Dokumentasjon
 
-Dokumentasjon for applikasjonen er lagt sammen med koden og er [tilgjengelig i NAVs fagsystemsone](https://pensjon-selvbetjening-opptjening-backend.nais.preprod.local).
+Dokumentasjon for applikasjonen ligger sammen med koden som .adoc-filer under src/site/asciidoc.
+Disse filene danner grunnlaget for dokumentasjonen man finner om denne applikasjonen
+på pensjonsområdets samleside for dokumentasjon: [PO Pensjon - Systemdokumentasjon](https://friendly-chainsaw-5bf7db7a.pages.github.io/pensjon-selvbetjening-opptjening-backend/index.html)
 
 ## Kjøring av appen lokalt
 
