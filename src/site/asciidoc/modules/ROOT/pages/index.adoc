@@ -4,8 +4,8 @@ Opptjening Backend
 :toclevels: 2
 :doctype: book
 :revnumber: 1.1
-:revdate: 2020-02-24
-:revremark: Andre utkast av {doctitle}
+:revdate: 2022-07-06
+:revremark: Endelig versjon av {doctitle}
 :version-label!:
 
 :sectnums:

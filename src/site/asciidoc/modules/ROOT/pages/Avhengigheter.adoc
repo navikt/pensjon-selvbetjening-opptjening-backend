@@ -17,7 +17,7 @@ er veldig sentrale applikasjonens forretningslogikk for å kunne vise hvordan pe
 for brukere født etter 1953.
 
 .Domene-objekter relevante for PROPOPP006:
-[options="header,footer"]
+[options="header"]
 |=======================
 |Objekt|Beskrivelse
 |[#beholdning]#Beholdning#|Selve beholdning-objektet som tjenesten returnerer en liste bestående av.
@@ -45,7 +45,7 @@ For brukergruppe <<index.adoc#userGroup,USER_GROUP_4>> hentes inntekt direkte fr
 brukergrupper hentes inntekten fra pensjonspoeng-objektet man fikk fra <<index.adoc#propopp019,PROPOPP019>>.
 
 .Domene-objekter relevante for PROPOPP007:
-[options="header,footer"]
+[options="header"]
 |=======================
 |Objekt|Beskrivelse
 |Inntekt|Et objekt som beskriver inntekten en bruker hadde for et bestemt år.
@@ -62,7 +62,7 @@ For brukere i <<index.adoc#userGroup,USER_GROUP_1, USER_GROUP_2 eller USER_GROUP
 pensjonspoeng-objektene.
 
 .Domene-objekter relevante for PROPOPP019:
-[options="header,footer"]
+[options="header"]
 |=======================
 |Objekt|Beskrivelse
 |Pensjonspoeng|Et objekt som beskriver informasjon om pensjonspoeng for en bruker for et gitt år.
@@ -78,7 +78,7 @@ for et gitt år. Restpensjonsdataene er aktuelle å bruke og vise i applikasjone
 alderspensjon. Detter er aktuelt for alle brukergrupper bortsett fra <<index.adoc#userGroup,USER_GROUP_1>>.
 
 .Domene-objekter relevante for PROPOPP013:
-[options="header,footer"]
+[options="header"]
 |=======================
 |Objekt|Beskrivelse
 |Restpensjon|Inneholder data angående restpensjonen for en bruker for et gitt år.
@@ -96,7 +96,7 @@ kunne hente AFP-historikk via REST. Tjenesten returnerer AFP-historikk for en pe
 har AFP på et gitt år, og dermed legge ved en merknad i responsen om dette.
 
 .Domene-objekter relevante for PROPEN2602:
-[options="header,footer"]
+[options="header"]
 |=======================
 |Objekt|Beskrivelse
 |AfpHistorikk|Et objekt som inneholder virkFom og virkTom for brukerens AFP.
@@ -111,7 +111,7 @@ kunne hente uførehistorikk via REST. Tjenesten returnerer uførehistorikk for e
 har uføretrygd på et gitt år, og dermed legge ved en merknad i responsen om dette.
 
 .Domene-objekter relevante for PROPEN2602:
-[options="header,footer"]
+[options="header"]
 |=======================
 |Objekt|Beskrivelse
 |UforeHistorikk|Et objekt som inneholder uføreperioder for en person.
@@ -128,7 +128,7 @@ den en liste med uttaksgrad-objekter som beskriver uttaksgrad en person hadde kn
 Tjenesten benyttes for å identifisere når bruker har uttak av alderspensjon, og hvor stort dette uttaket er.
 
 .Domene-objekter relevante for PROPEN3000:
-[options="header,footer"]
+[options="header"]
 |=======================
 |Objekt|Beskrivelse
 |Uttaksgrad|Beskriver fom, tom, grad og tilknyttet vedtak for en uttaksgrad en person har hatt.
@@ -144,7 +144,7 @@ som er registrert på den aktuelle personen. Tjenesten benyttes for å identifis
 og hvor stort dette uttaket er.
 
 .Domene-objekter relevante for PROPEN3000:
-[options="header,footer"]
+[options="header"]
 |=======================
 |Objekt|Beskrivelse
 |Uttaksgrad|Beskriver fom, tom og grad for en uttaksgrad en person har hatt. Feltet vedtakId er tomt.
@@ -182,7 +182,7 @@ Derfor kaller applikasjonen PDL kun en gang, og så spesifiserer man alt som app
 i dette kallet, i stedet for å spørre en gang til senere hvis man plutselig trenger mer data.
 
 .Eksempel på respons fra PDL
-[source,perl]
+[source,json]
 ----
 {
     "data": {

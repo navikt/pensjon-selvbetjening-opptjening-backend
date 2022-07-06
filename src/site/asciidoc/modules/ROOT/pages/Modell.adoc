@@ -3,9 +3,9 @@
 Applikasjonens respons bygges opp av følgende objekter:
 
 === OpptjeningResponse
+[#opptjeningResponse]
 OpptjeningResponse-objektet inneholder et map som lister opptjeningsdata for hvert år brukeren har hatt opptjening.
-[#opptjeningResponse, options="header,footer"]
-
+[options="header"]
 |=======================
 |Informasjonselement           |Type                                                      |Eksempel|Beskrivelse
 |opptjeningData                |Object (Map<String, <<index.adoc#opptjening,Opptjening>>>)|        |Map som holder opptjeningsdata. Hvert opptjeningData-objekt inneholder data for ett år. Nøkkelen i mapet er årstallet.
@@ -18,9 +18,9 @@ OpptjeningResponse-objektet inneholder et map som lister opptjeningsdata for hve
 |=======================
 
 === Opptjening
+[#opptjening]
 Opptjening-objektet inneholder alle opptjeningsdata for et bestemt år for brukeren.
-[#opptjening, options="header,footer"]
-
+[options="header"]
 |=======================
 |Informasjonselement   |Type                                                                 |Eksempel|Beskrivelse
 |pensjonsgivendeInntekt|Number (heltall)                                                     |10      |Brukerens pensjonsgivende inntekt det aktuelle året.
@@ -35,9 +35,9 @@ Opptjening-objektet inneholder alle opptjeningsdata for et bestemt år for bruke
 |=======================
 
 === EndringPensjonsopptjening
+[#endringOpptjening]
 EndringPensjonsopptjening-objektet beskriver en enkelt endring som har skjedd på pensjonsbeholdningen til brukeren.
-[#endringOpptjening, options="header,footer"]
-
+[options="header"]
 |=======================
 |Informasjonselement    |Type                                                       |Eksempel      |Beskrivelse
 |dato                   |String (dato)                                              |2021-02-03    |Dato endringen skjedde. Formatet er ÅÅÅÅ-MM-DD (ISO 8601).
@@ -53,9 +53,9 @@ EndringPensjonsopptjening-objektet beskriver en enkelt endring som har skjedd p�
 
 === Funksjonelle koder
 ==== MerknadCode
+[#merknadCode]
 Informasjonskoder som brukes til å identifisere merknader angående hendelser som kan påvirke <<index.adoc#opptjening,opptjeningen>> et bestemt år.
-[#merknadCode, options="header,footer"]
-
+[options="header"]
 |=======================
 |Kode                      |Beskrivelse
 |AFP                       |Brukeren har avtalefestet pensjon dette året.
@@ -71,9 +71,9 @@ Informasjonskoder som brukes til å identifisere merknader angående hendelser s
 |=======================
 
 ==== TypeArsakCode
+[#typeArsakCode]
 Informasjonskoder som brukes til å identifisere hva slags type endring et <<index.adoc#endringOpptjening,EndringPensjonsopptjening>>-objekt representerer.
-[#typeArsakCode, options="header,footer"]
-
+[options="header"]
 |=======================
 |Kode|Beskrivelse
 |INNGAENDE|Endringen representerer en inngående beholdning, altså hva beholdningen var i starten av året man ser på.
@@ -85,9 +85,9 @@ Informasjonskoder som brukes til å identifisere hva slags type endring et <<ind
 |=======================
 
 ==== DetailsArsakCode
+[#detailsArsakCode]
 Informasjonskoder som brukes til å gi utfyllende informasjon om en <<index.adoc#endringOpptjening,endring>> som har skjedd på pensjonsopptjeningen.
-[#detailsArsakCode, options="header,footer"]
-
+[options="header"]
 |=======================
 |Kode|Beskrivelse
 |OPPTJENING_GRADERT|Fordi bruker har gradert uttak av alderspensjon har den nye opptjeningen etter uttaket blitt lagt til pensjonsbeholdningen som ikke er tatt ut enda.
@@ -101,10 +101,10 @@ Informasjonskoder som brukes til å gi utfyllende informasjon om en <<index.adoc
 |=======================
 
 ==== GrunnlagTypeCode
+[#grunnlagTypeCode]
 Informasjonskoder som brukes til å gi informasjon om hva slags grunnlag opptjeningen i en <<index.adoc#endringOpptjening,endring>> av pensjonsbeholdningen skyldes.
 Disse kodene er kun aktuelle for <<index.adoc#endringOpptjening,endringer>> som er av <<index.adoc#typeArsakCode,TypeArsakCode>> OPPTJENING eller INNGAENDE_2010
-[#grunnlagTypeCode, options="header,footer"]
-
+[options="header"]
 |=======================
 |Kode|Beskrivelse
 |INNTEKT_GRUNNLAG|Grunnlaget som beholdningsendringen er regnet ut fra er lønnsinntekt.
@@ -116,9 +116,9 @@ Disse kodene er kun aktuelle for <<index.adoc#endringOpptjening,endringer>> som 
 |=======================
 
 ==== OmsorgspoengTypeCode
+[#omsorgspoengTypeCode
 Informasjonskoder som brukes til å angi type omsorgspoeng.
-[#omsorgspoengTypeCode, options="header,footer"]
-
+[options="header"]
 |=======================
 |Kode |Beskrivelse
 |OBO6H|Omsorg for barn over 6 år med hjelpestønad sats 3 eller 4.
@@ -129,9 +129,10 @@ Informasjonskoder som brukes til å angi type omsorgspoeng.
 |=======================
 
 ==== UserGroup
+[#userGroup]
 UserGroup-kodene er koder som brukes internt i applikasjonen til å skille de ulike brukergruppene fra hverandre. Merk at disse kodene da altså ikke er del av responsen,
 men forsåelse av disse kodene er vesentlig for å forstå applikasjonens interne logikk.
-[#userGroup, options="header,footer"]
+[options="header"]
 
 |=======================
 |Kode|Beskrivelse
