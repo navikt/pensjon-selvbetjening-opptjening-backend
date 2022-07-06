@@ -2,9 +2,7 @@ include::Beskrivelse.adoc[]
 
 include::Modell.adoc[]
 
-include::Arkitektur.adoc[]
-
-include::Komponenter.adoc[]
+include::funksjonell_oversikt.adoc[]
 
 include::Avhengigheter.adoc[]
 

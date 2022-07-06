@@ -1,35 +1,31 @@
-== Komponenter
-==== OpptjenningProvider
-.Hensikt
-Komponenten utgjør hovedlogikken til applikasjonen. I denne komponenten gjøres alle consumer-kall
-som henter de nødvendige rådataene fra PEN og POPP. Disse dataene settes så sammen til en oversiktlig
-respons som viser opptjeningsdata for hvert år. Komponenten gjør også kall til de to andre
-komponentene EndringPensjonsopptjeningCalculator og MerknadHandler, og  inkluderer deres resultater i
-den ferdig konstruerte responsen.
+== Funksjonell oversikt
+=== Representasjon av opptjening for ulike brukergrupper
+Hovedmålet for applikasjonen er å representere en liste av opptjeningsdata. Lista inneholder <<index.adoc#opptjening, opptjening-objekter>>, hvor hvert
+objekt inneholder all nødvendig informasjon for å gi et bilde av hva som påvirket brukerens opptjening til
+pensjon et bestemt år. Hvilke data som brukes for å representere brukerens opptjening et år avhenger av
+hvilken <<index.adoc#userGroup, brukergruppe>> den aktuelle brukeren tilhører. For brukere født etter 1962, som alle er på nytt
+regelverk, vil responsen kun populeres med pensjonsbeholdning. Pensjonspoeng blir ikke populert for disse
+brukerne. For brukere født fra og med 1954 og til og med 1962 vil både pensjonspoeng og pensjonsbeholdning
+populeres, fordi disse brukerne har både gammelt og nytt regelverk. For brukere født før 1954 er det kun
+pensjonspoeng som populeres, fordi disse brukerene kun er på gammelt regelverk.
 
-.Funksjonell beskrivelse
-Hvilke data som blir populert på responsen styres av hvilken brukergruppe den aktuelle brukeren tilhører.
-For brukere født etter 1963, som alle er på nytt regelverk, vil responsen kun populeres med pensjonsbeholdning.
-Pensjonspoeng blir ikke populert for disse brukerne. For brukere født fra og med 1954 og til og med 1962 vil både
-pensjonspoeng og pensjonsbeholdning populeres, fordi disse brukerne har både gammelt og nytt regelverk.
-For brukere født før 1954 er det kun pensjonspoeng som populeres, fordi disse brukerene kun er på
-gammelt regelverk.
+For detaljer om regelverk for opptjening vises det til folketrygdloven:
 
-Utover det å populere selve opptjeningsdataene i form av beholdning og pensjonspoeng, setter også
-OpptjeningProvider verdier knyttet til omsorgsopptjening, pensjonsgivende inntekt og restpensjon. I tillegg gjøres selve kallene til
-EndringPensjonsopptjeningCalculator og MerknadHandler for å henholdsvis sette endringsinformasjon
-for brukerne med pensjonsbeholdning og sette merknader knyttet til det aktuelle året.
+- https://lovdata.no/dokument/NL/lov/1997-02-28-19/KAPITTEL_7-1#%C2%A719-16[Folketrygdloven kapittel 19] (Regelverk for dem født før 1954, delvis for dem født 1954-1963)
+- https://lovdata.no/dokument/NL/lov/1997-02-28-19/KAPITTEL_7-2#%C2%A720-17[Folketrygdloven kapittel 20] (Regelverk for dem født etter 1962, delvis for dem født 1954-1962)
 
-Det refereres til koden for videre detaljer om hva komponenten gjør.
+=== Beregning av endring i pensjonsbeholdning
+[#beregning_endring]
+For brukergruppene som har opptjening i form av <<index.adoc#beholdning, pensjonsbeholdning>> (brukere født etter 1953) vil det være
+aktuelt å kunne vise hvordan denne pensjonsbeholdningen har forandret seg i løpet av et år.
+Økning i pensjonsbeholdning skjer som følge av inntekt man får fra arbeid eller ytelser det aktuelle året, samt
+som følge av en årlig regulering. Pensjonsbeholdningen kan også synke hvis bruker velger å ta ut pensjon.
+Hvor mye pensjonsbeholdningen reduseres avhenger da av uttaksgraden bruker velger for sin alderspensjon.
+Alle endringene som påvirker pensjonsbeholdningen i løpet av et år vil dermed bli lagt i lista endringOpptjening
+på <<index.adoc#opptjening, opptjening>>-objektet. Hver enkelt endring representeres ved hjelp av objektet
+<<index.adoc#endringOpptjening, EndringPensjonsopptjening>>. Merk at endringer på pensjonsbeholdning kun
+blir populert fra 2010, da man mangler data for å beregne disse endringene for år før dette.
 
-==== EndringPensjonsopptjeningCalculator
-.Hensikt
-Komponenten holder all logikk som brukes for å populere feltet endringOpptjening på et enkelt
-<<index.adoc#opptjening,Opptjening>>-objekt. Komponenten tar inn informasjon om beholdning og
-uttaksgrad for brukeren og beregner hvordan brukerens pensjonsbeholdning har endret seg i løpet
-av et bestemt år.
-
-.Funksjonell beskrivelse
 Det finnes en rekke forskjellige hendelser i løpet av et år som trigger en endring av pensjonsopptjening.
 Disse er beskrevet i tabellen <<index.adoc#typeArsakCode,TypeArsakCode>>.
 
@@ -64,17 +60,13 @@ siste dag i det aktuelle året. Da settes kun pensjonsbeholdningsbeløpet lik de
 
 Merk: Overnevnte liste beskriver overordnet funksjonelt de ulike endringstypene. Se koden for nøyaktige detaljer på hvordan de regnes ut.
 
-EndringPensjonsopptjeningCalculator populerer også feltet arsakDetails i <<index.adoc#endringOpptjening,EndringPensjonsopptjening>>. Dette
-populeres med kodene i <<index.adoc#detailsArsakCode,DetailsArsakCode>>. For detaljer om disse, se tabellen om disse kodene, samt den
-implementerte koden.
+=== Merknader
+Det kan i løpet av et år forekomme spesielle forhold som er relevante med tanke på opptjening. Disse opplyses om
+ved hjelp av ulike <<index.adoc#merknadCode,merknadkoder>> og settes på feltet merknader i
+<<index.adoc#opptjening,Opptjening>>-objektet for det aktuelle året det spesielle forholdet inntraff.
 
-==== MerknadHandler
-.Hensikt
-Komponenten holder all logikk knyttet til populering av feltet merknader i et <<index.adoc#opptjening,Opptjening>>-objekt. Logikken
-i komponenten skal identifisere hvilke <<index.adoc#merknadCode,merknadkoder>> som er aktuelle for det aktuelle året.
-
-.Funksjonell beskrivelse
-Hver merknadkode vurderes for seg basert på gjeldende data dette året. Følgende vurderinger gjøres for hver merknad:
+Hver merknadkode vurderes for seg basert på gjeldende data det aktuelle året.
+Følgende vurderinger gjøres for hver merknad:
 
 * AFP: Merknad om bruker har AFP det aktuelle året vurderes ved å se på AFP-historikken som er mottatt fra tjenesten <<index.adoc#propen2602,PROPEN2602>>.
 Hvis det aktuelle året er innenfor AFP-historikkens periode, legges koden AFP til i merknadlista.

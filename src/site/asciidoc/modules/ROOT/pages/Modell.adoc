@@ -41,7 +41,7 @@ EndringPensjonsopptjening-objektet beskriver en enkelt endring som har skjedd p�
 |=======================
 |Informasjonselement    |Type                                                       |Eksempel      |Beskrivelse
 |dato                   |String (dato)                                              |2021-02-03    |Dato endringen skjedde. Formatet er ÅÅÅÅ-MM-DD (ISO 8601).
-|arsakType              |String (<<index.adoc#typeArsakCode,TypeArsakCode>>)        |INNGAENDE     |Kode som beskriver hva slags type endring det er snakk om.
+|arsakType              |String (<<index.adoc#typeArsakCode,TypeArsakCode>>)        |INNGAENDE     |Kode som beskriver hva slags type endring det er snakk om. Se <<index.adoc#beregning_endring, beregning av endring av pensjonsbeholdning>> for flere detaljer.
 |arsakDetails           |String[] (<<index.adoc#detailsArsakCode,DetailsArsakCode>>)|UTTAK         |Liste med koder som beskriver ytterligere informasjon om endringen.
 |endringBelop           |Number (desimaltall)                                       |123.45        |Beløpet pensjonsbeholdningen har økt/minket med (negativt hvis redusert pensjonsbeholdning).
 |pensjonsbeholdningBelop|Number (desimaltall)                                       |123.45        |Total pensjonsbeholdning etter endringen.
@@ -90,8 +90,8 @@ Informasjonskoder som brukes til å gi utfyllende informasjon om en <<index.adoc
 
 |=======================
 |Kode|Beskrivelse
-|OPPTJENING_GRADERT|Fordi bruker har gradert uttak har den nye opptjeningen blitt lagt til pensjonsbeholdningen.
-|OPPTJENING_HEL|Fordi bruker tar ut hel alderspensjon (100 prosent) har ny opptjening ført til en økning i den utbetalte pensjonen før skatt.
+|OPPTJENING_GRADERT|Fordi bruker har gradert uttak av alderspensjon har den nye opptjeningen etter uttaket blitt lagt til pensjonsbeholdningen som ikke er tatt ut enda.
+|OPPTJENING_HEL|Fordi bruker har uttak av hel alderspensjon (100 prosent) har ny opptjening etter at uttaket ble gjort ført til en økning i den utbetalte pensjonen før skatt.
 |REGULERING|Pensjonsbeholdningen reguleres årlig i samsvar med lønnsveksten i folketrygdloven.
 |UTTAK|Ved uttak reduseres pensjonsbeholdningen med like stor andel som uttaksgraden bruker har valgt.
 |OPPTJENING_2012|Fra og med 2012 vil pensjonsopptjeningen for et kalenderår oppreguleres med lønnsvekst og tilføres pensjonsbeholdningen ved utløpet av året skatteligningen for det aktuelle året er ferdig.
