@@ -116,7 +116,7 @@ Disse kodene er kun aktuelle for <<index.adoc#endringOpptjening,endringer>> som 
 |=======================
 
 ==== OmsorgspoengTypeCode
-[#omsorgspoengTypeCode
+[#omsorgspoengTypeCode]
 Informasjonskoder som brukes til å angi type omsorgspoeng.
 [options="header"]
 |=======================
