@@ -5,6 +5,8 @@ metadata:
   namespace: pensjonselvbetjening
   labels:
     team: pensjonselvbetjening
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
 spec:
   image: {{ image }}
   port: 8080
