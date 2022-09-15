@@ -53,12 +53,7 @@ public class LocalOpptjeningApplication {
     private static void startMockAuthServer(int port) {
         var server = new MockOAuth2Server();
 
-        try {
-            server.start(port);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        server.start(port);
         authServers.add(server);
     }
 }
