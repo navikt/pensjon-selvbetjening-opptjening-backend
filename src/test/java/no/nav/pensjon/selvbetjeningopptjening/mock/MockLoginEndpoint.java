@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
@@ -30,15 +31,13 @@ public class MockLoginEndpoint {
     private static final String COOKIE_NAME = "mock-idtoken";
     private static final String ISSUER_ID = "default";
     private static final long EXPIRY = 1000000L; // approx. 12 days in seconds
-    private final String pid;
+    private String pid;
 
-    public MockLoginEndpoint(@Value("${pid}") String pid) {
-        this.pid = pid;
-    }
-
-    @GetMapping("/mocklogin")
+    @GetMapping("/mocklogin/{pid}")
     public void login(HttpServletResponse response,
-                      @RequestParam(value = "redirect", required = false) String redirectUri) throws IOException {
+                      @RequestParam(value = "redirect", required = false) String redirectUri,
+                      @PathParam("pid") String pid) throws IOException {
+        this.pid=pid;
         response.addCookie(authCookie());
 
         if (isEmpty(redirectUri)) {
