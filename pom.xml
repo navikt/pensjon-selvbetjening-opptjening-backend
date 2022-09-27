@@ -17,7 +17,6 @@
     <properties>
         <java.version>17</java.version>
         <token-validation-version>2.1.4</token-validation-version>
-        <unleash-client-java.version>3.3.3</unleash-client-java.version>
         <spring-security.version>5.3.10.RELEASE</spring-security.version>
         <jjwt-version>0.11.5</jjwt-version>
         <log4j2.version>2.17.0</log4j2.version>
@@ -34,6 +33,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.32</version>
         </dependency>
         <dependency>
             <groupId>no.nav.security</groupId>
@@ -132,7 +136,7 @@
         <dependency>
             <groupId>no.finn.unleash</groupId>
             <artifactId>unleash-client-java</artifactId>
-            <version>${unleash-client-java.version}</version>
+            <version>4.4.1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -168,7 +172,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.81.Final</version>
+            <version>4.1.82.Final</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -187,7 +191,7 @@
         <dependency>
             <groupId>no.nav.security</groupId>
             <artifactId>mock-oauth2-server</artifactId>
-            <version>0.5.1</version>
+            <version>0.5.3</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
