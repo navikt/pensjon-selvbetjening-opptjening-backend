@@ -10,6 +10,7 @@ import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.UttaksgradMappe
 import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -22,6 +23,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
+import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.PEN;
 
 @Component
@@ -53,6 +55,7 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
                     .get()
                     .uri(buildUrl(url, vedtakIds))
                     .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue())
+                    .header(NAV_CALL_ID, MDC.get(NAV_CALL_ID))
                     .retrieve()
                     .bodyToMono(UttaksgradListResponse.class)
                     .block();

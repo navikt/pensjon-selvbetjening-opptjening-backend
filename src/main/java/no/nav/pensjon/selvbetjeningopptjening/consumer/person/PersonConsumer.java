@@ -10,6 +10,7 @@ import no.nav.pensjon.selvbetjeningopptjening.opptjening.AfpHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.UforeHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.AfpHistorikkMapper;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.UforeHistorikkMapper;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -18,6 +19,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import static java.util.Objects.requireNonNull;
+import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.PEN;
 
 @Component
@@ -71,6 +73,7 @@ public class PersonConsumer extends AuthorizedPenConsumer implements Pingable {
                 .uri(path(AFP_HISTORIKK_RESOURCE))
                 .header(HttpHeaders.AUTHORIZATION, authHeaderValue)
                 .header(PersonHttpHeaders.PID, fnr)
+                .header(NAV_CALL_ID, MDC.get(NAV_CALL_ID))
                 .retrieve()
                 .bodyToMono(AfpHistorikkDto.class)
                 .block();
@@ -87,6 +90,7 @@ public class PersonConsumer extends AuthorizedPenConsumer implements Pingable {
                 .uri(path(UFORE_HISTORIKK_RESOURCE))
                 .header(HttpHeaders.AUTHORIZATION, authHeaderValue)
                 .header(PersonHttpHeaders.PID, fnr)
+                .header(NAV_CALL_ID, MDC.get(NAV_CALL_ID))
                 .retrieve()
                 .bodyToMono(UforeHistorikkDto.class)
                 .block();
@@ -97,6 +101,7 @@ public class PersonConsumer extends AuthorizedPenConsumer implements Pingable {
                 .get()
                 .uri(pingUri())
                 .header(HttpHeaders.AUTHORIZATION, authHeaderValue)
+                .header(NAV_CALL_ID, MDC.get(NAV_CALL_ID))
                 .retrieve()
                 .toBodilessEntity()
                 .block();

@@ -13,6 +13,7 @@ import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -29,6 +30,7 @@ import java.util.List;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.mapping.PersonMapper.fromDto;
+import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
 
 @Component
 public class PdlConsumer implements Pingable {
@@ -86,6 +88,7 @@ public class PdlConsumer implements Pingable {
                     .post()
                     .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue(securityLevel))
                     .header(PdlHttpHeaders.CONSUMER_TOKEN, consumerToken())
+                    .header(NAV_CALL_ID, MDC.get(NAV_CALL_ID))
                     .bodyValue(PdlRequest.getPersonQuery(pid))
                     .retrieve()
                     .bodyToMono(PdlResponse.class)

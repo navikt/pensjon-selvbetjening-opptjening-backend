@@ -9,6 +9,7 @@ import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.InntektMapper;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,7 @@ import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.PoppUtil.handle;
+import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
 
 @Component
 public class OpptjeningsgrunnlagConsumer implements Pingable {
@@ -46,6 +48,7 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
                     .get()
                     .uri(opptjeningUri(fnr, fomAr, tomAr))
                     .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue())
+                    .header(NAV_CALL_ID, MDC.get(NAV_CALL_ID))
                     .retrieve()
                     .bodyToMono(HentOpptjeningsGrunnlagResponse.class)
                     .block();
@@ -68,6 +71,7 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
                     .get()
                     .uri(pingUri())
                     .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue())
+                    .header(NAV_CALL_ID, MDC.get(NAV_CALL_ID))
                     .retrieve()
                     .toBodilessEntity()
                     .block();
