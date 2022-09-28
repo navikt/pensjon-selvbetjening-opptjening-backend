@@ -8,6 +8,7 @@ import no.nav.pensjon.selvbetjeningopptjening.opptjening.PensjonspoengMapper;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -20,6 +21,7 @@ import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.PoppUtil.handle;
+import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
 
 @Component
 public class PensjonspoengConsumer implements Pingable {
@@ -50,6 +52,7 @@ public class PensjonspoengConsumer implements Pingable {
                     .get()
                     .uri(buildUrl(fnr))
                     .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue())
+                    .header(NAV_CALL_ID, MDC.get(NAV_CALL_ID))
                     .retrieve()
                     .bodyToMono(PensjonspoengListeResponse.class)
                     .block();
@@ -72,6 +75,7 @@ public class PensjonspoengConsumer implements Pingable {
                     .get()
                     .uri(pingUri())
                     .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue())
+                    .header(NAV_CALL_ID, MDC.get(NAV_CALL_ID))
                     .retrieve()
                     .toBodilessEntity()
                     .block();
