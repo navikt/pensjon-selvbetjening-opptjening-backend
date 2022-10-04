@@ -13,7 +13,7 @@ på pensjonsområdets samleside for dokumentasjon: [PO Pensjon - Systemdokumenta
 
 ## Kjøring av appen lokalt
 
-Se NAV-intern dokumentasjon: [Confluence: Opptjening backend: Kjøring av appen lokalt](https://confluence.adeo.no/display/PEN/Opptjening+backend#Opptjeningbackend-Kj%C3%B8ringavappenlokalt)
+Se NAV-intern dokumentasjon: [Confluence: Lokal kjøring av Opptjening backend](https://confluence.adeo.no/pages/viewpage.action?pageId=500958747)
 
 ### Endepunkter
 
@@ -21,15 +21,15 @@ Se NAV-intern dokumentasjon: [Confluence: Opptjening backend: Kjøring av appen 
 * Opptjening: http://localhost:8080/api/opptjening/
 
 NB: Denne krever et token for tilgang; det kan skaffes ved først å gjøre en "liksom-innlogging":
-* http://localhost:8080/api/mocklogin/
+* http://localhost:8080/api/mocklogin/FØDSELSNUMMER
 
 #### Applikasjonshelse:
-* Liveness: http://localhost:8080/api/internal/isAlive
-* Readiness: http://localhost:8080/api/internal/isReady
+* Liveness: http://localhost:8080/internal/alive
+* Readiness: http://localhost:8080/internal/ready
 * Helse: http://localhost:8080/api/mgmt/health
 
 #### Applikasjonsmetrikker:
-* Prometheus: http://localhost:8080/api/mgmt/prom
+* Prometheus: http://localhost:8080/internal/prometheus
 
 ## Henvendelser
 

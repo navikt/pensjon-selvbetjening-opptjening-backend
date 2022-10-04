@@ -30,6 +30,10 @@ public class TokenAccessParam {
         return new TokenAccessParam(GrantType.AUTHORIZATION_CODE, code);
     }
 
+    public static TokenAccessParam clientCredentials(String scope) {
+        return new TokenAccessParam(GrantType.CLIENT_CREDENTIALS, scope);
+    }
+
     static TokenAccessParam refreshToken(String token) {
         return new TokenAccessParam(GrantType.REFRESH_TOKEN, token);
     }

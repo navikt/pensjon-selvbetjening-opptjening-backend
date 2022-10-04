@@ -62,7 +62,7 @@ spec:
     - name: PEN_URL
       value: https://pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
     - name: POPP_URL
-      value: https://pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
+      value: https://pensjon-popp-q2.dev.intern.nav.no
     - name: SKJERMING_URL
       value: https://skjermede-personer-pip.dev.intern.nav.no
     - name: STS_URL

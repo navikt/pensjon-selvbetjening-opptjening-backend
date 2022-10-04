@@ -83,7 +83,7 @@ public abstract class AuthorizationCodeFlow {
 
         try {
             String redirectUri = new StateValidator(crypto).extractRedirectUri(state);
-            TokenData tokenData = tokenGetter.getTokenData(TokenAccessParam.authorizationCode(code));
+            TokenData tokenData = tokenGetter.getTokenData(TokenAccessParam.authorizationCode(code), "");
             jwsValidator.validate(tokenData.getIdToken());
             setCookies(response, tokenData);
             decodeAndRedirect(response, redirectUri);

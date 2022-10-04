@@ -1,14 +1,12 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 
 import no.nav.pensjon.selvbetjeningopptjening.TestFnrs;
-import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
-import no.nav.pensjon.selvbetjeningopptjening.security.token.ServiceTokenData;
+import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import no.nav.security.token.support.core.context.TokenValidationContext;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
@@ -21,31 +19,29 @@ import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 class PdlConsumerTest extends WebClientTest {
 
     private static final Pid PID = new Pid(TestFnrs.NORMAL);
-    private static final String BIRTH_DATE = "2001-01-01";
-    private static final ServiceTokenData TOKEN = new ServiceTokenData("token", "type", LocalDateTime.MIN, 1L);    private PdlConsumer consumer;
+    private PdlConsumer consumer;
 
     @Mock
-    TokenValidationContextHolder tokenValidationContextHolder;
+    private TokenValidationContextHolder tokenValidationContextHolder;
     @Mock
-    ServiceTokenGetter serviceUserTokenGetter;
+    private TokenGetterFacade tokenGetter;
 
     @BeforeEach
     void initialize() throws StsException {
         when(tokenValidationContextHolder.getTokenValidationContext()).thenReturn(tokenValidationContext());
-        when(serviceUserTokenGetter.getServiceUserToken()).thenReturn(TOKEN);
-        consumer = new PdlConsumer(baseUrl(), tokenValidationContextHolder, serviceUserTokenGetter);
+        when(tokenGetter.getToken(anyString())).thenReturn("token");
+        consumer = new PdlConsumer(baseUrl(), tokenGetter);
     }
 
     @Test
@@ -57,7 +53,7 @@ class PdlConsumerTest extends WebClientTest {
         assertEquals("SMART", response.getFornavn());
         assertNull(response.getMellomnavn());
         assertEquals("POTET", response.getEtternavn());
-        assertEquals(LocalDate.of(1972,11,5), response.getFodselsdato());
+        assertEquals(LocalDate.of(1972, 11, 5), response.getFodselsdato());
     }
 
     @Test
@@ -95,107 +91,96 @@ class PdlConsumerTest extends WebClientTest {
                 ".dFjzDGxwPbNvHVykflTC5v6Kl44LljoXMjPyxvKY5I6fGNVRUU6N9nzjVycog0IqPcNESeRjP3iw7Js7Rpns-hkaS5d1IhTqo0mWtr5fJ65mNkD9vf3tmGQYGVLmOl5MW8ySqSyiUeZXsD8JVm7inqKCfOpShwm8jNV2wikW3pfmI--vnsVdOTAtkFFCXMwzhLgsioFb9ajBBn5MYJ3Z87WH_2u40RGRc5vpvVf8Jc5KQXOY5LT_k_HgC1JklO4-AIfUsJlolx-KRlw_62nPLA1R3hZDfYkvBi-zU4yeVgLGH9IdlFK3sT2oIJTSUwiOLazTAOEL7MnX1gvDzz6anA";
     }
 
-    private static MockResponse pdlDataResponse() {
-        return jsonResponse()
-                .setBody("{\n" +
-                        "  \"data\": {\n" +
-                        "    \"hentPerson\": {\n" +
-                        "      \"foedsel\": [{\n" +
-                        "        \"foedselsaar\": \"null\",\n" +
-                        "        \"foedselsdato\": \"" + BIRTH_DATE + "\"\n" +
-                        "      }]\n" +
-                        "    }\n" +
-                        "  }\n" +
-                        "}");
-    }
-
     private static MockResponse pdlErrorResponse() {
         return jsonResponse()
-                .setBody("{\n" +
-                        "  \"errors\": [{\n" +
-                        "    \"message\": \"Ikke tilgang til å se person\",\n" +
-                        "    \"locations\": [{\n" +
-                        "      \"line\": 1,\n" +
-                        "      \"column\": 20\n" +
-                        "    }],\n" +
-                        "    \"extensions\": {\n" +
-                        "      \"code\": \"unauthorized\",\n" +
-                        "      \"classification\": \"ExecutionAborted\"\n" +
-                        "    },\n" +
-                        "    \"path\": [\"hentPerson\"]\n" +
-                        "  }]\n" +
-                        "}");
+                .setBody("""
+                        {
+                          "errors": [{
+                            "message": "Ikke tilgang til å se person",
+                            "locations": [{
+                              "line": 1,
+                              "column": 20
+                            }],
+                            "extensions": {
+                              "code": "unauthorized",
+                              "classification": "ExecutionAborted"
+                            },
+                            "path": ["hentPerson"]
+                          }]
+                        }""");
     }
 
     private static MockResponse pdlMultipleErrorResponse() {
         return jsonResponse()
-                .setBody("{\n" +
-                        "  \"errors\": [{\n" +
-                        "    \"message\": \"Fant ikke person\",\n" +
-                        "    \"locations\": [{\n" +
-                        "      \"line\": 2,\n" +
-                        "      \"column\": 5\n" +
-                        "    }],\n" +
-                        "    \"path\": [\n" +
-                        "      \"hentPerson\"\n" +
-                        "    ],\n" +
-                        "    \"extensions\": {\n" +
-                        "      \"code\": \"not_found\",\n" +
-                        "      \"classification\": \"ExecutionAborted\"\n" +
-                        "    }\n" +
-                        "  }, {\n" +
-                        "    \"message\": \"Ukjent problem oppsto, feilen har blitt logget og følges opp\",\n" +
-                        "    \"locations\": [{\n" +
-                        "      \"line\": 2,\n" +
-                        "      \"column\": 5\n" +
-                        "    }],\n" +
-                        "    \"path\": [\n" +
-                        "      \"hentPerson\", \"bostedsadresse\"\n" +
-                        "    ],\n" +
-                        "    \"extensions\": {\n" +
-                        "      \"code\": \"server_error\",\n" +
-                        "      \"classification\": \"ExecutionAborted\"\n" +
-                        "    }\n" +
-                        "  }],\n" +
-                        "  \"data\": {\n" +
-                        "    \"hentPerson\": null\n" +
-                        "  }\n" +
-                        "}");
+                .setBody("""
+                        {
+                          "errors": [{
+                            "message": "Fant ikke person",
+                            "locations": [{
+                              "line": 2,
+                              "column": 5
+                            }],
+                            "path": [
+                              "hentPerson"
+                            ],
+                            "extensions": {
+                              "code": "not_found",
+                              "classification": "ExecutionAborted"
+                            }
+                          }, {
+                            "message": "Ukjent problem oppsto, feilen har blitt logget og følges opp",
+                            "locations": [{
+                              "line": 2,
+                              "column": 5
+                            }],
+                            "path": [
+                              "hentPerson", "bostedsadresse"
+                            ],
+                            "extensions": {
+                              "code": "server_error",
+                              "classification": "ExecutionAborted"
+                            }
+                          }],
+                          "data": {
+                            "hentPerson": null
+                          }
+                        }""");
     }
 
-    private static MockResponse pdlNoErrorsResponse(){
+    private static MockResponse pdlNoErrorsResponse() {
         return jsonResponse()
                 .setBody(
-                        "{\n" +
-                                "    \"data\": {\n" +
-                                "        \"hentPerson\": {\n" +
-                                "            \"navn\": [\n" +
-                                "                {\n" +
-                                "                    \"fornavn\": \"SMART\",\n" +
-                                "                    \"mellomnavn\": null,\n" +
-                                "                    \"etternavn\": \"POTET\",\n" +
-                                "                    \"folkeregistermetadata\": {\n" +
-                                "                        \"ajourholdstidspunkt\": \"2021-03-26T10:56:01\"\n" +
-                                "                    },\n" +
-                                "                    \"metadata\": {\n" +
-                                "                        \"master\": \"FREG\",\n" +
-                                "                        \"endringer\": [\n" +
-                                "                            {\n" +
-                                "                                \"registrert\": \"2021-03-26T10:56:01\"\n" +
-                                "                            }\n" +
-                                "                        ]\n" +
-                                "                    }\n" +
-                                "                }\n" +
-                                "            ],\n" +
-                                "            \"foedsel\": [\n" +
-                                "                {\n" +
-                                "                    \"foedselsdato\": \"1972-11-05\",\n" +
-                                "                    \"foedselsaar\": null\n" +
-                                "                }\n" +
-                                "            ]\n" +
-                                "        }\n" +
-                                "    }\n" +
-                                "}"
+                        """
+                                {
+                                    "data": {
+                                        "hentPerson": {
+                                            "navn": [
+                                                {
+                                                    "fornavn": "SMART",
+                                                    "mellomnavn": null,
+                                                    "etternavn": "POTET",
+                                                    "folkeregistermetadata": {
+                                                        "ajourholdstidspunkt": "2021-03-26T10:56:01"
+                                                    },
+                                                    "metadata": {
+                                                        "master": "FREG",
+                                                        "endringer": [
+                                                            {
+                                                                "registrert": "2021-03-26T10:56:01"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ],
+                                            "foedsel": [
+                                                {
+                                                    "foedselsdato": "1972-11-05",
+                                                    "foedselsaar": null
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }"""
                 );
     }
 }

@@ -1,10 +1,9 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Beholdning;
-import no.nav.pensjon.selvbetjeningopptjening.security.token.ServiceTokenData;
+import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
@@ -17,13 +16,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
@@ -32,7 +31,6 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 class PensjonsbeholdningConsumerTest extends WebClientTest {
 
     private static final String CONSUMED_SERVICE = "PROPOPP006 hentPensjonsbeholdningListe";
-    private static final ServiceTokenData TOKEN = new ServiceTokenData("token", "type", LocalDateTime.MIN, 1L);
     private PensjonsbeholdningConsumer consumer;
 
     private static final String EXPECTED_GENERAL_ERROR_MESSAGE = "Error when calling the external service " +
@@ -43,11 +41,11 @@ class PensjonsbeholdningConsumerTest extends WebClientTest {
     WebClient webClient;
 
     @Mock
-    ServiceTokenGetter tokenGetter;
+    private TokenGetterFacade tokenGetter;
 
     @BeforeEach
     void initialize() throws StsException {
-        when(tokenGetter.getServiceUserToken()).thenReturn(TOKEN);
+        when(tokenGetter.getToken(anyString())).thenReturn("token");
         consumer = new PensjonsbeholdningConsumer(webClient, baseUrl(), tokenGetter);
     }
 
@@ -134,179 +132,180 @@ class PensjonsbeholdningConsumerTest extends WebClientTest {
 
     private static MockResponse okResponse() {
         return jsonResponse()
-                .setBody("{\n" +
-                        "    \"beholdninger\": [\n" +
-                        "        {\n" +
-                        "            \"beholdningId\": 430456711,\n" +
-                        "            \"fnr\": \"12117121168\",\n" +
-                        "            \"status\": \"G\",\n" +
-                        "            \"beholdningType\": \"PEN_B\",\n" +
-                        "            \"belop\": 20137.460428429236,\n" +
-                        "            \"vedtakId\": null,\n" +
-                        "            \"fomDato\": 757378800000,\n" +
-                        "            \"tomDato\": 788828400000,\n" +
-                        "            \"beholdningGrunnlag\": 108655.1,\n" +
-                        "            \"beholdningGrunnlagAvkortet\": 108655.0,\n" +
-                        "            \"beholdningInnskudd\": 20137.460428429236,\n" +
-                        "            \"beholdningInnskuddUtenOmsorg\": 19666.555000000004,\n" +
-                        "            \"oppdateringArsak\": \"NY_OPPTJENING\",\n" +
-                        "            \"lonnsvekstregulering\": null,\n" +
-                        "            \"inntektOpptjeningBelop\": {\n" +
-                        "                \"inntektOpptjeningBelopId\": 302319479,\n" +
-                        "                \"ar\": 1992,\n" +
-                        "                \"belop\": 108655.0,\n" +
-                        "                \"sumPensjonsgivendeInntekt\": {\n" +
-                        "                    \"changeStamp\": {\n" +
-                        "                        \"createdBy\": \"srvpensjon\",\n" +
-                        "                        \"createdDate\": 1586931809567,\n" +
-                        "                        \"updatedBy\": \"srvpensjon\",\n" +
-                        "                        \"updatedDate\": 1586931813383\n" +
-                        "                    },\n" +
-                        "                    \"inntektId\": 585473360,\n" +
-                        "                    \"fnr\": \"12117121168\",\n" +
-                        "                    \"inntektAr\": 1992,\n" +
-                        "                    \"kilde\": \"POPP\",\n" +
-                        "                    \"kommune\": null,\n" +
-                        "                    \"piMerke\": null,\n" +
-                        "                    \"inntektType\": \"SUM_PI\",\n" +
-                        "                    \"belop\": 108655\n" +
-                        "                },\n" +
-                        "                \"inntektListe\": [\n" +
-                        "                    {\n" +
-                        "                        \"changeStamp\": {\n" +
-                        "                            \"createdBy\": \"TESTDATA\",\n" +
-                        "                            \"createdDate\": 1586931809059,\n" +
-                        "                            \"updatedBy\": \"srvpensjon\",\n" +
-                        "                            \"updatedDate\": 1586931809534\n" +
-                        "                        },\n" +
-                        "                        \"inntektId\": 585473359,\n" +
-                        "                        \"fnr\": \"12117121168\",\n" +
-                        "                        \"inntektAr\": 1992,\n" +
-                        "                        \"kilde\": \"PEN\",\n" +
-                        "                        \"kommune\": \"1337\",\n" +
-                        "                        \"piMerke\": null,\n" +
-                        "                        \"inntektType\": \"INN_LON\",\n" +
-                        "                        \"belop\": 108655\n" +
-                        "                    }\n" +
-                        "                ],\n" +
-                        "                \"changeStamp\": {\n" +
-                        "                    \"createdBy\": \"srvpensjon\",\n" +
-                        "                    \"createdDate\": 1586931854757,\n" +
-                        "                    \"updatedBy\": \"srvpensjon\",\n" +
-                        "                    \"updatedDate\": 1586931854757\n" +
-                        "                }\n" +
-                        "            },\n" +
-                        "            \"omsorgOpptjeningBelop\": null,\n" +
-                        "            \"dagpengerOpptjeningBelop\": null,\n" +
-                        "            \"forstegangstjenesteOpptjeningBelop\": null,\n" +
-                        "            \"uforeOpptjeningBelop\": null,\n" +
-                        "            \"changeStamp\": {\n" +
-                        "                \"createdBy\": \"srvpensjon\",\n" +
-                        "                \"createdDate\": 1586931854758,\n" +
-                        "                \"updatedBy\": \"srvpensjon\",\n" +
-                        "                \"updatedDate\": 1586931854758\n" +
-                        "            }\n" +
-                        "        },\n" +
-                        "        {\n" +
-                        "            \"beholdningId\": 430457040,\n" +
-                        "            \"fnr\": \"12117121168\",\n" +
-                        "            \"status\": \"G\",\n" +
-                        "            \"beholdningType\": \"PEN_B\",\n" +
-                        "            \"belop\": 1317010.8630999844,\n" +
-                        "            \"vedtakId\": null,\n" +
-                        "            \"fomDato\": 1525125600000,\n" +
-                        "            \"tomDato\": null,\n" +
-                        "            \"beholdningGrunnlag\": 275611.0,\n" +
-                        "            \"beholdningGrunnlagAvkortet\": 275611.0,\n" +
-                        "            \"beholdningInnskudd\": 50913.322334762146,\n" +
-                        "            \"beholdningInnskuddUtenOmsorg\": 49885.59100000001,\n" +
-                        "            \"oppdateringArsak\": \"REGULERING\",\n" +
-                        "            \"lonnsvekstregulering\": {\n" +
-                        "                \"lonnsvekstreguleringId\": 318421599,\n" +
-                        "                \"reguleringsbelop\": 44167.659176156856,\n" +
-                        "                \"reguleringsDato\": 1525125600000,\n" +
-                        "                \"changeStamp\": {\n" +
-                        "                    \"createdBy\": \"srvpensjon\",\n" +
-                        "                    \"createdDate\": 1586931866338,\n" +
-                        "                    \"updatedBy\": \"srvpensjon\",\n" +
-                        "                    \"updatedDate\": 1586931866338\n" +
-                        "                }\n" +
-                        "            },\n" +
-                        "            \"inntektOpptjeningBelop\": {\n" +
-                        "                \"inntektOpptjeningBelopId\": 302319528,\n" +
-                        "                \"ar\": 2016,\n" +
-                        "                \"belop\": 275611.0,\n" +
-                        "                \"sumPensjonsgivendeInntekt\": {\n" +
-                        "                    \"changeStamp\": {\n" +
-                        "                        \"createdBy\": \"srvpensjon\",\n" +
-                        "                        \"createdDate\": 1586931865857,\n" +
-                        "                        \"updatedBy\": \"srvpensjon\",\n" +
-                        "                        \"updatedDate\": 1586931866344\n" +
-                        "                    },\n" +
-                        "                    \"inntektId\": 585473384,\n" +
-                        "                    \"fnr\": \"12117121168\",\n" +
-                        "                    \"inntektAr\": 2016,\n" +
-                        "                    \"kilde\": \"POPP\",\n" +
-                        "                    \"kommune\": null,\n" +
-                        "                    \"piMerke\": null,\n" +
-                        "                    \"inntektType\": \"SUM_PI\",\n" +
-                        "                    \"belop\": 275611\n" +
-                        "                },\n" +
-                        "                \"inntektListe\": [\n" +
-                        "                    {\n" +
-                        "                        \"changeStamp\": {\n" +
-                        "                            \"createdBy\": \"TESTDATA\",\n" +
-                        "                            \"createdDate\": 1586931865687,\n" +
-                        "                            \"updatedBy\": \"srvpensjon\",\n" +
-                        "                            \"updatedDate\": 1586931865850\n" +
-                        "                        },\n" +
-                        "                        \"inntektId\": 585473383,\n" +
-                        "                        \"fnr\": \"12117121168\",\n" +
-                        "                        \"inntektAr\": 2016,\n" +
-                        "                        \"kilde\": \"PEN\",\n" +
-                        "                        \"kommune\": \"1337\",\n" +
-                        "                        \"piMerke\": null,\n" +
-                        "                        \"inntektType\": \"INN_LON\",\n" +
-                        "                        \"belop\": 275611\n" +
-                        "                    }\n" +
-                        "                ],\n" +
-                        "                \"changeStamp\": {\n" +
-                        "                    \"createdBy\": \"srvpensjon\",\n" +
-                        "                    \"createdDate\": 1586931866338,\n" +
-                        "                    \"updatedBy\": \"srvpensjon\",\n" +
-                        "                    \"updatedDate\": 1586931866338\n" +
-                        "                }\n" +
-                        "            },\n" +
-                        "            \"omsorgOpptjeningBelop\": null,\n" +
-                        "            \"dagpengerOpptjeningBelop\": null,\n" +
-                        "            \"forstegangstjenesteOpptjeningBelop\": null,\n" +
-                        "            \"uforeOpptjeningBelop\": null,\n" +
-                        "            \"changeStamp\": {\n" +
-                        "                \"createdBy\": \"srvpensjon\",\n" +
-                        "                \"createdDate\": 1586931866338,\n" +
-                        "                \"updatedBy\": \"srvpensjon\",\n" +
-                        "                \"updatedDate\": 1586931866338\n" +
-                        "            }\n" +
-                        "        }\n" +
-                        "    ]\n" +
-                        "}");
+                .setBody("""
+                        {
+                            "beholdninger": [
+                                {
+                                    "beholdningId": 430456711,
+                                    "fnr": "12117121168",
+                                    "status": "G",
+                                    "beholdningType": "PEN_B",
+                                    "belop": 20137.460428429236,
+                                    "vedtakId": null,
+                                    "fomDato": 757378800000,
+                                    "tomDato": 788828400000,
+                                    "beholdningGrunnlag": 108655.1,
+                                    "beholdningGrunnlagAvkortet": 108655.0,
+                                    "beholdningInnskudd": 20137.460428429236,
+                                    "beholdningInnskuddUtenOmsorg": 19666.555000000004,
+                                    "oppdateringArsak": "NY_OPPTJENING",
+                                    "lonnsvekstregulering": null,
+                                    "inntektOpptjeningBelop": {
+                                        "inntektOpptjeningBelopId": 302319479,
+                                        "ar": 1992,
+                                        "belop": 108655.0,
+                                        "sumPensjonsgivendeInntekt": {
+                                            "changeStamp": {
+                                                "createdBy": "srvpensjon",
+                                                "createdDate": 1586931809567,
+                                                "updatedBy": "srvpensjon",
+                                                "updatedDate": 1586931813383
+                                            },
+                                            "inntektId": 585473360,
+                                            "fnr": "12117121168",
+                                            "inntektAr": 1992,
+                                            "kilde": "POPP",
+                                            "kommune": null,
+                                            "piMerke": null,
+                                            "inntektType": "SUM_PI",
+                                            "belop": 108655
+                                        },
+                                        "inntektListe": [
+                                            {
+                                                "changeStamp": {
+                                                    "createdBy": "TESTDATA",
+                                                    "createdDate": 1586931809059,
+                                                    "updatedBy": "srvpensjon",
+                                                    "updatedDate": 1586931809534
+                                                },
+                                                "inntektId": 585473359,
+                                                "fnr": "12117121168",
+                                                "inntektAr": 1992,
+                                                "kilde": "PEN",
+                                                "kommune": "1337",
+                                                "piMerke": null,
+                                                "inntektType": "INN_LON",
+                                                "belop": 108655
+                                            }
+                                        ],
+                                        "changeStamp": {
+                                            "createdBy": "srvpensjon",
+                                            "createdDate": 1586931854757,
+                                            "updatedBy": "srvpensjon",
+                                            "updatedDate": 1586931854757
+                                        }
+                                    },
+                                    "omsorgOpptjeningBelop": null,
+                                    "dagpengerOpptjeningBelop": null,
+                                    "forstegangstjenesteOpptjeningBelop": null,
+                                    "uforeOpptjeningBelop": null,
+                                    "changeStamp": {
+                                        "createdBy": "srvpensjon",
+                                        "createdDate": 1586931854758,
+                                        "updatedBy": "srvpensjon",
+                                        "updatedDate": 1586931854758
+                                    }
+                                },
+                                {
+                                    "beholdningId": 430457040,
+                                    "fnr": "12117121168",
+                                    "status": "G",
+                                    "beholdningType": "PEN_B",
+                                    "belop": 1317010.8630999844,
+                                    "vedtakId": null,
+                                    "fomDato": 1525125600000,
+                                    "tomDato": null,
+                                    "beholdningGrunnlag": 275611.0,
+                                    "beholdningGrunnlagAvkortet": 275611.0,
+                                    "beholdningInnskudd": 50913.322334762146,
+                                    "beholdningInnskuddUtenOmsorg": 49885.59100000001,
+                                    "oppdateringArsak": "REGULERING",
+                                    "lonnsvekstregulering": {
+                                        "lonnsvekstreguleringId": 318421599,
+                                        "reguleringsbelop": 44167.659176156856,
+                                        "reguleringsDato": 1525125600000,
+                                        "changeStamp": {
+                                            "createdBy": "srvpensjon",
+                                            "createdDate": 1586931866338,
+                                            "updatedBy": "srvpensjon",
+                                            "updatedDate": 1586931866338
+                                        }
+                                    },
+                                    "inntektOpptjeningBelop": {
+                                        "inntektOpptjeningBelopId": 302319528,
+                                        "ar": 2016,
+                                        "belop": 275611.0,
+                                        "sumPensjonsgivendeInntekt": {
+                                            "changeStamp": {
+                                                "createdBy": "srvpensjon",
+                                                "createdDate": 1586931865857,
+                                                "updatedBy": "srvpensjon",
+                                                "updatedDate": 1586931866344
+                                            },
+                                            "inntektId": 585473384,
+                                            "fnr": "12117121168",
+                                            "inntektAr": 2016,
+                                            "kilde": "POPP",
+                                            "kommune": null,
+                                            "piMerke": null,
+                                            "inntektType": "SUM_PI",
+                                            "belop": 275611
+                                        },
+                                        "inntektListe": [
+                                            {
+                                                "changeStamp": {
+                                                    "createdBy": "TESTDATA",
+                                                    "createdDate": 1586931865687,
+                                                    "updatedBy": "srvpensjon",
+                                                    "updatedDate": 1586931865850
+                                                },
+                                                "inntektId": 585473383,
+                                                "fnr": "12117121168",
+                                                "inntektAr": 2016,
+                                                "kilde": "PEN",
+                                                "kommune": "1337",
+                                                "piMerke": null,
+                                                "inntektType": "INN_LON",
+                                                "belop": 275611
+                                            }
+                                        ],
+                                        "changeStamp": {
+                                            "createdBy": "srvpensjon",
+                                            "createdDate": 1586931866338,
+                                            "updatedBy": "srvpensjon",
+                                            "updatedDate": 1586931866338
+                                        }
+                                    },
+                                    "omsorgOpptjeningBelop": null,
+                                    "dagpengerOpptjeningBelop": null,
+                                    "forstegangstjenesteOpptjeningBelop": null,
+                                    "uforeOpptjeningBelop": null,
+                                    "changeStamp": {
+                                        "createdBy": "srvpensjon",
+                                        "createdDate": 1586931866338,
+                                        "updatedBy": "srvpensjon",
+                                        "updatedDate": 1586931866338
+                                    }
+                                }
+                            ]
+                        }""");
     }
 
     private static MockResponse nonExistentPersonResponse() {
         return jsonResponse().setResponseCode(512)
-                .setBody("{\n" +
-                        "    \"exception\": \"PersonDoesNotExistExceptionDto\",\n" +
-                        "    \"message\": \"Person with pid = 01020312345 does not exist\"\n" +
-                        "}");
+                .setBody("""
+                        {
+                            "exception": "PersonDoesNotExistExceptionDto",
+                            "message": "Person with pid = 01020312345 does not exist"
+                        }""");
     }
 
     private static MockResponse invalidPidResponse() {
         return jsonResponse(INTERNAL_SERVER_ERROR)
-                .setBody("{\n" +
-                        "    \"message\": \"Pid validation failed, Pid validation failed," +
-                        " 01020312345 is not a valid personal identification number" +
-                        " is not a valid personal identification number\"\n" +
-                        "}");
+                .setBody("""
+                        {
+                            "message": "Pid validation failed, Pid validation failed, 01020312345 is not a valid personal identification number is not a valid personal identification number"
+                        }""");
     }
 
     private static MockResponse unauthorizedResponse() {

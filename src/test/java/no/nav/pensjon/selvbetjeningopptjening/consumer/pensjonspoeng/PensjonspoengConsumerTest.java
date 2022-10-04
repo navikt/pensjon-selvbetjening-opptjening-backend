@@ -1,10 +1,9 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng;
 
-import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Inntekt;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pensjonspoeng;
-import no.nav.pensjon.selvbetjeningopptjening.security.token.ServiceTokenData;
+import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
@@ -17,15 +16,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 class PensjonspoengConsumerTest extends WebClientTest {
 
-    private static final ServiceTokenData TOKEN = new ServiceTokenData("token", "type", LocalDateTime.MIN, 1L);
     private PensjonspoengConsumer consumer;
 
     @Autowired
@@ -33,11 +31,11 @@ class PensjonspoengConsumerTest extends WebClientTest {
     WebClient webClient;
 
     @Mock
-    ServiceTokenGetter tokenGetter;
+    private TokenGetterFacade tokenGetter;
 
     @BeforeEach
     void initialize() throws StsException {
-        when(tokenGetter.getServiceUserToken()).thenReturn(TOKEN);
+        when(tokenGetter.getToken(anyString())).thenReturn("token");
         consumer = new PensjonspoengConsumer(webClient, baseUrl(), tokenGetter);
     }
 

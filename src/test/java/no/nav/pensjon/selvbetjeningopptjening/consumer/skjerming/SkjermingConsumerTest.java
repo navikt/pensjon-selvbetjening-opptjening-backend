@@ -46,12 +46,13 @@ class SkjermingConsumerTest extends WebClientTest {
 
     private static MockResponse badRequestResponse() {
         return jsonResponse(BAD_REQUEST)
-                .setBody("{\n" +
-                        "    \"timestamp\": 1611593149366,\n" +
-                        "    \"status\": 400,\n" +
-                        "    \"error\": \"Bad Request\",\n" +
-                        "    \"message\": \"\",\n" +
-                        "    \"path\": \"/skjermet\"\n" +
-                        "}");
+                .setBody("""
+                        {
+                            "timestamp": 1611593149366,
+                            "status": 400,
+                            "error": "Bad Request",
+                            "message": "",
+                            "path": "/skjermet"
+                        }""");
     }
 }

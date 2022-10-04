@@ -1,7 +1,8 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pen;
 
+import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
+import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +18,9 @@ public abstract class AuthorizedPenConsumer {
 
     private static final String AUTH_TYPE = "Bearer";
     private static final Logger log = LoggerFactory.getLogger(AuthorizedPenConsumer.class);
-    private final ServiceTokenGetter tokenGetter;
+    private final TokenGetterFacade tokenGetter;
 
-    public AuthorizedPenConsumer(ServiceTokenGetter tokenGetter) {
+    public AuthorizedPenConsumer(TokenGetterFacade tokenGetter) {
         this.tokenGetter = requireNonNull(tokenGetter);
     }
 
@@ -37,7 +38,7 @@ public abstract class AuthorizedPenConsumer {
     }
 
     private String getAuthHeaderValue() throws StsException {
-        return AUTH_TYPE + " " + tokenGetter.getServiceUserToken().getAccessToken();
+        return AUTH_TYPE + " " + tokenGetter.getToken(AppIds.PENSJONSFAGLIG_KJERNE.appName);
     }
 
     private static FailedCallingExternalServiceException handle(WebClientResponseException e, String serviceIdentifier) {

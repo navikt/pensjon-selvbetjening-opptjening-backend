@@ -1,16 +1,16 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
+import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlError;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlErrorExtension;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
+import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
-import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -37,26 +37,22 @@ public class PdlConsumer implements Pingable {
 
     private static final String CONSUMED_SERVICE = "PDL";
     private static final String PATH = "/graphql";
-    private static final String TOKEN_ISSUER = "selvbetjening";
     private static final String AUTH_TYPE = "Bearer";
     private static final String THEME = "PEN";
     private static final Logger log = LoggerFactory.getLogger(PdlConsumer.class);
-    private final TokenValidationContextHolder context;
-    private final ServiceTokenGetter serviceUserTokenGetter;
+    private final TokenGetterFacade tokenGetter;
     private final WebClient webClient;
     private final String url;
 
     public PdlConsumer(@Value("${pdl.url}") String baseUrl,
-                       TokenValidationContextHolder context,
-                       ServiceTokenGetter serviceUserTokenGetter) {
-        this.context = requireNonNull(context, "context");
+                       TokenGetterFacade tokenGetter) {
         this.url = requireNonNull(baseUrl, "baseUrl") + PATH;
-        this.serviceUserTokenGetter = requireNonNull(serviceUserTokenGetter, "serviceUserTokenGetter");
+        this.tokenGetter = requireNonNull(tokenGetter, "tokenGetter");
         this.webClient = pdlWebClient();
     }
 
     public Person getPerson(Pid pid, LoginSecurityLevel securityLevel) throws PdlException {
-        PdlResponse response = getPersonResponse(pid, securityLevel);
+        PdlResponse response = getPersonResponse(pid);
         handleErrors(response);
         return fromDto(response, pid);
     }
@@ -82,12 +78,14 @@ public class PdlConsumer implements Pingable {
         return new PingInfo("REST", CONSUMED_SERVICE, url);
     }
 
-    private PdlResponse getPersonResponse(Pid pid, LoginSecurityLevel securityLevel) {
+    private PdlResponse getPersonResponse(Pid pid) {
         try {
-            return webClient
+             String authHeaderValue = getAuthHeaderValue();
+
+             return webClient
                     .post()
-                    .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue(securityLevel))
-                    .header(PdlHttpHeaders.CONSUMER_TOKEN, consumerToken())
+                    .header(HttpHeaders.AUTHORIZATION, authHeaderValue)
+                    .header(PdlHttpHeaders.CONSUMER_TOKEN, authHeaderValue)
                     .header(NAV_CALL_ID, MDC.get(NAV_CALL_ID))
                     .bodyValue(PdlRequest.getPersonQuery(pid))
                     .retrieve()
@@ -106,11 +104,8 @@ public class PdlConsumer implements Pingable {
         }
     }
 
-    private String getAuthHeaderValue(LoginSecurityLevel securityLevel) throws StsException {
-        return AUTH_TYPE + " " +
-                (securityLevel == LoginSecurityLevel.INTERNAL
-                        ? getServiceUserAccessToken()
-                        : getUserAccessToken());
+    private String getAuthHeaderValue() throws StsException {
+        return AUTH_TYPE + " " + tokenGetter.getToken(AppIds.PERSONDATALOSNINGEN.appName);
     }
 
     private WebClient pdlWebClient() {
@@ -121,9 +116,9 @@ public class PdlConsumer implements Pingable {
                 .defaultHeader(PdlHttpHeaders.THEME, THEME)
                 .build();
     }
-
+/*
     private String getServiceUserAccessToken() throws StsException {
-        return serviceUserTokenGetter.getServiceUserToken().getAccessToken();
+        return tokenGetter.getServiceUserToken().getAccessToken();
     }
 
     private String getUserAccessToken() {
@@ -132,7 +127,7 @@ public class PdlConsumer implements Pingable {
 
     private String consumerToken() throws StsException {
         return AUTH_TYPE + " " + getServiceUserAccessToken();
-    }
+    }*/
 
     private PdlResponse handleIoError(IOException e) {
         String cause = "Error when trying to read graphQL-query from file";
