@@ -3,9 +3,11 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.skjerming;
 import no.nav.pensjon.selvbetjeningopptjening.TestFnrs;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
+import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
 import okhttp3.mockwebserver.MockResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -16,9 +18,12 @@ class SkjermingConsumerTest extends WebClientTest {
     private static final Pid PID = new Pid(TestFnrs.NORMAL);
     private SkjermingConsumer consumer;
 
+    @Mock
+    private TokenGetterFacade tokenGetter;
+
     @BeforeEach
     void initialize() {
-        consumer = new SkjermingConsumer(baseUrl());
+        consumer = new SkjermingConsumer(baseUrl(), tokenGetter);
     }
 
     @Test
