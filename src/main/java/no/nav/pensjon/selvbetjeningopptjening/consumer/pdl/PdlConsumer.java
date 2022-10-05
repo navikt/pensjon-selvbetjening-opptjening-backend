@@ -116,18 +116,6 @@ public class PdlConsumer implements Pingable {
                 .defaultHeader(PdlHttpHeaders.THEME, THEME)
                 .build();
     }
-/*
-    private String getServiceUserAccessToken() throws StsException {
-        return tokenGetter.getServiceUserToken().getAccessToken();
-    }
-
-    private String getUserAccessToken() {
-        return context.getTokenValidationContext().getJwtToken(TOKEN_ISSUER).getTokenAsString();
-    }
-
-    private String consumerToken() throws StsException {
-        return AUTH_TYPE + " " + getServiceUserAccessToken();
-    }*/
 
     private PdlResponse handleIoError(IOException e) {
         String cause = "Error when trying to read graphQL-query from file";

@@ -37,7 +37,7 @@ class OpptjeningsgrunnlagConsumerTest extends WebClientTest {
             CONSUMED_SERVICE + " in " + POPP + ".";
 
     @Mock
- private TokenGetterFacade tokenGetter;
+    private TokenGetterFacade tokenGetter;
 
     @BeforeEach
     void initialize() throws StsException {

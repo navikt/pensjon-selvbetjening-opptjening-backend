@@ -15,8 +15,6 @@ import static org.springframework.util.StringUtils.hasLength;
 /**
  * Obtains access tokens from an authorization server (AS), and caches them
  * to avoid unnecessary calls to the AS.
- * Tokens are stored in the database ("slow cache", to support multiple app instances),
- * and also in an in-memory key/value map ("fast cache").
  */
 public abstract class CacheAwareTokenClient extends Oauth2TokenClient {
 
