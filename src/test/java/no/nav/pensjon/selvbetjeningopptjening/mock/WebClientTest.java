@@ -8,10 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.*;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -22,6 +19,7 @@ import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication
 @SpringBootTest
 @ContextConfiguration(classes = SelvbetjeningOpptjeningApplication.class)
 @TestPropertySource(properties = "fnr=dummy")
+@ActiveProfiles("test")
 public class WebClientTest {
 
     private static MockWebServer server;

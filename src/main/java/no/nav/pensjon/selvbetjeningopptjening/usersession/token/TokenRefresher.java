@@ -36,6 +36,6 @@ public abstract class TokenRefresher {
     }
 
     private TokenData getRefreshedToken(Cookie cookie) {
-        return tokenGetter.getTokenData(TokenAccessParam.refreshToken(cookie.getValue()));
+        return tokenGetter.getTokenData(TokenAccessParam.refreshToken(cookie.getValue()), "-");
     }
 }

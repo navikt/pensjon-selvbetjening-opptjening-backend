@@ -10,19 +10,23 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 class InternalUserTokenRefresherTest {
 
     private TokenRefresher tokenRefresher;
+
     @Mock
-    HttpServletRequest request;
+    private HttpServletRequest request;
     @Mock
-    TokenGetter tokenGetter;
+    private TokenGetter tokenGetter;
 
     @BeforeEach
     void setUp() {
@@ -33,8 +37,8 @@ class InternalUserTokenRefresherTest {
     void refreshToken_returns_new_tokens_when_refreshTokenCookie_exists() {
         Cookie[] cookies = {new Cookie("refresh-token", "current refresh token")};
         when(request.getCookies()).thenReturn(cookies);
-        var expected = new TokenData("access-token", "new ID token", "new refresh token");
-        when(tokenGetter.getTokenData(any(TokenAccessParam.class))).thenReturn(expected);
+        var expected = new TokenData("access-token", "new ID token", "new refresh token", LocalDateTime.MIN, 1L);
+        when(tokenGetter.getTokenData(any(TokenAccessParam.class), anyString())).thenReturn(expected);
 
         TokenData actual = tokenRefresher.refreshToken(request);
 

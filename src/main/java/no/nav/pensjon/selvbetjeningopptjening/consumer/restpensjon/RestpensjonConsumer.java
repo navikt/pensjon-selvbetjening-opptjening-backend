@@ -1,9 +1,10 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon;
 
-import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
+import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Restpensjon;
+import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,11 +37,11 @@ public class RestpensjonConsumer implements Pingable {
     private static final Logger log = LoggerFactory.getLogger(RestpensjonConsumer.class);
     private final String url;
     private final WebClient webClient;
-    private final ServiceTokenGetter tokenGetter;
+    private final TokenGetterFacade tokenGetter;
 
     RestpensjonConsumer(@Qualifier("epoch-support") WebClient webClient,
                         @Value("${popp.url}") String baseUrl,
-                        ServiceTokenGetter tokenGetter) {
+                        TokenGetterFacade tokenGetter) {
         this.webClient = requireNonNull(webClient, "webClient");
         this.url = requireNonNull(baseUrl, "baseUrl") + PATH;
         this.tokenGetter = requireNonNull(tokenGetter, "tokenGetter");
@@ -107,6 +108,6 @@ public class RestpensjonConsumer implements Pingable {
     }
 
     private String getAuthHeaderValue() throws StsException {
-        return AUTH_TYPE + " " + tokenGetter.getServiceUserToken().getAccessToken();
+        return AUTH_TYPE + " " + tokenGetter.getToken(AppIds.PENSJONSOPPTJENING_REGISTER.appName);
     }
 }

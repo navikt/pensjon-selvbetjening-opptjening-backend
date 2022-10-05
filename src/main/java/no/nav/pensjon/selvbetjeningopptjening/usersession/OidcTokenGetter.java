@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 
 import static java.util.Objects.requireNonNull;
 
-public abstract class OidcTokenGetter implements TokenGetter {
+public abstract class OidcTokenGetter implements TokenGetter { // cf. Oauth2TokenClient
 
     private static final Logger log = LoggerFactory.getLogger(OidcTokenGetter.class);
     private final WebClient webClient;
@@ -28,7 +28,8 @@ public abstract class OidcTokenGetter implements TokenGetter {
         this.oidcConfigGetter = requireNonNull(oidcConfigGetter, "oidcConfigGetter");
     }
 
-    public TokenData getTokenData(TokenAccessParam accessParam) {
+    @Override
+    public TokenData getTokenData(TokenAccessParam accessParam, String unused) {
         TokenResponseDto body = webClient
                 .post()
                 .uri(oidcConfigGetter.getTokenEndpoint())

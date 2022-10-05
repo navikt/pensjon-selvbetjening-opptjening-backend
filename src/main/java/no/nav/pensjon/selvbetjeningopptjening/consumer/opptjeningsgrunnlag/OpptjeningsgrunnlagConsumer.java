@@ -1,11 +1,12 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag;
 
-import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
+import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.model.OpptjeningsGrunnlagDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Inntekt;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.InntektMapper;
+import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +34,10 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
     private static final Logger log = LoggerFactory.getLogger(OpptjeningsgrunnlagConsumer.class);
     private final String url;
     private final WebClient webClient;
-    private final ServiceTokenGetter tokenGetter;
+    private final TokenGetterFacade tokenGetter;
 
     public OpptjeningsgrunnlagConsumer(@Value("${popp.url}") String baseUrl,
-                                       ServiceTokenGetter tokenGetter) {
+                                       TokenGetterFacade tokenGetter) {
         this.webClient = WebClient.create();
         this.url = requireNonNull(baseUrl, "baseUrl") + PATH;
         this.tokenGetter = requireNonNull(tokenGetter, "tokenGetter");
@@ -112,7 +113,7 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
     }
 
     private String getAuthHeaderValue() throws StsException {
-        return AUTH_TYPE + " " + tokenGetter.getServiceUserToken().getAccessToken();
+        return AUTH_TYPE + " " + tokenGetter.getToken(AppIds.PENSJONSOPPTJENING_REGISTER.appName);
     }
 
     private static List<Inntekt> fromDto(OpptjeningsGrunnlagDto grunnlag) {

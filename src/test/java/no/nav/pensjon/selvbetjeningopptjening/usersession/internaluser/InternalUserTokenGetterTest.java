@@ -21,7 +21,7 @@ class InternalUserTokenGetterTest extends WebClientTest {
     private WebClient webClient;
 
     @Mock
-    OidcConfigGetter oidcConfigGetter;
+    private OidcConfigGetter oidcConfigGetter;
 
     @BeforeEach
     void initialize() {
@@ -34,7 +34,7 @@ class InternalUserTokenGetterTest extends WebClientTest {
         when(oidcConfigGetter.getTokenEndpoint()).thenReturn(baseUrl());
         var tokenGetter = new InternalUserTokenGetter(webClient, oidcConfigGetter, "client-id", "client-secret", "redirect-uri");
 
-        TokenData tokenData = tokenGetter.getTokenData(TokenAccessParam.authorizationCode("code"));
+        TokenData tokenData = tokenGetter.getTokenData(TokenAccessParam.authorizationCode("code"), "");
 
         assertEquals(ID_TOKEN, tokenData.getIdToken());
     }

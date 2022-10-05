@@ -1,10 +1,9 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.sts.ServiceTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Inntekt;
-import no.nav.pensjon.selvbetjeningopptjening.security.token.ServiceTokenData;
+import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
@@ -16,13 +15,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
@@ -32,18 +31,17 @@ class OpptjeningsgrunnlagConsumerTest extends WebClientTest {
 
     private static final String CONSUMED_SERVICE = "PROPOPP007 hentOpptjeningsgrunnlag";
     private static final String MOCK_FNR = "01020312345";
-    private static final ServiceTokenData TOKEN = new ServiceTokenData("token", "type", LocalDateTime.MIN, 1L);
     private OpptjeningsgrunnlagConsumer consumer;
 
     private static final String EXPECTED_GENERAL_ERROR_MESSAGE = "Error when calling the external service " +
             CONSUMED_SERVICE + " in " + POPP + ".";
 
     @Mock
-    ServiceTokenGetter tokenGetter;
+    private TokenGetterFacade tokenGetter;
 
     @BeforeEach
     void initialize() throws StsException {
-        when(tokenGetter.getServiceUserToken()).thenReturn(TOKEN);
+        when(tokenGetter.getToken(anyString())).thenReturn("token");
         consumer = new OpptjeningsgrunnlagConsumer(baseUrl(), tokenGetter);
     }
 
@@ -111,65 +109,66 @@ class OpptjeningsgrunnlagConsumerTest extends WebClientTest {
 
     private static MockResponse okResponse() {
         return jsonResponse()
-                .setBody("{\n" +
-                        "    \"opptjeningsGrunnlag\": {\n" +
-                        "        \"fnr\": \"12117121168\",\n" +
-                        "        \"inntektListe\": [\n" +
-                        "            {\n" +
-                        "                \"changeStamp\": {\n" +
-                        "                    \"createdBy\": \"TESTDATA\",\n" +
-                        "                    \"createdDate\": 1586931866460,\n" +
-                        "                    \"updatedBy\": \"srvpensjon\",\n" +
-                        "                    \"updatedDate\": 1586931866775\n" +
-                        "                },\n" +
-                        "                \"inntektId\": 585473583,\n" +
-                        "                \"fnr\": \"12117121168\",\n" +
-                        "                \"inntektAr\": 2017,\n" +
-                        "                \"kilde\": \"PEN\",\n" +
-                        "                \"kommune\": \"1337\",\n" +
-                        "                \"piMerke\": null,\n" +
-                        "                \"inntektType\": \"INN_LON\",\n" +
-                        "                \"belop\": 280241\n" +
-                        "            },\n" +
-                        "            {\n" +
-                        "                \"changeStamp\": {\n" +
-                        "                    \"createdBy\": \"srvpensjon\",\n" +
-                        "                    \"createdDate\": 1586931866782,\n" +
-                        "                    \"updatedBy\": \"srvpensjon\",\n" +
-                        "                    \"updatedDate\": 1586931866946\n" +
-                        "                },\n" +
-                        "                \"inntektId\": 585473584,\n" +
-                        "                \"fnr\": \"12117121168\",\n" +
-                        "                \"inntektAr\": 2018,\n" +
-                        "                \"kilde\": \"POPP\",\n" +
-                        "                \"kommune\": null,\n" +
-                        "                \"piMerke\": null,\n" +
-                        "                \"inntektType\": \"SUM_PI\",\n" +
-                        "                \"belop\": 280242\n" +
-                        "            }\n" +
-                        "        ],\n" +
-                        "        \"omsorgListe\": [],\n" +
-                        "        \"dagpengerListe\": [],\n" +
-                        "        \"forstegangstjeneste\": null\n" +
-                        "    }\n" +
-                        "}");
+                .setBody("""
+                        {
+                            "opptjeningsGrunnlag": {
+                                "fnr": "12117121168",
+                                "inntektListe": [
+                                    {
+                                        "changeStamp": {
+                                            "createdBy": "TESTDATA",
+                                            "createdDate": 1586931866460,
+                                            "updatedBy": "srvpensjon",
+                                            "updatedDate": 1586931866775
+                                        },
+                                        "inntektId": 585473583,
+                                        "fnr": "12117121168",
+                                        "inntektAr": 2017,
+                                        "kilde": "PEN",
+                                        "kommune": "1337",
+                                        "piMerke": null,
+                                        "inntektType": "INN_LON",
+                                        "belop": 280241
+                                    },
+                                    {
+                                        "changeStamp": {
+                                            "createdBy": "srvpensjon",
+                                            "createdDate": 1586931866782,
+                                            "updatedBy": "srvpensjon",
+                                            "updatedDate": 1586931866946
+                                        },
+                                        "inntektId": 585473584,
+                                        "fnr": "12117121168",
+                                        "inntektAr": 2018,
+                                        "kilde": "POPP",
+                                        "kommune": null,
+                                        "piMerke": null,
+                                        "inntektType": "SUM_PI",
+                                        "belop": 280242
+                                    }
+                                ],
+                                "omsorgListe": [],
+                                "dagpengerListe": [],
+                                "forstegangstjeneste": null
+                            }
+                        }""");
     }
 
     private static MockResponse nonExistentPersonResponse() {
         return jsonResponse().setResponseCode(512)
-                .setBody("{\n" +
-                        "    \"exception\": \"PersonDoesNotExistExceptionDto\",\n" +
-                        "    \"message\": \"Person with pid = 01020312345 does not exist\"\n" +
-                        "}");
+                .setBody("""
+                        {
+                            "exception": "PersonDoesNotExistExceptionDto",
+                            "message": "Person with pid = 01020312345 does not exist"
+                        }""");
     }
 
     private static MockResponse invalidPidResponse() {
         return jsonResponse(INTERNAL_SERVER_ERROR)
-                .setBody("{\n" +
-                        "    \"message\": \"Pid validation failed, Pid validation failed," +
-                        " 01020312345 is not a valid personal identification number" +
-                        " is not a valid personal identification number\"\n" +
-                        "}");
+                .setBody("""
+                        {
+                            "message": "Pid validation failed, Pid validation failed, 01020312345 is not a valid personal identification number is not a valid personal identification number"
+                        }""");
     }
 
     private static MockResponse unauthorizedResponse() {

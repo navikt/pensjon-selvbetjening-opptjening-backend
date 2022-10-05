@@ -25,6 +25,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.time.LocalDateTime;
+
 import static java.lang.System.currentTimeMillis;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -81,7 +83,7 @@ class InternalUserAuthorizationCodeFlowTest {
                         "&response_type=code" +
                         "&redirect_uri=https%3A%2F%2Fpensjon-selvbetjening-opptjening-backend.dev.intern.nav.no%2Foauth2%2Finternal%2Fcallback" +
                         "&state=cryptic" +
-                        "&client_id=aad-client-id" +
+                        "&client_id=5d863b8b-5fd5-47d4-8c9b-7a78a534fb1b" +
                         "&response_mode=form_post"));
     }
 
@@ -97,14 +99,14 @@ class InternalUserAuthorizationCodeFlowTest {
                         "&response_type=code" +
                         "&redirect_uri=https%3A%2F%2Fpensjon-selvbetjening-opptjening-backend.dev.intern.nav.no%2Foauth2%2Finternal%2Fcallback" +
                         "&state=cryptic" +
-                        "&client_id=aad-client-id" +
+                        "&client_id=5d863b8b-5fd5-47d4-8c9b-7a78a534fb1b" +
                         "&response_mode=form_post"));
     }
 
     @Test
     void callback_with_state_redirects_to_given_uri() throws Exception {
-        var tokenData = new TokenData("access-token", "ID-token", "refresh-token");
-        when(tokenGetter.getTokenData(any(TokenAccessParam.class))).thenReturn(tokenData);
+        var tokenData = new TokenData("access-token", "ID-token", "refresh-token", LocalDateTime.MIN, 1L);
+        when(tokenGetter.getTokenData(any(TokenAccessParam.class), anyString())).thenReturn(tokenData);
         when(crypto.decrypt(anyString())).thenReturn(currentTimeMillis() + ":/api/foo");
 
         mvc.perform(post(CALLBACK_URL)
@@ -119,7 +121,7 @@ class InternalUserAuthorizationCodeFlowTest {
 
     @Test
     void refreshToken_redirects_ok_when_refresher_returns_token() throws Exception {
-        var tokenData = new TokenData("access-token", "new-ID-token", "new-refresh-token");
+        var tokenData = new TokenData("access-token", "new-ID-token", "new-refresh-token", LocalDateTime.MIN, 1L);
         when(tokenRefresher.refreshToken(any(HttpServletRequest.class))).thenReturn(tokenData);
 
         mvc.perform(getWithRefreshTokenCookie())

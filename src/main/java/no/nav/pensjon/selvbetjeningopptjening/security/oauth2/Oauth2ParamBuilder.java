@@ -83,6 +83,15 @@ public class Oauth2ParamBuilder {
         return map;
     }
 
+    public MultiValueMap<String, String> buildClientCredentialsTokenRequestMap() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add(GRANT_TYPE, accessParam.getGrantTypeName());
+        map.add(accessParam.getParamName(), accessParam.getValue());
+        map.add(CLIENT_ID, clientId);
+        map.add(CLIENT_SECRET, clientSecret);
+        return map;
+    }
+
     public String buildAuthorizationUri(String endpoint) {
         return endpoint + "?" +
                 buildAuthorizationMap()
