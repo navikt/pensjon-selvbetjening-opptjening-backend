@@ -24,7 +24,6 @@ public class SecurityConfiguration {
             @Value("${skjermede-personer-pip-app-id}") String skjermedePersonerPipAppId) {
         return new TokenAudiencesVsApps(
                 Map.of(fssGatewayAppId, List.of(
-                                AppIds.DIGITAL_KONTAKTINFORMASJON.appName,
                                 AppIds.PERSONDATALOSNINGEN.appName,
                                 AppIds.PENSJONSFAGLIG_KJERNE.appName),
                         pensjonsopptjeningRegisterAppId, List.of(AppIds.PENSJONSOPPTJENING_REGISTER.appName),
