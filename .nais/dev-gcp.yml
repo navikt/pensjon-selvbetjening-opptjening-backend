@@ -40,7 +40,7 @@ spec:
         extra:
           - NAVident
       replyURLs:
-        - https://pensjon-selvbetjening-opptjening-frontend.dev.adeo.no/pensjon/opptjening/oauth2/internal/callback
+        - https://pensjon-selvbetjening-opptjening-frontend.dev.nav.no/pensjon/opptjening/oauth2/internal/callback
         - https://pensjon-selvbetjening-opptjening-backend.dev.nav.no/oauth2/internal/callback
         - http://localhost:8080/oauth2/internal/callback
         - http://localhost:3000/oauth2/internal/callback

@@ -3,7 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.util;
 import java.time.LocalDate;
 import java.time.Month;
 
-public class DateUtil {
+public final class DateUtil {
 
     private static final int MAX_DAY_OF_MONTH = 31;
     private static final int DAYS_IN_FEBRUARY_IN_NON_LEAP_YEARS = 28;
@@ -25,9 +25,9 @@ public class DateUtil {
         return LocalDate.of(year, Month.DECEMBER, 31);
     }
 
-    public static boolean isDateInPeriod(LocalDate date, LocalDate periodFom, LocalDate periodTom) {
-        return date.isAfter(periodFom) && (periodTom == null || date.isBefore(periodTom)) || date.isEqual(periodFom)
-                || (periodTom != null && date.isEqual(periodTom));
+    public static boolean isDateInPeriod(LocalDate date, LocalDate fom, LocalDate tom) {
+        return date.isAfter(fom) && (tom == null || date.isBefore(tom)) || date.isEqual(fom)
+                || (tom != null && date.isEqual(tom));
     }
 
     public static int getDaysInFebruary(int year) {

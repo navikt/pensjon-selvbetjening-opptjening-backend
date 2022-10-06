@@ -10,7 +10,7 @@ import static java.time.Month.DECEMBER;
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup.*;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.*;
 
-public class UserGroupUtil {
+public final class UserGroupUtil {
 
     public static UserGroup findUserGroup(LocalDate birthDate) {
         return findUserGroup(birthDate.getYear(), birthDate.getMonth());
@@ -46,5 +46,8 @@ public class UserGroupUtil {
 
     private static void incrementCounter(String group) {
         Metrics.counter("pensjon_selvbetjening_user_group_counter", "user-group", group).increment();
+    }
+
+    private UserGroupUtil() {
     }
 }
