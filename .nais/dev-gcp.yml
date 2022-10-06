@@ -61,7 +61,7 @@ spec:
     - name: PEN_URL
       value: https://pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
     - name: POPP_URL
-      value: https://pensjon-popp-q2.dev.intern.nav.no
+      value: https://pensjon-popp-q2.dev-fss-pub.nais.io
     - name: SKJERMING_URL
       value: https://skjermede-personer-pip.dev.intern.nav.no
     - name: STS_URL
@@ -71,7 +71,7 @@ spec:
     - name: APP_ENVIRONMENT
       value: q2
     - name: AZURE_APP_REDIRECT_URI
-      value: https://pensjon-selvbetjening-opptjening-backend.dev.nav.no/oauth2/internal/callback
+      value: https://pensjon-selvbetjening-opptjening-frontend.dev.nav.no/pensjon/opptjening/oauth2/internal/callback
     - name: AUDIT_LOG_OUTPUT
       value: SYSLOG
     - name: STDOUT_LOG_OUTPUT

@@ -1,10 +1,9 @@
 package no.nav.pensjon.selvbetjeningopptjening.unleash;
 
-import java.util.function.Supplier;
-
 import no.finn.unleash.Unleash;
 
 public class UnleashProvider {
+
     private static Unleash unleash;
 
     public static void initialize(Unleash unleash) {
@@ -25,16 +24,6 @@ public class UnleashProvider {
 
         Toggle(String toggle) {
             this.toggle = toggle;
-        }
-
-        public <E extends Throwable> void throwIfDisabled(Supplier<E> supplier) throws E {
-            if(!unleash.isEnabled(toggle)) {
-                throw supplier.get();
-            }
-        }
-
-        public boolean isDisabled() {
-            return !unleash.isEnabled(toggle);
         }
 
         public boolean isEnabled() {
