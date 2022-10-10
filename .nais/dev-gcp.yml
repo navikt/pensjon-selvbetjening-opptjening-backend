@@ -40,16 +40,16 @@ spec:
         extra:
           - NAVident
       replyURLs:
-        - https://pensjon-selvbetjening-opptjening-frontend.dev.nav.no/pensjon/opptjening/oauth2/internal/callback
+        - https://pensjon-veiledning-opptjening-frontend.dev.intern.nav.no/pensjon/opptjening/oauth2/internal/callback
         - https://pensjon-selvbetjening-opptjening-backend.dev.nav.no/oauth2/internal/callback
-        - http://localhost:8080/oauth2/internal/callback
         - http://localhost:3000/oauth2/internal/callback
+        - http://localhost:8080/oauth2/internal/callback
   accessPolicy:
     inbound:
       rules:
         - application: pensjon-selvbetjening-opptjening-frontend
-          cluster: dev-fss
-        - application: pensjon-selvbetjening-opptjening-frontend
+          cluster: dev-gcp
+        - application: pensjon-veiledning-opptjening-frontend
           cluster: dev-gcp
   env:
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
@@ -71,7 +71,7 @@ spec:
     - name: APP_ENVIRONMENT
       value: q2
     - name: AZURE_APP_REDIRECT_URI
-      value: https://pensjon-selvbetjening-opptjening-frontend.dev.nav.no/pensjon/opptjening/oauth2/internal/callback
+      value: https://pensjon-veiledning-opptjening-frontend.dev.intern.nav.no/pensjon/opptjening/oauth2/internal/callback
     - name: AUDIT_LOG_OUTPUT
       value: SYSLOG
     - name: STDOUT_LOG_OUTPUT
