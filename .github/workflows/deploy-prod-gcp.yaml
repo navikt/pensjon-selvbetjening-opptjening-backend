@@ -1,0 +1,23 @@
+name: "Deploy to prod-gcp"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Which version to deploy (e.g. 7d40ea0c963f07817a97552c9d4aeb3e63969a2d)"
+        required: true
+
+jobs:
+  deploy-to-prod:
+    name: Deploy to prod-gcp
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Deploy to prod-gcp
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-gcp
+          IMAGE: ghcr.io/${{ github.repository }}/pensjon-selvbetjening-opptjening-backend:${{ github.event.inputs.version }}
+          RESOURCE: .nais/prod-gcp.yml

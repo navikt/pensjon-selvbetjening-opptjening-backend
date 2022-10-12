@@ -1,0 +1,81 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: pensjon-selvbetjening-opptjening-backend
+  namespace: pensjonselvbetjening
+  labels:
+    team: pensjonselvbetjening
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+spec:
+  image: {{ image_gcp }}
+  ingresses:
+    - https://pensjon-selvbetjening-opptjening-backend.dev.nav.no
+    - https://pensjon-selvbetjening-opptjening-backend.prod-fss-pub.nais.io
+  port: 8080
+  replicas:
+    min: 2
+    max: 4
+  liveness:
+    path: /internal/alive
+    initialDelay: 30
+    timeout: 1
+    periodSeconds: 30
+    failureThreshold: 5
+  readiness:
+    path: /internal/ready
+    initialDelay: 3
+    timeout: 1
+  prometheus:
+    enabled: true
+    path: /internal/prometheus
+  azure:
+    application:
+      enabled: true
+      tenant: nav.no
+      claims:
+        groups:
+          - id: "7845a796-1516-4d14-b500-fd65c001f35c" # 0000-GA-PENSJON_BRUKERHJELPA
+          - id: "70ef8e7f-7456-4298-95e0-b13c0ef2422b" # 0000-GA-Pensjon_Okonomi
+          - id: "0af3955f-df85-4eb0-b5b2-45bf2c8aeb9e" # 0000-GA-PENSJON_SAKSBEHANDLER
+          - id: "959ead5b-99b5-466b-a0ff-5fdbc687517b" # 0000-GA-Pensjon_VEILEDER
+          - id: "676b5e1f-84e6-46e5-8814-04233699ed4b" # 0000-GA-Pensjon_UTVIDET
+        extra:
+          - NAVident
+      replyURLs:
+        - https://pensjon-selvbetjening-opptjening-frontend.nais.adeo.no/pensjon/opptjening/oauth2/internal/callback
+        - https://pensjon-selvbetjening-opptjening-frontend.intern.nav.no/pensjon/opptjening/oauth2/internal/callback
+  accessPolicy:
+    inbound:
+      rules:
+        - application: pensjon-selvbetjening-opptjening-frontend
+          cluster: prod-gcp
+        - application: pensjon-veiledning-opptjening-frontend
+          cluster: prod-gcp
+  env:
+    - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
+      value: selvbetjening-idtoken
+    - name: HTTP_PROXY_PARAMETERNAME
+      value: notinuse
+    - name: PDL_URL
+      value: https://pensjon-selvbetjening-fss-gateway.prod-fss-pub.nais.io
+    - name: PEN_URL
+      value: https://pensjon-selvbetjening-fss-gateway.prod-fss-pub.nais.io
+    - name: POPP_URL
+      value: https://pensjon-popp.prod-fss-pub.nais.io
+    - name: SKJERMING_URL
+      value: https://skjermede-personer-pip.intern.nav.no
+    - name: STS_URL
+      value: notinuse
+    - name: UNLEASH_URL
+      value: https://unleash.nais.io
+    - name: APP_ENVIRONMENT
+      value: p
+    - name: AZURE_APP_REDIRECT_URI
+      value: https://pensjon-veiledning-opptjening-frontend.intern.nav.no/pensjon/opptjening/oauth2/internal/callback
+    - name: AUDIT_LOG_OUTPUT
+      value: SYSLOG
+    - name: STDOUT_LOG_OUTPUT
+      value: JSON
+  envFrom:
+    - configmap: loginservice-idporten
