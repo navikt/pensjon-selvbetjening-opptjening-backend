@@ -43,7 +43,7 @@ spec:
         extra:
           - NAVident
       replyURLs:
-        - https://pensjon-selvbetjening-opptjening-frontend.intern.nav.no/pensjon/opptjening/oauth2/internal/callback
+        - https://pensjon-veiledning-opptjening-frontend.intern.nav.no/pensjon/opptjening/oauth2/internal/callback
   accessPolicy:
     inbound:
       rules:
