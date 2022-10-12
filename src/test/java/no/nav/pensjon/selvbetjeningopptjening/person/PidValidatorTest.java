@@ -31,7 +31,8 @@ class PidValidatorTest {
     private static final String D_NUMMER_VALID_LOW_PNR_7 = "46073400007";
     private static final String D_NUMMER_VALID_LOW_PNR_8 = "70103900008";
     private static final String D_NUMMER_VALID_LOW_PNR_9 = "41033100009";
-    private static final String TESTNORGE_FNR = "29885596930";
+    private static final String TESTNORGE_FNR = "29885596930"; // +80 in "måned" value
+    private static final String DOLLY_FNR = "28457848279"; // +40 in "måned" value
 
     @Test
     void should_validate_false_when_special_circumstances_not_allowed_and_pid_has_special_circumstances() {
@@ -61,7 +62,6 @@ class PidValidatorTest {
 
     @Test
     void should_validate_true_when_special_circumstances_allowed_and_pid_has_special_circumstances() {
-        // validate the Pids with special circumstances enabled
         assertTrue(PidValidator.isValidPid(SPECIAL_FNR_0, true), "Special circumstance test failed for Fnr" + SPECIAL_FNR_0);
         assertTrue(PidValidator.isValidPid(SPECIAL_FNR_1, true), "Special circumstance test failed for Fnr" + SPECIAL_FNR_1);
 
@@ -88,7 +88,12 @@ class PidValidatorTest {
 
     @Test
     void should_create_Pid_when_valid_testnorgeFnr_as_input() {
-        assertTrue(PidValidator.isValidPid(TESTNORGE_FNR), "Could not create Pid using valid Testnorge Fnr");
+        assertTrue(PidValidator.isValidPid(TESTNORGE_FNR), "Could not create Pid using valid Test-Norge Fnr");
+    }
+
+    @Test
+    void should_create_Pid_when_valid_dollyFnr_as_input() {
+        assertTrue(PidValidator.isValidPid(DOLLY_FNR), "Could not create PID from valid Dolly FNR");
     }
 
     @Test
