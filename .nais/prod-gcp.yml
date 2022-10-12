@@ -8,7 +8,7 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
 spec:
-  image: {{ image_gcp }}
+  image: {{ image }}
   ingresses:
     - https://pensjon-selvbetjening-opptjening-backend.dev.nav.no
     - https://pensjon-selvbetjening-opptjening-backend.prod-fss-pub.nais.io
@@ -43,7 +43,6 @@ spec:
         extra:
           - NAVident
       replyURLs:
-        - https://pensjon-selvbetjening-opptjening-frontend.nais.adeo.no/pensjon/opptjening/oauth2/internal/callback
         - https://pensjon-selvbetjening-opptjening-frontend.intern.nav.no/pensjon/opptjening/oauth2/internal/callback
   accessPolicy:
     inbound:
