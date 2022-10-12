@@ -10,6 +10,7 @@ public class PidValidator {
     private static final int FNR_LENGTH = 11;
     private static final int BNR_MAANED_ADDITION = 20;
     private static final int DNR_DAG_ADDITION = 40;
+    private static final int DOLLY_FNR_MAANED_ADDITION = 40;
     private static final int TESTNORGE_FNR_MAANED_ADDITION = 80;
 
     /**
@@ -218,6 +219,8 @@ public class PidValidator {
 
         if (maaned > TESTNORGE_FNR_MAANED_ADDITION) {
             maaned -= TESTNORGE_FNR_MAANED_ADDITION;
+        } else if (maaned > DOLLY_FNR_MAANED_ADDITION) {
+            maaned -= DOLLY_FNR_MAANED_ADDITION;
         }
 
         int aar = getAdjustedAar(pid, isDnr);
