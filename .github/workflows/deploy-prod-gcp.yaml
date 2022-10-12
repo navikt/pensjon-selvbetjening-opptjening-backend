@@ -19,5 +19,5 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          IMAGE: ghcr.io/${{ github.repository }}/pensjon-selvbetjening-opptjening-backend:${{ github.event.inputs.version }}
+          IMAGE: ghcr.io/${{ github.repository }}/pensjon-selvbetjening-opptjening-backend-gcp:${{ github.event.inputs.version }}
           RESOURCE: .nais/prod-gcp.yml
