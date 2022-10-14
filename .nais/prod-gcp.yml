@@ -10,7 +10,7 @@ metadata:
 spec:
   image: {{ image }}
   ingresses:
-    - https://pensjon-selvbetjening-opptjening-backend.dev.nav.no
+    - https://pensjon-selvbetjening-opptjening-backend.intern.nav.no
   port: 8080
   replicas:
     min: 2
