@@ -61,6 +61,8 @@ spec:
       value: https://pensjon-selvbetjening-fss-gateway.prod-fss-pub.nais.io
     - name: POPP_URL
       value: https://pensjon-popp.prod-fss-pub.nais.io
+    - name: SKJERMEDE_PERSONER_PIP_APP_ID
+      value: prod-gcp:nom:skjermede-personer-pip
     - name: SKJERMING_URL
       value: https://skjermede-personer-pip.intern.nav.no
     - name: STS_URL
