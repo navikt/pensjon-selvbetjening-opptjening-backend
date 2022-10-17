@@ -55,10 +55,14 @@ spec:
       value: selvbetjening-idtoken
     - name: HTTP_PROXY_PARAMETERNAME
       value: notinuse
+    - name: FSS_GATEWAY_APP_ID
+      value: prod-fss:pensjonselvbetjening:pensjon-selvbetjening-fss-gateway
     - name: PDL_URL
       value: https://pensjon-selvbetjening-fss-gateway.prod-fss-pub.nais.io
     - name: PEN_URL
       value: https://pensjon-selvbetjening-fss-gateway.prod-fss-pub.nais.io
+    - name: PENSJONSOPPTJENING_REGISTER_APP_ID
+      value: prod-fss:pensjonopptjening:pensjon-popp
     - name: POPP_URL
       value: https://pensjon-popp.prod-fss-pub.nais.io
     - name: SKJERMEDE_PERSONER_PIP_APP_ID
