@@ -50,6 +50,16 @@ spec:
           cluster: prod-gcp
         - application: pensjon-veiledning-opptjening-frontend
           cluster: prod-gcp
+    outbound:
+      rules:
+        - application: pensjon-popp
+          namespace: pensjonopptjening
+          cluster: prod-fss
+        - application: pensjon-selvbetjening-fss-gateway
+          namespace: pensjonselvbetjening
+          cluster: prod-fss
+        - application: skjermede-personer-pip
+          namespace: nom
   env:
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
       value: selvbetjening-idtoken
