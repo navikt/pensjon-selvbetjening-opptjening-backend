@@ -11,30 +11,29 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("internal")
+@RequestMapping("api")
 @Unprotected
-public class AppHealthEndpoint {
+public class StatusEndpoint {
 
-    @RequestMapping(path = "alive", method = RequestMethod.GET)
-    public ResponseEntity<?> isAlive() {
-        return statusUp();
+    @RequestMapping(path = "status", method = RequestMethod.GET)
+    public ResponseEntity<?> status() {
+        return statusOk();
     }
 
-    @RequestMapping(path = "ready", method = RequestMethod.GET)
-    public ResponseEntity<?> isReady() {
-        return statusUp();
-    }
-
-    private static ResponseEntity<?> statusUp() {
+    /**
+     * Ref. Team Digital Status: Statusplattformen: Metoder for å oppdatere status
+     * (https://confluence.adeo.no/pages/viewpage.action?pageId=460442120)
+     */
+    private static ResponseEntity<?> statusOk() {
         return new ResponseEntity<>(
-                "up",
-                plainTextContentHeader(),
+                "{\"status\":\"OK\"}",
+                jsonContentHeader(),
                 HttpStatus.OK);
     }
 
-    private static MultiValueMap<String, String> plainTextContentHeader() {
+    private static MultiValueMap<String, String> jsonContentHeader() {
         MultiValueMap<String, String> headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
+        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         return headers;
     }
 }
