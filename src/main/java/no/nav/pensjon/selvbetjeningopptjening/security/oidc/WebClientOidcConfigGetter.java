@@ -16,7 +16,7 @@ public class WebClientOidcConfigGetter implements OidcConfigGetter {
     private final String configUrl;
     private OidcConfigDto config;
 
-    public WebClientOidcConfigGetter(@Qualifier("external-call") WebClient webClient,
+    public WebClientOidcConfigGetter(WebClient webClient,
                                      @Value("${internal-user.openid.well-known-url}") String configUrl) {
         this.webClient = requireNonNull(webClient);
         this.configUrl = requireNonNull(configUrl);

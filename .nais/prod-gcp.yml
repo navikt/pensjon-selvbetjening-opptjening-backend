@@ -63,8 +63,6 @@ spec:
   env:
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
       value: selvbetjening-idtoken
-    - name: HTTP_PROXY_PARAMETERNAME
-      value: notinuse
     - name: FSS_GATEWAY_APP_ID
       value: prod-fss:pensjonselvbetjening:pensjon-selvbetjening-fss-gateway
     - name: PDL_URL
@@ -79,8 +77,6 @@ spec:
       value: prod-gcp:nom:skjermede-personer-pip
     - name: SKJERMING_URL
       value: https://skjermede-personer-pip.intern.nav.no
-    - name: STS_URL
-      value: notinuse
     - name: UNLEASH_URL
       value: https://unleash.nais.io
     - name: APP_ENVIRONMENT

@@ -13,7 +13,7 @@ public class LeewayExpirationChecker implements ExpirationChecker {
     private final long leewaySeconds;
 
     public LeewayExpirationChecker(TimeProvider timeProvider,
-                                   @Value("${sts.token.expiration.leeway}") String leewaySeconds) {
+                                   @Value("${token.expiration.leeway}") String leewaySeconds) {
         this.timeProvider = timeProvider;
         this.leewaySeconds = Long.parseLong(leewaySeconds);
     }

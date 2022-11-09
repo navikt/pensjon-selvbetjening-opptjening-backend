@@ -7,7 +7,6 @@ import no.nav.pensjon.selvbetjeningopptjening.model.OpptjeningsGrunnlagDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Inntekt;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.InntektMapper;
 import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
-import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -22,6 +21,7 @@ import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.PoppUtil.handle;
+import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
 
 @Component
@@ -36,14 +36,19 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
     private final WebClient webClient;
     private final TokenGetterFacade tokenGetter;
 
-    public OpptjeningsgrunnlagConsumer(@Value("${popp.url}") String baseUrl,
+    public OpptjeningsgrunnlagConsumer(WebClient webClient,
+                                       @Value("${popp.url}") String baseUrl,
                                        TokenGetterFacade tokenGetter) {
-        this.webClient = WebClient.create();
+        this.webClient = requireNonNull(webClient, "webClient");
         this.url = requireNonNull(baseUrl, "baseUrl") + PATH;
         this.tokenGetter = requireNonNull(tokenGetter, "tokenGetter");
     }
 
     public List<Inntekt> getInntektListeFromOpptjeningsgrunnlag(String fnr, Integer fomAr, Integer tomAr) {
+        if (log.isDebugEnabled()) {
+            log.debug("Calling {} for PID {}", CONSUMED_SERVICE, maskFnr(fnr));
+        }
+
         try {
             var response = webClient
                     .get()
@@ -55,9 +60,6 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
                     .block();
 
             return response == null ? null : fromDto(response.getOpptjeningsGrunnlag());
-        } catch (StsException e) {
-            log.error(String.format("STS error in %s: %s", CONSUMED_SERVICE, e.getMessage()), e);
-            throw handle(e, CONSUMED_SERVICE);
         } catch (WebClientResponseException e) {
             throw handle(e, CONSUMED_SERVICE);
         } catch (RuntimeException e) { // e.g. when connection broken
@@ -76,9 +78,6 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
                     .retrieve()
                     .toBodilessEntity()
                     .block();
-        } catch (StsException e) {
-            log.error(String.format("STS error in %s: %s", CONSUMED_SERVICE, e.getMessage()), e);
-            throw handle(e, CONSUMED_SERVICE);
         } catch (WebClientResponseException e) {
             throw handle(e, CONSUMED_SERVICE);
         } catch (RuntimeException e) { // e.g. when connection broken
@@ -112,7 +111,7 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
                 .toUriString();
     }
 
-    private String getAuthHeaderValue() throws StsException {
+    private String getAuthHeaderValue() {
         return AUTH_TYPE + " " + tokenGetter.getToken(AppIds.PENSJONSOPPTJENING_REGISTER.appName);
     }
 

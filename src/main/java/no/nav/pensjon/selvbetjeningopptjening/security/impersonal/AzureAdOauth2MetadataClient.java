@@ -12,7 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Qualifier("azure-ad")
 public class AzureAdOauth2MetadataClient extends Oauth2ConfigClient {
 
-    public AzureAdOauth2MetadataClient(@Qualifier("external-call") WebClient webClient,
+    public AzureAdOauth2MetadataClient(WebClient webClient,
                                        @Value("${azure-app.well-known-url}") String configUrl) {
         super(webClient, configUrl);
     }

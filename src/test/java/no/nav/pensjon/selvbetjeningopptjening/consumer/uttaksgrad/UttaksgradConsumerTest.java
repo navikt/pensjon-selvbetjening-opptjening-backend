@@ -3,7 +3,6 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uttaksgrad;
 import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
-import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -35,7 +34,7 @@ class UttaksgradConsumerTest extends WebClientTest {
     private TokenGetterFacade tokenGetter;
 
     @BeforeEach
-    void initialize() throws StsException {
+    void initialize() {
         when(tokenGetter.getToken(anyString())).thenReturn("token");
         consumer = new UttaksgradConsumer(webClient, baseUrl(), tokenGetter);
     }

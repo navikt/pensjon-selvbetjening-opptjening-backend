@@ -18,7 +18,7 @@ public class ClientCredentialsTokenRequestClient extends CacheAwareTokenClient {
 
     private final ClientCredentials credentials;
 
-    public ClientCredentialsTokenRequestClient(@Qualifier("external-call") WebClient webClient,
+    public ClientCredentialsTokenRequestClient(WebClient webClient,
                                                Oauth2ConfigGetter oauth2ConfigGetter,
                                                ExpirationChecker expirationChecker,
                                                ClientCredentials credentials) {

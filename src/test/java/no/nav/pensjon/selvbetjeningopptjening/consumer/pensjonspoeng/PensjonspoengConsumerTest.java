@@ -4,7 +4,6 @@ import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Inntekt;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pensjonspoeng;
 import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
-import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -34,7 +33,7 @@ class PensjonspoengConsumerTest extends WebClientTest {
     private TokenGetterFacade tokenGetter;
 
     @BeforeEach
-    void initialize() throws StsException {
+    void initialize() {
         when(tokenGetter.getToken(anyString())).thenReturn("token");
         consumer = new PensjonspoengConsumer(webClient, baseUrl(), tokenGetter);
     }

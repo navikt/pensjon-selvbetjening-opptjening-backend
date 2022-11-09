@@ -1,6 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer;
 
-import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
@@ -50,11 +49,6 @@ public class PoppUtil {
         }
 
         return new FailedCallingExternalServiceException(POPP, service, "An error occurred in the provider", e);
-    }
-
-    public static FailedCallingExternalServiceException handle(StsException e, String service) {
-        String cause = "Failed to acquire token for accessing " + service;
-        return new FailedCallingExternalServiceException(POPP, service, cause, e);
     }
 
     public static FailedCallingExternalServiceException handle(RuntimeException e, String service) {

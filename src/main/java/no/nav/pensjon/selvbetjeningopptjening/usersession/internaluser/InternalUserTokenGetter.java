@@ -21,7 +21,7 @@ public class InternalUserTokenGetter extends OidcTokenGetter {
     private final String clientSecret;
     private final String callbackUri;
 
-    public InternalUserTokenGetter(@Qualifier("external-call") WebClient webClient,
+    public InternalUserTokenGetter(WebClient webClient,
                                    @Qualifier("internal-user") OidcConfigGetter oidcConfigGetter,
                                    @Value("${internal-user.openid.client-id}") String clientId,
                                    @Value("${internal-user.openid.client-secret}") String clientSecret,

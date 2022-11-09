@@ -3,7 +3,6 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.pen;
 import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
-import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -12,6 +11,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import java.util.function.BiFunction;
 
 import static java.util.Objects.requireNonNull;
+import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.PEN;
 
 public abstract class AuthorizedPenConsumer {
@@ -25,11 +25,12 @@ public abstract class AuthorizedPenConsumer {
     }
 
     protected <T> T getObject(BiFunction<String, String, T> getter, String argument, String serviceName) {
+        if (log.isDebugEnabled()) {
+            log.debug("Calling {} with argument {}", serviceName, maskFnr(argument));
+        }
+
         try {
             return getter.apply(argument, getAuthHeaderValue());
-        } catch (StsException e) {
-            log.error(String.format("STS error in %s: %s", serviceName, e.getMessage()), e);
-            throw handle(e, serviceName);
         } catch (WebClientResponseException e) {
             throw handle(e, serviceName);
         } catch (RuntimeException e) { // e.g. when connection broken
@@ -37,7 +38,7 @@ public abstract class AuthorizedPenConsumer {
         }
     }
 
-    private String getAuthHeaderValue() throws StsException {
+    private String getAuthHeaderValue() {
         return AUTH_TYPE + " " + tokenGetter.getToken(AppIds.PENSJONSFAGLIG_KJERNE.appName);
     }
 
@@ -55,11 +56,6 @@ public abstract class AuthorizedPenConsumer {
         }
 
         return new FailedCallingExternalServiceException(PEN, serviceIdentifier, "An error occurred in the consumer", e);
-    }
-
-    private static FailedCallingExternalServiceException handle(StsException e, String service) {
-        String cause = "Failed to acquire token for accessing " + service;
-        return new FailedCallingExternalServiceException(PEN, service, cause, e);
     }
 
     private static FailedCallingExternalServiceException handle(RuntimeException e, String service) {

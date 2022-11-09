@@ -10,7 +10,6 @@ import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
-import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -30,6 +29,7 @@ import java.util.List;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.mapping.PersonMapper.fromDto;
+import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
 
 @Component
@@ -79,6 +79,10 @@ public class PdlConsumer implements Pingable {
     }
 
     private PdlResponse getPersonResponse(Pid pid) {
+        if (log.isDebugEnabled()) {
+            log.debug("Calling {} for PID {}", CONSUMED_SERVICE, maskFnr(pid));
+        }
+
         try {
              String authHeaderValue = getAuthHeaderValue();
 
@@ -94,8 +98,6 @@ public class PdlConsumer implements Pingable {
                     .block();
         } catch (IOException e) {
             return handleIoError(e);
-        } catch (StsException e) {
-            return handleStsError(e);
         } catch (WebClientResponseException e) {
             throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, "", e.getResponseBodyAsString(), e);
         } catch (RuntimeException e) {
@@ -104,7 +106,7 @@ public class PdlConsumer implements Pingable {
         }
     }
 
-    private String getAuthHeaderValue() throws StsException {
+    private String getAuthHeaderValue() {
         return AUTH_TYPE + " " + tokenGetter.getToken(AppIds.PERSONDATALOSNINGEN.appName);
     }
 
@@ -119,12 +121,6 @@ public class PdlConsumer implements Pingable {
 
     private PdlResponse handleIoError(IOException e) {
         String cause = "Error when trying to read graphQL-query from file";
-        log.error(CONSUMED_SERVICE + " error: " + cause, e);
-        throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, cause);
-    }
-
-    private PdlResponse handleStsError(StsException e) {
-        String cause = "Failed to acquire token for accessing PDL";
         log.error(CONSUMED_SERVICE + " error: " + cause, e);
         throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, cause);
     }
