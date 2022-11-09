@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class PidValidatorTest {
@@ -133,5 +132,15 @@ class PidValidatorTest {
         assertTrue(PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_7, true), "Could not create Dnr");
         assertTrue(PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_8, true), "Could not create Dnr");
         assertTrue(PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_9, true), "Could not create Dnr");
+    }
+
+    @Test
+    void getDatoPart_should_return_adjustedDatoPart_when_valid_testNorgeFnr_as_input() {
+        assertEquals("29081955", PidValidator.getDatoPart(TESTNORGE_FNR));
+    }
+
+    @Test
+    void getDatoPart_should_return_adjustedDatoPart_when_valid_dollyFnr_as_input() {
+        assertEquals("28051978", PidValidator.getDatoPart(DOLLY_FNR));
     }
 }

@@ -1,6 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.person;
 
 import static java.lang.Integer.parseInt;
+import static java.lang.String.format;
 import static no.nav.pensjon.selvbetjeningopptjening.person.PidIndexes.*;
 import static no.nav.pensjon.selvbetjeningopptjening.util.DateUtil.*;
 import static org.apache.commons.lang3.StringUtils.*;
@@ -8,9 +9,11 @@ import static org.apache.commons.lang3.StringUtils.*;
 public class PidValidator {
 
     private static final int FNR_LENGTH = 11;
-    private static final int BNR_MAANED_ADDITION = 20;
+    private static final int MONTHS_PER_YEAR = 12;
     private static final int DNR_DAG_ADDITION = 40;
+    private static final int BOST_NUMMER_MAANED_ADDITION = 20; // BOST is a legacy PID type (replaced by NPID)
     private static final int DOLLY_FNR_MAANED_ADDITION = 40;
+    private static final int NPID_SYNTHETIC_FNR_MAANED_ADDITION = 60;
     private static final int TESTNORGE_FNR_MAANED_ADDITION = 80;
 
     /**
@@ -28,7 +31,7 @@ public class PidValidator {
             return false;
         }
 
-        String adjustedValue = makeDnrOrBnrAdjustments(trimmedValue);
+        String adjustedValue = makeDnrOrNpidOrSyntAdjustments(trimmedValue);
         return hasValidDatoPart(adjustedValue, isDnr(trimmedValue));
     }
 
@@ -45,36 +48,53 @@ public class PidValidator {
                 && isModulus11Compliant(value, acceptSpecialCircumstances);
     }
 
-    /**
-     * If the input is a DNR (D-nummer) or BNR (BOST-nummer), it will be adjusted so that the first 6 numbers
-     * represent a valid date (in this case the return value will fail a modulus 11 check).
-     * If the input is neither a DNR nor a BNR (but e.g. an FNR), the value will be returned unchanged.
-     */
-    private static String makeDnrOrBnrAdjustments(String value) {
+    private static String makeDnrOrNpidOrSyntAdjustments(String value) {
         if (isBlank(value)) {
             return value;
         }
 
-        // D-nummer adjustment:
-        int dag = getDag(value) - DNR_DAG_ADDITION;
+        // FNR format will be <DDMMAAXXXYY>
+        int dayValue = parseInt(value.substring(0, 2));
+        int monthValue = parseInt(value.substring(2, 4));
 
-        if (isDayOfMonth(dag)) {
-            return new StringBuilder(value).replace(DAG_START, DAG_END, as2Chars(dag)).toString();
+        if (isMonth(monthValue, DOLLY_FNR_MAANED_ADDITION)) {
+            value = replaceMonth(value, monthValue - DOLLY_FNR_MAANED_ADDITION);
+        } else if (isMonth(monthValue, NPID_SYNTHETIC_FNR_MAANED_ADDITION)) {
+            value = replaceMonth(value, monthValue - NPID_SYNTHETIC_FNR_MAANED_ADDITION);
+        } else if (isMonth(monthValue, TESTNORGE_FNR_MAANED_ADDITION)) {
+            value = replaceMonth(value, monthValue - TESTNORGE_FNR_MAANED_ADDITION);
         }
 
-        // BOST-nummer adjustment:
-        int maaned = getMaaned(value) - BNR_MAANED_ADDITION;
-
-        if (isMonth(maaned)) {
-            return new StringBuilder(value).replace(MAANED_START, MAANED_END, as2Chars(maaned)).toString();
+        if (isDnrDay(dayValue)) {
+            return replaceDay(value, dayValue - DNR_DAG_ADDITION);
+        } else if (isMonth(monthValue, BOST_NUMMER_MAANED_ADDITION)) {
+            return replaceMonth(value, monthValue - BOST_NUMMER_MAANED_ADDITION);
         }
 
-        // value is neither BOST- nor D-nummer
+        // value is neither BOST-nr. nor D-nr.
         return value;
     }
 
+    private static boolean isMonth(int value, int adjustment) {
+        int monthValue = value - adjustment;
+        return 1 <= monthValue && monthValue <= MONTHS_PER_YEAR;
+    }
+
+    private static String replaceDay(String value, int day) {
+        return new StringBuffer(value).replace(0, 2, format("%02d", day)).toString();
+    }
+
+    private static String replaceMonth(String value, int month) {
+        return new StringBuffer(value).replace(2, 4, format("%02d", month)).toString();
+    }
+
+    private static boolean isDnrDay(int day) {
+        // In a D-nummer 40 is added to the date part
+        return (day > DNR_DAG_ADDITION && day <= 71);
+    }
+
     public static String getDatoPart(String pid) {
-        String adjustedPid = makeDnrOrBnrAdjustments(pid);
+        String adjustedPid = makeDnrOrNpidOrSyntAdjustments(pid);
         return getDagAndMaaned(adjustedPid) + getAdjustedAar(adjustedPid, isDnr(pid));
     }
 
@@ -250,9 +270,5 @@ public class PidValidator {
         }
 
         return getDaysInMonth(maaned, aar);
-    }
-
-    private static String as2Chars(int value) {
-        return value < 10 ? "0" + value : Integer.toString(value);
     }
 }
