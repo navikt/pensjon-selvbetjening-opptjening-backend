@@ -11,7 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class InternalUserCertificateGetter extends OidcCertificateGetter {
 
     public InternalUserCertificateGetter(
-            @Qualifier("external-call") WebClient webClient,
+            WebClient webClient,
             @Qualifier("internal-user") OidcConfigGetter oidcConfigGetter) {
         super(webClient, oidcConfigGetter);
     }

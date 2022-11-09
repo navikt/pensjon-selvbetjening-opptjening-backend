@@ -8,7 +8,6 @@ import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uttaksgrad;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.UttaksgradMapper;
-import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -24,6 +23,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
+import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.PEN;
 
@@ -51,6 +51,10 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
 
     @Override
     public List<Uttaksgrad> getUttaksgradForVedtak(List<Long> vedtakIds) {
+        if (log.isDebugEnabled()) {
+            log.debug("Calling {}", UTTAKSGRAD_SERVICE);
+        }
+
         try {
             var response = webClient
                     .get()
@@ -62,9 +66,6 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
                     .block();
 
             return response == null ? null : UttaksgradMapper.fromDtos(response.getUttaksgradList());
-        } catch (StsException e) {
-            log.error(String.format("STS error in %s: %s", UTTAKSGRAD_SERVICE, e.getMessage()), e);
-            throw handle(e, UTTAKSGRAD_SERVICE);
         } catch (WebClientResponseException e) {
             throw handle(e, UTTAKSGRAD_SERVICE);
         } catch (RuntimeException e) { // e.g. when connection broken
@@ -74,6 +75,10 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
 
     @Override
     public List<Uttaksgrad> getAlderSakUttaksgradhistorikkForPerson(String fnr) {
+        if (log.isDebugEnabled()) {
+            log.debug("Calling {} for PID {}", UTTAKSGRAD_HISTORIKK_SERVICE, maskFnr(fnr));
+        }
+
         try {
             var response = webClient
                     .get()
@@ -85,9 +90,6 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
                     .block();
 
             return response == null ? null : UttaksgradMapper.fromDtos(response.getUttaksgradList());
-        } catch (StsException e) {
-            log.error(String.format("STS error in %s: %s", UTTAKSGRAD_HISTORIKK_SERVICE, e.getMessage()), e);
-            throw handle(e, UTTAKSGRAD_HISTORIKK_SERVICE);
         } catch (WebClientResponseException e) {
             throw handle(e, UTTAKSGRAD_HISTORIKK_SERVICE);
         } catch (RuntimeException e) { // e.g. when connection broken
@@ -105,9 +107,6 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
                     .retrieve()
                     .toBodilessEntity()
                     .block();
-        } catch (StsException e) {
-            log.error(String.format("STS error in %s: %s", PING_SERVICE, e.getMessage()), e);
-            throw handle(e, PING_SERVICE);
         } catch (WebClientResponseException e) {
             throw handle(e, PING_SERVICE);
         } catch (RuntimeException e) { // e.g. when connection broken
@@ -124,7 +123,7 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
         return UriComponentsBuilder.fromHttpUrl(url).path(ENDPOINT_PATH + "/ping").toUriString();
     }
 
-    private String getAuthHeaderValue() throws StsException {
+    private String getAuthHeaderValue() {
         return AUTH_TYPE + " " + tokenGetter.getToken(AppIds.PENSJONSFAGLIG_KJERNE.appName);
     }
 
@@ -148,11 +147,6 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
         }
 
         return new FailedCallingExternalServiceException(PEN, serviceIdentifier, "An error occurred in the consumer", e);
-    }
-
-    private static FailedCallingExternalServiceException handle(StsException e, String service) {
-        String cause = "Failed to acquire token for accessing " + service;
-        return new FailedCallingExternalServiceException(PEN, service, cause, e);
     }
 
     private static FailedCallingExternalServiceException handle(RuntimeException e, String service) {

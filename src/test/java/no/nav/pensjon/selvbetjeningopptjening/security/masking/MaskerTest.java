@@ -1,5 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.security.masking;
 
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -9,6 +10,7 @@ class MaskerTest {
     @Test
     void maskFnr_masks_other_fnr_digits_than_birthDate() {
         assertEquals("123456*****", Masker.maskFnr("12345678901"));
+        assertEquals("049253*****", Masker.maskFnr(new Pid("04925398980")));
     }
 
     @Test
@@ -23,6 +25,7 @@ class MaskerTest {
 
     @Test
     void maskFnr_returns_textNull_for_valueNull() {
-        assertEquals("null", Masker.maskFnr(null));
+        assertEquals("null", Masker.maskFnr((Pid) null));
+        assertEquals("null", Masker.maskFnr((String) null));
     }
 }

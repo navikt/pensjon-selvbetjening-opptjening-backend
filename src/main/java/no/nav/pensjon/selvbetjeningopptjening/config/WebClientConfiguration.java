@@ -14,13 +14,10 @@ import reactor.netty.http.client.HttpClient;
 @Configuration
 public class WebClientConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(WebClientConfiguration.class);
-
     @Bean
     @Primary
     WebClient webClient() {
-        var httpClient = HttpClient.create()
-                .wiretap(true);
+        var httpClient = HttpClient.create().wiretap(true);
 
         return WebClient.builder()
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
@@ -28,20 +25,10 @@ public class WebClientConfiguration {
     }
 
     @Bean
-    @Qualifier("external-call")
-    WebClient webClientForExternalCalls(
-            @Value("${http.proxy.parametername}") String proxyParameterName,
-            @Value("${http.proxy.uri}") String proxyUri) {
-        log.info("WebClient proxy: Parameter: '{}'. URI: '{}'.", proxyParameterName, proxyUri);
-        boolean requiresProxy = !"notinuse".equalsIgnoreCase(proxyParameterName);
-        return WebClientPreparer.webClient(requiresProxy, proxyUri);
-    }
-
-    @Bean
     @Qualifier("epoch-support")
     WebClient webClientWithEpochSupport() {
-        var httpClient = HttpClient.create()
-                .wiretap(true);
+        var httpClient = HttpClient.create().wiretap(true);
+
         return WebClient.builder()
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .exchangeStrategies(JsonEpochExchangeStrategies.build())

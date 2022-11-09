@@ -8,6 +8,7 @@ import okhttp3.mockwebserver.MockResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -23,7 +24,7 @@ class SkjermingConsumerTest extends WebClientTest {
 
     @BeforeEach
     void initialize() {
-        consumer = new SkjermingConsumer(baseUrl(), tokenGetter);
+        consumer = new SkjermingConsumer(WebClient.create(), baseUrl(), tokenGetter);
     }
 
     @Test

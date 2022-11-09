@@ -6,7 +6,6 @@ import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pensjonspoeng;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.PensjonspoengMapper;
 import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
-import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -22,6 +21,7 @@ import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.PoppUtil.handle;
+import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
 
 @Component
@@ -48,6 +48,10 @@ public class PensjonspoengConsumer implements Pingable {
     }
 
     public List<Pensjonspoeng> getPensjonspoengListe(String fnr) {
+        if (log.isDebugEnabled()) {
+            log.debug("Calling {} for PID {}", CONSUMED_SERVICE, maskFnr(fnr));
+        }
+
         try {
             var response = webClient
                     .get()
@@ -59,9 +63,6 @@ public class PensjonspoengConsumer implements Pingable {
                     .block();
 
             return response == null ? null : PensjonspoengMapper.fromDto(response.getPensjonspoeng());
-        } catch (StsException e) {
-            log.error(String.format("STS error in %s: %s", CONSUMED_SERVICE, e.getMessage()), e);
-            throw handle(e, CONSUMED_SERVICE);
         } catch (WebClientResponseException e) {
             throw handle(e, CONSUMED_SERVICE);
         } catch (RuntimeException e) { // e.g. when connection broken
@@ -80,9 +81,6 @@ public class PensjonspoengConsumer implements Pingable {
                     .retrieve()
                     .toBodilessEntity()
                     .block();
-        } catch (StsException e) {
-            log.error(String.format("STS error in %s: %s", PING_SERVICE, e.getMessage()), e);
-            throw handle(e, PING_SERVICE);
         } catch (WebClientResponseException e) {
             throw handle(e, PING_SERVICE);
         } catch (RuntimeException e) { // e.g. when connection broken
@@ -107,7 +105,7 @@ public class PensjonspoengConsumer implements Pingable {
                 .toUriString();
     }
 
-    private String getAuthHeaderValue() throws StsException {
+    private String getAuthHeaderValue() {
         return AUTH_TYPE + " " + tokenGetter.getToken(AppIds.PENSJONSOPPTJENING_REGISTER.appName);
     }
 }

@@ -25,16 +25,6 @@ public class WebClientTest {
     private static MockWebServer server;
     private static String baseUrl;
 
-    @DynamicPropertySource
-    @SuppressWarnings("unused")
-    static void uimageProperties(DynamicPropertyRegistry registry) {
-        // Running SpringBootTest-annotated tests on Utviklerimage requires proxy,
-        // since the token-support framework makes a web call during application context load
-        if ("http://webproxy-utvikler.nav.no:8088".equals(System.getenv("HTTP_PROXY"))) {
-            registry.add("http.proxy.parametername", () -> "http.proxy");
-        }
-    }
-
     @BeforeAll
     static void setUp() throws IOException {
         server = new MockWebServer();

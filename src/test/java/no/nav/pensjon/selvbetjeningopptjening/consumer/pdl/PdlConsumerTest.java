@@ -7,7 +7,6 @@ import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
-import no.nav.pensjon.selvbetjeningopptjening.security.token.StsException;
 import no.nav.security.token.support.core.context.TokenValidationContext;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
@@ -38,7 +37,7 @@ class PdlConsumerTest extends WebClientTest {
     private TokenGetterFacade tokenGetter;
 
     @BeforeEach
-    void initialize() throws StsException {
+    void initialize() {
         when(tokenValidationContextHolder.getTokenValidationContext()).thenReturn(tokenValidationContext());
         when(tokenGetter.getToken(anyString())).thenReturn("token");
         consumer = new PdlConsumer(baseUrl(), tokenGetter);
