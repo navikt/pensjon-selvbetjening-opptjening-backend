@@ -39,6 +39,7 @@ spec:
           - id: "0af3955f-df85-4eb0-b5b2-45bf2c8aeb9e" # 0000-GA-PENSJON_SAKSBEHANDLER
           - id: "959ead5b-99b5-466b-a0ff-5fdbc687517b" # 0000-GA-Pensjon_VEILEDER
           - id: "676b5e1f-84e6-46e5-8814-04233699ed4b" # 0000-GA-Pensjon_UTVIDET
+          - id: "e750ceb5-b70b-4d94-b4fa-9d22467b786b" # 0000-GA-Egne_ansatte
         extra:
           - NAVident
       replyURLs:
@@ -79,6 +80,18 @@ spec:
       value: https://skjermede-personer-pip.intern.nav.no
     - name: UNLEASH_URL
       value: https://unleash.nais.io
+    - name: BRUKERHJELP_GROUP_ID
+      value: 7845a796-1516-4d14-b500-fd65c001f35c
+    - name: OEKONOMI_GROUP_ID
+      value: 70ef8e7f-7456-4298-95e0-b13c0ef2422b
+    - name: SAKSBEHANDLER_GROUP_ID
+      value: 0af3955f-df85-4eb0-b5b2-45bf2c8aeb9e
+    - name: VEILEDER_GROUP_ID
+      value: 959ead5b-99b5-466b-a0ff-5fdbc687517b
+    - name: UTVIDET_GROUP_ID
+      value: 676b5e1f-84e6-46e5-8814-04233699ed4b
+    - name: EGNE_ANSATTE_TILGANG_GROUP_ID
+      value: e750ceb5-b70b-4d94-b4fa-9d22467b786b
     - name: APP_ENVIRONMENT
       value: p
     - name: AZURE_APP_REDIRECT_URI

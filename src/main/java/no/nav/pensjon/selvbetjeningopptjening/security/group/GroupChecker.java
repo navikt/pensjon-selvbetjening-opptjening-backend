@@ -1,34 +1,51 @@
 package no.nav.pensjon.selvbetjeningopptjening.security.group;
 
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class GroupChecker {
 
-    // Members of this group has access to skjermede personer if also member of group giving regular access:
-    private static final String UTVIDET = "676b5e1f-84e6-46e5-8814-04233699ed4b"; // 0000-GA-Pensjon_UTVIDET
-
+    private final List<String> requiredGroupIds;
     private final SkjermingApi skjermingApi;
+    private final String egneAnsatteTilgangGroupId;
+    private final String utvidetGroupId;
 
-    public GroupChecker(SkjermingApi skjermingApi) {
+    public GroupChecker(SkjermingApi skjermingApi,
+                        @Value("${brukerhjelp.group.id}") String brukerhjelpGroupId,
+                        @Value("${oekonomi.group.id}") String oekonomiGroupId,
+                        @Value("${saksbehandler.group.id}") String saksbehandlerGroupId,
+                        @Value("${veileder.group.id}") String veilederGroupId,
+                        @Value("${egne-ansatte-tilgang.group.id}") String egneAnsatteTilgangGroupId,
+                        @Value("${utvidet.group.id}") String utvidetGroupId) {
         this.skjermingApi = skjermingApi;
+        this.requiredGroupIds = List.of(brukerhjelpGroupId, oekonomiGroupId, saksbehandlerGroupId, veilederGroupId);
+        this.egneAnsatteTilgangGroupId = egneAnsatteTilgangGroupId;
+        this.utvidetGroupId = utvidetGroupId;
     }
 
-    public boolean isUserAuthorized(Pid pid, List<String> groupIds) {
+    public boolean isUserAuthorized(Pid pid, List<String> memberOfGroupIds) {
         return skjermingApi.isSkjermet(pid)
-                ? hasAccessToSkjermede(groupIds)
-                : hasNormalAccess(groupIds);
+                ? hasAccessToSkjermede(memberOfGroupIds)
+                : hasNormalAccess(memberOfGroupIds);
     }
 
-    private boolean hasNormalAccess(List<String> groupIds) {
-        return groupIds.size() > 1
-                || groupIds.size() == 1 && !groupIds.get(0).equals(UTVIDET);
+    private boolean hasNormalAccess(List<String> memberOfGroupIds) {
+        return getRetainedGroupIds(memberOfGroupIds).size() > 0;
     }
 
-    private boolean hasAccessToSkjermede(List<String> groupIds) {
-        return groupIds.size() > 1 && groupIds.contains(UTVIDET);
+    private List<String> getRetainedGroupIds(List<String> memberOfGroupIds) {
+        ArrayList<String> retainedGroupIds = new ArrayList<>(requiredGroupIds);
+        retainedGroupIds.retainAll(memberOfGroupIds);
+        return retainedGroupIds;
+    }
+
+    private boolean hasAccessToSkjermede(List<String> memberOfGroupIds) {
+        return hasNormalAccess(memberOfGroupIds)
+                && (memberOfGroupIds.contains(egneAnsatteTilgangGroupId) || memberOfGroupIds.contains(utvidetGroupId));
     }
 }
