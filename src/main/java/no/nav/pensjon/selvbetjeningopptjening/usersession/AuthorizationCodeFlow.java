@@ -34,7 +34,6 @@ public abstract class AuthorizationCodeFlow {
     private static final Logger log = LoggerFactory.getLogger(AuthorizationCodeFlow.class);
     private final TokenGetter tokenGetter;
     private final TokenRefresher tokenRefresher;
-   // private final OidcConfigGetter oidcConfigGetter;
     private final Oauth2ConfigGetter oauth2ConfigGetter;
     private final CookieSetter cookieSetter;
     private final Crypto crypto;
@@ -42,22 +41,6 @@ public abstract class AuthorizationCodeFlow {
     private final String callbackUri;
     private final LegacyLogin legacyLogin;
 
-    /*
-    protected AuthorizationCodeFlow(OidcConfigGetter oidcConfigGetter,
-                                    TokenGetter tokenGetter,
-                                    TokenRefresher tokenRefresher,
-                                    CookieSetter cookieSetter,
-                                    Crypto crypto,
-                                    String clientId,
-                                    String callbackUri) {
-        this.tokenGetter = requireNonNull(tokenGetter, "tokenGetter");
-        this.oidcConfigGetter = requireNonNull(oidcConfigGetter, "oidcConfigGetter");
-        this.tokenRefresher = requireNonNull(tokenRefresher, "tokenRefresher");
-        this.cookieSetter = requireNonNull(cookieSetter, "cookieSetter");
-        this.crypto = requireNonNull(crypto, "crypto");
-        this.clientId = requireNonNull(clientId, "clientId");
-        this.callbackUri = requireNonNull(callbackUri, "callbackUri");
-    }*/
     protected AuthorizationCodeFlow(Oauth2ConfigGetter oauth2ConfigGetter,
                                     TokenGetter tokenGetter,
                                     TokenRefresher tokenRefresher,
@@ -143,11 +126,6 @@ public abstract class AuthorizationCodeFlow {
         String state = format("%s:%s", currentTimeMillis(), URLEncoder.encode(uri, StandardCharsets.UTF_8));
         return crypto.encrypt(state);
     }
-/*
-    private void decodeAndRedirect(HttpServletResponse response, String encodedUri) throws IOException {
-        String finalUri = decodeUri(encodedUri);
-        redirect(response, finalUri);
-    }*/
 
     private void decodeAndRedirect(HttpServletResponse response, String encodedUri) throws IOException {
         String uri = decodeUri(encodedUri);

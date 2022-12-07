@@ -47,23 +47,7 @@ public class InternalUserAuthorizationCodeFlow extends AuthorizationCodeFlow {
                 callbackUri,
                 legacyLogin);
     }
-/*
-    public InternalUserAuthorizationCodeFlow(@Qualifier("internal-user") OidcConfigGetter oidcConfigGetter,
-                                             @Qualifier("internal-user") TokenGetter tokenGetter,
-                                             @Qualifier("internal-user") TokenRefresher tokenRefresher,
-                                             CookieSetter cookieSetter,
-                                             Crypto crypto,
-                                             @Value("${internal-user.openid.client-id}") String clientId,
-                                             @Value("${internal-user.openid.redirect-uri}") String callbackUri) {
-        super(oidcConfigGetter,
-                tokenGetter,
-                tokenRefresher,
-                cookieSetter,
-                crypto,
-                clientId,
-                callbackUri);
-    }
-*/
+
     @GetMapping("login")
     @Override
     public void login(HttpServletResponse response,

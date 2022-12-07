@@ -1,10 +1,9 @@
 package no.nav.pensjon.selvbetjeningopptjening.config;
 
-import no.nav.pensjon.selvbetjeningopptjening.security.token.client.CacheAwareTokenClient;
 import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.ClientCredentialsAccessTokenService;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.AccessTokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.TokenAudiencesVsApps;
-import no.nav.pensjon.selvbetjeningopptjening.usersession.externaluser.tokenx.ExternalUserAccessTokenGetter;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.client.CacheAwareTokenClient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -32,12 +31,6 @@ public class SecurityConfiguration {
                                 AppIds.PENSJONSFAGLIG_KJERNE.appName),
                         pensjonsopptjeningRegisterAppId, List.of(AppIds.PENSJONSOPPTJENING_REGISTER.appName),
                         skjermedePersonerPipAppId, List.of(AppIds.SKJERMEDE_PERSONER_PIP.appName)));
-    }
-
-    @Bean
-    @Qualifier("external-user")
-    public AccessTokenGetter externalUserAccessTokenGetter(@Qualifier("tokenx") CacheAwareTokenClient tokenGetter) {
-        return new ExternalUserAccessTokenGetter(tokenGetter);
     }
 
     @Bean
