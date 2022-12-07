@@ -2,9 +2,12 @@ package no.nav.pensjon.selvbetjeningopptjening.util;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.ZoneId;
+import java.util.Calendar;
 
 public final class DateUtil {
 
+    private static final String TIME_ZONE = "UTC+2"; // Norway daylight saving time
     private static final int MAX_DAY_OF_MONTH = 31;
     private static final int DAYS_IN_FEBRUARY_IN_NON_LEAP_YEARS = 28;
     private static final int DAYS_IN_FEBRUARY_IN_LEAP_YEARS = 29;
@@ -12,6 +15,12 @@ public final class DateUtil {
     private static final int BASIC_LEAP_YEAR_INTERVAL = 4;
     private static final int EXCEPTION_LEAP_YEAR_INTERVAL = 100;
     private static final int EXCEPTION_TO_EXCEPTION_LEAP_YEAR_INTERVAL = 400;
+
+    public static final ZoneId ZONE_ID = ZoneId.of(TIME_ZONE);
+
+    public static LocalDate asLocalDate(Calendar calendar) {
+        return calendar == null ? null : LocalDate.ofInstant(calendar.toInstant(), ZONE_ID);
+    }
 
     public static LocalDate firstDayOf(int year) {
         return LocalDate.of(year, Month.JANUARY, 1);

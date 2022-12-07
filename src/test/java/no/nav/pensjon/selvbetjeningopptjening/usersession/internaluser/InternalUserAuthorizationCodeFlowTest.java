@@ -1,18 +1,34 @@
 package no.nav.pensjon.selvbetjeningopptjening.usersession.internaluser;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
+import no.nav.pensjon.selvbetjeningopptjening.audit.Auditor;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
+import no.nav.pensjon.selvbetjeningopptjening.security.UserType;
 import no.nav.pensjon.selvbetjeningopptjening.security.crypto.Crypto;
+import no.nav.pensjon.selvbetjeningopptjening.security.filter.CookieBasedBrukerbytte;
 import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieSetter;
+import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieSpec;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieType;
+import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.Oauth2ConfigGetter;
 import no.nav.pensjon.selvbetjeningopptjening.security.jwt.JwsValidator;
-import no.nav.pensjon.selvbetjeningopptjening.security.oidc.OidcConfigGetter;
+import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.TokenInfo;
+import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.egress.EgressAccessTokenFacade;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.IngressTokenFinder;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.TokenAudiencesVsApps;
+import no.nav.pensjon.selvbetjeningopptjening.usersession.LegacyLogin;
+import no.nav.pensjon.selvbetjeningopptjening.usersession.Logout;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.token.TokenAccessParam;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.token.TokenData;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.token.TokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.token.TokenRefresher;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -23,13 +39,12 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static java.lang.System.currentTimeMillis;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -40,6 +55,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = SelvbetjeningOpptjeningApplication.class)
 class InternalUserAuthorizationCodeFlowTest {
 
+    private static final Pid PID = new Pid("04925398980");
     private static final String ROOT_URL = "/oauth2/internal";
     private static final String LOGIN_URL = ROOT_URL + "/login";
     private static final String CALLBACK_URL = ROOT_URL + "/callback";
@@ -47,36 +63,56 @@ class InternalUserAuthorizationCodeFlowTest {
 
     @Autowired
     private MockMvc mvc;
-
     @MockBean
     @Qualifier("internal-user")
-    OidcConfigGetter oidcConfigGetter;
-
+    private Oauth2ConfigGetter oauth2ConfigGetter;
     @MockBean
     @Qualifier("internal-user")
-    TokenGetter tokenGetter;
-
+    private TokenGetter tokenGetter;
     @MockBean
     @Qualifier("internal-user")
-    TokenRefresher tokenRefresher;
-
+    private TokenRefresher tokenRefresher;
     @MockBean
     @Qualifier("internal-user")
-    JwsValidator jwsValidator;
-
+    private JwsValidator jwsValidator;
     @MockBean
-    CookieSetter cookieSetter;
-
+    private CookieSetter cookieSetter;
     @MockBean
-    Crypto crypto;
+    private Crypto crypto;
+    @MockBean
+    private IngressTokenFinder ingressTokenFinder;
+    @MockBean
+    private EgressAccessTokenFacade egressAccessTokenFacade;
+    @MockBean
+    private TokenAudiencesVsApps tokenAudiencesVsApps;
+    @MockBean
+    @Qualifier("internal-user")
+    private LegacyLogin legacyLogin;
+    @MockBean
+    private Logout logout;
+    @MockBean
+    private CookieBasedBrukerbytte brukerbytte;
+    @MockBean
+    private GroupChecker groupChecker;
+    @MockBean
+    private Auditor auditor;
+    @Mock
+    private Claims claims;
+    @Captor
+    private ArgumentCaptor<List<CookieSpec>> cookieCaptor;
+
+    @BeforeEach
+    void initialize() {
+        when(ingressTokenFinder.getIngressTokenInfo(any(), anyBoolean())).thenReturn(TokenInfo.valid("jwt1", UserType.INTERNAL, claims, PID.getPid()));
+    }
 
     @Test
     void login_with_redirectUri_has_givenUri_as_stateQueryParam() throws Exception {
-        when(oidcConfigGetter.getAuthorizationEndpoint()).thenReturn("http://auth.org");
+        when(oauth2ConfigGetter.getAuthorizationEndpoint()).thenReturn("http://auth.org");
         when(crypto.encrypt(anyString())).thenReturn("cryptic");
 
         mvc.perform(get(LOGIN_URL)
-                .param("redirect", "/foo/bar"))
+                .param("redirect", "/foo/bar?fnr=" + PID.getPid()))
                 .andExpect(status().isFound())
                 .andExpect(redirectedUrl("http://auth.org" +
                         "?scope=openid+profile+offline_access+https%3A%2F%2Fgraph.microsoft.com%2Fuser.read" +
@@ -89,7 +125,7 @@ class InternalUserAuthorizationCodeFlowTest {
 
     @Test
     void login_without_redirectUri_has_defaultUri_as_stateQueryParam() throws Exception {
-        when(oidcConfigGetter.getAuthorizationEndpoint()).thenReturn("http://auth.org");
+        when(oauth2ConfigGetter.getAuthorizationEndpoint()).thenReturn("http://auth.org");
         when(crypto.encrypt(anyString())).thenReturn("cryptic");
 
         mvc.perform(get(LOGIN_URL))
@@ -107,16 +143,15 @@ class InternalUserAuthorizationCodeFlowTest {
     void callback_with_state_redirects_to_given_uri() throws Exception {
         var tokenData = new TokenData("access-token", "ID-token", "refresh-token", LocalDateTime.MIN, 1L);
         when(tokenGetter.getTokenData(any(TokenAccessParam.class), anyString())).thenReturn(tokenData);
-        when(crypto.decrypt(anyString())).thenReturn(currentTimeMillis() + ":/api/foo");
+        when(crypto.decrypt(anyString())).thenReturn(currentTimeMillis() + ":/api/foo?fnr=" + PID.getPid());
 
         mvc.perform(post(CALLBACK_URL)
                 .param("code", "abc")
                 .param("state", "cryptic"))
                 .andExpect(status().isFound())
-                .andExpect(redirectedUrl("/api/foo"));
+                .andExpect(redirectedUrl("/api/foo?fnr=" + PID.getPid()));
 
-        verifyCookie(CookieType.INTERNAL_USER_ID_TOKEN, "ID-token");
-        verifyCookie(CookieType.REFRESH_TOKEN, "refresh-token");
+        verifyCookie();
     }
 
     @Test
@@ -128,8 +163,7 @@ class InternalUserAuthorizationCodeFlowTest {
                 .andExpect(status().isFound())
                 .andExpect(redirectedUrl("/api/opptjening"));
 
-        verifyCookie(CookieType.INTERNAL_USER_ID_TOKEN, "new-ID-token");
-        verifyCookie(CookieType.REFRESH_TOKEN, "new-refresh-token");
+        verifyCookie();
     }
 
     @Test
@@ -140,9 +174,11 @@ class InternalUserAuthorizationCodeFlowTest {
                 .andExpect(status().isUnauthorized());
     }
 
-    private void verifyCookie(CookieType type, String expectedValue) {
-        verify(cookieSetter, times(1))
-                .setCookie(any(HttpServletResponse.class), eq(type), eq(expectedValue));
+    private void verifyCookie() {
+        verify(cookieSetter, times(1)).setCookies(any(), cookieCaptor.capture());
+        CookieSpec actual = cookieCaptor.getValue().get(0);
+        assertEquals(CookieType.INTERNAL_USER_ACCESS_TOKEN, actual.getCookieType());
+        assertEquals("access-token", actual.getCookieValue());
     }
 
     private static MockHttpServletRequestBuilder getWithRefreshTokenCookie() {

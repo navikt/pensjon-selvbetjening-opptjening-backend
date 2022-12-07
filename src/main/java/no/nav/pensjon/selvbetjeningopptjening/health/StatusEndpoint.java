@@ -1,6 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.health;
 
-import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("api")
-@Unprotected
 public class StatusEndpoint {
 
     @RequestMapping(path = "status", method = RequestMethod.GET)
@@ -32,7 +30,7 @@ public class StatusEndpoint {
     }
 
     private static MultiValueMap<String, String> jsonContentHeader() {
-        MultiValueMap<String, String> headers = new HttpHeaders();
+        var headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         return headers;
     }

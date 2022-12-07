@@ -1,6 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad;
 
 import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
+import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonHttpHeaders;
@@ -39,14 +40,11 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
     private static final Logger log = LoggerFactory.getLogger(UttaksgradConsumer.class);
     private final String url;
     private final WebClient webClient;
-    private final TokenGetterFacade tokenGetter;
 
     public UttaksgradConsumer(@Qualifier("epoch-support") WebClient webClient,
-                              @Value("${pen.url}") String baseUrl,
-                              TokenGetterFacade tokenGetter) {
+                              @Value("${pen.url}") String baseUrl) {
         this.webClient = requireNonNull(webClient, "webClient");
         this.url = requireNonNull(baseUrl, "baseUrl") + PATH;
-        this.tokenGetter = requireNonNull(tokenGetter, "tokenGetter");
     }
 
     @Override
@@ -124,7 +122,7 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
     }
 
     private String getAuthHeaderValue() {
-        return AUTH_TYPE + " " + tokenGetter.getToken(AppIds.PENSJONSFAGLIG_KJERNE.appName);
+        return AUTH_TYPE + " " + RequestContext.getEgressAccessToken(AppIds.PENSJONSFAGLIG_KJERNE).getValue();
     }
 
     private String buildUrl(String endpoint, List<Long> vedtakIds) {

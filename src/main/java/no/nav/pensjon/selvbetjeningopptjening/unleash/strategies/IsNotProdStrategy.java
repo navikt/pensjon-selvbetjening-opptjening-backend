@@ -2,7 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.unleash.strategies;
 
 import java.util.Map;
 
-import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
+import static org.springframework.util.StringUtils.startsWithIgnoreCase;
 
 public class IsNotProdStrategy extends PropertyStrategy {
 

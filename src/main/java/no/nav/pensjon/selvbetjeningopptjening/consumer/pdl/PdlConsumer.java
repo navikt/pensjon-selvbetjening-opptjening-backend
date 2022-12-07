@@ -8,8 +8,7 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlErrorExtensi
 import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
-import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
-import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
+import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -40,18 +39,15 @@ public class PdlConsumer implements Pingable {
     private static final String AUTH_TYPE = "Bearer";
     private static final String THEME = "PEN";
     private static final Logger log = LoggerFactory.getLogger(PdlConsumer.class);
-    private final TokenGetterFacade tokenGetter;
     private final WebClient webClient;
     private final String url;
 
-    public PdlConsumer(@Value("${pdl.url}") String baseUrl,
-                       TokenGetterFacade tokenGetter) {
+    public PdlConsumer(@Value("${pdl.url}") String baseUrl) {
         this.url = requireNonNull(baseUrl, "baseUrl") + PATH;
-        this.tokenGetter = requireNonNull(tokenGetter, "tokenGetter");
         this.webClient = pdlWebClient();
     }
 
-    public Person getPerson(Pid pid, LoginSecurityLevel securityLevel) throws PdlException {
+    public Person getPerson(Pid pid) throws PdlException {
         PdlResponse response = getPersonResponse(pid);
         handleErrors(response);
         return fromDto(response, pid);
@@ -84,9 +80,9 @@ public class PdlConsumer implements Pingable {
         }
 
         try {
-             String authHeaderValue = getAuthHeaderValue();
+            String authHeaderValue = getAuthHeaderValue();
 
-             return webClient
+            return webClient
                     .post()
                     .header(HttpHeaders.AUTHORIZATION, authHeaderValue)
                     .header(PdlHttpHeaders.CONSUMER_TOKEN, authHeaderValue)
@@ -107,7 +103,7 @@ public class PdlConsumer implements Pingable {
     }
 
     private String getAuthHeaderValue() {
-        return AUTH_TYPE + " " + tokenGetter.getToken(AppIds.PERSONDATALOSNINGEN.appName);
+        return AUTH_TYPE + " " + RequestContext.getEgressAccessToken(AppIds.PERSONDATALOSNINGEN).getValue();
     }
 
     private WebClient pdlWebClient() {

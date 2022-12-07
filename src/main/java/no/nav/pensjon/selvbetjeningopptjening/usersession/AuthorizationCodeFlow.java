@@ -4,11 +4,11 @@ import io.jsonwebtoken.JwtException;
 import no.nav.pensjon.selvbetjeningopptjening.security.crypto.Crypto;
 import no.nav.pensjon.selvbetjeningopptjening.security.crypto.CryptoException;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieSetter;
+import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieSpec;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieType;
-import no.nav.pensjon.selvbetjeningopptjening.security.jwt.JwsValidator;
+import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.Oauth2ConfigGetter;
 import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.Oauth2FlowException;
 import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.Oauth2ParamBuilder;
-import no.nav.pensjon.selvbetjeningopptjening.security.oidc.OidcConfigGetter;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.token.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
@@ -32,17 +34,18 @@ public abstract class AuthorizationCodeFlow {
     private static final Logger log = LoggerFactory.getLogger(AuthorizationCodeFlow.class);
     private final TokenGetter tokenGetter;
     private final TokenRefresher tokenRefresher;
-    private final JwsValidator jwsValidator;
-    private final OidcConfigGetter oidcConfigGetter;
+   // private final OidcConfigGetter oidcConfigGetter;
+    private final Oauth2ConfigGetter oauth2ConfigGetter;
     private final CookieSetter cookieSetter;
     private final Crypto crypto;
     private final String clientId;
     private final String callbackUri;
+    private final LegacyLogin legacyLogin;
 
+    /*
     protected AuthorizationCodeFlow(OidcConfigGetter oidcConfigGetter,
                                     TokenGetter tokenGetter,
                                     TokenRefresher tokenRefresher,
-                                    JwsValidator jwsValidator,
                                     CookieSetter cookieSetter,
                                     Crypto crypto,
                                     String clientId,
@@ -50,11 +53,27 @@ public abstract class AuthorizationCodeFlow {
         this.tokenGetter = requireNonNull(tokenGetter, "tokenGetter");
         this.oidcConfigGetter = requireNonNull(oidcConfigGetter, "oidcConfigGetter");
         this.tokenRefresher = requireNonNull(tokenRefresher, "tokenRefresher");
-        this.jwsValidator = requireNonNull(jwsValidator, "jwsValidator");
         this.cookieSetter = requireNonNull(cookieSetter, "cookieSetter");
         this.crypto = requireNonNull(crypto, "crypto");
         this.clientId = requireNonNull(clientId, "clientId");
         this.callbackUri = requireNonNull(callbackUri, "callbackUri");
+    }*/
+    protected AuthorizationCodeFlow(Oauth2ConfigGetter oauth2ConfigGetter,
+                                    TokenGetter tokenGetter,
+                                    TokenRefresher tokenRefresher,
+                                    CookieSetter cookieSetter,
+                                    Crypto crypto,
+                                    String clientId,
+                                    String callbackUri,
+                                    LegacyLogin legacyLogin) {
+        this.tokenGetter = requireNonNull(tokenGetter, "tokenGetter");
+        this.oauth2ConfigGetter = requireNonNull(oauth2ConfigGetter, "oauth2ConfigGetter");
+        this.tokenRefresher = requireNonNull(tokenRefresher, "tokenRefresher");
+        this.cookieSetter = requireNonNull(cookieSetter, "cookieSetter");
+        this.crypto = requireNonNull(crypto, "crypto");
+        this.clientId = requireNonNull(clientId, "clientId");
+        this.callbackUri = requireNonNull(callbackUri, "callbackUri");
+        this.legacyLogin = requireNonNull(legacyLogin, "legacyLogin");
     }
 
     protected void login(HttpServletResponse response,
@@ -66,7 +85,7 @@ public abstract class AuthorizationCodeFlow {
                 .clientId(clientId)
                 .callbackUri(callbackUri)
                 .state(encryptedState(redirectUri))
-                .buildAuthorizationUri(oidcConfigGetter.getAuthorizationEndpoint());
+                .buildAuthorizationUri(oauth2ConfigGetter.getAuthorizationEndpoint());
 
         redirect(response, uri);
     }
@@ -84,7 +103,6 @@ public abstract class AuthorizationCodeFlow {
         try {
             String redirectUri = new StateValidator(crypto).extractRedirectUri(state);
             TokenData tokenData = tokenGetter.getTokenData(TokenAccessParam.authorizationCode(code), "");
-            jwsValidator.validate(tokenData.getIdToken());
             setCookies(response, tokenData);
             decodeAndRedirect(response, redirectUri);
         } catch (JwtException e) {
@@ -103,7 +121,6 @@ public abstract class AuthorizationCodeFlow {
 
         try {
             TokenData tokenData = tokenRefresher.refreshToken(request);
-            jwsValidator.validate(getRefreshableToken(tokenData));
             setCookies(response, tokenData);
             decodeAndRedirect(response, redirectUri);
         } catch (MissingTokenException e) {
@@ -119,37 +136,50 @@ public abstract class AuthorizationCodeFlow {
 
     protected abstract String defaultAfterCallbackRedirectUri();
 
-    protected abstract String getRefreshableToken(TokenData tokenData);
-
     protected abstract CookieType accessTokenCookieType();
-
-    protected abstract CookieType idTokenCookieType();
 
     private String encryptedState(String redirectUri) throws CryptoException {
         String uri = hasText(redirectUri) ? redirectUri : defaultAfterCallbackRedirectUri();
         String state = format("%s:%s", currentTimeMillis(), URLEncoder.encode(uri, StandardCharsets.UTF_8));
         return crypto.encrypt(state);
     }
-
+/*
     private void decodeAndRedirect(HttpServletResponse response, String encodedUri) throws IOException {
         String finalUri = decodeUri(encodedUri);
         redirect(response, finalUri);
+    }*/
+
+    private void decodeAndRedirect(HttpServletResponse response, String encodedUri) throws IOException {
+        String uri = decodeUri(encodedUri);
+
+        if (legacyLogin.isEnabled()) {
+            uri = legacyLogin.getUrl() + URLEncoder.encode(uri, StandardCharsets.UTF_8);
+        }
+
+        redirect(response, uri);
     }
 
     private void redirect(HttpServletResponse response, String uri) throws IOException {
-        log.debug("Redirecting");
+        log.debug("Redirecting to '{}'", uri);
         response.sendRedirect(uri);
     }
 
+    /**
+     * When setting cookies be aware that total size of cookies cannot exceed max. header size in
+     * the NGINX server used by NAIS in the cluster (will result in "502 Bad Gateway" error).
+     * Also, individual cookies cannot exceed 4000 bytes.
+     */
     private void setCookies(HttpServletResponse response, TokenData tokenData) {
-        cookieSetter.setCookie(response, accessTokenCookieType(), tokenData.getAccessToken());
-        cookieSetter.setCookie(response, CookieType.REFRESH_TOKEN, tokenData.getRefreshToken());
+        List<CookieSpec> cookieSpecs = new ArrayList<>();
+        cookieSpecs.add(new CookieSpec(accessTokenCookieType(), tokenData.getAccessToken()));
+        cookieSpecs.add(new CookieSpec(CookieType.REFRESH_TOKEN, tokenData.getRefreshToken()));
 
-        if (tokenData.hasIdToken()) {
-            cookieSetter.setCookie(response, idTokenCookieType(), tokenData.getIdToken());
-        } else {
-            log.info("No ID token cookie set");
+        if (log.isDebugEnabled()) {
+            log.debug("Access token: {}", tokenData.getAccessToken());
+            log.debug("Refresh token: {}", tokenData.getRefreshToken());
         }
+
+        cookieSetter.setCookies(response, cookieSpecs);
     }
 
     private String decodeUri(String encodedUri) {

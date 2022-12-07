@@ -3,16 +3,12 @@ package no.nav.pensjon.selvbetjeningopptjening.security.http;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -24,50 +20,24 @@ class CookieSetterTest {
     @Mock
     HttpServletResponse response;
 
-    @Captor
-    ArgumentCaptor<Cookie> cookieCaptor;
-
     @BeforeEach
     void setUp() {
-        cookieSetter = new CookieSetter(false);
+        cookieSetter = new CookieSetter("domain", false);
     }
 
     @Test
-    void setCookie_for_externalUserIdToken_results_in_secure_and_httpOnly_setCookie_header() {
-        cookieSetter.setCookie(response, CookieType.EXTERNAL_USER_ID_TOKEN, "foo");
+    void setCookies_for_externalUserAccessToken_results_in_secure_and_httpOnly_setCookie_header() {
+        cookieSetter.setCookies(response, List.of(new CookieSpec(CookieType.EXTERNAL_USER_ACCESS_TOKEN, "foo")));
 
-        verify(response, times(1)).addCookie(cookieCaptor.capture());
-        Cookie actual = cookieCaptor.getValue();
-        assertEquals("xu-idtoken", actual.getName());
-        assertEquals("foo", actual.getValue());
-        assertEquals("/", actual.getPath());
-        assertTrue(actual.isHttpOnly());
-        assertTrue(actual.getSecure());
+        verify(response, times(1)).setHeader("Set-Cookie",
+                "xu-acctoken=foo; Domain=domain; Path=/; SameSite=Lax; Max-Age=7200; Secure; HttpOnly");
     }
 
     @Test
-    void setCookie_for_internalUserIdToken_results_in_secure_and_httpOnly_setCookie_header() {
-        cookieSetter.setCookie(response, CookieType.INTERNAL_USER_ID_TOKEN, "foo");
+    void unsetCookie_sets_blankValue_and_zeroMaxAge() {
+        cookieSetter.unsetCookie(response, CookieType.EXTERNAL_USER_ACCESS_TOKEN);
 
-        verify(response, times(1)).addCookie(cookieCaptor.capture());
-        Cookie actual = cookieCaptor.getValue();
-        assertEquals("iu-idtoken", actual.getName());
-        assertEquals("foo", actual.getValue());
-        assertEquals("/", actual.getPath());
-        assertTrue(actual.isHttpOnly());
-        assertTrue(actual.getSecure());
-    }
-
-    @Test
-    void setCookie_for_refreshToken_results_in_secure_and_httpOnly_setCookie_header() {
-        cookieSetter.setCookie(response, CookieType.REFRESH_TOKEN, "foo");
-
-        verify(response, times(1)).addCookie(cookieCaptor.capture());
-        Cookie actual = cookieCaptor.getValue();
-        assertEquals("refresh-token", actual.getName());
-        assertEquals("foo", actual.getValue());
-        assertEquals("/", actual.getPath());
-        assertTrue(actual.isHttpOnly());
-        assertTrue(actual.getSecure());
+        verify(response, times(1)).setHeader("Set-Cookie",
+                "xu-acctoken=; Domain=domain; Path=/; SameSite=Lax; Max-Age=0; Secure; HttpOnly");
     }
 }

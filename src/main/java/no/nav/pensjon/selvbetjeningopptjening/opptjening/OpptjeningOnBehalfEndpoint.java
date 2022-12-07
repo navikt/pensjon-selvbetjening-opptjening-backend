@@ -1,18 +1,11 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import no.nav.pensjon.selvbetjeningopptjening.audit.CefEntry;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
-import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
-import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
-import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieType;
-import no.nav.pensjon.selvbetjeningopptjening.security.http.SplitCookieAssembler;
-import no.nav.pensjon.selvbetjeningopptjening.security.jwt.JwsValidator;
-import no.nav.security.token.support.core.api.Unprotected;
+import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
@@ -23,56 +16,30 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.ZonedDateTime;
-import java.util.List;
 
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toList;
 import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
-import static org.springframework.util.StringUtils.hasText;
 
 @RestController
 @RequestMapping("api")
-@Unprotected // not protected by token-service, but a custom protection is used (due to split ID token cookie)
 public class OpptjeningOnBehalfEndpoint {
 
     private static final Logger audit = LoggerFactory.getLogger("AUDIT_LOGGER");
     private static final Logger log = LoggerFactory.getLogger(OpptjeningOnBehalfEndpoint.class);
     private final OpptjeningProvider provider;
-    private final JwsValidator jwsValidator;
-    private final GroupChecker groupChecker;
 
-    public OpptjeningOnBehalfEndpoint(OpptjeningProvider provider,
-                                      JwsValidator jwsValidator,
-                                      GroupChecker groupChecker) {
+    public OpptjeningOnBehalfEndpoint(OpptjeningProvider provider) {
         this.provider = requireNonNull(provider);
-        this.jwsValidator = requireNonNull(jwsValidator);
-        this.groupChecker = requireNonNull(groupChecker);
     }
 
     @GetMapping("/opptjeningonbehalf")
-    public OpptjeningResponse getOpptjeningForFnr(HttpServletRequest request,
-                                                  @RequestParam(value = "fnr") String fnr) {
-        log.info("Received on-behalf-of request for opptjening for fnr {}", maskFnr(fnr));
+    public OpptjeningResponse getOpptjeningOnBehalfOf(@RequestParam(value = "fnr") String pidValue) {
+        log.info("Received on-behalf-of request for opptjening for fnr {}", maskFnr(pidValue));
 
         try {
-            String idToken = SplitCookieAssembler.getCookieValue(request, CookieType.INTERNAL_USER_ID_TOKEN);
-
-            if (!hasText(idToken)) {
-                log.info("No JWT in request");
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No JWT");
-            }
-
-            Jws<Claims> claims = jwsValidator.validate(idToken);
-            var pid = new Pid(fnr, true);
-
-            if (!isUserAllowed(pid, claims)) {
-                return forbidden();
-            }
-
-            audit.info(getAuditInfo(fnr, claims).format());
-            return provider.calculateOpptjeningForFnr(pid, LoginSecurityLevel.INTERNAL);
+            audit.info(getAuditInfo(pidValue, RequestContext.getNavIdent()).format());
+            return provider.calculateOpptjeningForFnr(new Pid(RequestContext.getSubjectPid()));
         } catch (ExpiredJwtException e) {
             log.info("Expired JWT", e);
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
@@ -80,7 +47,7 @@ public class OpptjeningOnBehalfEndpoint {
             log.error("JWT-related error", e);
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
         } catch (PidValidationException e) {
-            log.error("Invalid PID: {}", maskFnr(fnr), e);
+            log.error("Invalid PID: {}", maskFnr(pidValue), e);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         } catch (FailedCallingExternalServiceException e) {
             log.error("Failed calling external service", e);
@@ -88,23 +55,7 @@ public class OpptjeningOnBehalfEndpoint {
         }
     }
 
-    private boolean isUserAllowed(Pid pid, Jws<Claims> claims) {
-        var groupIds = (List<?>) claims.getBody().get("groups");
-
-        if (groupIds == null) {
-            return false;
-        }
-
-        List<String> groups = groupIds
-                .stream()
-                .map(Object::toString)
-                .collect(toList());
-
-        return groupChecker.isUserAuthorized(pid, groups);
-    }
-
-    private static CefEntry getAuditInfo(String fnr, Jws<Claims> claims) {
-        var navIdent = (String) claims.getBody().get("NAVident");
+    private static CefEntry getAuditInfo(String pid, String navIdent) {
         log.info("NAV-ident: {}", navIdent == null ? "null" : navIdent.charAt(0) + "*****");
 
         return new CefEntry(
@@ -114,12 +65,6 @@ public class OpptjeningOnBehalfEndpoint {
                 "Datahenting paa vegne av",
                 "Internbruker henter pensjonsopptjeningsdata for innbygger",
                 navIdent,
-                fnr);
-    }
-
-    private static OpptjeningResponse forbidden() {
-        String message = "User is not allowed";
-        log.info(message);
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN, message);
+                pid);
     }
 }

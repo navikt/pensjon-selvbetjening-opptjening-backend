@@ -6,7 +6,7 @@ import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.model.OpptjeningsGrunnlagDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Inntekt;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.InntektMapper;
-import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
+import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -34,14 +34,11 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
     private static final Logger log = LoggerFactory.getLogger(OpptjeningsgrunnlagConsumer.class);
     private final String url;
     private final WebClient webClient;
-    private final TokenGetterFacade tokenGetter;
 
     public OpptjeningsgrunnlagConsumer(WebClient webClient,
-                                       @Value("${popp.url}") String baseUrl,
-                                       TokenGetterFacade tokenGetter) {
+                                       @Value("${popp.url}") String baseUrl) {
         this.webClient = requireNonNull(webClient, "webClient");
         this.url = requireNonNull(baseUrl, "baseUrl") + PATH;
-        this.tokenGetter = requireNonNull(tokenGetter, "tokenGetter");
     }
 
     public List<Inntekt> getInntektListeFromOpptjeningsgrunnlag(String fnr, Integer fomAr, Integer tomAr) {
@@ -112,7 +109,7 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
     }
 
     private String getAuthHeaderValue() {
-        return AUTH_TYPE + " " + tokenGetter.getToken(AppIds.PENSJONSOPPTJENING_REGISTER.appName);
+        return AUTH_TYPE + " " + RequestContext.getEgressAccessToken(AppIds.PENSJONSOPPTJENING_REGISTER).getValue();
     }
 
     private static List<Inntekt> fromDto(OpptjeningsGrunnlagDto grunnlag) {

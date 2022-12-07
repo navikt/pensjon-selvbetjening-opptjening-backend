@@ -1,15 +1,26 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
+import io.jsonwebtoken.Claims;
 import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
 import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
+import no.nav.pensjon.selvbetjeningopptjening.audit.Auditor;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
+import no.nav.pensjon.selvbetjeningopptjening.security.UserType;
+import no.nav.pensjon.selvbetjeningopptjening.security.filter.CookieBasedBrukerbytte;
+import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
+import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.TokenInfo;
+import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.egress.EgressAccessTokenFacade;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.IngressTokenFinder;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.TokenAudiencesVsApps;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.LoginInfo;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.LoginInfoGetter;
+import no.nav.pensjon.selvbetjeningopptjening.usersession.Logout;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,8 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -30,32 +40,48 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class OpptjeningEndpointTest {
 
     private static final String URI = "/api/opptjening";
-    private static final Pid PID = PidGenerator.generatePidAtAge(65);
+    private static final Pid PID = new Pid("04925398980");
 
     @Autowired
     private MockMvc mvc;
     @MockBean
-    OpptjeningProvider provider;
+    private OpptjeningProvider provider;
     @MockBean
-    LoginInfoGetter loginInfoGetter;
+    private IngressTokenFinder ingressTokenFinder;
+    @MockBean
+    private EgressAccessTokenFacade egressAccessTokenFacade;
+    @MockBean
+    private TokenAudiencesVsApps tokenAudiencesVsApps;
+    @MockBean
+    private Logout logout;
+    @MockBean
+    private CookieBasedBrukerbytte brukerbytte;
+    @MockBean
+    private GroupChecker groupChecker;
+    @MockBean
+    private Auditor auditor;
+    @Mock
+    private Claims claims;
 
     @BeforeEach
     void initialize() {
-        when(loginInfoGetter.getLoginInfo()).thenReturn(new LoginInfo(PID, LoginSecurityLevel.LEVEL4));
+        when(ingressTokenFinder.getIngressTokenInfo(any(), anyBoolean())).thenReturn(TokenInfo.valid("jwt1", UserType.EXTERNAL, claims, PID.getPid()));
     }
 
     @Test
     void getOpptjeningForFnr_returns_opptjeningJson_when_OK() throws Exception {
-        when(provider.calculateOpptjeningForFnr(PID, LoginSecurityLevel.LEVEL4)).thenReturn(response());
+        when(provider.calculateOpptjeningForFnr(PID)).thenReturn(response());
 
         mvc.perform(get(URI))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{'opptjeningData':null,'numberOfYearsWithPensjonspoeng':1}"));
+                .andExpect(content().json("""
+                                {"opptjeningData":null,"numberOfYearsWithPensjonspoeng":1}
+                        """));
     }
 
     @Test
     void getOpptjeningForFnr_returns_statusInternalServerError_when_failedCallingExternalService() throws Exception {
-        when(provider.calculateOpptjeningForFnr(PID, LoginSecurityLevel.LEVEL4)).thenThrow(new FailedCallingExternalServiceException("sp", "sid", "details", new Exception("cause")));
+        when(provider.calculateOpptjeningForFnr(PID)).thenThrow(new FailedCallingExternalServiceException("sp", "sid", "details", new Exception("cause")));
 
         mvc.perform(get(URI))
                 .andExpect(status().isInternalServerError())
@@ -65,7 +91,7 @@ class OpptjeningEndpointTest {
 
     @Test
     void getOpptjeningForFnr_returns_statusBadRequest_when_invalidPid() throws Exception {
-        when(provider.calculateOpptjeningForFnr(any(), eq(LoginSecurityLevel.LEVEL4))).thenThrow(new PidValidationException(""));
+        when(provider.calculateOpptjeningForFnr(any())).thenThrow(new PidValidationException(""));
 
         mvc.perform(get(URI))
                 .andExpect(status().isBadRequest())

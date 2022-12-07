@@ -1,15 +1,16 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng;
 
+import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
+import no.nav.pensjon.selvbetjeningopptjening.mock.RequestContextCreator;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Inntekt;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pensjonspoeng;
-import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
+import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -18,8 +19,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 class PensjonspoengConsumerTest extends WebClientTest {
 
@@ -29,57 +28,57 @@ class PensjonspoengConsumerTest extends WebClientTest {
     @Qualifier("epoch-support")
     WebClient webClient;
 
-    @Mock
-    private TokenGetterFacade tokenGetter;
-
     @BeforeEach
     void initialize() {
-        when(tokenGetter.getToken(anyString())).thenReturn("token");
-        consumer = new PensjonspoengConsumer(webClient, baseUrl(), tokenGetter);
+        consumer = new PensjonspoengConsumer(webClient, baseUrl());
     }
 
     @Test
     void getPensjonspoengList_returns_pensjonspoengList_when_ok() throws InterruptedException {
         prepare(pensjonspoengResponse());
 
-        List<Pensjonspoeng> pensjonspoengList = consumer.getPensjonspoengListe("fnr");
+        try (RequestContext ignored = RequestContextCreator.createForExternal(AppIds.PENSJONSOPPTJENING_REGISTER.appName)) {
+            List<Pensjonspoeng> pensjonspoengList = consumer.getPensjonspoengListe("fnr");
 
-        RecordedRequest request = takeRequest();
-        HttpUrl requestUrl = request.getRequestUrl();
-        assertNotNull(requestUrl);
-        assertEquals("GET", request.getMethod());
-        assertEquals("Bearer token", request.getHeader(HttpHeaders.AUTHORIZATION));
-        List<String> segments = requestUrl.pathSegments();
-        assertEquals("pensjonspoeng", segments.get(2));
-        assertEquals("fnr", segments.get(3));
-        assertEquals(2, pensjonspoengList.size());
-        Pensjonspoeng pensjonspoeng = pensjonspoengList.get(0);
-        assertEquals(2018, pensjonspoeng.getYear());
-        assertEquals(3.51D, pensjonspoeng.getPoeng());
-        assertEquals("PPI", pensjonspoeng.getType());
-        Inntekt inntekt = pensjonspoeng.getInntekt();
-        assertEquals(431713L, inntekt.getBelop());
-        assertEquals("SUM_PI", inntekt.getType());
-        assertEquals(2018, inntekt.getYear());
-        assertEquals(2009, pensjonspoengList.get(1).getYear());
-        assertFalse(pensjonspoeng.hasOmsorg());
-        assertNull(pensjonspoeng.getOmsorg());
+            RecordedRequest request = takeRequest();
+            HttpUrl requestUrl = request.getRequestUrl();
+            assertNotNull(requestUrl);
+            assertEquals("GET", request.getMethod());
+            assertEquals("Bearer token2", request.getHeader(HttpHeaders.AUTHORIZATION));
+            List<String> segments = requestUrl.pathSegments();
+            assertEquals("pensjonspoeng", segments.get(2));
+            assertEquals("fnr", segments.get(3));
+            assertEquals(2, pensjonspoengList.size());
+            Pensjonspoeng pensjonspoeng = pensjonspoengList.get(0);
+            assertEquals(2018, pensjonspoeng.getYear());
+            assertEquals(3.51D, pensjonspoeng.getPoeng());
+            assertEquals("PPI", pensjonspoeng.getType());
+            Inntekt inntekt = pensjonspoeng.getInntekt();
+            assertEquals(431713L, inntekt.getBelop());
+            assertEquals("SUM_PI", inntekt.getType());
+            assertEquals(2018, inntekt.getYear());
+            assertEquals(2009, pensjonspoengList.get(1).getYear());
+            assertFalse(pensjonspoeng.hasOmsorg());
+            assertNull(pensjonspoeng.getOmsorg());
+        }
     }
 
     @Test
     void ping_ok() throws InterruptedException {
         prepare(pingResponse());
 
-        consumer.ping();
+        try (RequestContext ignored = RequestContextCreator.createForExternal(AppIds.PENSJONSOPPTJENING_REGISTER.appName)) {
+            consumer.ping();
 
-        RecordedRequest request = takeRequest();
-        HttpUrl requestUrl = request.getRequestUrl();
-        assertNotNull(requestUrl);
-        assertEquals("GET", request.getMethod());
-        assertEquals("Bearer token", request.getHeader(HttpHeaders.AUTHORIZATION));
-        List<String> segments = requestUrl.pathSegments();
-        assertEquals("pensjonspoeng", segments.get(2));
-        assertEquals("ping", segments.get(3));
+            RecordedRequest request = takeRequest();
+            HttpUrl requestUrl = request.getRequestUrl();
+            assertNotNull(requestUrl);
+            assertEquals("GET", request.getMethod());
+            assertEquals("Bearer token2", request.getHeader(HttpHeaders.AUTHORIZATION));
+            List<String> segments = requestUrl.pathSegments();
+            assertEquals("pensjonspoeng", segments.get(2));
+            assertEquals("ping", segments.get(3));
+        }
     }
 
     private static MockResponse pensjonspoengResponse() {

@@ -1,10 +1,13 @@
 package no.nav.pensjon.selvbetjeningopptjening.person;
 
+import static com.nimbusds.oauth2.sdk.util.StringUtils.isNumeric;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static no.nav.pensjon.selvbetjeningopptjening.person.PidIndexes.*;
-import static no.nav.pensjon.selvbetjeningopptjening.util.DateUtil.*;
-import static org.apache.commons.lang3.StringUtils.*;
+import static no.nav.pensjon.selvbetjeningopptjening.util.DateUtil.getDaysInMonth;
+import static no.nav.pensjon.selvbetjeningopptjening.util.DateUtil.isDayOfMonth;
+import static org.springframework.util.StringUtils.hasText;
+import static org.springframework.util.StringUtils.trimAllWhitespace;
 
 public class PidValidator {
 
@@ -25,7 +28,7 @@ public class PidValidator {
             return false;
         }
 
-        String trimmedValue = deleteWhitespace(value);
+        String trimmedValue = trimAllWhitespace(value);
 
         if (!isValid(trimmedValue, acceptSpecialCircumstances)) {
             return false;
@@ -49,7 +52,7 @@ public class PidValidator {
     }
 
     private static String makeDnrOrNpidOrSyntAdjustments(String value) {
-        if (isBlank(value)) {
+        if (!hasText(value)) {
             return value;
         }
 
