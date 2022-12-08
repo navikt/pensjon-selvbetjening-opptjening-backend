@@ -5,6 +5,7 @@ import no.nav.pensjon.selvbetjeningopptjening.security.UserType;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.QueryStringParser;
 import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.TokenInfo;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.EgressTokenSupplier;
+import no.nav.pensjon.selvbetjeningopptjening.usersession.internaluser.QueryParamNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -27,7 +28,6 @@ import static org.springframework.util.StringUtils.hasText;
 @Order(5)
 public class Filter05RequestContext implements Filter {
 
-    private static final String PID_QUERY_PARAM_NAME = "fnr";
     private static final Logger log = LoggerFactory.getLogger(Filter05RequestContext.class);
     private final CookieBasedBrukerbytte brukerbytte;
 
@@ -114,7 +114,7 @@ public class Filter05RequestContext implements Filter {
     }
 
     private static String getVirtualLoggedInPid(HttpServletRequest request) {
-        return QueryStringParser.getValue(request.getQueryString(), PID_QUERY_PARAM_NAME);
+        return QueryStringParser.getValue(request.getQueryString(), QueryParamNames.PID);
     }
 
     private static void respondWithBadRequest(HttpServletResponse response) throws IOException {

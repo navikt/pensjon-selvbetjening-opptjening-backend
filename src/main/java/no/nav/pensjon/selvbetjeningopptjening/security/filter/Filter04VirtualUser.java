@@ -8,6 +8,7 @@ import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.QueryStringParser;
 import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.TokenInfo;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.EgressTokenSupplier;
+import no.nav.pensjon.selvbetjeningopptjening.usersession.internaluser.QueryParamNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -36,7 +37,6 @@ import static org.springframework.util.StringUtils.hasText;
 @Order(4)
 public class Filter04VirtualUser implements Filter {
 
-    private static final String PID_QUERY_PARAM_NAME = "fnr";
     private static final Logger log = LoggerFactory.getLogger(Filter04VirtualUser.class);
     private final GroupChecker groupChecker;
     private final Auditor auditor;
@@ -49,7 +49,7 @@ public class Filter04VirtualUser implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         var httpRequest = (HttpServletRequest) request;
-        String pid = QueryStringParser.getValue(httpRequest.getQueryString(), PID_QUERY_PARAM_NAME);
+        String pid = QueryStringParser.getValue(httpRequest.getQueryString(), QueryParamNames.PID);
 
         if (!hasText(pid)) {
             chain.doFilter(request, response);

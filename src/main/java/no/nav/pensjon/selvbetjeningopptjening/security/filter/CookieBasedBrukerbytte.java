@@ -7,6 +7,7 @@ import no.nav.pensjon.selvbetjeningopptjening.security.UserType;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.QueryStringParser;
 import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.TokenInfo;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.EgressTokenSupplier;
+import no.nav.pensjon.selvbetjeningopptjening.usersession.internaluser.QueryParamNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -21,7 +22,6 @@ import static org.springframework.util.StringUtils.hasText;
 public class CookieBasedBrukerbytte {
 
     private static final String ON_BEHALF_OF_COOKIE_NAME = "nav-obo";
-    private static final String PID_QUERY_PARAM_NAME = "fnr";
     private static final Logger log = LoggerFactory.getLogger(CookieBasedBrukerbytte.class);
     private final FullmaktFacade fullmaktFacade;
     private final Auditor auditor;
@@ -93,7 +93,7 @@ public class CookieBasedBrukerbytte {
     }
 
     private static String getVirtualLoggedInPid(HttpServletRequest request) {
-        String pid = QueryStringParser.getValue(request.getQueryString(), PID_QUERY_PARAM_NAME);
+        String pid = QueryStringParser.getValue(request.getQueryString(), QueryParamNames.PID);
         return hasText(pid) ? pid : "";
     }
 

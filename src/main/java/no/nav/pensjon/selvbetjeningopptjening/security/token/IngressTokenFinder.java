@@ -4,6 +4,7 @@ import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieType;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.QueryStringParser;
 import no.nav.pensjon.selvbetjeningopptjening.security.jwt.JwsValidator;
 import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.TokenInfo;
+import no.nav.pensjon.selvbetjeningopptjening.usersession.internaluser.QueryParamNames;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.token.TokenData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,6 @@ import static org.springframework.util.StringUtils.hasText;
 public class IngressTokenFinder {
 
     private static final String AUTH_TYPE = "Bearer";
-    private static final String PID_QUERY_PARAM_NAME = "pid";
     private static final String LOGINSERVICE_ID_TOKEN_COOKIE_NAME = "selvbetjening-idtoken";
 
     private static final List<String> externalAuthCookies = List.of(
@@ -121,7 +121,7 @@ public class IngressTokenFinder {
     }
 
     private static String getVirtualLoggedInPid(HttpServletRequest request) {
-        String pid = QueryStringParser.getValue(request.getQueryString(), PID_QUERY_PARAM_NAME);
+        String pid = QueryStringParser.getValue(request.getQueryString(), QueryParamNames.PID);
         return hasText(pid) ? pid : "";
     }
 
