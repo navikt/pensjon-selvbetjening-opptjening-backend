@@ -33,7 +33,7 @@ public class FullmaktFacade {
                                                      LocalDate today) {
         return service.getFullmakter(fullmaktsgiverPid)
                 .stream()
-                .filter(fullmakt -> fullmakt.isValidFor(fullmaktsgiverPid, fullmektigPid, today, Fullmaktnivaa.FULLSTENDIG))
+                .filter(fullmakt -> fullmakt.isValidFor(fullmaktsgiverPid, fullmektigPid, today))
                 .toList();
     }
 }

@@ -1,7 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.fullmakt;
 
-import no.nav.pensjon.selvbetjeningopptjening.fullmakt.dto.AktoerDto;
-
 import java.time.LocalDate;
 
 import static java.util.Objects.requireNonNull;
@@ -10,49 +8,37 @@ public class Fullmakt {
 
     private final long id;
     private final Fullmakttype type;
-    private final Fullmaktnivaa niva;
-    private final LocalDate fomDato;
-    private final LocalDate tomDato;
+    private final Fullmaktnivaa nivaa;
+    private final LocalDate fom;
+    private final LocalDate tom;
     private final boolean gyldig;
     private final int versjon;
     private final Fagomraade fagomraade;
-    private final AktoerDto giver;
-    private final AktoerDto fullmektig;
-    private final String opprettetAv; // fnr
-    private final LocalDate opprettetDato;
-    private final String endretAv; // fnr
-    private final LocalDate endretDato;
+    private final Aktoer giver;
+    private final Aktoer fullmektig;
     private final boolean lastsForever;
 
     public Fullmakt(long id,
                     Fullmakttype type,
-                    Fullmaktnivaa niva,
-                    LocalDate fomDato,
-                    LocalDate tomDato,
+                    Fullmaktnivaa nivaa,
+                    LocalDate fom,
+                    LocalDate tom,
                     boolean gyldig,
                     int versjon,
                     Fagomraade fagomraade,
-                    AktoerDto giver,
-                    AktoerDto fullmektig,
-                    String opprettetAv,
-                    LocalDate opprettetDato,
-                    String endretAv,
-                    LocalDate endretDato) {
+                    Aktoer giver,
+                    Aktoer fullmektig) {
         this.id = id;
         this.type = type == null ? Fullmakttype.NONE : type;
-        this.niva = niva == null ? Fullmaktnivaa.NONE : niva;
-        this.fomDato = requireNonNull(fomDato, "fomDato");
-        this.lastsForever = tomDato == null;
-        this.tomDato = lastsForever ? LocalDate.MAX : tomDato;
+        this.nivaa = nivaa == null ? Fullmaktnivaa.NONE : nivaa;
+        this.fom = requireNonNull(fom, "fom");
+        this.lastsForever = tom == null;
+        this.tom = lastsForever ? LocalDate.MAX : tom;
         this.gyldig = gyldig;
         this.versjon = versjon;
         this.fagomraade = fagomraade == null ? Fagomraade.NONE : fagomraade;
         this.giver = requireNonNull(giver, "giver");
         this.fullmektig = requireNonNull(fullmektig, "fullmektig");
-        this.opprettetAv = opprettetAv == null ? "" : opprettetAv;
-        this.opprettetDato = opprettetDato == null ? LocalDate.MIN : opprettetDato;
-        this.endretAv = endretAv == null ? "" : endretAv;
-        this.endretDato = endretDato == null ? LocalDate.MIN : endretDato;
     }
 
     public long getId() {
@@ -63,16 +49,16 @@ public class Fullmakt {
         return type;
     }
 
-    public Fullmaktnivaa getNiva() {
-        return niva;
+    public Fullmaktnivaa getNivaa() {
+        return nivaa;
     }
 
-    public LocalDate getFomDato() {
-        return fomDato;
+    public LocalDate getFom() {
+        return fom;
     }
 
-    public LocalDate getTomDato() {
-        return tomDato;
+    public LocalDate getTom() {
+        return tom;
     }
 
     public boolean lastsForever() {
@@ -91,48 +77,28 @@ public class Fullmakt {
         return fagomraade;
     }
 
-    public AktoerDto getGiver() {
+    public Aktoer getGiver() {
         return giver;
     }
 
-    public AktoerDto getFullmektig() {
+    public Aktoer getFullmektig() {
         return fullmektig;
     }
 
-    public String getOpprettetAv() {
-        return opprettetAv;
-    }
-
-    public LocalDate getOpprettetDato() {
-        return opprettetDato;
-    }
-
-    public String getEndretAv() {
-        return endretAv;
-    }
-
-    public LocalDate getEndretDato() {
-        return endretDato;
-    }
-
     boolean isValidFor(String giverPid, String fullmektigPid, LocalDate date) {
-        return isValidFor(giverPid, fullmektigPid, date, Fullmaktnivaa.FULLSTENDIG);
-    }
-
-    boolean isValidFor(String giverPid, String fullmektigPid, LocalDate date, Fullmaktnivaa fullmaktnivaa) {
         return gyldig
                 && fagomraade.validForPensjon()
-                && fullmaktnivaa.equals(niva)
+                && Fullmaktnivaa.FULLSTENDIG.equals(nivaa)
                 && !isInFuture(date) && !isExpired(date)
                 && giver.isPerson(giverPid)
                 && fullmektig.isPerson(fullmektigPid);
     }
 
     private boolean isInFuture(LocalDate date) {
-        return date.isBefore(fomDato);
+        return date.isBefore(fom);
     }
 
     private boolean isExpired(LocalDate date) {
-        return !lastsForever && tomDato.isBefore(date);
+        return !lastsForever && tom.isBefore(date);
     }
 }

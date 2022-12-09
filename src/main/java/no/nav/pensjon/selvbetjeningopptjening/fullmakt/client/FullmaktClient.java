@@ -1,11 +1,10 @@
-package no.nav.pensjon.selvbetjeningopptjening.fullmakt;
+package no.nav.pensjon.selvbetjeningopptjening.fullmakt.client;
 
 import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.CustomHttpHeaders;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.pensjon.selvbetjeningopptjening.fullmakt.dto.AktoerDto;
-import no.nav.pensjon.selvbetjeningopptjening.fullmakt.dto.FullmakterDto;
-import no.nav.pensjon.selvbetjeningopptjening.fullmakt.dto.FullmaktDto;
+import no.nav.pensjon.selvbetjeningopptjening.fullmakt.*;
+import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.dto.FullmakterDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 import org.slf4j.Logger;
@@ -18,14 +17,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
+import static no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.FullmaktMapper.fullmakter;
 import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
-import static no.nav.pensjon.selvbetjeningopptjening.util.DateUtil.asLocalDate;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Component
@@ -58,7 +56,7 @@ public class FullmaktClient {
                     .bodyToMono(FullmakterDto.class)
                     .block();
 
-            return response == null ? emptyList() : fullmakter(response.aktoer());
+            return response == null ? emptyList() : fullmakter(response.aktor());
         } catch (WebClientResponseException e) {
             throw new FailedCallingExternalServiceException(SERVICE, "finnFullmakter", "Failed to call service: " + e.getResponseBodyAsString(), e);
         } catch (RuntimeException e) { // e.g. when connection broken
@@ -80,40 +78,5 @@ public class FullmaktClient {
         headers.set(HttpHeaders.ACCEPT, APPLICATION_JSON_VALUE);
         headers.set(CustomHttpHeaders.CALL_ID, MDC.get(NAV_CALL_ID));
         return headers;
-    }
-
-    private static List<Fullmakt> fullmakter(AktoerDto aktoer) {
-        if (aktoer == null) {
-            return emptyList();
-        }
-
-        List<FullmaktDto> fullmakter = new ArrayList<>();
-        List<FullmaktDto> fullmakterTil = aktoer.fullmakterTil();
-        List<FullmaktDto> fullmakterFra = aktoer.fullmakterFra();
-        fullmakter.addAll(fullmakterTil == null ? emptyList() : fullmakterTil);
-        fullmakter.addAll(fullmakterFra == null ? emptyList() : fullmakterFra);
-
-        return fullmakter
-                .stream()
-                .map(FullmaktClient::asFullmakt)
-                .toList();
-    }
-
-    private static Fullmakt asFullmakt(FullmaktDto dto) {
-        return new Fullmakt(
-                dto.id(),
-                Fullmakttype.valueOf(dto.type()),
-                Fullmaktnivaa.valueOf(dto.nivaa()),
-                asLocalDate(dto.fom()),
-                asLocalDate(dto.tom()),
-                dto.gyldig(),
-                dto.versjon(),
-                Fagomraade.valueOf(dto.fagomraade()),
-                dto.aktoerGir(),
-                dto.aktoerMottar(),
-                dto.opprettetAv(),
-                asLocalDate(dto.opprettetDato()),
-                dto.endretAv(),
-                asLocalDate(dto.endretDato()));
     }
 }

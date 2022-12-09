@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface FullmaktApi {
 
-    List<Fullmakt> getFullmakter(String fullmaktsgiverPid); // throws ConsumerException;
+    List<Fullmakt> getFullmakter(String fullmaktsgiverPid);
 }

@@ -1,5 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.fullmakt;
 
+import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.FullmaktClient;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 import org.springframework.stereotype.Component;
 

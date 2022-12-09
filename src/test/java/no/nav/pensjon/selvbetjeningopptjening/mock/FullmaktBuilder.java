@@ -1,7 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.mock;
 
 import no.nav.pensjon.selvbetjeningopptjening.fullmakt.*;
-import no.nav.pensjon.selvbetjeningopptjening.fullmakt.dto.AktoerDto;
 
 import java.time.LocalDate;
 
@@ -16,7 +15,7 @@ public class FullmaktBuilder {
     private int fomMonth = 1;
     private int tomMonth = 12;
     private Fagomraade fagomraade = Fagomraade.PEN;
-    private Fullmaktnivaa nivaa = Fullmaktnivaa.FULLSTENDIG;
+    private final Fullmaktnivaa nivaa = Fullmaktnivaa.FULLSTENDIG;
     private Aktoertype fullmaktsgiverType = Aktoertype.PERSON;
     private Aktoertype fullmektigType = Aktoertype.PERSON;
 
@@ -61,14 +60,10 @@ public class FullmaktBuilder {
                 2,
                 fagomraade,
                 aktoer(FULLMAKTSGIVER_PID, fullmaktsgiverType),
-                aktoer(FULLMEKTIG_PID, fullmektigType),
-                "oppretter",
-                LocalDate.of(2020, 11, 11),
-                "endrer",
-                LocalDate.of(2020, 12, 12));
+                aktoer(FULLMEKTIG_PID, fullmektigType));
     }
 
-    private static AktoerDto aktoer(String pid, Aktoertype type) {
-        return new AktoerDto(pid, type.name(), emptyList(), emptyList());
+    private static Aktoer aktoer(String pid, Aktoertype type) {
+        return new Aktoer(pid, type.name(), emptyList(), emptyList());
     }
 }

@@ -1,6 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.fullmakt;
 
 import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
+import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.FullmaktClient;
 import no.nav.pensjon.selvbetjeningopptjening.mock.RequestContextCreator;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
@@ -50,10 +51,10 @@ class FullmaktClientTest extends WebClientTest {
             Fullmakt fullmakt = fullmakter.get(0);
             assertEquals(Fagomraade.PEN, fullmakt.getFagomrade());
             assertEquals(Fullmakttype.SELVBET, fullmakt.getType());
-            assertEquals(Fullmaktnivaa.FULLSTENDIG, fullmakt.getNiva());
+            assertEquals(Fullmaktnivaa.FULLSTENDIG, fullmakt.getNivaa());
             assertEquals(9, fullmakt.getVersjon());
-            assertEquals(LocalDate.of(2022, 6, 15), fullmakt.getFomDato());
-            assertEquals(LocalDate.of(999999999, 12, 31), fullmakt.getTomDato());
+            assertEquals(LocalDate.of(2022, 6, 15), fullmakt.getFom());
+            assertEquals(LocalDate.of(999999999, 12, 31), fullmakt.getTom());
             assertTrue(fullmakt.lastsForever());
             assertTrue(fullmakt.isGyldig());
             assertEquals("01865499538", fullmakt.getGiver().aktoernummer());
