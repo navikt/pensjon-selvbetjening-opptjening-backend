@@ -2,17 +2,34 @@ package no.nav.pensjon.selvbetjeningopptjening.unleash;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Claims;
 import no.finn.unleash.FakeUnleash;
 import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
+import no.nav.pensjon.selvbetjeningopptjening.audit.Auditor;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
+import no.nav.pensjon.selvbetjeningopptjening.security.UserType;
+import no.nav.pensjon.selvbetjeningopptjening.security.filter.CookieBasedBrukerbytte;
+import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
+import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.TokenInfo;
+import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.egress.EgressAccessTokenFacade;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.IngressTokenFinder;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.TokenAudiencesVsApps;
+import no.nav.pensjon.selvbetjeningopptjening.usersession.Logout;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -21,16 +38,38 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = SelvbetjeningOpptjeningApplication.class)
 class UnleashStatusEndpointTest {
 
+    private static final Pid PID = new Pid("04925398980");
     private static final String URI = "/api/unleash";
     private static FakeUnleash featureToggler;
 
     @Autowired
     private MockMvc mvc;
+    @MockBean
+    private IngressTokenFinder ingressTokenFinder;
+    @MockBean
+    private EgressAccessTokenFacade egressAccessTokenFacade;
+    @MockBean
+    private TokenAudiencesVsApps tokenAudiencesVsApps;
+    @MockBean
+    private Logout logout;
+    @MockBean
+    private CookieBasedBrukerbytte brukerbytte;
+    @MockBean
+    private GroupChecker groupChecker;
+    @MockBean
+    private Auditor auditor;
+    @Mock
+    private Claims claims;
 
     @BeforeAll
     static void setUp() {
         featureToggler = new FakeUnleash();
         UnleashProvider.initialize(featureToggler);
+    }
+
+    @BeforeEach
+     void initialize() {
+        when(ingressTokenFinder.getIngressTokenInfo(any(), anyBoolean())).thenReturn(TokenInfo.valid("jwt1", UserType.EXTERNAL, claims, PID.getPid()));
     }
 
     @Test

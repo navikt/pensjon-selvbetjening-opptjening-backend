@@ -1,17 +1,18 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.person;
 
+import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
+import no.nav.pensjon.selvbetjeningopptjening.mock.RequestContextCreator;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UforeTypeCode;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.AfpHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.UforeHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uforeperiode;
-import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
+import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.*;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -23,8 +24,6 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
@@ -41,13 +40,9 @@ class PersonConsumerTest extends WebClientTest {
     @Qualifier("epoch-support")
     WebClient webClient;
 
-    @Mock
-    private TokenGetterFacade tokenGetter;
-
     @BeforeEach
     void initialize() {
-        when(tokenGetter.getToken(anyString())).thenReturn("token");
-        consumer = new PersonConsumer(webClient, baseUrl(), tokenGetter);
+        consumer = new PersonConsumer(webClient, baseUrl());
     }
 
     @Test
@@ -55,25 +50,27 @@ class PersonConsumerTest extends WebClientTest {
     void getUforeHistorikkForPerson_returns_uforeHistorikk_when_ok() throws InterruptedException {
         prepare(uforeHistorikkResponse());
 
-        UforeHistorikk historikk = consumer.getUforeHistorikkForPerson("fnr");
+        try (RequestContext ignored = RequestContextCreator.createForExternal(AppIds.PENSJONSFAGLIG_KJERNE.appName)) {
+            UforeHistorikk historikk = consumer.getUforeHistorikkForPerson("fnr");
 
-        RecordedRequest request = takeRequest();
-        HttpUrl requestUrl = request.getRequestUrl();
-        assertNotNull(requestUrl);
-        assertEquals("GET", request.getMethod());
-        assertEquals("Bearer token", request.getHeader(HttpHeaders.AUTHORIZATION));
-        assertEquals("fnr", request.getHeader("pid"));
-        List<String> segments = requestUrl.pathSegments();
-        assertEquals("person", segments.get(2));
-        assertEquals("uforehistorikk", segments.get(3));
-        List<Uforeperiode> perioder = historikk.getUforeperioder();
-        assertEquals(1, perioder.size());
-        Uforeperiode periode = perioder.get(0);
-        assertEquals(100, periode.getUforegrad());
-        assertEquals(UforeTypeCode.UFORE, periode.getUforetype());
-        assertEquals(LocalDate.of(2019, 10, 1), periode.getFomDate());
-        assertFalse(periode.hasTomDate());
-        assertNull(periode.getTomDate());
+            RecordedRequest request = takeRequest();
+            HttpUrl requestUrl = request.getRequestUrl();
+            assertNotNull(requestUrl);
+            assertEquals("GET", request.getMethod());
+            assertEquals("Bearer token2", request.getHeader(HttpHeaders.AUTHORIZATION));
+            assertEquals("fnr", request.getHeader("pid"));
+            List<String> segments = requestUrl.pathSegments();
+            assertEquals("person", segments.get(2));
+            assertEquals("uforehistorikk", segments.get(3));
+            List<Uforeperiode> perioder = historikk.getUforeperioder();
+            assertEquals(1, perioder.size());
+            Uforeperiode periode = perioder.get(0);
+            assertEquals(100, periode.getUforegrad());
+            assertEquals(UforeTypeCode.UFORE, periode.getUforetype());
+            assertEquals(LocalDate.of(2019, 10, 1), periode.getFomDate());
+            assertFalse(periode.hasTomDate());
+            assertNull(periode.getTomDate());
+        }
     }
 
     @Test
@@ -81,12 +78,14 @@ class PersonConsumerTest extends WebClientTest {
     void getUforeHistorikkForPerson_throws_FailedCallingExternalServiceException_when_invalidPid() {
         prepare(invalidPidResponse());
 
-        var thrown = assertThrows(
-                FailedCallingExternalServiceException.class,
-                () -> consumer.getUforeHistorikkForPerson("fnr"));
+        try (RequestContext ignored = RequestContextCreator.createForExternal(AppIds.PENSJONSFAGLIG_KJERNE.appName)) {
+            var thrown = assertThrows(
+                    FailedCallingExternalServiceException.class,
+                    () -> consumer.getUforeHistorikkForPerson("fnr"));
 
-        assertThat(thrown.getMessage(),
-                is(EXPECTED_UFORE_HISTORIKK_ERROR_MESSAGE + " Received 400 BAD REQUEST"));
+            assertThat(thrown.getMessage(),
+                    is(EXPECTED_UFORE_HISTORIKK_ERROR_MESSAGE + " Received 400 BAD REQUEST"));
+        }
     }
 
     @Test
@@ -94,18 +93,20 @@ class PersonConsumerTest extends WebClientTest {
     void getAfpHistorikkForPerson_returns_null_when_noData() throws InterruptedException {
         prepare(emptyResponse());
 
-        AfpHistorikk historikk = consumer.getAfpHistorikkForPerson("fnr");
+        try (RequestContext ignored = RequestContextCreator.createForExternal(AppIds.PENSJONSFAGLIG_KJERNE.appName)) {
+            AfpHistorikk historikk = consumer.getAfpHistorikkForPerson("fnr");
 
-        RecordedRequest request = takeRequest();
-        HttpUrl requestUrl = request.getRequestUrl();
-        assertNotNull(requestUrl);
-        assertEquals("GET", request.getMethod());
-        assertEquals("Bearer token", request.getHeader(HttpHeaders.AUTHORIZATION));
-        assertEquals("fnr", request.getHeader("pid"));
-        List<String> segments = requestUrl.pathSegments();
-        assertEquals("person", segments.get(2));
-        assertEquals("afphistorikk", segments.get(3));
-        assertNull(historikk);
+            RecordedRequest request = takeRequest();
+            HttpUrl requestUrl = request.getRequestUrl();
+            assertNotNull(requestUrl);
+            assertEquals("GET", request.getMethod());
+            assertEquals("Bearer token2", request.getHeader(HttpHeaders.AUTHORIZATION));
+            assertEquals("fnr", request.getHeader("pid"));
+            List<String> segments = requestUrl.pathSegments();
+            assertEquals("person", segments.get(2));
+            assertEquals("afphistorikk", segments.get(3));
+            assertNull(historikk);
+        }
     }
 
     @Test
@@ -113,16 +114,18 @@ class PersonConsumerTest extends WebClientTest {
     void ping_ok() throws InterruptedException {
         prepare(pingResponse());
 
-        consumer.ping();
+        try (RequestContext ignored = RequestContextCreator.createForExternal(AppIds.PENSJONSFAGLIG_KJERNE.appName)) {
+            consumer.ping();
 
-        RecordedRequest request = takeRequest();
-        HttpUrl requestUrl = request.getRequestUrl();
-        assertNotNull(requestUrl);
-        assertEquals("GET", request.getMethod());
-        assertEquals("Bearer token", request.getHeader(HttpHeaders.AUTHORIZATION));
-        List<String> segments = requestUrl.pathSegments();
-        assertEquals("person", segments.get(2));
-        assertEquals("ping", segments.get(3));
+            RecordedRequest request = takeRequest();
+            HttpUrl requestUrl = request.getRequestUrl();
+            assertNotNull(requestUrl);
+            assertEquals("GET", request.getMethod());
+            assertEquals("Bearer token2", request.getHeader(HttpHeaders.AUTHORIZATION));
+            List<String> segments = requestUrl.pathSegments();
+            assertEquals("person", segments.get(2));
+            assertEquals("ping", segments.get(3));
+        }
     }
 
     @Test
@@ -130,13 +133,15 @@ class PersonConsumerTest extends WebClientTest {
     void getUforeHistorikkForPerson_throws_FailedCallingExternalServiceException_when_expiredToken() {
         prepare(expiredTokenResponse());
 
-        var thrown = assertThrows(
-                FailedCallingExternalServiceException.class,
-                () -> consumer.getUforeHistorikkForPerson("fnr"));
+        try (RequestContext ignored = RequestContextCreator.createForExternal(AppIds.PENSJONSFAGLIG_KJERNE.appName)) {
+            var thrown = assertThrows(
+                    FailedCallingExternalServiceException.class,
+                    () -> consumer.getUforeHistorikkForPerson("fnr"));
 
-        assertThat(thrown.getMessage(),
-                is(EXPECTED_UFORE_HISTORIKK_ERROR_MESSAGE +
-                        " An error occurred in the provider, received 500 INTERNAL SERVER ERROR"));
+            assertThat(thrown.getMessage(),
+                    is(EXPECTED_UFORE_HISTORIKK_ERROR_MESSAGE +
+                            " An error occurred in the provider, received 500 INTERNAL SERVER ERROR"));
+        }
     }
 
     @Test
@@ -144,13 +149,15 @@ class PersonConsumerTest extends WebClientTest {
     void getUforeHistorikkForPerson_throws_FailedCallingExternalServiceException_when_invalidToken() {
         prepare(invalidTokenResponse());
 
-        var thrown = assertThrows(
-                FailedCallingExternalServiceException.class,
-                () -> consumer.getUforeHistorikkForPerson("fnr"));
+        try (RequestContext ignored = RequestContextCreator.createForExternal(AppIds.PENSJONSFAGLIG_KJERNE.appName)) {
+            var thrown = assertThrows(
+                    FailedCallingExternalServiceException.class,
+                    () -> consumer.getUforeHistorikkForPerson("fnr"));
 
-        assertThat(thrown.getMessage(),
-                is(EXPECTED_UFORE_HISTORIKK_ERROR_MESSAGE +
-                        " An error occurred in the provider, received 500 INTERNAL SERVER ERROR"));
+            assertThat(thrown.getMessage(),
+                    is(EXPECTED_UFORE_HISTORIKK_ERROR_MESSAGE +
+                            " An error occurred in the provider, received 500 INTERNAL SERVER ERROR"));
+        }
     }
 
     @Order(7)
@@ -158,12 +165,14 @@ class PersonConsumerTest extends WebClientTest {
     void getAfpHistorikkForPerson_throws_FailedCallingExternalServiceException_when_invalidPid() {
         prepare(invalidPidResponse());
 
-        var thrown = assertThrows(
-                FailedCallingExternalServiceException.class,
-                () -> consumer.getAfpHistorikkForPerson("fnr"));
+        try (RequestContext ignored = RequestContextCreator.createForExternal(AppIds.PENSJONSFAGLIG_KJERNE.appName)) {
+            var thrown = assertThrows(
+                    FailedCallingExternalServiceException.class,
+                    () -> consumer.getAfpHistorikkForPerson("fnr"));
 
-        assertThat(thrown.getMessage(),
-                is(EXPECTED_AFP_HISTORIKK_ERROR_MESSAGE + " Received 400 BAD REQUEST"));
+            assertThat(thrown.getMessage(),
+                    is(EXPECTED_AFP_HISTORIKK_ERROR_MESSAGE + " Received 400 BAD REQUEST"));
+        }
     }
 
     private static MockResponse uforeHistorikkResponse() {

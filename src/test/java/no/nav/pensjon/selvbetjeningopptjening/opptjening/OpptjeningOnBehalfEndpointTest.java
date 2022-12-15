@@ -4,13 +4,21 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
 import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
+import no.nav.pensjon.selvbetjeningopptjening.audit.Auditor;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
-import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
+import no.nav.pensjon.selvbetjeningopptjening.security.UserType;
+import no.nav.pensjon.selvbetjeningopptjening.security.filter.CookieBasedBrukerbytte;
 import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
 import no.nav.pensjon.selvbetjeningopptjening.security.jwt.JwsValidator;
+import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.TokenInfo;
+import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.egress.EgressAccessTokenFacade;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.IngressTokenFinder;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.TokenAudiencesVsApps;
+import no.nav.pensjon.selvbetjeningopptjening.usersession.Logout;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,12 +43,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = SelvbetjeningOpptjeningApplication.class)
 class OpptjeningOnBehalfEndpointTest {
 
-    private static final Pid PID = PidGenerator.generatePidAtAge(65);
+    private static final Pid PID = new Pid("04925398980");
     private static final String URI = "/api/opptjeningonbehalf?fnr=" + PID;
     private static final String VEILEDER_GROUP_ID = "959ead5b-99b5-466b-a0ff-5fdbc687517b";
 
     @Autowired
     private MockMvc mvc;
+    @MockBean
+    private IngressTokenFinder ingressTokenFinder;
+    @MockBean
+    private EgressAccessTokenFacade egressAccessTokenFacade;
+    @MockBean
+    private TokenAudiencesVsApps tokenAudiencesVsApps;
+    @MockBean
+    private Logout logout;
+    @MockBean
+    private CookieBasedBrukerbytte brukerbytte;
     @MockBean
     private OpptjeningProvider provider;
     @MockBean
@@ -49,48 +67,57 @@ class OpptjeningOnBehalfEndpointTest {
     private JwsValidator jwsValidator;
     @MockBean
     private Jws<Claims> jws;
+    @MockBean
+    private Auditor auditor;
     @Mock
     private Claims claims;
 
+    @BeforeEach
+    void initialize() {
+        when(ingressTokenFinder.getIngressTokenInfo(any(), anyBoolean())).thenReturn(TokenInfo.valid("jwt1", UserType.INTERNAL, claims, PID.getPid()));
+    }
+
     @Test
     void getOpptjeningForFnr_returns_opptjeningJson_when_authorized() throws Exception {
-        when(provider.calculateOpptjeningForFnr(PID, LoginSecurityLevel.INTERNAL)).thenReturn(response());
+        when(provider.calculateOpptjeningForFnr(PID)).thenReturn(response());
         when(groupChecker.isUserAuthorized(eq(PID), any())).thenReturn(true);
         logInAsAuthorizedInternalUser();
 
         mvc.perform(
-                get(URI)
-                        .cookie(new Cookie("iu-idtoken", "foo")))
+                        get(URI)
+                                .cookie(new Cookie("iu-idtoken", "foo")))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{\n" +
-                        "  'opptjeningData': {\n" +
-                        "    '1992': {\n" +
-                        "      'pensjonsgivendeInntekt': null,\n" +
-                        "      'pensjonsbeholdning': 1234,\n" +
-                        "      'omsorgspoeng': null,\n" +
-                        "      'omsorgspoengType': null,\n" +
-                        "      'pensjonspoeng': null,\n" +
-                        "      'merknader': [],\n" +
-                        "      'restpensjon': null,\n" +
-                        "      'maksUforegrad': 0,\n" +
-                        "      'endringOpptjening': null\n" +
-                        "    }\n" +
-                        "  },\n" +
-                        "  'numberOfYearsWithPensjonspoeng': 1,\n" +
-                        "  'fodselsaar': 1950,\n" +
-                        "  'andelPensjonBasertPaBeholdning': 10\n" +
-                        "}"));
+                .andExpect(content().json("""
+                                                  {
+                                                   "opptjeningData": {
+                                                    "1992": {
+                                                      "pensjonsgivendeInntekt": null,
+                                                      "pensjonsbeholdning": 1234,
+                                                      "omsorgspoeng": null,
+                                                      "omsorgspoengType": null,
+                                                      "pensjonspoeng": null,
+                                                      "merknader": [],
+                                                      "restpensjon": null,
+                                                      "maksUforegrad": 0,
+                                                      "endringOpptjening": null
+                                                    }
+                                                  },
+                                                  "numberOfYearsWithPensjonspoeng": 1,
+                                                  "fodselsaar": 1950,
+                                                  "andelPensjonBasertPaBeholdning": 10
+                            }
+                        """));
     }
 
     @Test
     void getOpptjeningForFnr_returns_statusForbidden_when_userNotMemberOfGroup() throws Exception {
-        when(provider.calculateOpptjeningForFnr(PID, LoginSecurityLevel.INTERNAL)).thenReturn(response());
+        when(provider.calculateOpptjeningForFnr(PID)).thenReturn(response());
         when(groupChecker.isUserAuthorized(eq(PID), any())).thenReturn(false);
         logInAsUnauthorizedInternalUser();
 
         mvc.perform(
-                get(URI)
-                        .cookie(new Cookie("iu-idtoken", "foo")))
+                        get(URI)
+                                .cookie(new Cookie("iu-idtoken", "foo")))
                 .andExpect(status().isForbidden());
     }
 
@@ -103,9 +130,10 @@ class OpptjeningOnBehalfEndpointTest {
     }
 
     private void logIn(String groupId) {
-        when(jwsValidator.validate(anyString())).thenReturn(jws);
+        when(jwsValidator.validate(anyString())).thenReturn(TokenInfo.valid("jwt", UserType.INTERNAL, claims, "user1"));
         when(jws.getBody()).thenReturn(claims);
         when(claims.get("groups")).thenReturn(List.of(groupId));
+        when(claims.get("NAVident")).thenReturn("X123456");
     }
 
     private static OpptjeningResponse response() {

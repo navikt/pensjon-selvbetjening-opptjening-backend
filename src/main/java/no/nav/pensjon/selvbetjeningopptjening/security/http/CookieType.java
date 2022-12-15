@@ -1,12 +1,18 @@
 package no.nav.pensjon.selvbetjeningopptjening.security.http;
 
+/**
+ * Cookie name explanation:
+ * iu/xu = NAV internal/external user
+ * acc = access
+ * nav = NAV
+ * obo = on behalf of
+ */
 public enum CookieType {
 
     INTERNAL_USER_ACCESS_TOKEN("iu-acctoken", "/", true, true),
-    INTERNAL_USER_ID_TOKEN("iu-idtoken", "/", true, true),
     EXTERNAL_USER_ACCESS_TOKEN("xu-acctoken", "/", true, true),
-    EXTERNAL_USER_ID_TOKEN("xu-idtoken", "/", true, true),
-    REFRESH_TOKEN("refresh-token", "/", true, true);
+    REFRESH_TOKEN("refresh-token", "/", true, true), // since no DB, store refresh token in cookie
+    ON_BEHALF_OF_PID("nav-obo", "/", true, true);
 
     public String getName() {
         return name;

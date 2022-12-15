@@ -1,6 +1,13 @@
 package no.nav.pensjon.selvbetjeningopptjening.health;
 
 import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
+import no.nav.pensjon.selvbetjeningopptjening.audit.Auditor;
+import no.nav.pensjon.selvbetjeningopptjening.security.filter.CookieBasedBrukerbytte;
+import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
+import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.egress.EgressAccessTokenFacade;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.IngressTokenFinder;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.TokenAudiencesVsApps;
+import no.nav.pensjon.selvbetjeningopptjening.usersession.Logout;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,23 +25,25 @@ class ReadinessEndpointTest {
     @Autowired
     private MockMvc mvc;
     @MockBean
+    IngressTokenFinder ingressTokenFinder;
+    @MockBean
+    EgressAccessTokenFacade egressAccessTokenFacade;
+    @MockBean
+    TokenAudiencesVsApps tokenAudiencesVsApps;
+    @MockBean
+    Logout logout;
+    @MockBean
+    CookieBasedBrukerbytte brukerbytte;
+    @MockBean
+    GroupChecker groupChecker;
+    @MockBean
+    Auditor auditor;
+    @MockBean
     Selftest selftest;
 
     @Test
-    void isAlive() throws Exception {
-        mvc.perform(get("/api/internal/isAlive"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void isReady() throws Exception {
-        mvc.perform(get("/api/internal/isReady"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
     void selftest() throws Exception {
-        mvc.perform(get("/api/internal/selftest"))
+        mvc.perform(get("/internal/selftest"))
                 .andExpect(status().isOk());
     }
 }

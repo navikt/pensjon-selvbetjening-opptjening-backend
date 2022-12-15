@@ -1,6 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.unleash;
 
-import no.nav.security.token.support.core.api.ProtectedWithClaims;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,11 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 import static no.nav.pensjon.selvbetjeningopptjening.unleash.UnleashProvider.toggle;
-import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.ISSUER;
 
 @RestController
 @RequestMapping("api")
-@ProtectedWithClaims(issuer = ISSUER) // Use @Unprotected when running with laptop/uimage profile
 public class UnleashStatusEndpoint {
 
     @PostMapping("/unleash")

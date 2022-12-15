@@ -1,6 +1,9 @@
 package no.nav.pensjon.selvbetjeningopptjening.security.impersonal;
 
+import no.nav.pensjon.selvbetjeningopptjening.security.UserType;
+import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.egress.EgressAccessTokenFacade;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.RawJwt;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.TokenAudiencesVsApps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -43,7 +46,7 @@ public class ImpersonalEgressTokenService {
     private void obtainImpersonalTokenSupplier(String audience,
                                                List<String> appIds,
                                                Map<String, Supplier<RawJwt>> tokenSuppliersByApp) {
-        Supplier<RawJwt> tokenSupplier = () -> egressTokenGetter.getAccessToken(audience);
+        Supplier<RawJwt> tokenSupplier = () -> egressTokenGetter.getAccessToken(UserType.APPLICATION, audience);
         appIds.forEach(appId -> tokenSuppliersByApp.put(appId, tokenSupplier));
     }
 }

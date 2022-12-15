@@ -1,14 +1,15 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning;
 
+import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
+import no.nav.pensjon.selvbetjeningopptjening.mock.RequestContextCreator;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Beholdning;
-import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
+import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.*;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -21,8 +22,6 @@ import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.POPP;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -30,36 +29,36 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 class PensjonsbeholdningConsumerTest extends WebClientTest {
 
     private static final String CONSUMED_SERVICE = "PROPOPP006 hentPensjonsbeholdningListe";
-    private PensjonsbeholdningConsumer consumer;
 
     private static final String EXPECTED_GENERAL_ERROR_MESSAGE = "Error when calling the external service " +
             CONSUMED_SERVICE + " in " + POPP + ".";
+
+    private PensjonsbeholdningConsumer consumer;
 
     @Autowired
     @Qualifier("epoch-support")
     WebClient webClient;
 
-    @Mock
-    private TokenGetterFacade tokenGetter;
-
     @BeforeEach
     void initialize() {
-        when(tokenGetter.getToken(anyString())).thenReturn("token");
-        consumer = new PensjonsbeholdningConsumer(webClient, baseUrl(), tokenGetter);
+        consumer = new PensjonsbeholdningConsumer(webClient, baseUrl());
     }
 
     @Test
-    @Order(1) // Fails if run after one of the exception tests
+    @Order(1)
+        // Fails if run after one of the exception tests
     void test_ping() throws InterruptedException {
         prepare(new MockResponse());
 
-        consumer.ping();
+        try (RequestContext ignored = RequestContextCreator.createForExternal(AppIds.PENSJONSOPPTJENING_REGISTER.appName)) {
+            consumer.ping();
 
-        RecordedRequest request = takeRequest();
-        HttpUrl requestUrl = request.getRequestUrl();
-        assertNotNull(requestUrl);
-        assertEquals("GET", request.getMethod());
-        assertEquals("Bearer token", request.getHeader(HttpHeaders.AUTHORIZATION));
+            RecordedRequest request = takeRequest();
+            HttpUrl requestUrl = request.getRequestUrl();
+            assertNotNull(requestUrl);
+            assertEquals("GET", request.getMethod());
+            assertEquals("Bearer token2", request.getHeader(HttpHeaders.AUTHORIZATION));
+        }
     }
 
     @Test
@@ -67,29 +66,31 @@ class PensjonsbeholdningConsumerTest extends WebClientTest {
     void should_return_listOfBeholdning_when_getPensjonsbeholdning() throws InterruptedException {
         prepare(okResponse());
 
-        List<Beholdning> beholdninger = consumer.getPensjonsbeholdning("fnr");
-        RecordedRequest request = takeRequest();
+        try (RequestContext ignored = RequestContextCreator.createForExternal(AppIds.PENSJONSOPPTJENING_REGISTER.appName)) {
+            List<Beholdning> beholdninger = consumer.getPensjonsbeholdning("fnr");
+            RecordedRequest request = takeRequest();
 
-        HttpUrl requestUrl = request.getRequestUrl();
-        assertNotNull(requestUrl);
-        assertEquals("POST", request.getMethod());
-        assertEquals("Bearer token", request.getHeader(HttpHeaders.AUTHORIZATION));
-        assertEquals(2, beholdninger.size());
-        Beholdning beholdning = beholdninger.get(0);
-        assertEquals(430456711L, beholdning.getId());
-        assertEquals("12117121168", beholdning.getFnr());
-        assertEquals("G", beholdning.getStatus());
-        assertEquals("PEN_B", beholdning.getType());
-        assertEquals(20137.460428429236D, beholdning.getBelop());
-        assertFalse(beholdning.hasVedtak());
-        assertEquals(LocalDate.of(1994, 1, 1), beholdning.getFomDato());
-        assertEquals(LocalDate.of(1994, 12, 31), beholdning.getTomDato());
-        assertEquals(108655.1D, beholdning.getGrunnlag());
-        assertEquals(108655.0D, beholdning.getGrunnlagAvkortet());
-        assertEquals(20137.460428429236D, beholdning.getInnskudd());
-        assertEquals(19666.555000000004D, beholdning.getInnskuddUtenOmsorg());
-        assertEquals("NY_OPPTJENING", beholdning.getOppdateringArsak());
-        assertNull(beholdning.getLonnsvekstregulering());
+            HttpUrl requestUrl = request.getRequestUrl();
+            assertNotNull(requestUrl);
+            assertEquals("POST", request.getMethod());
+            assertEquals("Bearer token2", request.getHeader(HttpHeaders.AUTHORIZATION));
+            assertEquals(2, beholdninger.size());
+            Beholdning beholdning = beholdninger.get(0);
+            assertEquals(430456711L, beholdning.getId());
+            assertEquals("12117121168", beholdning.getFnr());
+            assertEquals("G", beholdning.getStatus());
+            assertEquals("PEN_B", beholdning.getType());
+            assertEquals(20137.460428429236D, beholdning.getBelop());
+            assertFalse(beholdning.hasVedtak());
+            assertEquals(LocalDate.of(1994, 1, 1), beholdning.getFomDato());
+            assertEquals(LocalDate.of(1994, 12, 31), beholdning.getTomDato());
+            assertEquals(108655.1D, beholdning.getGrunnlag());
+            assertEquals(108655.0D, beholdning.getGrunnlagAvkortet());
+            assertEquals(20137.460428429236D, beholdning.getInnskudd());
+            assertEquals(19666.555000000004D, beholdning.getInnskuddUtenOmsorg());
+            assertEquals("NY_OPPTJENING", beholdning.getOppdateringArsak());
+            assertNull(beholdning.getLonnsvekstregulering());
+        }
     }
 
     @Test
@@ -97,11 +98,13 @@ class PensjonsbeholdningConsumerTest extends WebClientTest {
     void should_return_FailedCallingExternalServiceException_when_unauthorized() {
         prepare(unauthorizedResponse());
 
-        var thrown = assertThrows(
-                FailedCallingExternalServiceException.class,
-                () -> consumer.getPensjonsbeholdning("fnr"));
+        try (RequestContext ignored = RequestContextCreator.createForExternal(AppIds.PENSJONSOPPTJENING_REGISTER.appName)) {
+            var thrown = assertThrows(
+                    FailedCallingExternalServiceException.class,
+                    () -> consumer.getPensjonsbeholdning("fnr"));
 
-        assertThat(thrown.getMessage(), is(EXPECTED_GENERAL_ERROR_MESSAGE + " Received 401 UNAUTHORIZED"));
+            assertThat(thrown.getMessage(), is(EXPECTED_GENERAL_ERROR_MESSAGE + " Received 401 UNAUTHORIZED"));
+        }
     }
 
     @Test
@@ -109,11 +112,13 @@ class PensjonsbeholdningConsumerTest extends WebClientTest {
     void should_return_FailedCallingExternalServiceException_when_nonExistentPerson() {
         prepare(nonExistentPersonResponse());
 
-        var thrown = assertThrows(
-                FailedCallingExternalServiceException.class,
-                () -> consumer.getPensjonsbeholdning("fnr"));
+        try (RequestContext ignored = RequestContextCreator.createForExternal(AppIds.PENSJONSOPPTJENING_REGISTER.appName)) {
+            var thrown = assertThrows(
+                    FailedCallingExternalServiceException.class,
+                    () -> consumer.getPensjonsbeholdning("fnr"));
 
-        assertThat(thrown.getMessage(), is(EXPECTED_GENERAL_ERROR_MESSAGE + " Person ikke funnet"));
+            assertThat(thrown.getMessage(), is(EXPECTED_GENERAL_ERROR_MESSAGE + " Person ikke funnet"));
+        }
     }
 
     @Test
@@ -121,12 +126,14 @@ class PensjonsbeholdningConsumerTest extends WebClientTest {
     void should_return_FailedCallingExternalServiceException_when_invalidPid() {
         prepare(invalidPidResponse());
 
-        var thrown = assertThrows(
-                FailedCallingExternalServiceException.class,
-                () -> consumer.getPensjonsbeholdning(""));
+        try (RequestContext ignored = RequestContextCreator.createForExternal(AppIds.PENSJONSOPPTJENING_REGISTER.appName)) {
+            var thrown = assertThrows(
+                    FailedCallingExternalServiceException.class,
+                    () -> consumer.getPensjonsbeholdning(""));
 
-        assertThat(thrown.getMessage(),
-                is(EXPECTED_GENERAL_ERROR_MESSAGE + " An error occurred in the provider, received 500 INTERNAL SERVER ERROR"));
+            assertThat(thrown.getMessage(),
+                    is(EXPECTED_GENERAL_ERROR_MESSAGE + " An error occurred in the provider, received 500 INTERNAL SERVER ERROR"));
+        }
     }
 
     private static MockResponse okResponse() {

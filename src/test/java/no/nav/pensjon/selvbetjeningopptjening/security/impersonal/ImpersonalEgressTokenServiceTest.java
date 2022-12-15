@@ -1,6 +1,9 @@
 package no.nav.pensjon.selvbetjeningopptjening.security.impersonal;
 
+import no.nav.pensjon.selvbetjeningopptjening.security.UserType;
+import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.egress.EgressAccessTokenFacade;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.RawJwt;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.TokenAudiencesVsApps;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -42,7 +45,7 @@ class ImpersonalEgressTokenServiceTest {
     }
 
     private void arrangeAccessToken(String audience, String token) {
-        when(accessTokenFacade.getAccessToken(audience)).thenReturn(new RawJwt(token));
+        when(accessTokenFacade.getAccessToken(UserType.APPLICATION, audience)).thenReturn(new RawJwt(token));
     }
 
     private static TokenAudiencesVsApps audiencesVsApps() {

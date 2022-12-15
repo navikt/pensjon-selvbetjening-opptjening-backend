@@ -1,6 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.usersession.token;
 
 import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieType;
+import no.nav.pensjon.selvbetjeningopptjening.security.token.RefreshToken;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +37,6 @@ public abstract class TokenRefresher {
     }
 
     private TokenData getRefreshedToken(Cookie cookie) {
-        return tokenGetter.getTokenData(TokenAccessParam.refreshToken(cookie.getValue()), "-");
+        return tokenGetter.getTokenData(TokenAccessParam.refreshToken(new RefreshToken(cookie.getValue())), "-");
     }
 }

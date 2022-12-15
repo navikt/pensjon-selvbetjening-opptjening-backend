@@ -3,10 +3,21 @@ package no.nav.pensjon.selvbetjeningopptjening.util;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.Calendar;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class DateUtilTest {
+
+    @Test
+    void asLocalDate() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2022, Calendar.MARCH, 4);
+
+        LocalDate localDate = DateUtil.asLocalDate(calendar);
+
+        assertEquals(LocalDate.of(2022, 3, 4), localDate);
+    }
 
     @Test
     void firstDayOf() {

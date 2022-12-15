@@ -4,13 +4,11 @@ import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
-import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import static java.util.Objects.requireNonNull;
-import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
 
 @Service
 public class PersonService {
@@ -22,27 +20,15 @@ public class PersonService {
         this.pdlConsumer = requireNonNull(pdlConsumer);
     }
 
-    public Person getPerson(Pid pid, LoginSecurityLevel securityLevel) {
+    public Person getPerson(Pid pid) {
         try {
-            return pdlConsumer.getPerson(pid, securityLevel);
+            return pdlConsumer.getPerson(pid);
         } catch (PdlException e) {
-            handle(e, pid, securityLevel);
+            log.error("Call to PDL failed (error code {})", e.getErrorCode(), e);
             return new Person(pid);
         } catch (Exception e) {
-            log.error("Call to PDL failed: {}", e.getMessage(), e);
+            log.error("Call to PDL failed", e);
             return new Person(pid);
         }
-    }
-
-    private void handle(PdlException exception, Pid pid, LoginSecurityLevel securityLevel) {
-        log.error("Call to PDL failed: {}", exception.getMessage(), exception);
-
-        if ("unauthorized".equals(exception.getErrorCode())) {
-            log.info("PID {} has login security {}", mask(pid), securityLevel.name());
-        }
-    }
-
-    private static String mask(Pid pid) {
-        return maskFnr(pid.getPid());
     }
 }

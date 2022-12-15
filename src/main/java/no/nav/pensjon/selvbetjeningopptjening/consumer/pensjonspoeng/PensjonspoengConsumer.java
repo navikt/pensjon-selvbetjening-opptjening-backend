@@ -5,7 +5,7 @@ import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pensjonspoeng;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.PensjonspoengMapper;
-import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
+import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -37,14 +37,11 @@ public class PensjonspoengConsumer implements Pingable {
     private static final Logger log = LoggerFactory.getLogger(PensjonspoengConsumer.class);
     private final String url;
     private final WebClient webClient;
-    private final TokenGetterFacade tokenGetter;
 
     public PensjonspoengConsumer(@Qualifier("epoch-support") WebClient webClient,
-                                 @Value("${popp.url}") String baseUrl,
-                                 TokenGetterFacade tokenGetter) {
+                                 @Value("${popp.url}") String baseUrl) {
         this.webClient = requireNonNull(webClient, "webClient");
         this.url = requireNonNull(baseUrl, "baseUrl") + PATH;
-        this.tokenGetter = requireNonNull(tokenGetter, "tokenGetter");
     }
 
     public List<Pensjonspoeng> getPensjonspoengListe(String fnr) {
@@ -106,6 +103,6 @@ public class PensjonspoengConsumer implements Pingable {
     }
 
     private String getAuthHeaderValue() {
-        return AUTH_TYPE + " " + tokenGetter.getToken(AppIds.PENSJONSOPPTJENING_REGISTER.appName);
+        return AUTH_TYPE + " " + RequestContext.getEgressAccessToken(AppIds.PENSJONSOPPTJENING_REGISTER).getValue();
     }
 }

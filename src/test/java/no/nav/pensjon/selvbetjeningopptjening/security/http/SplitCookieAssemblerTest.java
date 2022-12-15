@@ -14,7 +14,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(SpringExtension.class)
 class SplitCookieAssemblerTest {
 
-    private static final CookieType COOKIE_TYPE = CookieType.INTERNAL_USER_ID_TOKEN;
+    private static final CookieType COOKIE_TYPE = CookieType.INTERNAL_USER_ACCESS_TOKEN; //.INTERNAL_USER_ID_TOKEN;
     private static final String COOKIE_NAME_BASE = COOKIE_TYPE.getName();
 
     @Mock

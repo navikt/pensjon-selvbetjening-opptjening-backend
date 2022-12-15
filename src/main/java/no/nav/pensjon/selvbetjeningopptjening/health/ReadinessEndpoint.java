@@ -1,6 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.health;
 
-import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,24 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("api/internal")
-@Unprotected
+@RequestMapping("internal")
 public class ReadinessEndpoint {
 
     private final Selftest selftest;
 
     public ReadinessEndpoint(Selftest selftest) {
         this.selftest = selftest;
-    }
-
-    @RequestMapping(path = "isAlive", method = RequestMethod.GET)
-    public ResponseEntity isAlive() {
-        return new ResponseEntity(HttpStatus.OK);
-    }
-
-    @RequestMapping(path = "isReady", method = RequestMethod.GET)
-    public ResponseEntity isReady() {
-        return new ResponseEntity(HttpStatus.OK);
     }
 
     @RequestMapping(path = "selftest", method = RequestMethod.GET)
@@ -50,7 +38,7 @@ public class ReadinessEndpoint {
     }
 
     private static MultiValueMap<String, String> contentTypeHeaders(String mediaType) {
-        MultiValueMap<String, String> headers = new HttpHeaders();
+        var headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, mediaType);
         return headers;
     }

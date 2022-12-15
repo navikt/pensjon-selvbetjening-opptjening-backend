@@ -13,7 +13,6 @@ import no.nav.pensjon.selvbetjeningopptjening.model.code.OpptjeningTypeCode;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.person.PersonService;
-import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -79,14 +78,14 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
-        when(personService.getPerson(any(Pid.class), eq(LoginSecurityLevel.LEVEL4))).thenReturn(new Person(
+        when(personService.getPerson(any(Pid.class))).thenReturn(new Person(
                 PidGenerator.generatePid(fodselsdato),
                 null,
                 null,
                 null,
                 new BirthDate(fodselsdato)));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato));
 
         assertThat(opptjeningResponse.getFodselsaar(), is(expectedFodselsaar));
     }
@@ -99,14 +98,14 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(emptyList());
-        when(personService.getPerson(any(Pid.class), eq(LoginSecurityLevel.LEVEL4))).thenReturn(new Person(
+        when(personService.getPerson(any(Pid.class))).thenReturn(new Person(
                 PidGenerator.generatePid(fodselsdato),
                 null,
                 null,
                 null,
                 new BirthDate(fodselsdato)));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato));
 
         assertThat(opptjeningResponse.getFodselsaar(), is(expectedFodselsaar));
     }
@@ -120,7 +119,7 @@ class OpptjeningProviderTest {
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(emptyList());
         mockPerson(fodselsdato);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato));
 
         assertThat(opptjeningResponse.getFodselsaar(), is(expectedFodselsaar));
     }
@@ -134,7 +133,7 @@ class OpptjeningProviderTest {
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
         mockPerson(DATE_IN_1963);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(1, opptjeningerByYear.size());
@@ -150,7 +149,7 @@ class OpptjeningProviderTest {
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
         mockPerson(DATE_IN_1963);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(4, opptjeningerByYear.size());
@@ -166,7 +165,7 @@ class OpptjeningProviderTest {
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(emptyList());
         mockPerson(DATE_IN_1960);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960));
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(beholdning.getBelop(), opptjeningerByYear.get(1983).getPensjonsbeholdning().doubleValue());
@@ -182,7 +181,7 @@ class OpptjeningProviderTest {
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(singletonList(pensjonspoeng));
         mockPerson(DATE_IN_1960);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960));
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         OpptjeningDto opptjening = opptjeningerByYear.get(pensjonspoeng.getYear());
@@ -199,7 +198,7 @@ class OpptjeningProviderTest {
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(singletonList(pensjonspoeng));
         mockPerson(DATE_IN_1960);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960));
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         OpptjeningDto opptjening = opptjeningerByYear.get(pensjonspoeng.getYear());
@@ -218,7 +217,7 @@ class OpptjeningProviderTest {
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(pensjonspoengList);
         mockPerson(DATE_IN_1960);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960));
 
         assertEquals(pensjonspoengList.size(), opptjeningResponse.getNumberOfYearsWithPensjonspoeng());
     }
@@ -232,7 +231,7 @@ class OpptjeningProviderTest {
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(singletonList(pensjonspoeng));
         mockPerson(fodselsdato);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato));
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         OpptjeningDto opptjening = opptjeningerByYear.get(pensjonspoeng.getYear());
@@ -249,7 +248,7 @@ class OpptjeningProviderTest {
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(singletonList(pensjonspoeng));
         mockPerson(fodselsdato);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato));
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         OpptjeningDto opptjening = opptjeningerByYear.get(pensjonspoeng.getYear());
@@ -268,7 +267,7 @@ class OpptjeningProviderTest {
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(pensjonspoengList);
         mockPerson(fodselsdato);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato));
 
         assertEquals(pensjonspoengList.size(), opptjeningResponse.getNumberOfYearsWithPensjonspoeng());
     }
@@ -282,7 +281,7 @@ class OpptjeningProviderTest {
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
         mockPerson(DATE_IN_1963);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
 
         assertNull(opptjeningResponse.getOpptjeningData());
     }
@@ -297,7 +296,7 @@ class OpptjeningProviderTest {
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
         mockPerson(DATE_IN_1963);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(restpensjon.getRestGrunnpensjon(), opptjeningerByYear.get(1980).getRestpensjon());
@@ -313,7 +312,7 @@ class OpptjeningProviderTest {
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
         mockPerson(DATE_IN_1963);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(restpensjon.getRestPensjonstillegg(), opptjeningerByYear.get(1980).getRestpensjon());
@@ -329,7 +328,7 @@ class OpptjeningProviderTest {
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
         mockPerson(DATE_IN_1963);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(restpensjon.getRestTilleggspensjon(), opptjeningerByYear.get(1980).getRestpensjon());
@@ -345,7 +344,7 @@ class OpptjeningProviderTest {
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
         mockPerson(DATE_IN_1963);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(restpensjon.getRestPensjonstillegg() + restpensjon.getRestGrunnpensjon(), opptjeningerByYear.get(1980).getRestpensjon());
@@ -360,7 +359,7 @@ class OpptjeningProviderTest {
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         mockPerson(DATE_IN_1960);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960));
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(restpensjon.getRestGrunnpensjon(), opptjeningerByYear.get(1980).getRestpensjon());
@@ -375,7 +374,7 @@ class OpptjeningProviderTest {
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
         mockPerson(fodselsdato);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato));
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(restpensjon.getRestGrunnpensjon(), opptjeningerByYear.get(1970).getRestpensjon());
@@ -392,7 +391,7 @@ class OpptjeningProviderTest {
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
         mockPerson(DATE_IN_1963);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(beholdning.getInntektsopptjening().getSumPensjonsgivendeInntekt().getBelop(), opptjeningerByYear.get(1980).getPensjonsgivendeInntekt().longValue());
@@ -407,7 +406,7 @@ class OpptjeningProviderTest {
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(singletonList(inntekt));
         mockPerson(DATE_IN_1963);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
 
         assertNull(opptjeningResponse.getOpptjeningData());
     }
@@ -421,7 +420,7 @@ class OpptjeningProviderTest {
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(singletonList(inntekt));
         mockPerson(DATE_IN_1963);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
 
         assertNull(opptjeningResponse.getOpptjeningData());
     }
@@ -436,7 +435,7 @@ class OpptjeningProviderTest {
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(singletonList(inntekt));
         mockPerson(DATE_IN_1963);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
 
         assertEquals(inntekt.getBelop(), opptjeningResponse.getOpptjeningData().get(1980).getPensjonsgivendeInntekt().longValue());
     }
@@ -458,7 +457,7 @@ class OpptjeningProviderTest {
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(singletonList(additionalInntekt2010));
         mockPerson(DATE_IN_1963);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
 
         assertThat(opptjeningResponse.getOpptjeningData().get(2010).getPensjonsgivendeInntekt().longValue(), is(expectedInntekt2010));
         assertThat(opptjeningResponse.getOpptjeningData().get(2011).getPensjonsgivendeInntekt(), is(0));
@@ -475,7 +474,7 @@ class OpptjeningProviderTest {
         var inntektsopptjening = new Inntektsopptjening(2012, (double) expectedInntekt2012, inntekt2012);
         Beholdning beholdning2012 = beholdningFomFirstDayInYear(2012, inntektsopptjening);
         Beholdning beholdning2013 = beholdningFomFirstDayInYear(2013);
-        Pensjonspoeng pensjonspoeng2013 = pensjonspoengForYearWithInntekt(2013, expectedInntekt2013);
+        Pensjonspoeng pensjonspoeng2013 = pensjonspoengForYearWithInntekt(expectedInntekt2013);
 
         when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
         when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
@@ -483,7 +482,7 @@ class OpptjeningProviderTest {
         mockPerson(DATE_IN_1960);
         when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(singletonList(pensjonspoeng2013));
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960));
 
         assertThat(opptjeningResponse.getOpptjeningData().get(2011).getPensjonsgivendeInntekt(), is(0));
         assertThat(opptjeningResponse.getOpptjeningData().get(2012).getPensjonsgivendeInntekt().longValue(), is(expectedInntekt2012));
@@ -513,7 +512,7 @@ class OpptjeningProviderTest {
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(new ArrayList<>());
         mockPerson(DATE_IN_1963);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1963));
 
         assertThat(opptjeningResponse.getOpptjeningData().get(yearWithoutInntekt).getPensjonsgivendeInntekt(), is(0));
         assertThat(opptjeningResponse.getOpptjeningData().get(yearWithInntekt).getPensjonsgivendeInntekt().longValue(), is(expectedInntekt));
@@ -531,7 +530,7 @@ class OpptjeningProviderTest {
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(singletonList(beholdning));
         mockPerson(DATE_IN_1960);
 
-        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960), LoginSecurityLevel.LEVEL4);
+        OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(DATE_IN_1960));
 
         Map<Integer, OpptjeningDto> opptjeningerByYear = opptjeningResponse.getOpptjeningData();
         assertEquals(beholdning.getInntektsopptjening().getSumPensjonsgivendeInntekt().getBelop(), opptjeningerByYear.get(1980).getPensjonsgivendeInntekt().longValue());
@@ -542,7 +541,7 @@ class OpptjeningProviderTest {
     @Test
     void when_PdlResponse_contains_foedselsdato_then_use_foedselsaar_from_pdl_foedselsdato() {
         int expectedFoedselsaar = 1970;
-        when(personService.getPerson(any(Pid.class), eq(LoginSecurityLevel.LEVEL4))).thenReturn(new Person(
+        when(personService.getPerson(any(Pid.class))).thenReturn(new Person(
                 PidGenerator.generatePid(LocalDate.of(1990, 1, 1)),
                 null,
                 null,
@@ -553,13 +552,13 @@ class OpptjeningProviderTest {
         when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
         when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), yearCaptor.capture(), anyInt())).thenReturn(emptyList());
 
-        opptjeningProvider.calculateOpptjeningForFnr(generatePid(LocalDate.now()), LoginSecurityLevel.LEVEL4);
+        opptjeningProvider.calculateOpptjeningForFnr(generatePid(LocalDate.now()));
 
         assertThat(yearCaptor.getValue() - 13, is(expectedFoedselsaar));
     }
 
     private void mockPerson(LocalDate fodselsdato) {
-        when(personService.getPerson(any(Pid.class), eq(LoginSecurityLevel.LEVEL4))).thenReturn(
+        when(personService.getPerson(any(Pid.class))).thenReturn(
                 new Person(PidGenerator.generatePid(fodselsdato),
                         null,
                         null,
@@ -613,15 +612,11 @@ class OpptjeningProviderTest {
                 null);
     }
 
-    private static AfpHistorikk afpHistorikk() {
-        return new AfpHistorikk(LocalDate.MIN, LocalDate.MAX);
-    }
-
     private static UforeHistorikk uforeHistorikk() {
         return new UforeHistorikk(emptyList());
     }
 
-    private static Pensjonspoeng pensjonspoengForYearWithInntekt(int year, long inntekt) {
-        return new Pensjonspoeng(year, OpptjeningTypeCode.PPI.toString(), 1d, new Inntekt(year, "SUM_PI", inntekt), new Omsorg(""));
+    private static Pensjonspoeng pensjonspoengForYearWithInntekt(long inntekt) {
+        return new Pensjonspoeng(2013, OpptjeningTypeCode.PPI.toString(), 1d, new Inntekt(2013, "SUM_PI", inntekt), new Omsorg(""));
     }
 }

@@ -2,8 +2,8 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.skjerming;
 
 import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
+import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 import no.nav.pensjon.selvbetjeningopptjening.security.group.SkjermingApi;
-import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -27,14 +27,11 @@ public class SkjermingConsumer implements SkjermingApi {
     private static final Logger log = LoggerFactory.getLogger(SkjermingConsumer.class);
     private final WebClient webClient;
     private final String url;
-    private final TokenGetterFacade tokenGetter;
 
     public SkjermingConsumer(WebClient webClient,
-                             @Value("${skjerming.url}") String baseUrl,
-                             TokenGetterFacade tokenGetter) {
+                             @Value("${skjerming.url}") String baseUrl) {
         this.webClient = requireNonNull(webClient, "webClient");
         this.url = requireNonNull(baseUrl, "baseUrl") + PATH;
-        this.tokenGetter = requireNonNull(tokenGetter, "tokenGetter");
     }
 
     @Override
@@ -64,6 +61,6 @@ public class SkjermingConsumer implements SkjermingApi {
     }
 
     private String getAuthHeaderValue() {
-        return AUTH_TYPE + " " + tokenGetter.getToken(AppIds.SKJERMEDE_PERSONER_PIP.appName);
+        return AUTH_TYPE + " " + RequestContext.getEgressAccessToken(AppIds.SKJERMEDE_PERSONER_PIP).getValue();
     }
 }

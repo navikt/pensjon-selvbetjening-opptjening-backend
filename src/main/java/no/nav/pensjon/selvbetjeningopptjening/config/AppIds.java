@@ -8,13 +8,14 @@ public enum AppIds {
     PERSONDATALOSNINGEN("PDL", false),
     PENSJONSFAGLIG_KJERNE("PEN", false),
     PENSJONSOPPTJENING_REGISTER("POPP", false),
+    FULLMAKT("pensjon-fullmakt", false),
     SKJERMEDE_PERSONER_PIP("Skjermede-personer-PIP", false); // PIP = Policy information point
 
     public final String appName;
-    public final boolean useClientCredentials;
+    public final boolean supportsTokenX;
 
-    AppIds(String appName, boolean useClientCredentials) {
+    AppIds(String appName, boolean supportsTokenX) {
         this.appName = appName;
-        this.useClientCredentials = useClientCredentials;
+        this.supportsTokenX = supportsTokenX;
     }
 }

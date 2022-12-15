@@ -55,6 +55,8 @@ spec:
   env:
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
       value: selvbetjening-idtoken
+    - name: FULLMAKT_URL
+      value: https://pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
     - name: PDL_URL
       value: https://pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
     - name: PEN_URL
@@ -79,6 +81,8 @@ spec:
       value: dbe4ad45-320b-4e9a-aaa1-73cca4ee124d
     - name: APP_ENVIRONMENT
       value: q2
+    - name: COOKIES_DOMAIN
+      value: nav.no
     - name: AZURE_APP_REDIRECT_URI
       value: https://pensjon-veiledning-opptjening-frontend.dev.intern.nav.no/pensjon/opptjening/oauth2/internal/callback
     - name: AUDIT_LOG_OUTPUT

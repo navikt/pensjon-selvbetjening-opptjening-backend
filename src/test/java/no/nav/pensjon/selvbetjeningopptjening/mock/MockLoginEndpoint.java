@@ -4,7 +4,6 @@ import com.nimbusds.jwt.SignedJWT;
 import no.nav.pensjon.selvbetjeningopptjening.LocalOpptjeningApplication;
 import no.nav.security.mock.oauth2.MockOAuth2Server;
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback;
-import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +19,6 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 @RestController
 @RequestMapping("api")
-@Unprotected
 public class MockLoginEndpoint {
 
     private static final String AUDIENCE = "local-opptjening";
@@ -32,16 +30,18 @@ public class MockLoginEndpoint {
     public void login(HttpServletResponse response,
                       @RequestParam(value = "redirect", required = false) String redirectUri,
                       @PathVariable("pid") String pid) throws IOException {
-        if(pid == null) {
+        if (pid == null) {
             response.setStatus(HttpStatus.PRECONDITION_FAILED.value());
             return;
         }
+
         response.addCookie(authCookie(pid));
 
         if (isEmpty(redirectUri)) {
             try (Writer writer = response.getWriter()) {
                 writer.write("Logged in OK");
             }
+
             return;
         }
 

@@ -9,7 +9,6 @@ import no.nav.pensjon.selvbetjeningopptjening.opptjening.AfpHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.UforeHistorikk;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.AfpHistorikkMapper;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.UforeHistorikkMapper;
-import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.TokenGetterFacade;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,9 +36,7 @@ public class PersonConsumer extends AuthorizedPenConsumer implements Pingable {
     private final String url;
 
     public PersonConsumer(@Qualifier("epoch-support") WebClient webClient,
-                          @Value("${pen.url}") String baseUrl,
-                          TokenGetterFacade tokenGetter) {
-        super(tokenGetter);
+                          @Value("${pen.url}") String baseUrl) {
         this.webClient = requireNonNull(webClient, "webClient");
         this.url = requireNonNull(baseUrl, "baseUrl") + PATH;
     }

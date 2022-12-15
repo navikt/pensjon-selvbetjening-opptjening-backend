@@ -1,4 +1,4 @@
-package no.nav.pensjon.selvbetjeningopptjening.usersession.token;
+/*package no.nav.pensjon.selvbetjeningopptjening.usersession.token;
 
 import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.LoginInfo;
@@ -62,3 +62,4 @@ class TokenLoginInfoExtractorTest {
         }
     }
 }
+*/

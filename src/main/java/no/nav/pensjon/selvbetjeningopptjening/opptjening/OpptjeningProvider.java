@@ -10,7 +10,6 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGett
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.person.PersonService;
-import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -45,8 +44,8 @@ public class OpptjeningProvider {
         this.uttaksgradGetter = uttaksgradGetter;
     }
 
-    OpptjeningResponse calculateOpptjeningForFnr(Pid pid, LoginSecurityLevel securityLevel) {
-        Person person = personService.getPerson(pid, securityLevel);
+    OpptjeningResponse calculateOpptjeningForFnr(Pid pid) {
+        Person person = personService.getPerson(pid);
         String fnr = pid.getPid();
         UserGroup userGroup = findUserGroup(person.getFodselsdato());
         List<Uttaksgrad> uttaksgrader = uttaksgradGetter.getAlderSakUttaksgradhistorikkForPerson(fnr);
