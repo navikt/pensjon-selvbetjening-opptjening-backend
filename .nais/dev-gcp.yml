@@ -55,6 +55,8 @@ spec:
   env:
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
       value: selvbetjening-idtoken
+    - name: FULLMAKT_URL
+      value: https://pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
     - name: PDL_URL
       value: https://pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
     - name: PEN_URL
