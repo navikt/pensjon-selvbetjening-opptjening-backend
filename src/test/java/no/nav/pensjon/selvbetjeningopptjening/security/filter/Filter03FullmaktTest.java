@@ -20,10 +20,12 @@ class Filter03FullmaktTest extends FilterTest {
 
     @Mock
     private CookieBasedBrukerbytte brukerbytte;
+    @Mock
+    private RequestBasedBrukerbytte requestBased;
 
     @BeforeEach
     void initialize() {
-        filter = new Filter03Fullmakt(brukerbytte);
+        filter = new Filter03Fullmakt(brukerbytte, requestBased);
     }
 
     @Test

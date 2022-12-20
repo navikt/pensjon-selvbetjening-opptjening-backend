@@ -145,7 +145,9 @@ class OpptjeningOnBehalfEndpointTest {
                 null,
                 null,
                 new BirthDate(birthDate)),
-                10);
+                10,
+                null,
+                null);
 
         response.setOpptjeningData(opptjeningerByYear());
         response.setNumberOfYearsWithPensjonspoeng(1);

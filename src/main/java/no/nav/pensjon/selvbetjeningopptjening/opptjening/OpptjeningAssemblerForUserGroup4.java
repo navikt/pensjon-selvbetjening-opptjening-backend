@@ -3,6 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
+import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -33,7 +34,7 @@ public class OpptjeningAssemblerForUserGroup4 extends OpptjeningAssembler {
                                               AfpHistorikk afpHistorikk,
                                               UforeHistorikk uforeHistorikk) {
         LocalDate fodselsdato = person.getFodselsdato();
-        OpptjeningResponse response = new OpptjeningResponse(person, calculateAndelNyttRegelverkUsergroup4(fodselsdato.getYear()));
+        OpptjeningResponse response = new OpptjeningResponse(person, calculateAndelNyttRegelverkUsergroup4(fodselsdato.getYear()), person.getPid().getPid(), RequestContext.getFullmektigPid());
         Map<Integer, Opptjening> opptjeningerByYear = getOpptjeningerByYear(pensjonspoengList, restpensjoner);
         populatePensjonspoeng(opptjeningerByYear, pensjonspoengList, uttaksgrader);
         populatePensjonsbeholdning(opptjeningerByYear, getBeholdningerByYear(beholdninger));

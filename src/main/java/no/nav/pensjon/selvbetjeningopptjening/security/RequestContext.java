@@ -79,6 +79,10 @@ public class RequestContext implements AutoCloseable {
         return currentInstance().subjectPid;
     }
 
+    public static String getFullmektigPid() {
+        return currentInstance().fullmektigPid;
+    }
+
     public static String getNavIdent() {
         return getInternalUserId(claims());
     }
