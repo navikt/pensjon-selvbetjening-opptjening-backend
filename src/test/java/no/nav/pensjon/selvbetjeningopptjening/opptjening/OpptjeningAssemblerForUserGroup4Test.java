@@ -12,6 +12,9 @@ import java.util.stream.Stream;
 import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
+import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
+import no.nav.pensjon.selvbetjeningopptjening.mock.RequestContextCreator;
+import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,30 +38,32 @@ class OpptjeningAssemblerForUserGroup4Test {
 
     @Test
     void should_increase_andel_regelverk_beholdning_with_1_for_each_year_in_usergroup4() {
-        Map<Integer, Integer> expectedValuesForEachYear = Stream.of(new Integer[][]{
-                {1954, 1},
-                {1955, 2},
-                {1956, 3},
-                {1957, 4},
-                {1958, 5},
-                {1959, 6},
-                {1960, 7},
-                {1961, 8},
-                {1962, 9}
-        }).collect(Collectors.toMap(data -> (Integer) data[0], data -> (Integer) data[1]));
+        try (RequestContext ignored = RequestContextCreator.createForExternal()) {
+            Map<Integer, Integer> expectedValuesForEachYear = Stream.of(new Integer[][]{
+                    {1954, 1},
+                    {1955, 2},
+                    {1956, 3},
+                    {1957, 4},
+                    {1958, 5},
+                    {1959, 6},
+                    {1960, 7},
+                    {1961, 8},
+                    {1962, 9}
+            }).collect(Collectors.toMap(data -> (Integer) data[0], data -> (Integer) data[1]));
 
-        expectedValuesForEachYear.keySet().forEach(year -> {
-            LocalDate fodselsdato = LocalDate.of(year, 5, 5);
-            OpptjeningResponse response = assembler.createResponse(new Person(
-                            PidGenerator.generatePid(fodselsdato),
-                            null,
-                            null,
-                            null,
-                            null),
-                    emptyOpptjeningBasis());
-            int expectedAndelRegelverkBeholdning = expectedValuesForEachYear.get(year);
-            assertThat("For " + year + " andelNyttRegelverk should be " + expectedAndelRegelverkBeholdning, response.getAndelPensjonBasertPaBeholdning(), is(expectedAndelRegelverkBeholdning));
-        });
+            expectedValuesForEachYear.keySet().forEach(year -> {
+                LocalDate fodselsdato = LocalDate.of(year, 5, 5);
+                OpptjeningResponse response = assembler.createResponse(new Person(
+                                PidGenerator.generatePid(fodselsdato),
+                                null,
+                                null,
+                                null,
+                                null),
+                        emptyOpptjeningBasis());
+                int expectedAndelRegelverkBeholdning = expectedValuesForEachYear.get(year);
+                assertThat("For " + year + " andelNyttRegelverk should be " + expectedAndelRegelverkBeholdning, response.getAndelPensjonBasertPaBeholdning(), is(expectedAndelRegelverkBeholdning));
+            });
+        }
     }
 
     private OpptjeningBasis emptyOpptjeningBasis() {

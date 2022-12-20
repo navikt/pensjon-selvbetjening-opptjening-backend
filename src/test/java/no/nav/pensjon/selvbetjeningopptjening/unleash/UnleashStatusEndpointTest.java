@@ -9,6 +9,7 @@ import no.nav.pensjon.selvbetjeningopptjening.audit.Auditor;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 import no.nav.pensjon.selvbetjeningopptjening.security.UserType;
 import no.nav.pensjon.selvbetjeningopptjening.security.filter.CookieBasedBrukerbytte;
+import no.nav.pensjon.selvbetjeningopptjening.security.filter.RequestBasedBrukerbytte;
 import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
 import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.TokenInfo;
 import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.egress.EgressAccessTokenFacade;
@@ -58,6 +59,8 @@ class UnleashStatusEndpointTest {
     private GroupChecker groupChecker;
     @MockBean
     private Auditor auditor;
+    @MockBean
+    private RequestBasedBrukerbytte requestBased;
     @Mock
     private Claims claims;
 
