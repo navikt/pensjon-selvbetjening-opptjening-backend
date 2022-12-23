@@ -91,7 +91,7 @@ public class RequestBasedBrukerbytte {
                             HttpServletResponse response) throws IOException {
         log.debug("Received request for brukerbytte");
         String onBehalfOfPid = getOnBehalfOfPid(request.getReader());
-
+        log.info("onBehalfOfPid: "+ onBehalfOfPid+" fullmektigPid: "+fullmektigPid);
         if (onBehalfOfPid.equals(fullmektigPid)) {
             log.info("Request for tilbakebrukerbytte accepted");
             request.getSession().removeAttribute(FULLMAKT.name());
