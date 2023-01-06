@@ -17,7 +17,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.Map;
@@ -47,8 +46,6 @@ class RequestBasedBrukerbytteTest {
     @Mock
     private HttpServletResponse response;
     @Mock
-    private HttpSession session;
-    @Mock
     private Claims claims;
     @Mock
     private PrintWriter writer;
@@ -56,7 +53,6 @@ class RequestBasedBrukerbytteTest {
     @BeforeEach
     void initialize() throws Exception {
         brukerbytte = new TestClass(fullmaktChecker, cookieSetter, auditor);
-        when(request.getSession()).thenReturn(session);
         when(response.getWriter()).thenReturn(writer);
     }
 
@@ -70,13 +66,13 @@ class RequestBasedBrukerbytteTest {
     }
 
     @Test
-    void when_mayNotActOnBehalf_then_byttBruker_respondsWithForbidden_and_doesNotSetAttribute() throws Exception {
+    void when_mayNotActOnBehalf_then_byttBruker_respondsWithForbidden_and_does_not_set_fullmakt_cookie() throws Exception {
         when(fullmaktChecker.mayActOnBehalfOf(ON_BEHALF_OF_PID, FULLMEKTIG_PID)).thenReturn(false);
 
         brukerbytte.byttBruker(request, tokenInfo(FULLMEKTIG_PID), EgressTokenSupplier.forInternalUser(egressTokenSuppliersByApp), response);
 
         assertResponseError(HttpStatus.FORBIDDEN);
-        verify(session, never()).setAttribute(any(), any());
+        verify(cookieSetter, never()).setCookies(any(), any());
         verify(writer, never()).write(anyString());
         verify(auditor, never()).auditFullmakt(any(), any());
     }
