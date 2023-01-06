@@ -12,8 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static no.nav.pensjon.selvbetjeningopptjening.security.filter.FilterChainUtil.getAttribute;
-import static no.nav.pensjon.selvbetjeningopptjening.security.filter.FilterChainUtil.setAttribute;
+import static no.nav.pensjon.selvbetjeningopptjening.security.filter.FilterChainUtil.*;
 
 /**
  * Handles brukerbytte, i.e. switching of user context.
@@ -25,8 +24,6 @@ import static no.nav.pensjon.selvbetjeningopptjening.security.filter.FilterChain
 @Component
 @Order(3)
 public class Filter03Fullmakt implements Filter {
-
-    private static final String ACT_ON_BEHALF_URI = "/api/byttbruker";
     private static final Logger log = LoggerFactory.getLogger(Filter03Fullmakt.class);
     private final CookieBasedBrukerbytte cookieBased;
     private final RequestBasedBrukerbytte requestBased;
@@ -63,9 +60,5 @@ public class Filter03Fullmakt implements Filter {
 
         setAttribute(request, chainData.withFullmaktsgiverPid(fullmaktsgiverPid));
         chain.doFilter(request, response);
-    }
-
-    private static boolean isActOnBehalfRequest(String uri) {
-        return ACT_ON_BEHALF_URI.equals(uri) || (ACT_ON_BEHALF_URI + "/").equals(uri);
     }
 }

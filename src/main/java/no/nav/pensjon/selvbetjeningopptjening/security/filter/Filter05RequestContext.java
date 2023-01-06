@@ -1,14 +1,17 @@
 package no.nav.pensjon.selvbetjeningopptjening.security.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 import no.nav.pensjon.selvbetjeningopptjening.security.UserType;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.QueryStringParser;
 import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.TokenInfo;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.EgressTokenSupplier;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.internaluser.QueryParamNames;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +19,10 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.Reader;
 
 import static no.nav.pensjon.selvbetjeningopptjening.security.filter.FilterChainUtil.getAttribute;
+import static no.nav.pensjon.selvbetjeningopptjening.security.filter.FilterChainUtil.isActOnBehalfRequest;
 import static org.springframework.util.StringUtils.hasText;
 
 /**
@@ -113,11 +118,19 @@ public class Filter05RequestContext implements Filter {
         }
     }
 
-    private static String getVirtualLoggedInPid(HttpServletRequest request) {
+    private static String getVirtualLoggedInPid(HttpServletRequest request) throws IOException {
+        if (isActOnBehalfRequest(request.getRequestURI())) {
+            String json = getJson(request.getReader());
+            return new ObjectMapper().readValue(json, ByttBrukerRequest.class).fullmektigPid;
+        }
         return QueryStringParser.getValue(request.getQueryString(), QueryParamNames.PID);
     }
 
     private static void respondWithBadRequest(HttpServletResponse response) throws IOException {
         response.sendError(HttpStatus.BAD_REQUEST.value());
+    }
+
+    private static String getJson(Reader reader) throws IOException {
+        return IOUtils.toString(reader);
     }
 }
