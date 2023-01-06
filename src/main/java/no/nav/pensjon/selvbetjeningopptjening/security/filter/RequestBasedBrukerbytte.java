@@ -1,7 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.io.IOUtils;
 import no.nav.pensjon.selvbetjeningopptjening.audit.Auditor;
 import no.nav.pensjon.selvbetjeningopptjening.fullmakt.FullmaktFacade;
 import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
@@ -11,6 +10,7 @@ import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieSpec;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieType;
 import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.TokenInfo;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.EgressTokenSupplier;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -18,14 +18,10 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
-
-import static no.nav.pensjon.selvbetjeningopptjening.usersession.SessionAttributeName.FULLMAKT;
-import static no.nav.pensjon.selvbetjeningopptjening.usersession.SessionAttributeName.VIRTUAL_LOGGED_IN_PID;
 
 @Component
 public class RequestBasedBrukerbytte {
@@ -45,10 +41,8 @@ public class RequestBasedBrukerbytte {
                            TokenInfo ingressTokenInfo,
                            EgressTokenSupplier egressTokenSupplier,
                            HttpServletResponse response) throws IOException {
-        HttpSession session = request.getSession();
-
-        try (RequestContext ignored = getUserContextForCheckingPermission(session, ingressTokenInfo, egressTokenSupplier)) {
-            String fullmektigPid = getFullmektigPid(session, ingressTokenInfo);
+        String fullmektigPid = getFullmektigPid(request, ingressTokenInfo);
+        try (RequestContext ignored = getUserContextForCheckingPermission(fullmektigPid, ingressTokenInfo, egressTokenSupplier)) {
             byttBruker(fullmektigPid, request, response);
             log.info("Request-based brukerbytte performed");
         } catch (IOException e) {
@@ -56,21 +50,21 @@ public class RequestBasedBrukerbytte {
         }
     }
 
-    private String getFullmektigPid(HttpSession session, TokenInfo ingressTokenInfo) {
+    private String getFullmektigPid(HttpServletRequest request, TokenInfo ingressTokenInfo) throws IOException {
         UserType userType = ingressTokenInfo.getUserType();
 
         switch (userType) {
             case EXTERNAL:
                 return ingressTokenInfo.getUserId();
             case INTERNAL:
-                return getVirtualLoggedInUserPid(session);
+                return getVirtualLoggedInUserPid(request.getReader());
             default:
                 log.error("Unexpected user type: {}", userType);
                 return null;
         }
     }
 
-    private RequestContext getUserContextForCheckingPermission(HttpSession session,
+    private RequestContext getUserContextForCheckingPermission(String fullmektigPid,
                                                             TokenInfo ingressTokenInfo,
                                                             EgressTokenSupplier egressTokenSupplier) {
         UserType userType = ingressTokenInfo.getUserType();
@@ -79,7 +73,7 @@ public class RequestBasedBrukerbytte {
             case EXTERNAL:
                 return RequestContext.forExternalUser(ingressTokenInfo, egressTokenSupplier);
             case INTERNAL:
-                return RequestContext.forInternalUser(ingressTokenInfo, getVirtualLoggedInUserPid(session), egressTokenSupplier);
+                return RequestContext.forInternalUser(ingressTokenInfo, fullmektigPid, egressTokenSupplier);
             default:
                 log.error("Unexpected user type: {}", userType);
                 return null;
@@ -94,7 +88,6 @@ public class RequestBasedBrukerbytte {
         log.info("onBehalfOfPid: "+ onBehalfOfPid+" fullmektigPid: "+fullmektigPid);
         if (onBehalfOfPid.equals(fullmektigPid)) {
             log.info("Request for tilbakebrukerbytte accepted");
-            request.getSession().removeAttribute(FULLMAKT.name());
             cookieSetter.unsetCookie(response, CookieType.ON_BEHALF_OF_PID);
             respondBrukerbytteOk(response);
             return;
@@ -104,7 +97,6 @@ public class RequestBasedBrukerbytte {
 
         if (mayActOnBehalf) {
             log.info("Request for brukerbytte accepted");
-            request.getSession().setAttribute(FULLMAKT.name(), onBehalfOfPid);
             cookieSetter.setCookies(response, List.of(new CookieSpec(CookieType.ON_BEHALF_OF_PID, onBehalfOfPid)));
             respondBrukerbytteOk(response);
             auditor.auditFullmakt(fullmektigPid, onBehalfOfPid);
@@ -123,8 +115,9 @@ public class RequestBasedBrukerbytte {
         return new ObjectMapper().readValue(json, ByttBrukerRequest.class).fullmaktsgiverPid;
     }
 
-    private static String getVirtualLoggedInUserPid(HttpSession session) {
-        return (String) session.getAttribute(VIRTUAL_LOGGED_IN_PID.name());
+    private String getVirtualLoggedInUserPid(Reader reader) throws IOException {
+        String json = getJson(reader);
+        return new ObjectMapper().readValue(json, ByttBrukerRequest.class).fullmektigPid;
     }
 
     private static void respondBrukerbytteOk(HttpServletResponse response) throws IOException {
