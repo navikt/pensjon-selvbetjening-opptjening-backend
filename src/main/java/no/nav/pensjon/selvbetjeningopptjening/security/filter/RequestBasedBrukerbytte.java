@@ -41,23 +41,24 @@ public class RequestBasedBrukerbytte {
                            TokenInfo ingressTokenInfo,
                            EgressTokenSupplier egressTokenSupplier,
                            HttpServletResponse response) throws IOException {
-        String fullmektigPid = getFullmektigPid(request, ingressTokenInfo);
+        String requestJson = getJson(request.getReader());
+        String fullmektigPid = getFullmektigPid(requestJson, ingressTokenInfo);
         try (RequestContext ignored = getUserContextForCheckingPermission(fullmektigPid, ingressTokenInfo, egressTokenSupplier)) {
-            byttBruker(fullmektigPid, request, response);
+            byttBruker(fullmektigPid, requestJson, response);
             log.info("Request-based brukerbytte performed");
         } catch (IOException e) {
             handleException(e, response);
         }
     }
 
-    private String getFullmektigPid(HttpServletRequest request, TokenInfo ingressTokenInfo) throws IOException {
+    private String getFullmektigPid(String requestJson, TokenInfo ingressTokenInfo) throws IOException {
         UserType userType = ingressTokenInfo.getUserType();
 
         switch (userType) {
             case EXTERNAL:
                 return ingressTokenInfo.getUserId();
             case INTERNAL:
-                return getVirtualLoggedInUserPid(request.getReader());
+                return getVirtualLoggedInUserPid(requestJson);
             default:
                 log.error("Unexpected user type: {}", userType);
                 return null;
@@ -81,10 +82,10 @@ public class RequestBasedBrukerbytte {
     }
 
     private void byttBruker(String fullmektigPid,
-                            HttpServletRequest request,
+                            String requestJson,
                             HttpServletResponse response) throws IOException {
         log.debug("Received request for brukerbytte");
-        String onBehalfOfPid = getOnBehalfOfPid(request.getReader());
+        String onBehalfOfPid = getOnBehalfOfPid(requestJson);
         log.info("onBehalfOfPid: "+ onBehalfOfPid+" fullmektigPid: "+fullmektigPid);
         if (onBehalfOfPid.equals(fullmektigPid)) {
             log.info("Request for tilbakebrukerbytte accepted");
@@ -110,14 +111,12 @@ public class RequestBasedBrukerbytte {
         return IOUtils.toString(reader);
     }
 
-    private String getOnBehalfOfPid(Reader reader) throws IOException {
-        String json = getJson(reader);
-        return new ObjectMapper().readValue(json, ByttBrukerRequest.class).fullmaktsgiverPid;
+    private String getOnBehalfOfPid(String requestJson) throws IOException {
+        return new ObjectMapper().readValue(requestJson, ByttBrukerRequest.class).fullmaktsgiverPid;
     }
 
-    private String getVirtualLoggedInUserPid(Reader reader) throws IOException {
-        String json = getJson(reader);
-        return new ObjectMapper().readValue(json, ByttBrukerRequest.class).fullmektigPid;
+    private String getVirtualLoggedInUserPid(String requestJson) throws IOException {
+        return new ObjectMapper().readValue(requestJson, ByttBrukerRequest.class).fullmektigPid;
     }
 
     private static void respondBrukerbytteOk(HttpServletResponse response) throws IOException {

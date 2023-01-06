@@ -25,6 +25,7 @@ import static no.nav.pensjon.selvbetjeningopptjening.security.filter.FilterChain
 @Order(3)
 public class Filter03Fullmakt implements Filter {
     private static final Logger log = LoggerFactory.getLogger(Filter03Fullmakt.class);
+    private static final String ACT_ON_BEHALF_URI = "/api/byttbruker";
     private final CookieBasedBrukerbytte cookieBased;
     private final RequestBasedBrukerbytte requestBased;
 
@@ -60,5 +61,9 @@ public class Filter03Fullmakt implements Filter {
 
         setAttribute(request, chainData.withFullmaktsgiverPid(fullmaktsgiverPid));
         chain.doFilter(request, response);
+    }
+
+    private boolean isActOnBehalfRequest(String uri) {
+        return ACT_ON_BEHALF_URI.equals(uri) || (ACT_ON_BEHALF_URI + "/").equals(uri);
     }
 }
