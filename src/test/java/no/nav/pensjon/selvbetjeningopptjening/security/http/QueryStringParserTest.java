@@ -28,4 +28,9 @@ class QueryStringParserTest {
         assertEquals("value1", QueryStringParser.getValue("param1=value1&param2=value2", "param1"));
         assertEquals("value2", QueryStringParser.getValue("param1=value1&param2=value2", "param2"));
     }
+
+    @Test
+    void when_queryStringContainsDuplicateParams_then_getValue_returns_valueOfRequestedParam() {
+        assertEquals("value1", QueryStringParser.getValue("param1=value1&param1=value1", "param1"));
+    }
 }

@@ -15,6 +15,7 @@ public class QueryStringParser {
         }
 
         return Arrays.stream(queryString.split("&"))
+                .distinct()
                 .map(kvString -> kvString.split("="))
                 .filter(kv -> kv.length == 2)
                 .collect(toMap(kv -> kv[0], kv -> kv[1]));
