@@ -8,18 +8,22 @@ public class OpptjeningResponse {
 
     private Map<Integer, OpptjeningDto> opptjeningData;
     private Integer numberOfYearsWithPensjonspoeng;
-    private Integer fodselsaar;
-    private String fornavn;
-    private String mellomnavn;
-    private String etternavn;
-    private int andelPensjonBasertPaBeholdning;
+    private final Integer fodselsaar;
+    private final String fornavn;
+    private final String mellomnavn;
+    private final String etternavn;
+    private final int andelPensjonBasertPaBeholdning;
+    private final String pid;
+    private final String fullmektigPid;
 
-    public OpptjeningResponse(Person person, int andelPensjonBasertPaBeholdning) {
+    public OpptjeningResponse(Person person, int andelPensjonBasertPaBeholdning, String pid, String fullmektigPid) {
         fodselsaar = person.getFodselsdato().getYear();
         fornavn = person.getFornavn();
         mellomnavn = person.getMellomnavn();
         etternavn = person.getEtternavn();
         this.andelPensjonBasertPaBeholdning = andelPensjonBasertPaBeholdning;
+        this.pid = pid;
+        this.fullmektigPid = fullmektigPid;
     }
 
     public Map<Integer, OpptjeningDto> getOpptjeningData() {
@@ -56,5 +60,13 @@ public class OpptjeningResponse {
 
     public int getAndelPensjonBasertPaBeholdning() {
         return andelPensjonBasertPaBeholdning;
+    }
+
+    public String getPid() {
+        return pid;
+    }
+
+    public String getFullmektigPid() {
+        return fullmektigPid;
     }
 }

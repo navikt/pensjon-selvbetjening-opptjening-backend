@@ -3,6 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.health;
 import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
 import no.nav.pensjon.selvbetjeningopptjening.audit.Auditor;
 import no.nav.pensjon.selvbetjeningopptjening.security.filter.CookieBasedBrukerbytte;
+import no.nav.pensjon.selvbetjeningopptjening.security.filter.RequestBasedBrukerbytte;
 import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
 import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.egress.EgressAccessTokenFacade;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.IngressTokenFinder;
@@ -40,6 +41,8 @@ class AppHealthEndpointTest {
     private Auditor auditor;
     @MockBean
     private Selftest selftest;
+    @MockBean
+    private RequestBasedBrukerbytte requestBased;
 
     @Test
     void isAlive() throws Exception {

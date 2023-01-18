@@ -88,7 +88,7 @@ public class Fullmakt {
     boolean isValidFor(String giverPid, String fullmektigPid, LocalDate date) {
         return gyldig
                 && fagomraade.validForPensjon()
-                && Fullmaktnivaa.FULLSTENDIG.equals(nivaa)
+                && (Fullmaktnivaa.FULLSTENDIG.equals(nivaa) || Fullmaktnivaa.BEGRENSET.equals(nivaa))
                 && !isInFuture(date) && !isExpired(date)
                 && giver.isPerson(giverPid)
                 && fullmektig.isPerson(fullmektigPid);

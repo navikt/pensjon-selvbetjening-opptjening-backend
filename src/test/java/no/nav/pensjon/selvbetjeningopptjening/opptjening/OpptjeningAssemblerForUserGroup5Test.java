@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
+import no.nav.pensjon.selvbetjeningopptjening.mock.RequestContextCreator;
+import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,14 +32,16 @@ class OpptjeningAssemblerForUserGroup5Test {
 
     @Test
     void should_return_andel_RegelverkBeholdning_equal_to_10_when_usergroup5() {
-        OpptjeningResponse response = assembler.createResponse(new Person(
-                        PidGenerator.generatePidAtAge(50),
-                        null,
-                        null,
-                        null,
-                        null),
-                emptyOpptjeningBasis());
-        assertEquals(response.getAndelPensjonBasertPaBeholdning(), 10);
+        try (RequestContext ignored = RequestContextCreator.createForExternal()) {
+            OpptjeningResponse response = assembler.createResponse(new Person(
+                            PidGenerator.generatePidAtAge(50),
+                            null,
+                            null,
+                            null,
+                            null),
+                    emptyOpptjeningBasis());
+            assertEquals(response.getAndelPensjonBasertPaBeholdning(), 10);
+        }
     }
 
     private OpptjeningBasis emptyOpptjeningBasis() {

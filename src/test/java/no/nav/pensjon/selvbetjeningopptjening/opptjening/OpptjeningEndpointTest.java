@@ -1,22 +1,19 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import io.jsonwebtoken.Claims;
-import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
 import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
 import no.nav.pensjon.selvbetjeningopptjening.audit.Auditor;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
-import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import no.nav.pensjon.selvbetjeningopptjening.security.UserType;
 import no.nav.pensjon.selvbetjeningopptjening.security.filter.CookieBasedBrukerbytte;
+import no.nav.pensjon.selvbetjeningopptjening.security.filter.RequestBasedBrukerbytte;
 import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
 import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.TokenInfo;
 import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.egress.EgressAccessTokenFacade;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.IngressTokenFinder;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.TokenAudiencesVsApps;
-import no.nav.pensjon.selvbetjeningopptjening.usersession.LoginInfo;
-import no.nav.pensjon.selvbetjeningopptjening.usersession.LoginInfoGetter;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.Logout;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,6 +57,8 @@ class OpptjeningEndpointTest {
     private GroupChecker groupChecker;
     @MockBean
     private Auditor auditor;
+    @MockBean
+    private RequestBasedBrukerbytte requestBased;
     @Mock
     private Claims claims;
 
@@ -106,7 +105,9 @@ class OpptjeningEndpointTest {
                 null,
                 null,
                 null),
-                10);
+                10,
+                null,
+                null);
         response.setNumberOfYearsWithPensjonspoeng(1);
         return response;
     }
