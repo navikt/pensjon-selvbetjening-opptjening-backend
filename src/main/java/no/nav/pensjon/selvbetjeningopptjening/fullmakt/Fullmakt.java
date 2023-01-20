@@ -88,10 +88,16 @@ public class Fullmakt {
     boolean isValidFor(String giverPid, String fullmektigPid, LocalDate date) {
         return gyldig
                 && fagomraade.validForPensjon()
-                && (Fullmaktnivaa.FULLSTENDIG.equals(nivaa) || Fullmaktnivaa.BEGRENSET.equals(nivaa))
+                && hasRequiredNivaa()
                 && !isInFuture(date) && !isExpired(date)
                 && giver.isPerson(giverPid)
                 && fullmektig.isPerson(fullmektigPid);
+    }
+
+    private boolean hasRequiredNivaa() {
+        return Fullmaktnivaa.FULLSTENDIG.equals(nivaa)
+                || Fullmaktnivaa.BEGRENSET.equals(nivaa)
+                || Fullmaktnivaa.SAMORDPLIK.equals(nivaa);
     }
 
     private boolean isInFuture(LocalDate date) {
