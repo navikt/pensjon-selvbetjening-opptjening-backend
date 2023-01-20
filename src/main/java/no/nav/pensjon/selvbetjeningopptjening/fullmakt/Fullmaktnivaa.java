@@ -4,5 +4,6 @@ public enum Fullmaktnivaa {
     NONE,
     BEGRENSET,
     FULLSTENDIG,
-    SAMORDPLIK
+    SAMORDPLIK,
+    SAMHANDADM
 }
