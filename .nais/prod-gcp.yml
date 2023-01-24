@@ -80,6 +80,8 @@ spec:
       value: prod-gcp:nom:skjermede-personer-pip
     - name: SKJERMING_URL
       value: https://skjermede-personer-pip.intern.nav.no
+    - name: TP_URL
+      value: https://tp-api.prod-fss-pub.nais.io
     - name: UNLEASH_URL
       value: https://unleash.nais.io
     - name: BRUKERHJELP_GROUP_ID

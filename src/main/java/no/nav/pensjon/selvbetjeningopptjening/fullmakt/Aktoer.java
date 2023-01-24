@@ -15,4 +15,8 @@ public record Aktoer(
         return aktoernummer.equals(personId)
                 && Aktoertype.PERSON.name().equals(type);
     }
+
+    public boolean isSamhandler() {
+        return Aktoertype.SAMHANDLER.name().equals(type);
+    }
 }

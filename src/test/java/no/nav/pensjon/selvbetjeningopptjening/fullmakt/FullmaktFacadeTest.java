@@ -1,6 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.fullmakt;
 
 import no.nav.pensjon.selvbetjeningopptjening.mock.FullmaktBuilder;
+import no.nav.pensjon.selvbetjeningopptjening.tjenestepensjon.TjenestepensjonClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,10 +27,12 @@ class FullmaktFacadeTest {
 
     @Mock
     FullmaktApi service;
+    @Mock
+    TjenestepensjonClient tjenestepensjonClient;
 
     @BeforeEach
     void initialize() {
-        facade = new FixedTodayFullmaktFacade(service);
+        facade = new FixedTodayFullmaktFacade(service, tjenestepensjonClient);
     }
 
     @Test
@@ -95,8 +98,8 @@ class FullmaktFacadeTest {
      */
     private static class FixedTodayFullmaktFacade extends FullmaktFacade {
 
-        public FixedTodayFullmaktFacade(FullmaktApi supplementaryService) {
-            super(supplementaryService);
+        public FixedTodayFullmaktFacade(FullmaktApi supplementaryService, TjenestepensjonClient tjenestepensjonClient) {
+            super(supplementaryService, tjenestepensjonClient);
         }
 
         @Override

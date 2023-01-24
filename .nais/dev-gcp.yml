@@ -65,6 +65,8 @@ spec:
       value: https://pensjon-popp-q2.dev-fss-pub.nais.io
     - name: SKJERMING_URL
       value: https://skjermede-personer-pip.dev.intern.nav.no
+    - name: TP_URL
+      value: https://tp-api-q2.dev-fss-pub.nais.io
     - name: UNLEASH_URL
       value: https://unleash.nais.io
     - name: BRUKERHJELP_GROUP_ID

@@ -94,6 +94,15 @@ public class Fullmakt {
                 && fullmektig.isPerson(fullmektigPid);
     }
 
+    boolean isValidForSamhandler(String samhandlerPid, LocalDate date) {
+        return gyldig
+                && fagomraade.validForPensjon()
+                && hasRequiredNivaa()
+                && !isInFuture(date) && !isExpired(date)
+                && giver.isSamhandler()
+                && fullmektig.isPerson(samhandlerPid);
+    }
+
     private boolean hasRequiredNivaa() {
         return Fullmaktnivaa.FULLSTENDIG.equals(nivaa)
                 || Fullmaktnivaa.BEGRENSET.equals(nivaa)
