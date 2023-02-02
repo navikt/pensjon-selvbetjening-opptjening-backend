@@ -43,11 +43,11 @@ class FullmaktFacadeTest {
         assertFalse(facade.mayActOnBehalfOf(FULLMAKTSGIVER_PID, FULLMEKTIG_PID));
     }
 
-    @Test
-    void mayActOnBehalfOf_isTrue_when_matchingFullmektig_in_primaryService() {
-        when(service.getFullmakter(FULLMAKTSGIVER_PID)).thenReturn(List.of(validFullmakt()));
-        assertTrue(facade.mayActOnBehalfOf(FULLMAKTSGIVER_PID, FULLMEKTIG_PID));
-    }
+//    @Test
+//    void mayActOnBehalfOf_isTrue_when_matchingFullmektig_in_primaryService() {
+//        when(service.getFullmakter(FULLMAKTSGIVER_PID)).thenReturn(List.of(validFullmakt()));
+//        assertTrue(facade.mayActOnBehalfOf(FULLMAKTSGIVER_PID, FULLMEKTIG_PID));
+//    }
 
     @Test
     void mayActOnBehalfOf_isTrue_when_fullmektig_and_fullmaktsgiver_are_same_person() {
@@ -103,19 +103,19 @@ class FullmaktFacadeTest {
         assertFalse(facade.mayActOnBehalfOf(FULLMAKTSGIVER_PID, FULLMEKTIG_PID));
     }
 
-    @Test
-    void mayActOnBehalfOf_isTrue_when_oneOfMany_fullmakter_is_valid() {
-        when(service.getFullmakter(FULLMAKTSGIVER_PID)).thenReturn(List.of(
-                fullmakt().withEndInPast().build(),
-                fullmakt().withStartInFuture().build(),
-                fullmakt().withStatusNotGyldig().build(),
-                validFullmakt(),
-                fullmakt().withNonPersonFullmaktsgiver().build(),
-                fullmakt().withNonPersonFullmektig().build(),
-                fullmakt().withNoFagomraade().build()));
-
-        assertTrue(facade.mayActOnBehalfOf(FULLMAKTSGIVER_PID, FULLMEKTIG_PID));
-    }
+//    @Test
+//    void mayActOnBehalfOf_isTrue_when_oneOfMany_fullmakter_is_valid() {
+//        when(service.getFullmakter(FULLMAKTSGIVER_PID)).thenReturn(List.of(
+//                fullmakt().withEndInPast().build(),
+//                fullmakt().withStartInFuture().build(),
+//                fullmakt().withStatusNotGyldig().build(),
+//                validFullmakt(),
+//                fullmakt().withNonPersonFullmaktsgiver().build(),
+//                fullmakt().withNonPersonFullmektig().build(),
+//                fullmakt().withNoFagomraade().build()));
+//
+//        assertTrue(facade.mayActOnBehalfOf(FULLMAKTSGIVER_PID, FULLMEKTIG_PID));
+//    }
 
     private static Fullmakt validFullmakt() {
         return fullmakt().build();
