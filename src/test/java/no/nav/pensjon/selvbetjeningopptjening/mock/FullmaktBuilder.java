@@ -64,6 +64,10 @@ public class FullmaktBuilder {
         fullmaktsgiverType = Aktoertype.NONE;
         return this;
     }
+    public FullmaktBuilder withSamhandlerFullmaktsgiver() {
+        fullmaktsgiverType = Aktoertype.SAMHANDLER;
+        return this;
+    }
 
     public FullmaktBuilder withNonPersonFullmektig() {
         fullmektigType = Aktoertype.NONE;
