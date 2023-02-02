@@ -2,6 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.fullmakt;
 
 import no.nav.pensjon.selvbetjeningopptjening.mock.FullmaktBuilder;
 import no.nav.pensjon.selvbetjeningopptjening.tjenestepensjon.TjenestepensjonClient;
+import no.nav.pensjon.selvbetjeningopptjening.tjenestepensjon.Tjenestepensjonsforhold;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +24,7 @@ class FullmaktFacadeTest {
     private static final String IRRELEVANT_PID = "01029345678";
     private static final String FULLMAKTSGIVER_PID = "04925398980";
     private static final String FULLMEKTIG_PID = "30915399246";
+    private static final String TJENESTEPENSJON_ORDNING_ID = "12121212";
     private FixedTodayFullmaktFacade facade;
 
     @Mock
@@ -51,6 +53,36 @@ class FullmaktFacadeTest {
     void mayActOnBehalfOf_isTrue_when_fullmektig_and_fullmaktsgiver_are_same_person() {
         when(service.getFullmakter(FULLMAKTSGIVER_PID)).thenReturn(emptyList());
         assertTrue(facade.mayActOnBehalfOf(IRRELEVANT_PID, IRRELEVANT_PID));
+    }
+
+    @Test
+    void mayActOnBehalf_isTrue_when_user_has_TP_ordning_and_fullmektig_has_fullmakt_from_TP_ordning() {
+        when(tjenestepensjonClient.getAllTjenestepensjonsforhold(FULLMAKTSGIVER_PID)).thenReturn(List.of(new Tjenestepensjonsforhold(TJENESTEPENSJON_ORDNING_ID)));
+        Fullmakt fullmakt = new FullmaktBuilder()
+                .withFullmaktsgiverPid(TJENESTEPENSJON_ORDNING_ID)
+                .withSamhandlerFullmaktsgiver()
+                .withFullmektigPid(FULLMEKTIG_PID)
+                .build();
+        when(service.getFullmakter(TJENESTEPENSJON_ORDNING_ID)).thenReturn(List.of(fullmakt));
+        assertTrue(facade.mayActOnBehalfOf(FULLMAKTSGIVER_PID, FULLMEKTIG_PID));
+    }
+
+    @Test
+    void mayActOnBehalf_isFalse_when_fullmektig_has_no_samhandler_fullmakt(){
+        when(tjenestepensjonClient.getAllTjenestepensjonsforhold(FULLMAKTSGIVER_PID)).thenReturn(List.of(new Tjenestepensjonsforhold(TJENESTEPENSJON_ORDNING_ID)));
+        Fullmakt fullmakt = new FullmaktBuilder()
+                .withFullmaktsgiverPid(TJENESTEPENSJON_ORDNING_ID)
+                .withSamhandlerFullmaktsgiver()
+                .withFullmektigPid("11111111111")
+                .build();
+        when(service.getFullmakter(TJENESTEPENSJON_ORDNING_ID)).thenReturn(List.of(fullmakt));
+        assertFalse(facade.mayActOnBehalfOf(FULLMAKTSGIVER_PID, FULLMEKTIG_PID));
+    }
+
+    @Test
+    void mayActOnBehalf_isFalse_when_user_is_not_member_of_TP_ordning(){
+        when(tjenestepensjonClient.getAllTjenestepensjonsforhold(FULLMAKTSGIVER_PID)).thenReturn(emptyList());
+        assertFalse(facade.mayActOnBehalfOf(FULLMAKTSGIVER_PID, FULLMEKTIG_PID));
     }
 
     @Test
