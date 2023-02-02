@@ -5,8 +5,8 @@ import no.nav.pensjon.selvbetjeningopptjening.tjenestepensjon.Tjenestepensjonsfo
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
@@ -38,10 +38,11 @@ public class FullmaktFacade {
                                                               String fullmaktsgiverPid,
                                                               String fullmektigPid,
                                                               LocalDate today) {
-        return service.getFullmakter(fullmaktsgiverPid)
-                .stream()
-                .filter(fullmakt -> fullmakt.isValidFor(fullmaktsgiverPid, fullmektigPid, today))
-                .toList();
+        return Collections.emptyList();
+//        return service.getFullmakter(fullmaktsgiverPid)
+//                .stream()
+//                .filter(fullmakt -> fullmakt.isValidFor(fullmaktsgiverPid, fullmektigPid, today))
+//                .toList();
     }
 
     private static List<Fullmakt> getValidSamhandlerFullmakter(FullmaktApi service,
