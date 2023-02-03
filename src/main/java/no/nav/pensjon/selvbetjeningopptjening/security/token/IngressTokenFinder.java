@@ -133,6 +133,8 @@ public class IngressTokenFinder {
     private static String getTokenFromHeader(HttpServletRequest request) {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
+        log.info("Auth header: {}", authHeader);
+
         return authHeader != null && authHeader.startsWith(AUTH_TYPE + " ")
                 ? authHeader.substring(AUTH_TYPE.length() + 1)
                 : null;
