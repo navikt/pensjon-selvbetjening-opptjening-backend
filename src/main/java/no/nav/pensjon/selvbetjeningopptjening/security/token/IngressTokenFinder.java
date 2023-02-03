@@ -99,12 +99,17 @@ public class IngressTokenFinder {
     }
 
     private Optional<TokenInfo> findTokenInCookies(Cookie[] cookies, List<String> cookieNames) {
-        return stream(cookies)
+        log.info("cookie names: {}", String.join(", ", cookieNames));
+
+        final Optional<TokenInfo> tokenInfo = stream(cookies)
                 .filter(cookie -> cookieNames.contains(cookie.getName()))
                 .map(Cookie::getValue)
                 .map(jwsValidator::validate)
                 .filter(TokenInfo::isValid)
                 .findFirst();
+
+        tokenInfo.ifPresent(info -> log.info("Found token in cookie: {}", info.getJwt()));
+        return tokenInfo;
     }
 
     private TokenInfo getTokenInfoFromHeader(HttpServletRequest request) {

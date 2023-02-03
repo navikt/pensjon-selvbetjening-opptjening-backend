@@ -51,7 +51,9 @@ public class Filter01IngressToken implements Filter {
         var httpResponse = (HttpServletResponse) response;
         TokenInfo ingressTokenInfo = ingressTokenFinder.getIngressTokenInfo(httpRequest, false);
 
-        if (!ingressTokenInfo.isValid()) {
+        if (ingressTokenInfo.isValid()) {
+            log.info("Valid token found: {}", ingressTokenInfo.getJwt());
+        } else {
             log.info("Unauthorized (invalid token)");
             unauthorized(httpResponse);
             return;
