@@ -41,7 +41,7 @@ public class Filter00UnprotectedResources implements Filter {
     private static final String READINESS_URI = "/internal/ready";
     private static final String PING_URI = "/internal/ping";
     private static final String SELF_TEST_URI = "/internal/selftest";
-    private static final String LOGOUT_URI = "/logout";
+    private static final String LOGOUT_URI = "/oauth2/logout";
     private static final String FAVICON_URI = "/favicon.ico";
     private static final Logger log = LoggerFactory.getLogger(Filter00UnprotectedResources.class);
     private final IngressTokenFinder ingressTokenFinder;

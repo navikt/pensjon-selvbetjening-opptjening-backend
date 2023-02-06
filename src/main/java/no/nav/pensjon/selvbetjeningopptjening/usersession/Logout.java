@@ -25,7 +25,7 @@ public class Logout {
     }
 
     public void perform(HttpServletResponse response, User user, Set<String> audiences) {
-        log.debug("Logging out...");
+        log.info("Logging out...");
         clearAccessTokens(user, audiences);
         clearOnBehalfOfCookie(response);
         log.info("Logged out");

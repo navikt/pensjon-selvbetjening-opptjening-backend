@@ -102,7 +102,7 @@ class Filter00UnprotectedResourcesTest extends FilterTest {
 
     @Test
     void when_requestingLogout_then_doFilter_callsLogout_and_continuesFilterChain() throws Exception {
-        arrangeRequest("/logout");
+        arrangeRequest("/oauth2/logout");
         TokenInfo ingressTokenInfo = arrangeIngressToken();
         User user = new User(ingressTokenInfo.getUserId(), ingressTokenInfo.getUserType());
         when(request.getSession()).thenReturn(session);

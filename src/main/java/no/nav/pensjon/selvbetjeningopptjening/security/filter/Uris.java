@@ -25,7 +25,7 @@ public class Uris {
             "/oauth2-ad/login",
             "/oauth2-ad/callback",
             "/oauth2-ad/refresh-token",
-            "/logout",
+            "/oauth2/logout",
             "/favicon.ico");
 
     public static boolean isProtected(String uri) {
