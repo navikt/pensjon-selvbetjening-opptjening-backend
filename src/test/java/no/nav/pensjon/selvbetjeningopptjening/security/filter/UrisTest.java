@@ -30,7 +30,7 @@ class UrisTest {
             "/oauth2-ad/login",
             "/oauth2-ad/callback",
             "/oauth2-ad/refresh-token",
-            "/logout",
+            "/oauth2/logout",
             "/favicon.ico");
 
     private static final List<String> protectedUris = List.of(
