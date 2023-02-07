@@ -85,7 +85,6 @@ public class PdlConsumer implements Pingable {
             return webClient
                     .post()
                     .header(HttpHeaders.AUTHORIZATION, authHeaderValue)
-                    .header(PdlHttpHeaders.CONSUMER_TOKEN, authHeaderValue)
                     .header(NAV_CALL_ID, MDC.get(NAV_CALL_ID))
                     .bodyValue(PdlRequest.getPersonQuery(pid))
                     .retrieve()

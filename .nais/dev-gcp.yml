@@ -57,8 +57,10 @@ spec:
       value: selvbetjening-idtoken
     - name: FULLMAKT_URL
       value: https://pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
+    - name: PDL_APP_ID
+      value: dev-fss:pdl:pdl-api
     - name: PDL_URL
-      value: https://pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
+      value: https://pdl-api.dev-fss-pub.nais.io
     - name: PEN_URL
       value: https://pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
     - name: POPP_URL
