@@ -16,11 +16,6 @@ public class FullmaktService implements FullmaktApi {
     }
 
     @Override
-    public List<Fullmakt> getFullmakter(String fullmaktsgiverPid) {
-        return client.getFullmakter(new Pid(fullmaktsgiverPid), true);
-    }
-
-    @Override
     public boolean harFullmaktsforhold(String fullmaktsgiverPid, String fullmektigPid) {
         return client.harFullmaktsforhold(fullmaktsgiverPid, fullmektigPid);
     }

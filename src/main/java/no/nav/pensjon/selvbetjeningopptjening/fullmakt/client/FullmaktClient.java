@@ -30,8 +30,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class FullmaktClient {
 
     private static final String SERVICE = "Fullmakt";
-    private static final String PATH = "/bprof/finnFullmakter";
-    private static final String PATH_HAR_FULLMAKTSFORHOLD = "/harFullmaktsforhold";
+    private static final String PATH = "/harFullmaktsforhold";
     private static final String GYLDIG_QUERY_PARAM_NAME = "erGyldig";
     private static final Logger log = LoggerFactory.getLogger(FullmaktClient.class);
     private final WebClient webClient;
@@ -41,28 +40,6 @@ public class FullmaktClient {
                           @Value("${fullmakt.url}") String baseUrl) {
         this.webClient = requireNonNull(webClient, "webClient");
         this.url = requireNonNull(baseUrl, "baseUrl");
-    }
-
-    public List<Fullmakt> getFullmakter(Pid pid, boolean erGyldig) {
-        if (log.isDebugEnabled()) {
-            log.debug("Calling {} for PID {}", SERVICE, maskFnr(pid));
-        }
-
-        try {
-            FullmakterDto response = webClient
-                    .get()
-                    .uri(url(erGyldig))
-                    .headers(h -> setHeaders(h).set(CustomHttpHeaders.AKTOER_NUMMER, pid.getPid()))
-                    .retrieve()
-                    .bodyToMono(FullmakterDto.class)
-                    .block();
-
-            return response == null ? emptyList() : fullmakter(response.aktor());
-        } catch (WebClientResponseException e) {
-            throw new FailedCallingExternalServiceException(SERVICE, "finnFullmakter", "Failed to call service: " + e.getResponseBodyAsString(), e);
-        } catch (RuntimeException e) { // e.g. when connection broken
-            throw new FailedCallingExternalServiceException(SERVICE, "finnFullmakter", "Failed to call service", e);
-        }
     }
 
     public boolean harFullmaktsforhold(String fullmaktsgiverPid, String fullmektigPid){
@@ -87,27 +64,11 @@ public class FullmaktClient {
         }
     }
 
-    private String url(boolean gyldig) {
-        return UriComponentsBuilder.fromHttpUrl(url)
-                .path(PATH)
-                .queryParam(GYLDIG_QUERY_PARAM_NAME, gyldig)
-                .build()
-                .toUriString();
-    }
-
     private String url(){
         return UriComponentsBuilder.fromHttpUrl(url)
-                .path(PATH_HAR_FULLMAKTSFORHOLD)
+                .path(PATH)
                 .build()
                 .toUriString();
-    }
-
-    private static HttpHeaders setHeaders(HttpHeaders headers) {
-        headers.setBearerAuth(RequestContext.getEgressAccessToken(AppIds.FULLMAKT).getValue());
-        headers.set(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE);
-        headers.set(HttpHeaders.ACCEPT, APPLICATION_JSON_VALUE);
-        headers.set(CustomHttpHeaders.CALL_ID, MDC.get(NAV_CALL_ID));
-        return headers;
     }
 
     private static void setHeaders(HttpHeaders headers, String fullmaktsgiverPid, String fullmektigPid) {
