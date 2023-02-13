@@ -31,6 +31,7 @@ public class FullmaktClient {
 
     private static final String SERVICE = "Fullmakt";
     private static final String PATH = "/bprof/finnFullmakter";
+    private static final String PATH_HAR_FULLMAKTSFORHOLD = "/harFullmaktsforhold";
     private static final String GYLDIG_QUERY_PARAM_NAME = "erGyldig";
     private static final Logger log = LoggerFactory.getLogger(FullmaktClient.class);
     private final WebClient webClient;
@@ -64,10 +65,39 @@ public class FullmaktClient {
         }
     }
 
+    public boolean harFullmaktsforhold(String fullmaktsgiverPid, String fullmektigPid){
+        if (log.isDebugEnabled()) {
+            log.debug("Calling {} for PID {}", SERVICE, maskFnr(fullmektigPid));
+        }
+
+        try {
+            Boolean response = webClient
+                    .get()
+                    .uri(url())
+                    .headers(h -> setHeaders(h, fullmaktsgiverPid, fullmektigPid))
+                    .retrieve()
+                    .bodyToMono(Boolean.class)
+                    .block();
+
+            return response != null && response;
+        } catch (WebClientResponseException e) {
+            throw new FailedCallingExternalServiceException(SERVICE, "harFullmaktsforhold", "Failed to call service: " + e.getResponseBodyAsString(), e);
+        } catch (RuntimeException e) { // e.g. when connection broken
+            throw new FailedCallingExternalServiceException(SERVICE, "harFullmaktsforhold", "Failed to call service", e);
+        }
+    }
+
     private String url(boolean gyldig) {
         return UriComponentsBuilder.fromHttpUrl(url)
                 .path(PATH)
                 .queryParam(GYLDIG_QUERY_PARAM_NAME, gyldig)
+                .build()
+                .toUriString();
+    }
+
+    private String url(){
+        return UriComponentsBuilder.fromHttpUrl(url)
+                .path(PATH_HAR_FULLMAKTSFORHOLD)
                 .build()
                 .toUriString();
     }
@@ -78,5 +108,14 @@ public class FullmaktClient {
         headers.set(HttpHeaders.ACCEPT, APPLICATION_JSON_VALUE);
         headers.set(CustomHttpHeaders.CALL_ID, MDC.get(NAV_CALL_ID));
         return headers;
+    }
+
+    private static void setHeaders(HttpHeaders headers, String fullmaktsgiverPid, String fullmektigPid) {
+        headers.setBearerAuth(RequestContext.getEgressAccessToken(AppIds.FULLMAKT).getValue());
+        headers.set(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE);
+        headers.set(HttpHeaders.ACCEPT, APPLICATION_JSON_VALUE);
+        headers.set(CustomHttpHeaders.CALL_ID, MDC.get(NAV_CALL_ID));
+        headers.set(CustomHttpHeaders.FULLMAKTSGIVER_HEADER, fullmaktsgiverPid);
+        headers.set(CustomHttpHeaders.FULLMEKTIG_HEADER, fullmektigPid);
     }
 }
