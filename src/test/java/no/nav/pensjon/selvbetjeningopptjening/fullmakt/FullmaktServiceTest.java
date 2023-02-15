@@ -85,7 +85,7 @@ class FullmaktServiceTest {
         }
 
         @Override
-        protected LocalDateTime today(){
+        protected LocalDateTime now(){
             return now;
         }
     }

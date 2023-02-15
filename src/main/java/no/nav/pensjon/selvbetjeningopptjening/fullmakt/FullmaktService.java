@@ -5,7 +5,6 @@ import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.dto.Fullmaktsforho
 import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Component
@@ -34,7 +33,7 @@ public class FullmaktService implements FullmaktApi {
     }
 
     private boolean isValidIkkePersonligFullmaktWithinWorkingHours(FullmaktsforholdDto fullmaktsforhold) {
-        LocalDateTime now = today();
+        LocalDateTime now = now();
         return  fullmaktsforhold.getHarFullmaktsforhold()
                 && !fullmaktsforhold.getErPersonligFullmakt()
                 && !now.getDayOfWeek().equals(DayOfWeek.SUNDAY)
@@ -42,7 +41,7 @@ public class FullmaktService implements FullmaktApi {
                 && now.getHour() < WORKING_HOURS_END_HOUR;
     }
 
-    protected LocalDateTime today() {
+    protected LocalDateTime now() {
         return LocalDateTime.now();
     }
 }
