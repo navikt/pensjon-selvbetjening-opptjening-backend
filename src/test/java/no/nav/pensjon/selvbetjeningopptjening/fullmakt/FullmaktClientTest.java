@@ -13,8 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FullmaktClientTest extends WebClientTest {
 
@@ -39,10 +38,27 @@ class FullmaktClientTest extends WebClientTest {
         }
     }
 
+    @Test
+    void harFullmaktsforhold_should_map_to_null_when_missing_field_erPersonligFullmakt() {
+        try (RequestContext ignored = RequestContextCreator.createForExternal(AppIds.FULLMAKT.appName)) {
+            prepare(mockFalseResponse());
+            FullmaktsforholdDto response = consumer.harFullmaktsforhold("", "");
+            assertFalse(response.getHarFullmaktsforhold());
+            assertNull(response.getErPersonligFullmakt());
+        }
+    }
+
     private static MockResponse mockResponse() {
         return jsonResponse()
                 .setBody("""
                         {"harFullmaktsforhold":true,"erPersonligFullmakt":false}
+                        """);
+    }
+
+    private static MockResponse mockFalseResponse() {
+        return jsonResponse()
+                .setBody("""
+                        {"harFullmaktsforhold":false}
                         """);
     }
 }
