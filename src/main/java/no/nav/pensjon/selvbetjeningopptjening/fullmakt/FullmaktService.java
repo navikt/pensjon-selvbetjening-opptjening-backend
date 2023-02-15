@@ -37,7 +37,7 @@ public class FullmaktService implements FullmaktApi {
         return  fullmaktsforhold.getHarFullmaktsforhold()
                 && !fullmaktsforhold.getErPersonligFullmakt()
                 && !now.getDayOfWeek().equals(DayOfWeek.SUNDAY)
-                && now.getHour() > WORKING_HOURS_START_HOUR
+                && now.getHour() >= WORKING_HOURS_START_HOUR
                 && now.getHour() < WORKING_HOURS_END_HOUR;
     }
 
