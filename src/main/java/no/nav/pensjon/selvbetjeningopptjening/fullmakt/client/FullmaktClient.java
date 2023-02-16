@@ -67,7 +67,7 @@ public class FullmaktClient {
         headers.set(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE);
         headers.set(HttpHeaders.ACCEPT, APPLICATION_JSON_VALUE);
         headers.set(CustomHttpHeaders.CALL_ID, MDC.get(NAV_CALL_ID));
-        headers.set(CustomHttpHeaders.FULLMAKTSGIVER_HEADER, fullmaktsgiverPid);
-        headers.set(CustomHttpHeaders.FULLMEKTIG_HEADER, fullmektigPid);
+        headers.set(CustomHttpHeaders.FULLMAKTSGIVER_PID, fullmaktsgiverPid);
+        headers.set(CustomHttpHeaders.FULLMEKTIG_PID, fullmektigPid);
     }
 }
