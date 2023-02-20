@@ -18,8 +18,8 @@ import static org.mockito.Mockito.when;
 class FullmaktServiceTest {
     @Mock
     private FullmaktClient fullmaktClient;
-    private static LocalDateTime TIME_INSIDE_WORKING_HOURS = LocalDateTime.of(2023,2,6,12,0).with(DayOfWeek.MONDAY);
-    private static LocalDateTime TIME_OUTSIDE_WORKING_HOURS = LocalDateTime.of(2023,2,6,20,0).with(DayOfWeek.MONDAY);
+    private static final LocalDateTime TIME_INSIDE_WORKING_HOURS = LocalDateTime.of(2023,2,6,12,0).with(DayOfWeek.MONDAY);
+    private static final LocalDateTime TIME_OUTSIDE_WORKING_HOURS = LocalDateTime.of(2023,2,6,20,0).with(DayOfWeek.MONDAY);
 
     @Test
     void should_return_false_when_harFullmaktsforhold_false(){
@@ -71,9 +71,23 @@ class FullmaktServiceTest {
     }
 
     @Test
-    void should_return_false_when_upersonlig_fullmakt_and_sunday(){
+    void should_return_true_when_upersonlig_fullmakt_and_sunday_within_working_hours(){
         when(fullmaktClient.harFullmaktsforhold(any(), any())).thenReturn(new FullmaktsforholdDto(true, false));
         boolean result = new FullmaktServiceWithSpecifiedToday(fullmaktClient,TIME_INSIDE_WORKING_HOURS.with(DayOfWeek.SUNDAY)).harFullmaktsforhold("","");
+        assertTrue(result);
+    }
+
+    @Test
+    void should_return_false_when_upersonlig_fullmakt_and_after_18_on_sunday(){
+        when(fullmaktClient.harFullmaktsforhold(any(), any())).thenReturn(new FullmaktsforholdDto(true, false));
+        boolean result = new FullmaktServiceWithSpecifiedToday(fullmaktClient, TIME_INSIDE_WORKING_HOURS.withHour(19).with(DayOfWeek.SUNDAY)).harFullmaktsforhold("","");
+        assertFalse(result);
+    }
+
+    @Test
+    void should_return_false_when_upersonlig_fullmakt_and_before_10_on_sunday(){
+        when(fullmaktClient.harFullmaktsforhold(any(), any())).thenReturn(new FullmaktsforholdDto(true, false));
+        boolean result = new FullmaktServiceWithSpecifiedToday(fullmaktClient, TIME_INSIDE_WORKING_HOURS.withHour(9).with(DayOfWeek.SUNDAY)).harFullmaktsforhold("","");
         assertFalse(result);
     }
 
