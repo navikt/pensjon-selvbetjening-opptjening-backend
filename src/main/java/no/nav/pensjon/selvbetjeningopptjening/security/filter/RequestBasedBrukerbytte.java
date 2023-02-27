@@ -86,7 +86,6 @@ public class RequestBasedBrukerbytte {
                             HttpServletResponse response) throws IOException {
         log.debug("Received request for brukerbytte");
         String onBehalfOfPid = getOnBehalfOfPid(requestJson);
-        log.info("onBehalfOfPid: "+ onBehalfOfPid+" fullmektigPid: "+fullmektigPid);
         if (onBehalfOfPid.equals(fullmektigPid)) {
             log.info("Request for tilbakebrukerbytte accepted");
             cookieSetter.unsetCookie(response, CookieType.ON_BEHALF_OF_PID);
