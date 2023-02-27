@@ -15,6 +15,8 @@ public final class CustomHttpHeaders {
     public static final String USER_ID = "Nav-User-Id";
     public static final String PID = "pid"; // personidentifikator
     public static final String THEME = "Tema";
+    public static final String FULLMAKTSGIVER_PID = "fullmaktsgiverPid";
+    public static final String FULLMEKTIG_PID = "fullmektigPid";
 
     private CustomHttpHeaders() {
     }
