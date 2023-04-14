@@ -52,11 +52,12 @@ spec:
           cluster: dev-gcp
         - application: pensjon-veiledning-opptjening-frontend
           cluster: dev-gcp
-      external:
-        - host: pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
-        - host: pdl-api.dev-fss-pub.nais.io
-        - host: pensjon-popp-q2.dev-fss-pub.nais.io
-        - host: skjermede-personer-pip.dev.intern.nav.no
+      outbound:
+        external:
+          - host: pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
+          - host: pdl-api.dev-fss-pub.nais.io
+          - host: pensjon-popp-q2.dev-fss-pub.nais.io
+          - host: skjermede-personer-pip.dev.intern.nav.no
   env:
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
       value: selvbetjening-idtoken
