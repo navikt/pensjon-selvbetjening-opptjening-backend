@@ -10,7 +10,7 @@ metadata:
 spec:
   image: {{ image_gcp }}
   ingresses:
-    - https://pensjon-selvbetjening-opptjening-backend.dev.nav.no
+    - https://pensjon-selvbetjening-opptjening-backend.intern.dev.nav.no
   port: 8080
   replicas:
     min: 2
@@ -41,8 +41,8 @@ spec:
         extra:
           - NAVident
       replyURLs:
-        - https://pensjon-veiledning-opptjening-frontend.dev.intern.nav.no/pensjon/opptjening/oauth2/internal/callback
-        - https://pensjon-selvbetjening-opptjening-backend.dev.nav.no/oauth2/internal/callback
+        - https://pensjon-veiledning-opptjening-frontend.intern.dev.nav.no/pensjon/opptjening/oauth2/internal/callback
+        - https://pensjon-selvbetjening-opptjening-backend.intern.dev.nav.no/oauth2/internal/callback
         - http://localhost:3000/oauth2/internal/callback
         - http://localhost:8080/oauth2/internal/callback
   accessPolicy:
@@ -57,7 +57,7 @@ spec:
         - host: pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
         - host: pensjon-popp-q2.dev-fss-pub.nais.io
-        - host: skjermede-personer-pip.dev.intern.nav.no
+        - host: skjermede-personer-pip.intern.dev.nav.no
   env:
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
       value: selvbetjening-idtoken
@@ -72,7 +72,7 @@ spec:
     - name: POPP_URL
       value: https://pensjon-popp-q2.dev-fss-pub.nais.io
     - name: SKJERMING_URL
-      value: https://skjermede-personer-pip.dev.intern.nav.no
+      value: https://skjermede-personer-pip.intern.dev.nav.no
     - name: UNLEASH_URL
       value: https://unleash.nais.io
     - name: BRUKERHJELP_GROUP_ID
@@ -92,7 +92,7 @@ spec:
     - name: COOKIES_DOMAIN
       value: nav.no
     - name: AZURE_APP_REDIRECT_URI
-      value: https://pensjon-veiledning-opptjening-frontend.dev.intern.nav.no/pensjon/opptjening/oauth2/internal/callback
+      value: https://pensjon-veiledning-opptjening-frontend.intern.dev.nav.no/pensjon/opptjening/oauth2/internal/callback
     - name: AUDIT_LOG_OUTPUT
       value: SYSLOG
     - name: STDOUT_LOG_OUTPUT
