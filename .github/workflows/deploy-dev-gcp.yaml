@@ -9,6 +9,8 @@ jobs:
   deploy-to-dev-gcp:
     name: Deploy to dev-gcp
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3.1.0
