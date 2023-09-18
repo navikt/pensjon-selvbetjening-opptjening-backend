@@ -19,7 +19,6 @@ import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.TokenInfo;
 import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.egress.EgressAccessTokenFacade;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.IngressTokenFinder;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.TokenAudiencesVsApps;
-import no.nav.pensjon.selvbetjeningopptjening.usersession.LegacyLogin;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.Logout;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.token.TokenAccessParam;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.token.TokenData;
@@ -86,9 +85,6 @@ class InternalUserAuthorizationCodeFlowTest {
     private EgressAccessTokenFacade egressAccessTokenFacade;
     @MockBean
     private TokenAudiencesVsApps tokenAudiencesVsApps;
-    @MockBean
-    @Qualifier("internal-user")
-    private LegacyLogin legacyLogin;
     @MockBean
     private Logout logout;
     @MockBean

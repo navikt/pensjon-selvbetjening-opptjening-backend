@@ -25,10 +25,12 @@ public class MultiIssuerSupport {
     private final List<Oauth2BasicData> oauth2Basics;
     private final ConcurrentHashMap<String, Oauth2Handler> handlersByIssuer = new ConcurrentHashMap<>();
 
-    public MultiIssuerSupport(@Qualifier("external-user-loginservice") Oauth2BasicData externalUserOauth2BasicData,
+    public MultiIssuerSupport(@Qualifier("external-user-digdir") Oauth2BasicData externalUserDigdirOauth2BasicData,
+                              @Qualifier("external-user-difi") Oauth2BasicData externalUserDifiOauth2BasicData,
                               @Qualifier("internal-user") Oauth2BasicData internalUserOauth2BasicData) {
         this.oauth2Basics = List.of(
-                externalUserOauth2BasicData,
+                externalUserDigdirOauth2BasicData,
+                externalUserDifiOauth2BasicData,
                 internalUserOauth2BasicData);
     }
 

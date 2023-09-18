@@ -22,10 +22,11 @@ class MultiIssuerSupportTest extends WebClientTest {
     private Oauth2BasicData oauth2BasicData1;
     @Mock
     private Oauth2BasicData oauth2BasicData2;
-
+    @Mock
+    private Oauth2BasicData oauth2BasicData3;
     @BeforeEach
     void initialize() {
-        support = new MultiIssuerSupport(oauth2BasicData1, oauth2BasicData2);
+        support = new MultiIssuerSupport(oauth2BasicData1, oauth2BasicData2, oauth2BasicData3);
     }
 
     @Test
@@ -34,8 +35,11 @@ class MultiIssuerSupportTest extends WebClientTest {
         when(oauth2BasicData1.getAcceptedAudience()).thenReturn("aud1");
         when(oauth2BasicData2.getWellKnownUrl()).thenReturn(baseUrl());
         when(oauth2BasicData2.getAcceptedAudience()).thenReturn("aud2");
+        when(oauth2BasicData3.getWellKnownUrl()).thenReturn(baseUrl());
+        when(oauth2BasicData3.getAcceptedAudience()).thenReturn("aud3");
         prepare(wellKnownEndpointResponse(1));
         prepare(wellKnownEndpointResponse(2));
+        prepare(wellKnownEndpointResponse(3));
 
         Oauth2Handler handler = support.getOauth2HandlerForIssuer("https://example.provider/1");
         // This call will fail if caching fails:

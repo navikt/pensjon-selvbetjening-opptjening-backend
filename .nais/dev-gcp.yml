@@ -97,5 +97,11 @@ spec:
       value: SYSLOG
     - name: STDOUT_LOG_OUTPUT
       value: JSON
-  envFrom:
-    - configmap: loginservice-idporten
+    - name: IDPORTEN_DIGDIR_CLIENT_ID
+      value: cdf48858-58fe-4fb2-bab0-1a3cb47dbbb0
+    - name: IDPORTEN_DIGDIR_WELL_KNOWN_URL
+      value: https://test.idporten.no/.well-known/openid-configuration
+    - name: IDPORTEN_DIFI_CLIENT_ID
+      value: cdf48858-58fe-4fb2-bab0-1a3cb47dbbb0
+    - name: IDPORTEN_DIFI_WELL_KNOWN_URL
+      value: https://oidc-ver2.difi.no/idporten-oidc-provider/.well-known/openid-configuration

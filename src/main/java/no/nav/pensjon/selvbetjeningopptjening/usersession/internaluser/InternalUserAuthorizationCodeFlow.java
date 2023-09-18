@@ -6,7 +6,6 @@ import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieSetter;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.CookieType;
 import no.nav.pensjon.selvbetjeningopptjening.security.impersonal.Oauth2ConfigGetter;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.AuthorizationCodeFlow;
-import no.nav.pensjon.selvbetjeningopptjening.usersession.LegacyLogin;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.token.TokenGetter;
 import no.nav.pensjon.selvbetjeningopptjening.usersession.token.TokenRefresher;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,16 +35,14 @@ public class InternalUserAuthorizationCodeFlow extends AuthorizationCodeFlow {
                                              CookieSetter cookieSetter,
                                              Crypto crypto,
                                              @Value("${internal-user.oauth2.client-id}") String clientId,
-                                             @Value("${internal-user.oauth2.redirect-uri}") String callbackUri,
-                                             @Qualifier("internal-user") LegacyLogin legacyLogin) {
+                                             @Value("${internal-user.oauth2.redirect-uri}") String callbackUri) {
         super(oauth2ConfigGetter,
                 tokenGetter,
                 tokenRefresher,
                 cookieSetter,
                 crypto,
                 clientId,
-                callbackUri,
-                legacyLogin);
+                callbackUri);
     }
 
     @GetMapping("login")
