@@ -38,24 +38,10 @@ class Oauth2BeanConfig {
 
 
     @Bean
-    @Qualifier("external-user-digdir")
+    @Qualifier("external-user")
     Oauth2BasicData externalUserOauth2BasicData(
-            @Value("${external-user.oauth2.idporten-digdir.well-known-url}") String wellKnownUrl,
-            @Value("${external-user.oauth2.idporten-digdir.client-id}") String acceptedAudience) {
-
-        return new Oauth2BasicData(
-                wellKnownUrl,
-                acceptedAudience,
-                AUDIENCE_CLAIM_KEY_FOR_EXTERNAL_USERS,
-                USER_ID_CLAIM_KEY_FOR_EXTERNAL_USERS,
-                UserType.EXTERNAL);
-    }
-
-    @Bean
-    @Qualifier("external-user-difi")
-    Oauth2BasicData externalUserDifiOauth2BasicData(
-            @Value("${external-user.oauth2.idporten-difi.well-known-url}") String wellKnownUrl,
-            @Value("${external-user.oauth2.idporten-difi.client-id}") String acceptedAudience) {
+            @Value("${external-user.oauth2.idporten.well-known-url}") String wellKnownUrl,
+            @Value("${external-user.oauth2.idporten.audience}") String acceptedAudience) {
 
         return new Oauth2BasicData(
                 wellKnownUrl,
