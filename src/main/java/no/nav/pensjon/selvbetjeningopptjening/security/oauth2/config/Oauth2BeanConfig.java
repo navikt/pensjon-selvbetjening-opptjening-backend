@@ -46,7 +46,7 @@ class Oauth2BeanConfig {
         return new Oauth2BasicData(
                 wellKnownUrl,
                 acceptedAudience,
-                AUDIENCE_CLAIM_KEY_FOR_EXTERNAL_USERS,
+                DEFAULT_AUDIENCE_CLAIM_KEY,
                 USER_ID_CLAIM_KEY_FOR_EXTERNAL_USERS,
                 UserType.EXTERNAL);
     }
