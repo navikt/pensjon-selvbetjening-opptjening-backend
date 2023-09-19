@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import static java.util.Objects.requireNonNull;
-import static org.springframework.util.StringUtils.hasText;
+
 
 /**
  * Validator of JSON Web Signature (JWS) strings.
@@ -55,7 +55,7 @@ public class JwsValidator {
     private TokenInfo validate(String jwt, Claims claims) {
         Oauth2Handler oauth2Handler = multiIssuerSupport.getOauth2HandlerForIssuer(claims.getIssuer());
         String acceptedAudience = oauth2Handler.getAcceptedAudience();
-        String audience = (String) claims.get(oauth2Handler.getAudienceClaimKey());
+//        String audience = (String) claims.get(oauth2Handler.getAudienceClaimKey());
         String[] audiences = {};
         Object aud = claims.get(oauth2Handler.getAudienceClaimKey());
         if (aud instanceof String aud1) {
@@ -77,7 +77,7 @@ public class JwsValidator {
             return TokenInfo.valid(jwt, oauth2Handler.getUserType(), claims, userId);
         }
 
-        log.warn("Audience mismatch; expected: '{}', actual: '{}'", acceptedAudience, audience);
+        log.warn("Audience mismatch; expected: '{}', actual: '{}'", acceptedAudience, audiences);
         return TokenInfo.invalid(jwt, oauth2Handler.getUserType(), claims, userId);
     }
 
