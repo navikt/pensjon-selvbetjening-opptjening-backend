@@ -55,7 +55,6 @@ public class JwsValidator {
     private TokenInfo validate(String jwt, Claims claims) {
         Oauth2Handler oauth2Handler = multiIssuerSupport.getOauth2HandlerForIssuer(claims.getIssuer());
         String acceptedAudience = oauth2Handler.getAcceptedAudience();
-//        String audience = (String) claims.get(oauth2Handler.getAudienceClaimKey());
         String[] audiences = {};
         Object aud = claims.get(oauth2Handler.getAudienceClaimKey());
         if (aud instanceof String aud1) {
