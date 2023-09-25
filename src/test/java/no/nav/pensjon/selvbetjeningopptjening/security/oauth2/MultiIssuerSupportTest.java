@@ -36,6 +36,7 @@ class MultiIssuerSupportTest extends WebClientTest {
         when(oauth2BasicData2.getAcceptedAudience()).thenReturn("aud2");
         prepare(wellKnownEndpointResponse(1));
         prepare(wellKnownEndpointResponse(2));
+        prepare(wellKnownEndpointResponse(3));
 
         Oauth2Handler handler = support.getOauth2HandlerForIssuer("https://example.provider/1");
         // This call will fail if caching fails:

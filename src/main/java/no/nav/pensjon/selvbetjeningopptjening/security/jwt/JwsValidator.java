@@ -9,8 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import static java.util.Objects.requireNonNull;
-import static org.springframework.util.StringUtils.hasText;
+
 
 /**
  * Validator of JSON Web Signature (JWS) strings.
@@ -52,21 +55,34 @@ public class JwsValidator {
     private TokenInfo validate(String jwt, Claims claims) {
         Oauth2Handler oauth2Handler = multiIssuerSupport.getOauth2HandlerForIssuer(claims.getIssuer());
         String acceptedAudience = oauth2Handler.getAcceptedAudience();
-        String audience = (String) claims.get(oauth2Handler.getAudienceClaimKey());
+        String[] audiences = {};
+        Object aud = claims.get(oauth2Handler.getAudienceClaimKey());
+        if (aud instanceof String aud1) {
+            audiences = new String[]{aud1};
+            log.info("Audience: " +aud1);
+        }
+        else if (aud instanceof ArrayList<?>){
+            ArrayList<String> audienceArrayList = (ArrayList<String>) aud;
+            audiences = audienceArrayList.toArray(new String[0]);
+            log.info("Audiences: " + Arrays.toString(audiences));
+        }
+        else {
+            log.error("Not able to interpret audience type");
+        }
+
         String userId = (String) claims.get(oauth2Handler.getUserIdClaimKey());
 
-        if (audienceIsAccepted(acceptedAudience, audience)) {
+        if (audienceIsAccepted(acceptedAudience, audiences)) {
             return TokenInfo.valid(jwt, oauth2Handler.getUserType(), claims, userId);
         }
 
-        log.warn("Audience mismatch; expected: '{}', actual: '{}'", acceptedAudience, audience);
+        log.warn("Audience mismatch; expected: '{}', actual: '{}'", acceptedAudience, audiences);
         return TokenInfo.invalid(jwt, oauth2Handler.getUserType(), claims, userId);
     }
 
-    private boolean audienceIsAccepted(String acceptedAudience, String audience) {
-        return acceptedAudience.equals(audience) || !hasText(audience) && acceptMissingAudience;
+    private boolean audienceIsAccepted(String acceptedAudience, String[] audiences) {
+        return (Arrays.asList(audiences).contains(acceptedAudience) || (audiences.length == 0 && acceptMissingAudience));
     }
-
     private TokenInfo handleExpired(String jwt, ExpiredJwtException e) {
         log.debug("Expired JWT: {}", e.getMessage());
         Claims claims = e.getClaims();

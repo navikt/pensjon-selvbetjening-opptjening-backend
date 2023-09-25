@@ -12,7 +12,6 @@ public class Uris {
             "/internal/prometheus",
             "/internal/selftest",
             "/oauth2/login",
-            "/oauth2/legacylogin",
             "/oauth2/callback",
             "/api/mocklogin/04925398980", // deprecated
             "/oauth2/external/callback", // deprecated

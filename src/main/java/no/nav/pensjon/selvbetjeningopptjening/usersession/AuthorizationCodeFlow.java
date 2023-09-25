@@ -39,7 +39,6 @@ public abstract class AuthorizationCodeFlow {
     private final Crypto crypto;
     private final String clientId;
     private final String callbackUri;
-    private final LegacyLogin legacyLogin;
 
     protected AuthorizationCodeFlow(Oauth2ConfigGetter oauth2ConfigGetter,
                                     TokenGetter tokenGetter,
@@ -47,8 +46,7 @@ public abstract class AuthorizationCodeFlow {
                                     CookieSetter cookieSetter,
                                     Crypto crypto,
                                     String clientId,
-                                    String callbackUri,
-                                    LegacyLogin legacyLogin) {
+                                    String callbackUri) {
         this.tokenGetter = requireNonNull(tokenGetter, "tokenGetter");
         this.oauth2ConfigGetter = requireNonNull(oauth2ConfigGetter, "oauth2ConfigGetter");
         this.tokenRefresher = requireNonNull(tokenRefresher, "tokenRefresher");
@@ -56,7 +54,6 @@ public abstract class AuthorizationCodeFlow {
         this.crypto = requireNonNull(crypto, "crypto");
         this.clientId = requireNonNull(clientId, "clientId");
         this.callbackUri = requireNonNull(callbackUri, "callbackUri");
-        this.legacyLogin = requireNonNull(legacyLogin, "legacyLogin");
     }
 
     protected void login(HttpServletResponse response,
@@ -129,11 +126,6 @@ public abstract class AuthorizationCodeFlow {
 
     private void decodeAndRedirect(HttpServletResponse response, String encodedUri) throws IOException {
         String uri = decodeUri(encodedUri);
-
-        if (legacyLogin.isEnabled()) {
-            uri = legacyLogin.getUrl() + URLEncoder.encode(uri, StandardCharsets.UTF_8);
-        }
-
         redirect(response, uri);
     }
 

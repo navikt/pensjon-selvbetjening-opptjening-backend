@@ -58,6 +58,7 @@ spec:
         - host: pdl-api.dev-fss-pub.nais.io
         - host: pensjon-popp-q2.dev-fss-pub.nais.io
         - host: skjermede-personer-pip.intern.dev.nav.no
+        - host: test.idporten.no
   env:
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
       value: selvbetjening-idtoken
