@@ -1,6 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.security.filter;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 public class FilterChainUtil {
 
