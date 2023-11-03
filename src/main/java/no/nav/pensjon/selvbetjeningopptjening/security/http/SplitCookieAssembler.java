@@ -1,7 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.security.http;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class SplitCookieAssembler {
 
