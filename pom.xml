@@ -16,7 +16,7 @@
 
     <properties>
         <java.version>17</java.version>
-        <jjwt-version>0.11.5</jjwt-version> <!--Should be 0.12.3 -->
+        <jjwt-version>0.12.3</jjwt-version> <!--Should be 0.12.3 -->
         <log4j2.version>2.21.0</log4j2.version>
         <okhttp3.version>4.12.0</okhttp3.version>
         <maven.compiler.source>17</maven.compiler.source>
