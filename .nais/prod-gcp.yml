@@ -89,8 +89,6 @@ spec:
       value: prod-gcp:nom:skjermede-personer-pip
     - name: SKJERMING_URL
       value: https://skjermede-personer-pip.intern.nav.no
-    - name: UNLEASH_URL
-      value: https://unleash.nais.io
     - name: BRUKERHJELP_GROUP_ID
       value: 7845a796-1516-4d14-b500-fd65c001f35c
     - name: OEKONOMI_GROUP_ID
