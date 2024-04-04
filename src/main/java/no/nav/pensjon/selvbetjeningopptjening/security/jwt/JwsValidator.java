@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
 
@@ -38,7 +39,7 @@ public class JwsValidator {
         log.trace("Validating '{}'", jwt);
 
         try {
-            Jws<Claims> jws = Jwts.parserBuilder()
+            Jws<Claims> jws = Jwts.parser()
                     .setSigningKeyResolver(signingKeyResolver)
                     .build()
                     .parseClaimsJws(jwt);
@@ -64,7 +65,12 @@ public class JwsValidator {
         else if (aud instanceof ArrayList<?>){
             ArrayList<String> audienceArrayList = (ArrayList<String>) aud;
             audiences = audienceArrayList.toArray(new String[0]);
-            log.info("Audiences: " + Arrays.toString(audiences));
+            log.info("Audiences from array: " + Arrays.toString(audiences));
+        }
+        else if (aud instanceof Set<?>){
+            Set<String> audienceSet = (Set<String>) aud;
+            audiences = audienceSet.toArray(new String[0]);
+            log.info("Audiences from set: " + Arrays.toString(audiences));
         }
         else {
             log.error("Not able to interpret audience type");
