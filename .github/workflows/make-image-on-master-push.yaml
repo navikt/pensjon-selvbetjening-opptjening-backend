@@ -3,7 +3,7 @@ name: "Push GCP image to GHCR"
 on:
   push:
     branches:
-      - master
+      - main
   workflow_dispatch:
 
 env:
@@ -53,7 +53,7 @@ jobs:
           push: true
           tags: ${{ env.IMAGE_GCP }}
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@main
         with:
           image-ref: '${{ env.IMAGE_GCP }}'
           format: 'sarif'
