@@ -36,13 +36,12 @@ public class CookieBasedBrukerbytte {
                                        EgressTokenSupplier egressTokenSupplier) {
         log.debug("Checking need for brukerbytte");
         boolean isInternalUser = UserType.INTERNAL.equals(ingressTokenInfo.getUserType());
-        String virtualLoggedInPid = getVirtualLoggedInPid(request);
 
-        if (isInternalUser && !hasText(virtualLoggedInPid)) {
+        if (isInternalUser) {
             return "";
         }
 
-        String userId = isInternalUser ? virtualLoggedInPid : ingressTokenInfo.getUserId();
+        String userId = ingressTokenInfo.getUserId();
         String newFullmaktsgiverPid = getOnBehalfOfPid(request.getCookies());
         boolean actingOnOwnBehalf = !hasText(newFullmaktsgiverPid) || userId.equals(newFullmaktsgiverPid);
 
@@ -51,15 +50,11 @@ public class CookieBasedBrukerbytte {
             return "";
         }
 
-        boolean mayActOnBehalf = mayActOnBehalf(request, ingressTokenInfo, egressTokenSupplier, userId, newFullmaktsgiverPid);
+        boolean mayActOnBehalf = mayActOnBehalf(ingressTokenInfo, egressTokenSupplier, userId, newFullmaktsgiverPid);
 
         if (mayActOnBehalf) {
             log.info("Request for brukerbytte accepted");
             auditor.auditFullmakt(userId, newFullmaktsgiverPid);
-
-            if (isInternalUser) {
-                auditor.auditInternalUser(ingressTokenInfo.getUserId(), virtualLoggedInPid);
-            }
 
             return newFullmaktsgiverPid;
         }
@@ -68,12 +63,11 @@ public class CookieBasedBrukerbytte {
         return "";
     }
 
-    private boolean mayActOnBehalf(HttpServletRequest request,
-                                   TokenInfo ingressTokenInfo,
+    private boolean mayActOnBehalf(TokenInfo ingressTokenInfo,
                                    EgressTokenSupplier egressTokenSupplier,
                                    String fullmektigPid,
                                    String fullmaktsgiverPid) {
-        try (RequestContext ignored = userContextForCheckingPermission(request, ingressTokenInfo, egressTokenSupplier)) {
+        try (RequestContext ignored = userContextForCheckingPermission(ingressTokenInfo, egressTokenSupplier)) {
             return fullmaktFacade.mayActOnBehalfOf(fullmaktsgiverPid, fullmektigPid);
         }
     }
@@ -92,19 +86,11 @@ public class CookieBasedBrukerbytte {
                 .orElse("");
     }
 
-    private static String getVirtualLoggedInPid(HttpServletRequest request) {
-        String pid = QueryStringParser.getValue(request.getQueryString(), QueryParamNames.PID);
-        return hasText(pid) ? pid : "";
-    }
-
-    private static RequestContext userContextForCheckingPermission(HttpServletRequest request,
-                                                                   TokenInfo ingressTokenInfo,
+    private static RequestContext userContextForCheckingPermission(TokenInfo ingressTokenInfo,
                                                                    EgressTokenSupplier egressTokenSupplier) {
         switch (ingressTokenInfo.getUserType()) {
             case EXTERNAL:
                 return RequestContext.forExternalUser(ingressTokenInfo, egressTokenSupplier);
-            case INTERNAL:
-                return RequestContext.forInternalUser(ingressTokenInfo, getVirtualLoggedInPid(request), egressTokenSupplier);
             default:
                 log.error("Unexpected user type: {}", ingressTokenInfo.getUserType());
                 return null;

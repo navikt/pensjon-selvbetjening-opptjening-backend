@@ -18,6 +18,6 @@ public class FullmaktFacade {
         if (fullmaktsgiverPid.equals(fullmektigPid)) {
             return true; // may act "on behalf of" oneself
         }
-        return fullmaktService.harFullmaktsforhold(fullmaktsgiverPid, fullmektigPid);
+        return fullmaktService.harFullmaktsforhold(fullmaktsgiverPid);
     }
 }

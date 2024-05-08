@@ -96,20 +96,11 @@ public class Filter05RequestContext implements Filter {
                                     TokenInfo ingressTokenInfo,
                                     EgressTokenSupplier egressTokenSupplier,
                                     String virtualLoggedInUserPid) throws IOException, ServletException {
-        String onBehalfOfPid = brukerbytte.getFullmaktsgiverPid(request, ingressTokenInfo, egressTokenSupplier);
 
-        if (hasText(onBehalfOfPid)) {
-            try (RequestContext ignored = RequestContext.forInternalUserOnBehalf(
-                    ingressTokenInfo, virtualLoggedInUserPid, onBehalfOfPid, egressTokenSupplier)) {
-                log.debug("Processing request for virtual logged-in user on behalf of fullmaktsgiver");
-                chain.doFilter(request, response);
-            }
-        } else {
-            try (RequestContext ignored = RequestContext.forInternalUser(
-                    ingressTokenInfo, virtualLoggedInUserPid, egressTokenSupplier)) {
-                log.debug("Processing request for virtual logged-in user");
-                chain.doFilter(request, response);
-            }
+        try (RequestContext ignored = RequestContext.forInternalUser(
+                ingressTokenInfo, virtualLoggedInUserPid, egressTokenSupplier)) {
+            log.debug("Processing request for virtual logged-in user");
+            chain.doFilter(request, response);
         }
     }
 

@@ -8,7 +8,7 @@ public enum AppIds {
     PERSONDATALOSNINGEN("PDL", false),
     PENSJONSFAGLIG_KJERNE("PEN", false),
     PENSJONSOPPTJENING_REGISTER("POPP", false),
-    FULLMAKT("pensjon-fullmakt", false),
+    FULLMAKT("pensjon-representasjon", true),
     SKJERMEDE_PERSONER_PIP("Skjermede-personer-PIP", false); // PIP = Policy information point
 
     public final String appName;

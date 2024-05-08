@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface FullmaktApi {
 
-    boolean harFullmaktsforhold(String fullmaktsgiverPid, String fullmektigPid);
+    boolean harFullmaktsforhold(String fullmaktsgiverPid);
 }
