@@ -70,7 +70,7 @@ public class RequestContext implements AutoCloseable {
         RequestContext context = currentInstance();
         EgressTokenSupplier tokenSupplier = context.egressTokenSupplier;
 
-        return userIsInternal(context) || userIsExternal(context) && userActsOnOwnBehalf(context) && service.supportsTokenX
+        return userIsInternal(context) || userIsExternal(context) && service.supportsTokenX
                 ? tokenSupplier.getPersonalToken(service)
                 : tokenSupplier.getImpersonalToken(service);
     }
@@ -114,10 +114,6 @@ public class RequestContext implements AutoCloseable {
         }
 
         return requestContext;
-    }
-
-    private static boolean userActsOnOwnBehalf(RequestContext context) {
-        return !hasText(context.fullmektigPid) || context.subjectPid.equals(context.fullmektigPid);
     }
 
     private static boolean userIsExternal(RequestContext context) {
