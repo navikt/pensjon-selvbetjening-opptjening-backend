@@ -52,6 +52,9 @@ spec:
           cluster: dev-gcp
         - application: pensjon-veiledning-opptjening-frontend
           cluster: dev-gcp
+        - application: tokenx-token-generator
+          namespace: aura
+          cluster: dev-gcp
     outbound:
       external:
         - host: pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
