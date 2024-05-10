@@ -73,6 +73,8 @@ spec:
       value: selvbetjening-idtoken
     - name: FSS_GATEWAY_APP_ID
       value: prod-fss:pensjonselvbetjening:pensjon-selvbetjening-fss-gateway
+    - name: FULLMAKT_APP_ID
+      value: prod-fss:pensjon-person:pensjon-representasjon
     - name: FULLMAKT_URL
       value: https://pensjon-representasjon.prod-fss-pub.nais.io
     - name: PDL_APP_ID
