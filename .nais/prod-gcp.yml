@@ -28,6 +28,8 @@ spec:
   prometheus:
     enabled: true
     path: /internal/prometheus
+  tokenx:
+    enabled: true
   azure:
     application:
       enabled: true
