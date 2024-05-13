@@ -23,7 +23,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class FullmaktClient {
 
     private static final String SERVICE = "pensjon-representasjon";
-    private static final String PATH = "/hasValidRepresentasjonsforhold";
+    private static final String PATH = "/representasjon/hasValidRepresentasjonsforhold";
     public static final String VALID_REPRESENTASJONSTYPER_KEY = "validRepresentasjonstyper";
     public static final String INCLUDE_FULLMAKTSGIVER_NAME_PARAM = "includeFullmaktsgiverNavn";
 
