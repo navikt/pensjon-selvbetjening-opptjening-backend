@@ -26,6 +26,8 @@ spec:
   prometheus:
     enabled: true
     path: /internal/prometheus
+  tokenx:
+    enabled: true
   azure:
     application:
       enabled: true
@@ -65,6 +67,8 @@ spec:
   env:
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
       value: selvbetjening-idtoken
+    - name: FULLMAKT_APP_ID
+      value: dev-fss:pensjon-person:pensjon-representasjon-q2
     - name: FULLMAKT_URL
       value: https://pensjon-representasjon-q2.dev-fss-pub.nais.io
     - name: PDL_APP_ID

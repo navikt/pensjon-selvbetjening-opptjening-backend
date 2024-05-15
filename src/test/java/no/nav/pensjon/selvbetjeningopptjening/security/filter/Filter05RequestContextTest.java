@@ -112,11 +112,11 @@ class Filter05RequestContextTest extends FilterTest {
     }
 
     @Test
-    void when_internalUser_and_fullmakt_then_doFilter_createsRequestContextWithFullmaktsgiverAsTarget_and_continuesFilterChain() throws Exception {
+    void when_internalUser_and_fullmakt_then_doFilter_createsRequestContextWithVirtualPidAsTarget_and_continuesFilterChain() throws Exception {
         arrangeValidPersonalTokens();
         arrangeVirtualUser();
         arrangeFullmakt();
-        doAnswer(invocation -> assertInternalRequestContextPopulated(ON_BEHALF_OF_PID)).when(filterChain).doFilter(request, response);
+        doAnswer(invocation -> assertInternalRequestContextPopulated(VIRTUAL_LOGGED_IN_PID)).when(filterChain).doFilter(request, response);
         when(request.getRequestURI()).thenReturn(REQUEST_URI);
         filter.doFilter(request, response, filterChain);
 

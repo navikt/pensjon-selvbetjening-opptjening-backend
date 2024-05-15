@@ -2,7 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.fullmakt;
 
 import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.FullmaktClient;
-import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.dto.FullmaktsforholdDto;
+import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.dto.RepresentasjonValidity;
 import no.nav.pensjon.selvbetjeningopptjening.mock.RequestContextCreator;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
@@ -32,9 +32,9 @@ class FullmaktClientTest extends WebClientTest {
     void harFullmaktsforhold_maps_to_object_when_response() {
         try (RequestContext ignored = RequestContextCreator.createForExternal(AppIds.FULLMAKT.appName)) {
             prepare(mockResponse());
-            FullmaktsforholdDto response = consumer.harFullmaktsforhold("", "");
-            assertTrue(response.getHarFullmaktsforhold());
-            assertFalse(response.getErPersonligFullmakt());
+            RepresentasjonValidity response = consumer.hasValidRepresentasjonsforhold("");
+            assertTrue(response.hasValidRepresentasjonsforhold());
+            assertEquals("Navn Navnesen", response.fullmaktsgiverNavn());
         }
     }
 
@@ -42,23 +42,23 @@ class FullmaktClientTest extends WebClientTest {
     void harFullmaktsforhold_should_map_to_null_when_missing_field_erPersonligFullmakt() {
         try (RequestContext ignored = RequestContextCreator.createForExternal(AppIds.FULLMAKT.appName)) {
             prepare(mockFalseResponse());
-            FullmaktsforholdDto response = consumer.harFullmaktsforhold("", "");
-            assertFalse(response.getHarFullmaktsforhold());
-            assertNull(response.getErPersonligFullmakt());
+            RepresentasjonValidity response = consumer.hasValidRepresentasjonsforhold("");
+            assertFalse(response.hasValidRepresentasjonsforhold());
+            assertNull(response.fullmaktsgiverNavn());
         }
     }
 
     private static MockResponse mockResponse() {
         return jsonResponse()
                 .setBody("""
-                        {"harFullmaktsforhold":true,"erPersonligFullmakt":false}
+                        {"hasValidRepresentasjonsforhold":true,"fullmaktsgiverNavn":"Navn Navnesen"}
                         """);
     }
 
     private static MockResponse mockFalseResponse() {
         return jsonResponse()
                 .setBody("""
-                        {"harFullmaktsforhold":false}
+                        {"hasValidRepresentasjonsforhold":false,"fullmaktsgiverNavn": null}
                         """);
     }
 }

@@ -54,16 +54,14 @@ class CookieBasedBrukerbytteTest {
     }
 
     @Test
-    void getFullmaktsgiverPid_audits_and_returns_pid_when_internalUser_and_cookieContainsApprovedFullmaktsgiver() {
+    void getFullmaktsgiverPid_does_not_return_pid_when_internalUser_and_cookieContainsApprovedFullmaktsgiver() {
         arrangeBrukerbytteCookie(FULLMAKTSGIVER_PID);
         arrangeApprovedFullmaktsgiver();
         arrangeVirtualUser("fnr");
 
         String fullmaktsgiverPid = brukerbytte.getFullmaktsgiverPid(request, internalUserTokenInfo(), EgressTokenSupplier.empty());
 
-        assertEquals(FULLMAKTSGIVER_PID, fullmaktsgiverPid);
-        verify(auditor, times(1)).auditFullmakt(FULLMEKTIG_PID, FULLMAKTSGIVER_PID);
-        verify(auditor, times(1)).auditInternalUser(SAKSBEHANDLER_ID, FULLMEKTIG_PID);
+        assertEquals("", fullmaktsgiverPid);
     }
 
     @Test
