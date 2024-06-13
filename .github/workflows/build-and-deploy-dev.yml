@@ -1,0 +1,20 @@
+name: "Build and deploy docker to q2"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 * * SUN'
+
+jobs:
+  build-backend:
+    uses: navikt/pensjonsbruker-github-actions-workflows/.github/workflows/build-and-deploy-maven-fss-q2.yml@main
+    name: Build backend application
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      security-events: write
+    secrets: inherit
+    with:
+      nais-template: .nais/dev-gcp.yml
+      team: pensjonselvbetjening
