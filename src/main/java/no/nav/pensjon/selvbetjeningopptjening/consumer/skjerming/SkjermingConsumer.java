@@ -46,7 +46,7 @@ public class SkjermingConsumer implements SkjermingApi {
         try {
             Boolean isSkjermet = webClient
                     .post()
-                    .uri(url + pid.getPid())
+                    .uri(url)
                     .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue())
                     .header(NAV_CALL_ID, MDC.get(NAV_CALL_ID))
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
