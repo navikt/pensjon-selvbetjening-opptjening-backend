@@ -1,6 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.skjerming;
 
 import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.skjerming.dto.SkjermingRequest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
 import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 import no.nav.pensjon.selvbetjeningopptjening.security.group.SkjermingApi;
@@ -9,9 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
 import static java.util.Objects.requireNonNull;
 import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
@@ -21,7 +24,7 @@ import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
 public class SkjermingConsumer implements SkjermingApi {
 
     private static final String SERVICE = "Skjerming";
-    private static final String PATH = "/skjermet?personident=";
+    private static final String PATH = "/skjermet";
     private static final String AUTH_TYPE = "Bearer";
     private static final boolean DEFAULT_IS_SKJERMET = true;
     private static final Logger log = LoggerFactory.getLogger(SkjermingConsumer.class);
@@ -42,10 +45,12 @@ public class SkjermingConsumer implements SkjermingApi {
 
         try {
             Boolean isSkjermet = webClient
-                    .get()
+                    .post()
                     .uri(url + pid.getPid())
                     .header(HttpHeaders.AUTHORIZATION, getAuthHeaderValue())
                     .header(NAV_CALL_ID, MDC.get(NAV_CALL_ID))
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .body(Mono.just(new SkjermingRequest(pid.getPid())), SkjermingRequest.class)
                     .retrieve()
                     .bodyToMono(Boolean.class)
                     .block();
