@@ -1,0 +1,14 @@
+name: "Build maven"
+
+on:
+  push:
+    paths-ignore:
+      - .github/**
+      - README.md
+  workflow_dispatch:
+
+jobs:
+  build-maven-backend:
+    uses: navikt/pensjonsbruker-github-actions-workflows/.github/workflows/build-maven.yml@main
+    name: Build backend application
+    secrets: inherit

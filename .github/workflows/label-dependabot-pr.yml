@@ -1,0 +1,11 @@
+name: Label dependabot pull requests
+on:
+  pull_request:
+    types: [opened, reopened, unlabeled]
+
+jobs:
+  label-dependabot-pr:
+    uses: navikt/pensjonsbruker-github-actions-workflows/.github/workflows/label-dependabot-pr.yml@main
+    permissions:
+      pull-requests: write
+      repository-projects: read

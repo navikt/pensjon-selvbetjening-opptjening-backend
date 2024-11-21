@@ -1,0 +1,24 @@
+name: "Build and deploy to Prod"
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - .github/**
+      - README.md
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy-maven-backend:
+    uses: navikt/pensjonsbruker-github-actions-workflows/.github/workflows/build-and-deploy-maven-fss-prod-and-staging.yml@main
+    name: Build backend application
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      security-events: write
+    secrets: inherit
+    with:
+      team: pensjonselvbetjening
+      nais-template-production: .nais/prod-gcp.yml
