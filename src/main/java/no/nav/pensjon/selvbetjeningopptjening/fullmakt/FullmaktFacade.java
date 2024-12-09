@@ -20,4 +20,8 @@ public class FullmaktFacade {
         }
         return fullmaktService.harFullmaktsforhold(fullmaktsgiverPid, fullmektigPid);
     }
+
+    public RepresentasjonValidity fetchRepresentasjonsgyldighet(String fullmaktsgiverPid) throws ConsumerException {
+        return fullmaktService.hasValidRepresentasjonsforhold(fullmaktsgiverPid);
+    }
 }
