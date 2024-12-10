@@ -4,12 +4,14 @@ import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.CustomHttpHeaders;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.dto.FullmaktsforholdDto;
+import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.dto.RepresentasjonValidity;
 import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -52,6 +54,22 @@ public class FullmaktClient {
             throw new FailedCallingExternalServiceException(SERVICE, "harFullmaktsforhold", "Failed to call service: " + e.getResponseBodyAsString(), e);
         } catch (RuntimeException e) { // e.g. when connection broken
             throw new FailedCallingExternalServiceException(SERVICE, "harFullmaktsforhold", "Failed to call service", e);
+        }
+    }
+
+    public RepresentasjonValidity hasValidRepresentasjonsforhold(String fullmaktsgiverPid) {
+        try {
+            return webClient
+                    .get()
+                    .uri(url())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .headers(h -> setHeaders(h, fullmaktsgiverPid, ""))
+                    .header("fullmaktsgiverPid", fullmaktsgiverPid)
+                    .retrieve()
+                    .bodyToMono(RepresentasjonValidity.class)
+                    .block();
+        } catch (WebClientResponseException e) {
+            throw new FailedCallingExternalServiceException(SERVICE, "hasValidRepresentasjonsforhold", "Failed to call service: " + e.getResponseBodyAsString(), e);
         }
     }
 

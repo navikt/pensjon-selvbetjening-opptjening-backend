@@ -2,6 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.fullmakt;
 
 import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.FullmaktClient;
 import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.dto.FullmaktsforholdDto;
+import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.dto.RepresentasjonValidity;
 import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
@@ -32,6 +33,11 @@ public class FullmaktService implements FullmaktApi {
         } else {
             return isValidIkkePersonligFullmaktWithinWorkingHours(response);
         }
+    }
+
+    @Override
+    public RepresentasjonValidity hasValidRepresentasjonsforhold(String fullmaktsgiverPid) {
+        return client.hasValidRepresentasjonsforhold(fullmaktsgiverPid);
     }
 
     private boolean isValidIkkePersonligFullmaktWithinWorkingHours(FullmaktsforholdDto fullmaktsforhold) {

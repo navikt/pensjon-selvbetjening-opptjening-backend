@@ -1,5 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.fullmakt;
 
+import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.dto.RepresentasjonValidity;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -21,7 +22,7 @@ public class FullmaktFacade {
         return fullmaktService.harFullmaktsforhold(fullmaktsgiverPid, fullmektigPid);
     }
 
-    public RepresentasjonValidity fetchRepresentasjonsgyldighet(String fullmaktsgiverPid) throws ConsumerException {
+    public RepresentasjonValidity fetchRepresentasjonsgyldighet(String fullmaktsgiverPid) {
         return fullmaktService.hasValidRepresentasjonsforhold(fullmaktsgiverPid);
     }
 }
