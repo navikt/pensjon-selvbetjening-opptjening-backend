@@ -44,25 +44,26 @@ public class CookieBasedBrukerbytte {
         }
 
         String userId = isInternalUser ? virtualLoggedInPid : ingressTokenInfo.getUserId();
-        String newFullmaktsgiverPid = getOnBehalfOfPid(request.getCookies());
-        boolean actingOnOwnBehalf = !hasText(newFullmaktsgiverPid) || userId.equals(newFullmaktsgiverPid);
+        String newFullmaktsgiverPidKryptert = getOnBehalfOfPid(request.getCookies());
+
+        RepresentasjonValidity representasjonValidity = mayActOnBehalf(request, ingressTokenInfo, egressTokenSupplier, userId, newFullmaktsgiverPidKryptert);
+
+        boolean actingOnOwnBehalf = !hasText(newFullmaktsgiverPidKryptert) || userId.equals(representasjonValidity.fullmaktsgiverFnr());
 
         if (actingOnOwnBehalf) {
             log.info("Request for brukertilbakebytte accepted");
             return "";
         }
 
-        boolean mayActOnBehalf = mayActOnBehalf(request, ingressTokenInfo, egressTokenSupplier, userId, newFullmaktsgiverPid);
-
-        if (mayActOnBehalf) {
+        if (representasjonValidity.hasValidRepresentasjonsforhold()) {
             log.info("Request for brukerbytte accepted");
-            auditor.auditFullmakt(userId, newFullmaktsgiverPid);
+            auditor.auditFullmakt(userId, representasjonValidity.fullmaktsgiverFnr());
 
             if (isInternalUser) {
                 auditor.auditInternalUser(ingressTokenInfo.getUserId(), virtualLoggedInPid);
             }
 
-            return newFullmaktsgiverPid;
+            return representasjonValidity.fullmaktsgiverFnr();
         }
 
         log.info("Request for brukerbytte DENIED");
@@ -75,7 +76,7 @@ public class CookieBasedBrukerbytte {
                                                   String fullmektigPid,
                                                   String fullmaktsgiverPid) {
         try (RequestContext ignored = userContextForCheckingPermission(request, ingressTokenInfo, egressTokenSupplier)) {
-            return fullmaktFacade.fetchRepresentasjonsgyldighet(fullmaktsgiverPid, fullmektigPid)
+            return fullmaktFacade.fetchRepresentasjonsgyldighet(fullmaktsgiverPid, fullmektigPid);
         }
     }
 
