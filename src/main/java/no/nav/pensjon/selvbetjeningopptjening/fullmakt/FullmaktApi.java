@@ -7,5 +7,5 @@ public interface FullmaktApi {
 
     boolean harFullmaktsforhold(String fullmaktsgiverPid, String fullmektigPid);
 
-    RepresentasjonValidity hasValidRepresentasjonsforhold(String fullmaktsgiverPid);
+    RepresentasjonValidity hasValidRepresentasjonsforhold(String fullmaktsgiverPid, String fullmektigPid);
 }

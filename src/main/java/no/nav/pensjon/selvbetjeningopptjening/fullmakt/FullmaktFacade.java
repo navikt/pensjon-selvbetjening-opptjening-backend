@@ -22,7 +22,7 @@ public class FullmaktFacade {
         return fullmaktService.harFullmaktsforhold(fullmaktsgiverPid, fullmektigPid);
     }
 
-    public RepresentasjonValidity fetchRepresentasjonsgyldighet(String fullmaktsgiverPid) {
-        return fullmaktService.hasValidRepresentasjonsforhold(fullmaktsgiverPid);
+    public RepresentasjonValidity fetchRepresentasjonsgyldighet(String fullmaktsgiverPid, String fullmektigPid) {
+        return fullmaktService.hasValidRepresentasjonsforhold(fullmaktsgiverPid, fullmektigPid);
     }
 }

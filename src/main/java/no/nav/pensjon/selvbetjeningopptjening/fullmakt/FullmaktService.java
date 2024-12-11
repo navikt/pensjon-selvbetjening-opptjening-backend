@@ -36,8 +36,8 @@ public class FullmaktService implements FullmaktApi {
     }
 
     @Override
-    public RepresentasjonValidity hasValidRepresentasjonsforhold(String fullmaktsgiverPid) {
-        return client.hasValidRepresentasjonsforhold(fullmaktsgiverPid);
+    public RepresentasjonValidity hasValidRepresentasjonsforhold(String fullmaktsgiverPid, String fullmektigPid) {
+        return client.hasValidRepresentasjonsforhold(fullmaktsgiverPid, fullmektigPid);
     }
 
     private boolean isValidIkkePersonligFullmaktWithinWorkingHours(FullmaktsforholdDto fullmaktsforhold) {

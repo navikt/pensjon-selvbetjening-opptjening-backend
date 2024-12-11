@@ -57,13 +57,13 @@ public class FullmaktClient {
         }
     }
 
-    public RepresentasjonValidity hasValidRepresentasjonsforhold(String fullmaktsgiverPid) {
+    public RepresentasjonValidity hasValidRepresentasjonsforhold(String fullmaktsgiverPid, String fullmektigPid) {
         try {
             return webClient
                     .get()
                     .uri(url())
                     .accept(MediaType.APPLICATION_JSON)
-                    .headers(h -> setHeaders(h, fullmaktsgiverPid, ""))
+                    .headers(h -> setHeaders(h, fullmaktsgiverPid, fullmektigPid))
                     .header("fullmaktsgiverPid", fullmaktsgiverPid)
                     .retrieve()
                     .bodyToMono(RepresentasjonValidity.class)

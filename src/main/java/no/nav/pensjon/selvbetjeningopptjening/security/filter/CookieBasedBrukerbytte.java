@@ -2,6 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.security.filter;
 
 import no.nav.pensjon.selvbetjeningopptjening.audit.Auditor;
 import no.nav.pensjon.selvbetjeningopptjening.fullmakt.FullmaktFacade;
+import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.dto.RepresentasjonValidity;
 import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 import no.nav.pensjon.selvbetjeningopptjening.security.UserType;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.QueryStringParser;
@@ -68,13 +69,13 @@ public class CookieBasedBrukerbytte {
         return "";
     }
 
-    private boolean mayActOnBehalf(HttpServletRequest request,
-                                   TokenInfo ingressTokenInfo,
-                                   EgressTokenSupplier egressTokenSupplier,
-                                   String fullmektigPid,
-                                   String fullmaktsgiverPid) {
+    private RepresentasjonValidity mayActOnBehalf(HttpServletRequest request,
+                                                  TokenInfo ingressTokenInfo,
+                                                  EgressTokenSupplier egressTokenSupplier,
+                                                  String fullmektigPid,
+                                                  String fullmaktsgiverPid) {
         try (RequestContext ignored = userContextForCheckingPermission(request, ingressTokenInfo, egressTokenSupplier)) {
-            return fullmaktFacade.mayActOnBehalfOf(fullmaktsgiverPid, fullmektigPid);
+            return fullmaktFacade.fetchRepresentasjonsgyldighet(fullmaktsgiverPid, fullmektigPid)
         }
     }
 
