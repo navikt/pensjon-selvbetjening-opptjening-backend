@@ -3,6 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.security.filter;
 import io.jsonwebtoken.Claims;
 import no.nav.pensjon.selvbetjeningopptjening.audit.Auditor;
 import no.nav.pensjon.selvbetjeningopptjening.fullmakt.FullmaktFacade;
+import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.dto.RepresentasjonValidity;
 import no.nav.pensjon.selvbetjeningopptjening.security.UserType;
 import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.TokenInfo;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.EgressTokenSupplier;
@@ -44,7 +45,7 @@ class CookieBasedBrukerbytteTest {
     @Test
     void getFullmaktsgiverPid_audits_and_returns_pid_when_externalUser_and_cookieContainsApprovedFullmaktsgiver() {
         arrangeBrukerbytteCookie(FULLMAKTSGIVER_PID);
-        arrangeApprovedFullmaktsgiver();
+        when(fullmaktFacade.fetchRepresentasjonsgyldighet(FULLMAKTSGIVER_PID, FULLMEKTIG_PID)).thenReturn(new RepresentasjonValidity(true, "", "fnr_kryptert", FULLMAKTSGIVER_PID));
 
         String fullmaktsgiverPid = brukerbytte.getFullmaktsgiverPid(request, externalUserTokenInfo(), EgressTokenSupplier.empty());
 
@@ -56,7 +57,7 @@ class CookieBasedBrukerbytteTest {
     @Test
     void getFullmaktsgiverPid_audits_and_returns_pid_when_internalUser_and_cookieContainsApprovedFullmaktsgiver() {
         arrangeBrukerbytteCookie(FULLMAKTSGIVER_PID);
-        arrangeApprovedFullmaktsgiver();
+        when(fullmaktFacade.fetchRepresentasjonsgyldighet(FULLMAKTSGIVER_PID, FULLMEKTIG_PID)).thenReturn(new RepresentasjonValidity(true, "", "fnr_kryptert", FULLMAKTSGIVER_PID));
         arrangeVirtualUser("fnr");
 
         String fullmaktsgiverPid = brukerbytte.getFullmaktsgiverPid(request, internalUserTokenInfo(), EgressTokenSupplier.empty());
@@ -69,7 +70,7 @@ class CookieBasedBrukerbytteTest {
     @Test
     void getFullmaktsgiverPid_returns_emptyString_when_externalUser_and_brukerbytte_is_reverted() {
         arrangeBrukerbytteCookie(FULLMEKTIG_PID); // fullmektig acts "on behalf of" self
-        arrangeApprovedFullmaktsgiver();
+        when(fullmaktFacade.fetchRepresentasjonsgyldighet(FULLMEKTIG_PID, FULLMEKTIG_PID)).thenReturn(new RepresentasjonValidity(true, "", "fnr_kryptert", FULLMEKTIG_PID));
 
         String fullmaktsgiverPid = brukerbytte.getFullmaktsgiverPid(request, externalUserTokenInfo(), EgressTokenSupplier.empty());
 
@@ -92,7 +93,7 @@ class CookieBasedBrukerbytteTest {
     @Test
     void getFullmaktsgiverPid_returns_emptyString_when_internalUser_and_cookieLacksApprovedFullmaktsgiver() {
         arrangeBrukerbytteCookie(FULLMAKTSGIVER_PID);
-        arrangeUnapprovedFullmaktsgiver();
+        when(fullmaktFacade.fetchRepresentasjonsgyldighet(FULLMAKTSGIVER_PID, FULLMEKTIG_PID)).thenReturn(new RepresentasjonValidity(false, "", "", ""));
         arrangeVirtualUser("fnr");
 
         String fullmaktsgiverPid = brukerbytte.getFullmaktsgiverPid(request, internalUserTokenInfo(), EgressTokenSupplier.empty());
