@@ -40,8 +40,6 @@ class AppHealthEndpointTest {
     private Auditor auditor;
     @MockBean
     private Selftest selftest;
-    @MockBean
-    private RequestBasedBrukerbytte requestBased;
 
     @Test
     void isAlive() throws Exception {

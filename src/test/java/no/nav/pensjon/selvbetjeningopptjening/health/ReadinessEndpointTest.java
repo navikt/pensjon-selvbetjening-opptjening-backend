@@ -39,8 +39,6 @@ class ReadinessEndpointTest {
     @MockBean
     Auditor auditor;
     @MockBean
-    RequestBasedBrukerbytte requestBased;
-    @MockBean
     Selftest selftest;
 
     @Test
