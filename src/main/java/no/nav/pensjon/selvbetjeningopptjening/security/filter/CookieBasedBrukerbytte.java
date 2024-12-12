@@ -47,7 +47,7 @@ public class CookieBasedBrukerbytte {
 
         RepresentasjonValidity representasjonValidity = mayActOnBehalf(ingressTokenInfo, egressTokenSupplier, userId, newFullmaktsgiverPidKryptert);
 
-        boolean actingOnOwnBehalf = !hasText(newFullmaktsgiverPidKryptert) || userId.equals(representasjonValidity.fullmaktsgiverFnr());
+        boolean actingOnOwnBehalf = !hasText(representasjonValidity.fullmaktsgiverFnr()) || userId.equals(representasjonValidity.fullmaktsgiverFnr());
 
         if (actingOnOwnBehalf) {
             log.info("Request for brukertilbakebytte accepted");

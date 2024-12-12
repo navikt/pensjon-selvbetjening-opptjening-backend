@@ -68,7 +68,7 @@ class CookieBasedBrukerbytteTest {
     @Test
     void getFullmaktsgiverPid_returns_emptyString_when_externalUser_and_brukerbytte_is_reverted() {
         arrangeBrukerbytteCookie(FULLMEKTIG_PID); // fullmektig acts "on behalf of" self
-        arrangeApprovedFullmaktsgiver();
+        when(fullmaktFacade.mayActOnBehalfOf(FULLMEKTIG_PID)).thenReturn(new RepresentasjonValidity(false, "", "", ""));
 
         String fullmaktsgiverPid = brukerbytte.getFullmaktsgiverPid(request, externalUserTokenInfo(), EgressTokenSupplier.empty());
 
@@ -131,7 +131,7 @@ class CookieBasedBrukerbytteTest {
     }
 
     private void mayActOnBehalfOf(boolean value) {
-        when(fullmaktFacade.mayActOnBehalfOf(FULLMAKTSGIVER_PID)).thenReturn(new RepresentasjonValidity(true, "", "", ""));
+        when(fullmaktFacade.mayActOnBehalfOf(FULLMAKTSGIVER_PID)).thenReturn(new RepresentasjonValidity(value, "", "", "fullmaktsgiver-pid"));
     }
 
     private TokenInfo externalUserTokenInfo() {
