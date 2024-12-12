@@ -28,7 +28,7 @@ class FullmaktFacadeTest {
 
     @Test
     void mayActOnBehalfOf_isTrue_when_fullmektig_has_fullmaktsforhold() {
-        when(service.harFullmaktsforhold(FULLMAKTSGIVER_PID)).thenReturn(true);
+        when(service.fetchRepresentasjonsgyldighet(FULLMAKTSGIVER_PID)).thenReturn(true);
         assertTrue(facade.mayActOnBehalfOf(FULLMAKTSGIVER_PID, FULLMEKTIG_PID));
     }
 
@@ -39,7 +39,7 @@ class FullmaktFacadeTest {
 
     @Test
     void mayActOnBehalfOf_isFalse_when_fullmektig_has_no_fullmaktsforhold() {
-        when(service.harFullmaktsforhold(FULLMAKTSGIVER_PID)).thenReturn(false);
+        when(service.fetchRepresentasjonsgyldighet(FULLMAKTSGIVER_PID)).thenReturn(false);
         assertFalse(facade.mayActOnBehalfOf(FULLMAKTSGIVER_PID, FULLMEKTIG_PID));
     }
 }

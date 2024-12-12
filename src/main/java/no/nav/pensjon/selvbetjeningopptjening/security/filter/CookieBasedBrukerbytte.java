@@ -2,6 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.security.filter;
 
 import no.nav.pensjon.selvbetjeningopptjening.audit.Auditor;
 import no.nav.pensjon.selvbetjeningopptjening.fullmakt.FullmaktFacade;
+import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.dto.RepresentasjonValidity;
 import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 import no.nav.pensjon.selvbetjeningopptjening.security.UserType;
 import no.nav.pensjon.selvbetjeningopptjening.security.http.QueryStringParser;
@@ -42,31 +43,32 @@ public class CookieBasedBrukerbytte {
         }
 
         String userId = ingressTokenInfo.getUserId();
-        String newFullmaktsgiverPid = getOnBehalfOfPid(request.getCookies());
-        boolean actingOnOwnBehalf = !hasText(newFullmaktsgiverPid) || userId.equals(newFullmaktsgiverPid);
+        String newFullmaktsgiverPidKryptert = getOnBehalfOfPid(request.getCookies());
+
+        RepresentasjonValidity representasjonValidity = mayActOnBehalf(ingressTokenInfo, egressTokenSupplier, userId, newFullmaktsgiverPidKryptert);
+
+        boolean actingOnOwnBehalf = !hasText(newFullmaktsgiverPidKryptert) || userId.equals(representasjonValidity.fullmaktsgiverFnr());
 
         if (actingOnOwnBehalf) {
             log.info("Request for brukertilbakebytte accepted");
             return "";
         }
 
-        boolean mayActOnBehalf = mayActOnBehalf(ingressTokenInfo, egressTokenSupplier, userId, newFullmaktsgiverPid);
-
-        if (mayActOnBehalf) {
+        if (representasjonValidity.hasValidRepresentasjonsforhold()) {
             log.info("Request for brukerbytte accepted");
-            auditor.auditFullmakt(userId, newFullmaktsgiverPid);
+            auditor.auditFullmakt(userId, representasjonValidity.fullmaktsgiverFnr());
 
-            return newFullmaktsgiverPid;
+            return representasjonValidity.fullmaktsgiverFnr();
         }
 
         log.info("Request for brukerbytte DENIED");
         return "";
     }
 
-    private boolean mayActOnBehalf(TokenInfo ingressTokenInfo,
-                                   EgressTokenSupplier egressTokenSupplier,
-                                   String fullmektigPid,
-                                   String fullmaktsgiverPid) {
+    private RepresentasjonValidity mayActOnBehalf(TokenInfo ingressTokenInfo,
+                                                  EgressTokenSupplier egressTokenSupplier,
+                                                  String fullmektigPid,
+                                                  String fullmaktsgiverPid) {
         try (RequestContext ignored = userContextForCheckingPermission(ingressTokenInfo, egressTokenSupplier)) {
             return fullmaktFacade.mayActOnBehalfOf(fullmaktsgiverPid, fullmektigPid);
         }

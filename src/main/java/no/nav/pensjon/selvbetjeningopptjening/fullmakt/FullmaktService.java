@@ -14,11 +14,11 @@ public class FullmaktService implements FullmaktApi {
     }
 
     @Override
-    public boolean harFullmaktsforhold(String fullmaktsgiverPid) {
+    public RepresentasjonValidity fetchRepresentasjonsgyldighet(String fullmaktsgiverPid) {
         RepresentasjonValidity response = client.hasValidRepresentasjonsforhold(fullmaktsgiverPid);
         if (response == null || response.hasValidRepresentasjonsforhold() == null) {
-            return false;
+            return null;
         }
-        return response.hasValidRepresentasjonsforhold();
+        return response;
     }
 }

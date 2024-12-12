@@ -8,9 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -31,14 +28,14 @@ class FullmaktServiceTest {
     @Test
     void should_return_false_when_hasValidRepresentasjonsforhold_false(){
         when(fullmaktClient.hasValidRepresentasjonsforhold(any())).thenReturn(new RepresentasjonValidity(false, null));
-        boolean result = service.harFullmaktsforhold("");
+        boolean result = service.fetchRepresentasjonsgyldighet("");
         assertFalse(result);
     }
 
     @Test
     void should_return_true_when_should_return_false_when_hasValidRepresentasjonsforhold_false_true(){
         when(fullmaktClient.hasValidRepresentasjonsforhold(any())).thenReturn(new RepresentasjonValidity(true, null));
-        boolean result = service.harFullmaktsforhold("");
+        boolean result = service.fetchRepresentasjonsgyldighet("");
         assertTrue(result);
     }
 }
