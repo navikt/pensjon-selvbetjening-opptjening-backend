@@ -3,6 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.security.filter;
 import io.jsonwebtoken.Claims;
 import no.nav.pensjon.selvbetjeningopptjening.audit.Auditor;
 import no.nav.pensjon.selvbetjeningopptjening.fullmakt.FullmaktFacade;
+import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.dto.RepresentasjonValidity;
 import no.nav.pensjon.selvbetjeningopptjening.security.UserType;
 import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.TokenInfo;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.EgressTokenSupplier;
@@ -130,7 +131,7 @@ class CookieBasedBrukerbytteTest {
     }
 
     private void mayActOnBehalfOf(boolean value) {
-        when(fullmaktFacade.mayActOnBehalfOf(FULLMAKTSGIVER_PID, FULLMEKTIG_PID)).thenReturn(value);
+        when(fullmaktFacade.mayActOnBehalfOf(FULLMAKTSGIVER_PID, FULLMEKTIG_PID)).thenReturn(new RepresentasjonValidity(true, "", "", ""));
     }
 
     private TokenInfo externalUserTokenInfo() {
