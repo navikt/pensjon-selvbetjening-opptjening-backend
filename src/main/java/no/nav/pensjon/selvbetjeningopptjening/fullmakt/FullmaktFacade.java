@@ -1,9 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.fullmakt;
 
+import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.dto.RepresentasjonValidity;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDate;
-import java.util.List;
 
 @Component
 public class FullmaktFacade {
@@ -14,10 +12,7 @@ public class FullmaktFacade {
         this.fullmaktService = fullmaktService;
     }
 
-    public boolean mayActOnBehalfOf(String fullmaktsgiverPid, String fullmektigPid) {
-        if (fullmaktsgiverPid.equals(fullmektigPid)) {
-            return true; // may act "on behalf of" oneself
-        }
-        return fullmaktService.harFullmaktsforhold(fullmaktsgiverPid);
+    public RepresentasjonValidity mayActOnBehalfOf(String fullmaktsgiverPid) {
+        return fullmaktService.fetchRepresentasjonsgyldighet(fullmaktsgiverPid);
     }
 }

@@ -1,8 +1,8 @@
 package no.nav.pensjon.selvbetjeningopptjening.fullmakt;
 
-import java.util.List;
+import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.dto.RepresentasjonValidity;
 
 public interface FullmaktApi {
 
-    boolean harFullmaktsforhold(String fullmaktsgiverPid);
+    RepresentasjonValidity fetchRepresentasjonsgyldighet(String fullmaktsgiverPid);
 }

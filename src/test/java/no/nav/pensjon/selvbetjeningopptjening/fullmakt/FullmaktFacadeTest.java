@@ -1,5 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.fullmakt;
 
+import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.dto.RepresentasjonValidity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,7 +16,6 @@ class FullmaktFacadeTest {
 
     private static final String IRRELEVANT_PID = "01029345678";
     private static final String FULLMAKTSGIVER_PID = "04925398980";
-    private static final String FULLMEKTIG_PID = "30915399246";
     private FullmaktFacade facade;
 
     @Mock
@@ -28,18 +28,13 @@ class FullmaktFacadeTest {
 
     @Test
     void mayActOnBehalfOf_isTrue_when_fullmektig_has_fullmaktsforhold() {
-        when(service.harFullmaktsforhold(FULLMAKTSGIVER_PID)).thenReturn(true);
-        assertTrue(facade.mayActOnBehalfOf(FULLMAKTSGIVER_PID, FULLMEKTIG_PID));
-    }
-
-    @Test
-    void mayActOnBehalfOf_isTrue_when_fullmektig_and_fullmaktsgiver_are_same_person() {
-        assertTrue(facade.mayActOnBehalfOf(IRRELEVANT_PID, IRRELEVANT_PID));
+        when(service.fetchRepresentasjonsgyldighet(FULLMAKTSGIVER_PID)).thenReturn(new RepresentasjonValidity(true, "", "", ""));
+        assertTrue(facade.mayActOnBehalfOf(FULLMAKTSGIVER_PID).hasValidRepresentasjonsforhold());
     }
 
     @Test
     void mayActOnBehalfOf_isFalse_when_fullmektig_has_no_fullmaktsforhold() {
-        when(service.harFullmaktsforhold(FULLMAKTSGIVER_PID)).thenReturn(false);
-        assertFalse(facade.mayActOnBehalfOf(FULLMAKTSGIVER_PID, FULLMEKTIG_PID));
+        when(service.fetchRepresentasjonsgyldighet(FULLMAKTSGIVER_PID)).thenReturn(new RepresentasjonValidity(false, "", "", ""));
+        assertFalse(facade.mayActOnBehalfOf(FULLMAKTSGIVER_PID).hasValidRepresentasjonsforhold());
     }
 }

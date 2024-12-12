@@ -3,6 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.security.filter;
 import io.jsonwebtoken.Claims;
 import no.nav.pensjon.selvbetjeningopptjening.audit.Auditor;
 import no.nav.pensjon.selvbetjeningopptjening.fullmakt.FullmaktFacade;
+import no.nav.pensjon.selvbetjeningopptjening.fullmakt.client.dto.RepresentasjonValidity;
 import no.nav.pensjon.selvbetjeningopptjening.security.UserType;
 import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.TokenInfo;
 import no.nav.pensjon.selvbetjeningopptjening.security.token.EgressTokenSupplier;
@@ -25,6 +26,7 @@ class CookieBasedBrukerbytteTest {
     private static final String SAKSBEHANDLER_ID = "saksbehandler-id";
     private static final String FULLMEKTIG_PID = "fullmektig-pid";
     private static final String FULLMAKTSGIVER_PID = "fullmaktsgiver-pid";
+    private static final String FULLMAKTSGIVER_PID_KRYPTERT = "fullmaktsgiver-pid-kryptert";
     private CookieBasedBrukerbytte brukerbytte;
 
     @Mock
@@ -67,7 +69,7 @@ class CookieBasedBrukerbytteTest {
     @Test
     void getFullmaktsgiverPid_returns_emptyString_when_externalUser_and_brukerbytte_is_reverted() {
         arrangeBrukerbytteCookie(FULLMEKTIG_PID); // fullmektig acts "on behalf of" self
-        arrangeApprovedFullmaktsgiver();
+        when(fullmaktFacade.mayActOnBehalfOf(FULLMEKTIG_PID)).thenReturn(new RepresentasjonValidity(false, "", "", ""));
 
         String fullmaktsgiverPid = brukerbytte.getFullmaktsgiverPid(request, externalUserTokenInfo(), EgressTokenSupplier.empty());
 
@@ -78,7 +80,6 @@ class CookieBasedBrukerbytteTest {
 
     @Test
     void getFullmaktsgiverPid_returns_emptyString_when_externalUser_and_noFullmaktsgiverCookie() {
-        arrangeApprovedFullmaktsgiver();
 
         String fullmaktsgiverPid = brukerbytte.getFullmaktsgiverPid(request, externalUserTokenInfo(), EgressTokenSupplier.empty());
 
@@ -130,7 +131,7 @@ class CookieBasedBrukerbytteTest {
     }
 
     private void mayActOnBehalfOf(boolean value) {
-        when(fullmaktFacade.mayActOnBehalfOf(FULLMAKTSGIVER_PID, FULLMEKTIG_PID)).thenReturn(value);
+        when(fullmaktFacade.mayActOnBehalfOf(FULLMAKTSGIVER_PID)).thenReturn(new RepresentasjonValidity(value, "", "", "fullmaktsgiver-pid"));
     }
 
     private TokenInfo externalUserTokenInfo() {

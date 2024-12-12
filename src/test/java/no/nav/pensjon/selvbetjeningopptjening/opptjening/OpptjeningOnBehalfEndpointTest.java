@@ -11,7 +11,6 @@ import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.security.UserType;
 import no.nav.pensjon.selvbetjeningopptjening.security.filter.CookieBasedBrukerbytte;
-import no.nav.pensjon.selvbetjeningopptjening.security.filter.RequestBasedBrukerbytte;
 import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
 import no.nav.pensjon.selvbetjeningopptjening.security.jwt.JwsValidator;
 import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.TokenInfo;
@@ -70,8 +69,6 @@ class OpptjeningOnBehalfEndpointTest {
     private Jws<Claims> jws;
     @MockBean
     private Auditor auditor;
-    @MockBean
-    private RequestBasedBrukerbytte requestBased;
     @Mock
     private Claims claims;
 
