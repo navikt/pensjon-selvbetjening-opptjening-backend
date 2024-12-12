@@ -131,7 +131,7 @@ class CookieBasedBrukerbytteTest {
     }
 
     private void mayActOnBehalfOf(boolean value) {
-        when(fullmaktFacade.mayActOnBehalfOf(FULLMAKTSGIVER_PID, FULLMEKTIG_PID)).thenReturn(new RepresentasjonValidity(true, "", "", ""));
+        when(fullmaktFacade.mayActOnBehalfOf(FULLMAKTSGIVER_PID)).thenReturn(new RepresentasjonValidity(true, "", "", ""));
     }
 
     private TokenInfo externalUserTokenInfo() {

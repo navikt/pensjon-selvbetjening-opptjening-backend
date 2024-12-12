@@ -92,8 +92,6 @@ class InternalUserAuthorizationCodeFlowTest {
     private GroupChecker groupChecker;
     @MockBean
     private Auditor auditor;
-    @MockBean
-    private RequestBasedBrukerbytte requestBased;
     @Mock
     private Claims claims;
     @Captor

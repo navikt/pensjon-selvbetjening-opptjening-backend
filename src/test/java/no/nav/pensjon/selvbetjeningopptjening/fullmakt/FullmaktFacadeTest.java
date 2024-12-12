@@ -30,17 +30,17 @@ class FullmaktFacadeTest {
     @Test
     void mayActOnBehalfOf_isTrue_when_fullmektig_has_fullmaktsforhold() {
         when(service.fetchRepresentasjonsgyldighet(FULLMAKTSGIVER_PID)).thenReturn(new RepresentasjonValidity(true, "", "", ""));
-        assertTrue(facade.mayActOnBehalfOf(FULLMAKTSGIVER_PID, FULLMEKTIG_PID).hasValidRepresentasjonsforhold());
+        assertTrue(facade.mayActOnBehalfOf(FULLMAKTSGIVER_PID).hasValidRepresentasjonsforhold());
     }
 
     @Test
     void mayActOnBehalfOf_isTrue_when_fullmektig_and_fullmaktsgiver_are_same_person() {
-        assertTrue(facade.mayActOnBehalfOf(IRRELEVANT_PID, IRRELEVANT_PID).hasValidRepresentasjonsforhold());
+        assertTrue(facade.mayActOnBehalfOf(IRRELEVANT_PID).hasValidRepresentasjonsforhold());
     }
 
     @Test
     void mayActOnBehalfOf_isFalse_when_fullmektig_has_no_fullmaktsforhold() {
-        when(service.fetchRepresentasjonsgyldighet(FULLMAKTSGIVER_PID)).thenReturn(new RepresentasjonValidity(true, "", "", ""));
-        assertFalse(facade.mayActOnBehalfOf(FULLMAKTSGIVER_PID, FULLMEKTIG_PID).hasValidRepresentasjonsforhold());
+        when(service.fetchRepresentasjonsgyldighet(FULLMAKTSGIVER_PID)).thenReturn(new RepresentasjonValidity(false, "", "", ""));
+        assertFalse(facade.mayActOnBehalfOf(FULLMAKTSGIVER_PID).hasValidRepresentasjonsforhold());
     }
 }

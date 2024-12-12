@@ -12,7 +12,7 @@ public class FullmaktFacade {
         this.fullmaktService = fullmaktService;
     }
 
-    public RepresentasjonValidity mayActOnBehalfOf(String fullmaktsgiverPid, String fullmektigPid) {
+    public RepresentasjonValidity mayActOnBehalfOf(String fullmaktsgiverPid) {
         return fullmaktService.fetchRepresentasjonsgyldighet(fullmaktsgiverPid);
     }
 }

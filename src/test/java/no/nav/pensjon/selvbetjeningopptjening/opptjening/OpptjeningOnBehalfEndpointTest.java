@@ -69,8 +69,6 @@ class OpptjeningOnBehalfEndpointTest {
     private Jws<Claims> jws;
     @MockBean
     private Auditor auditor;
-    @MockBean
-    private RequestBasedBrukerbytte requestBased;
     @Mock
     private Claims claims;
 

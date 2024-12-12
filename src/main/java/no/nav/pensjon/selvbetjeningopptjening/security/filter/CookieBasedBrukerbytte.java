@@ -70,7 +70,7 @@ public class CookieBasedBrukerbytte {
                                                   String fullmektigPid,
                                                   String fullmaktsgiverPid) {
         try (RequestContext ignored = userContextForCheckingPermission(ingressTokenInfo, egressTokenSupplier)) {
-            return fullmaktFacade.mayActOnBehalfOf(fullmaktsgiverPid, fullmektigPid);
+            return fullmaktFacade.mayActOnBehalfOf(fullmaktsgiverPid);
         }
     }
 

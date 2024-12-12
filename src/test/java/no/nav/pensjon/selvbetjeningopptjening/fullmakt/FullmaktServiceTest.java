@@ -27,15 +27,15 @@ class FullmaktServiceTest {
 
     @Test
     void should_return_false_when_hasValidRepresentasjonsforhold_false(){
-        when(fullmaktClient.hasValidRepresentasjonsforhold(any())).thenReturn(new RepresentasjonValidity(false, null));
-        boolean result = service.fetchRepresentasjonsgyldighet("");
-        assertFalse(result);
+        when(fullmaktClient.hasValidRepresentasjonsforhold(any())).thenReturn(new RepresentasjonValidity(false, null, "", ""));
+        RepresentasjonValidity result = service.fetchRepresentasjonsgyldighet("");
+        assertFalse(result.hasValidRepresentasjonsforhold());
     }
 
     @Test
     void should_return_true_when_should_return_false_when_hasValidRepresentasjonsforhold_false_true(){
-        when(fullmaktClient.hasValidRepresentasjonsforhold(any())).thenReturn(new RepresentasjonValidity(true, null));
-        boolean result = service.fetchRepresentasjonsgyldighet("");
-        assertTrue(result);
+        when(fullmaktClient.hasValidRepresentasjonsforhold(any())).thenReturn(new RepresentasjonValidity(true, null, "", ""));
+        RepresentasjonValidity result = service.fetchRepresentasjonsgyldighet("");
+        assertTrue(result.hasValidRepresentasjonsforhold());
     }
 }
