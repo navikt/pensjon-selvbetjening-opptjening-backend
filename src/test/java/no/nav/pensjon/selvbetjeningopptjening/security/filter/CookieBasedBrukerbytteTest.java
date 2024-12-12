@@ -26,6 +26,7 @@ class CookieBasedBrukerbytteTest {
     private static final String SAKSBEHANDLER_ID = "saksbehandler-id";
     private static final String FULLMEKTIG_PID = "fullmektig-pid";
     private static final String FULLMAKTSGIVER_PID = "fullmaktsgiver-pid";
+    private static final String FULLMAKTSGIVER_PID_KRYPTERT = "fullmaktsgiver-pid-kryptert";
     private CookieBasedBrukerbytte brukerbytte;
 
     @Mock
@@ -79,7 +80,6 @@ class CookieBasedBrukerbytteTest {
 
     @Test
     void getFullmaktsgiverPid_returns_emptyString_when_externalUser_and_noFullmaktsgiverCookie() {
-        arrangeApprovedFullmaktsgiver();
 
         String fullmaktsgiverPid = brukerbytte.getFullmaktsgiverPid(request, externalUserTokenInfo(), EgressTokenSupplier.empty());
 

@@ -45,6 +45,9 @@ public class CookieBasedBrukerbytte {
         String userId = ingressTokenInfo.getUserId();
         String newFullmaktsgiverPidKryptert = getOnBehalfOfPid(request.getCookies());
 
+        if (!hasText(newFullmaktsgiverPidKryptert)) {
+            return "";
+        }
         RepresentasjonValidity representasjonValidity = mayActOnBehalf(ingressTokenInfo, egressTokenSupplier, newFullmaktsgiverPidKryptert);
 
         boolean actingOnOwnBehalf = !hasText(representasjonValidity.fullmaktsgiverFnr()) || userId.equals(representasjonValidity.fullmaktsgiverFnr());
