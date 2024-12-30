@@ -34,8 +34,8 @@ public class OpptjeningOnBehalfEndpoint {
     }
 
     @GetMapping("/opptjeningonbehalf")
-    public OpptjeningResponse getOpptjeningOnBehalfOf(@RequestParam(value = "fnr") String pidValue) {
-        log.info("Received on-behalf-of request for opptjening for fnr {}", maskFnr(pidValue));
+    public OpptjeningResponse getOpptjeningOnBehalfOf(@RequestParam(value = "pid") String pidValue) {
+        log.info("Received on-behalf-of request for opptjening for pid {}", maskFnr(pidValue));
 
         try {
             audit.info(getAuditInfo(pidValue, RequestContext.getNavIdent()).format());
