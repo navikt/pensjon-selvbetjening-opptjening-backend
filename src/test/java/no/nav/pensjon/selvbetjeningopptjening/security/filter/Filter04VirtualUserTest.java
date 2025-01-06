@@ -105,7 +105,7 @@ class Filter04VirtualUserTest extends FilterTest {
     }
 
     private void arrangePidInQueryString() {
-        when(request.getQueryString()).thenReturn("fnr=" + VIRTUAL_LOGGED_IN_PID.getPid());
+        when(request.getQueryString()).thenReturn("pid=" + VIRTUAL_LOGGED_IN_PID.getPid());
     }
 
     private void arrangeValidTokens() {

@@ -108,7 +108,7 @@ class InternalUserAuthorizationCodeFlowTest {
         when(crypto.encrypt(anyString())).thenReturn("cryptic");
 
         mvc.perform(get(LOGIN_URL)
-                .param("redirect", "/foo/bar?fnr=" + PID.getPid()))
+                .param("redirect", "/foo/bar?pid=" + PID.getPid()))
                 .andExpect(status().isFound())
                 .andExpect(redirectedUrl("http://auth.org" +
                         "?scope=openid+profile+offline_access+https%3A%2F%2Fgraph.microsoft.com%2Fuser.read" +
@@ -139,13 +139,13 @@ class InternalUserAuthorizationCodeFlowTest {
     void callback_with_state_redirects_to_given_uri() throws Exception {
         var tokenData = new TokenData("access-token", "ID-token", "refresh-token", LocalDateTime.MIN, 1L);
         when(tokenGetter.getTokenData(any(TokenAccessParam.class), anyString())).thenReturn(tokenData);
-        when(crypto.decrypt(anyString())).thenReturn(currentTimeMillis() + ":/api/foo?fnr=" + PID.getPid());
+        when(crypto.decrypt(anyString())).thenReturn(currentTimeMillis() + ":/api/foo?pid=" + PID.getPid());
 
         mvc.perform(post(CALLBACK_URL)
                 .param("code", "abc")
                 .param("state", "cryptic"))
                 .andExpect(status().isFound())
-                .andExpect(redirectedUrl("/api/foo?fnr=" + PID.getPid()));
+                .andExpect(redirectedUrl("/api/foo?pid=" + PID.getPid()));
 
         verifyCookie();
     }

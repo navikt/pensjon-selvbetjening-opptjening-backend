@@ -18,7 +18,7 @@ import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication
 
 @SpringBootTest
 @ContextConfiguration(classes = SelvbetjeningOpptjeningApplication.class)
-@TestPropertySource(properties = "fnr=dummy")
+@TestPropertySource(properties = "pid=dummy")
 @ActiveProfiles("test")
 public class WebClientTest {
 

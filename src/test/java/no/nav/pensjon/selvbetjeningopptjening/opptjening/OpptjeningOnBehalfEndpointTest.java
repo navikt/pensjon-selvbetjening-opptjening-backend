@@ -44,7 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class OpptjeningOnBehalfEndpointTest {
 
     private static final Pid PID = new Pid("04925398980");
-    private static final String URI = "/api/opptjeningonbehalf?fnr=" + PID;
+    private static final String URI = "/api/opptjeningonbehalf?pid=" + PID;
     private static final String VEILEDER_GROUP_ID = "959ead5b-99b5-466b-a0ff-5fdbc687517b";
 
     @Autowired

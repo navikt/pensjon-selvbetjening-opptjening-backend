@@ -140,7 +140,7 @@ class Filter05RequestContextTest extends FilterTest {
     }
 
     private void arrangeVirtualUser() {
-        when(request.getQueryString()).thenReturn("fnr=" + VIRTUAL_LOGGED_IN_PID);
+        when(request.getQueryString()).thenReturn("pid=" + VIRTUAL_LOGGED_IN_PID);
     }
 
     private TokenInfo validIngressTokenInfo(UserType userType) {
