@@ -5,7 +5,7 @@ import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
 public final class CustomHttpHeaders {
 
     public static final String AKTOER_NUMMER = "aktorNr"; // aktørnummer
-    public static final String FNR = "fnr"; // fødselsnummer
+    public static final String FNR = "pid"; // fødselsnummer
     public static final String FOM = "fom"; // fra og med
     public static final String CALL_ID = NAV_CALL_ID;
     public static final String CONSUMER_ID = "Nav-Consumer-Id";
