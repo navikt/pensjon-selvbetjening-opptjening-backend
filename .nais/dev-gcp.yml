@@ -77,7 +77,9 @@ spec:
     - name: PDL_URL
       value: https://pdl-api.dev-fss-pub.nais.io
     - name: PEN_URL
-      value: https://pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
+      value: https://pensjon-pen-q2.dev-fss-pub.nais.io
+    - name: PEN_APP_ID
+      value: dev-fss:pensjon-q2:pensjon-pen-q2
     - name: POPP_URL
       value: https://pensjon-popp-q2.dev-fss-pub.nais.io
     - name: SKJERMING_URL
