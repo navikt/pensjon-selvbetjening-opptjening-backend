@@ -8,7 +8,7 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/proxy-buffer-size: "64k"
 spec:
-  image: {{ image_gcp }}
+  image: {{ image }}
   ingresses:
     - https://pensjon-selvbetjening-opptjening-backend.intern.dev.nav.no
   port: 8080
