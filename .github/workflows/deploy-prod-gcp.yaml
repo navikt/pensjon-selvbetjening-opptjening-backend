@@ -2,14 +2,11 @@ name: "Deploy to prod-gcp"
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: "Which version to deploy (e.g. 7d40ea0c963f07817a97552c9d4aeb3e63969a2d)"
-        required: true
 
 jobs:
-  deploy-to-prod:
+  deploy-to-prod-gcp:
     name: Deploy to prod-gcp
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -18,9 +15,30 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Deploy to prod-gcp
+      - name: Setup java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Setup cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Build
+        env:
+        run: mvn -B package --file pom.xml
+      - name: Docker build push
+        uses: nais/docker-build-push@v0
+        id: docker-build-push
+        with:
+          team: pensjonselvbetjening
+          dockerfile: .docker/Dockerfile
+      - name: Deploy to gcp
         uses: nais/deploy/actions/deploy@v2
         env:
+          IMAGE: ${{ steps.docker-build-push.outputs.image }}
           CLUSTER: prod-gcp
-          IMAGE: ghcr.io/${{ github.repository }}/pensjon-selvbetjening-opptjening-backend-gcp:${{ github.event.inputs.version }}
           RESOURCE: .nais/prod-gcp.yml
