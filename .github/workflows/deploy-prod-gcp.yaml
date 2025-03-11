@@ -28,7 +28,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Build
-        env:
         run: mvn -B package --file pom.xml
       - name: Docker build push
         uses: nais/docker-build-push@v0
