@@ -2,7 +2,9 @@ name: "Deploy to prod-gcp"
 
 on:
   workflow_dispatch:
-
+  push:
+    branches:
+      - main
 jobs:
   deploy-to-prod-gcp:
     name: Deploy to prod-gcp
