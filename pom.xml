@@ -19,8 +19,6 @@
         <jjwt-version>0.12.6</jjwt-version>
         <log4j2.version>2.21.0</log4j2.version>
         <okhttp3.version>4.12.0</okhttp3.version>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -187,6 +185,15 @@
     <build>
         <finalName>selvbetjening-opptjening</finalName>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.0</version>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
