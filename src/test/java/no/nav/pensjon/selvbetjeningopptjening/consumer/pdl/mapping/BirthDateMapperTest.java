@@ -1,7 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.mapping;
 
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedsel;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedselsdato;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -14,10 +14,10 @@ class BirthDateMapperTest {
 
     @Test
     void fromDtos_shall_map_to_domain_objects() {
-        Foedsel birth1 = birth(1981, 2, 3);
-        Foedsel birth2 = birth(1982, 12, 31);
+        Foedselsdato birth1 = birth(1981, 2, 3);
+        Foedselsdato birth2 = birth(1982, 12, 31);
         birth2.setFoedselsaar(1983);
-        var birth3 = new Foedsel();
+        var birth3 = new Foedselsdato();
         birth3.setFoedselsaar(1984);
 
         List<BirthDate> birthDates = BirthDateMapper.fromDtos(List.of(birth1, birth2, birth3));
@@ -30,7 +30,7 @@ class BirthDateMapperTest {
 
     @Test
     void fromDtos_shall_ignore_null_values() {
-        List<Foedsel> births = new ArrayList<>();
+        List<Foedselsdato> births = new ArrayList<>();
         births.add(null);
         births.add(birth(1981, 2, 3));
 
@@ -46,8 +46,8 @@ class BirthDateMapperTest {
         assertEquals(0, birthDates.size());
     }
 
-    private static Foedsel birth(int year, int month, int day) {
-        var birth = new Foedsel();
+    private static Foedselsdato birth(int year, int month, int day) {
+        var birth = new Foedselsdato();
         birth.setFoedselsdato(LocalDate.of(year, month, day));
         return birth;
     }

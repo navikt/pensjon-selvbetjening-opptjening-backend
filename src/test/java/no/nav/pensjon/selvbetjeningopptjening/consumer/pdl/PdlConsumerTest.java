@@ -151,7 +151,7 @@ class PdlConsumerTest extends WebClientTest {
                                                     }
                                                 }
                                             ],
-                                            "foedsel": [
+                                            "foedselsdato": [
                                                 {
                                                     "foedselsdato": "1972-11-05",
                                                     "foedselsaar": null

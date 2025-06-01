@@ -3,7 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.mapping;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlResponse;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedsel;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedselsdato;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Navn;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlData;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlMetadata;
@@ -78,15 +78,15 @@ public class PersonMapper {
         return endringer == null ? null : endringer.stream().max(endringComparator).orElse(null);
     }
 
-    private static List<Foedsel> getBirths(PdlResponse response) {
+    private static List<Foedselsdato> getBirths(PdlResponse response) {
         return response == null
                 ? emptyList()
                 : getBirths(response.getData());
     }
 
-    private static List<Foedsel> getBirths(PdlData data) {
+    private static List<Foedselsdato> getBirths(PdlData data) {
         return data == null || data.getHentPerson() == null
                 ? emptyList()
-                : data.getHentPerson().getFoedsel();
+                : data.getHentPerson().getFoedselsdato();
     }
 }
