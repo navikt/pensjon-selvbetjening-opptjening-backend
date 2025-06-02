@@ -205,7 +205,7 @@ i dette kallet, i stedet for å spørre en gang til senere hvis man plutselig tr
                     }
                 }
             ],
-            "foedsel": [
+            "foedselsdato": [
                 {
                     "foedselsdato": "1972-11-05",
                     "foedselsaar": null

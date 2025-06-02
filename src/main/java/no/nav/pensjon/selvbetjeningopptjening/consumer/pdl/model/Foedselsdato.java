@@ -2,7 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model;
 
 import java.time.LocalDate;
 
-public class Foedsel {
+public class Foedselsdato {
 
     private LocalDate foedselsdato;
     private Integer foedselsaar;

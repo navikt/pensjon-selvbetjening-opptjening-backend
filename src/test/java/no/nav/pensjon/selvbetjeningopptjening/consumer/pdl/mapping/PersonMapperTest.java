@@ -1,19 +1,15 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.mapping;
 
 import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
-import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlResponse;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedsel;
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedselsdato;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.HentPersonResponse;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Navn;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlData;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlFolkeregisterMetadata;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlMetadata;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlMetadataEndring;
-import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
-import no.nav.pensjon.selvbetjeningopptjening.security.LoginSecurityLevel;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -23,7 +19,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 
 class PersonMapperTest {
     @Test
@@ -35,23 +30,23 @@ class PersonMapperTest {
         PdlMetadata metadata = new PdlMetadata();
         metadata.setMaster("FREG");
 
-        Foedsel foedsel = new Foedsel();
-        foedsel.setFoedselsdato(LocalDate.of(1960, 3, 4));
+        Foedselsdato foedselsdato = new Foedselsdato();
+        foedselsdato.setFoedselsdato(LocalDate.of(1960, 3, 4));
 
-        PdlResponse pdlResponse = getPdlResponseWithFoedselAndNavn(List.of(foedsel), List.of(navn));
+        PdlResponse pdlResponse = getPdlResponseWithFoedselsdatoAndNavn(List.of(foedselsdato), List.of(navn));
 
         Person person = PersonMapper.fromDto(pdlResponse, PidGenerator.generatePidAtAge(66));
 
         assertEquals(navn.getFornavn(), person.getFornavn());
         assertEquals(navn.getEtternavn(), person.getEtternavn());
         assertEquals(navn.getMellomnavn(), person.getMellomnavn());
-        assertEquals(foedsel.getFoedselsdato(), person.getFodselsdato());
+        assertEquals(foedselsdato.getFoedselsdato(), person.getFodselsdato());
     }
 
     @Test
     void should_return_fodselsdato_from_pid_when_no_fodselsdato_returned_from_PDL() {
         LocalDate expectedFodselsdato = LocalDate.of(1980, 4, 5);
-        PdlResponse pdlResponse = getPdlResponseWithFoedselAndNavn(Collections.emptyList(), List.of(new Navn()));
+        PdlResponse pdlResponse = getPdlResponseWithFoedselsdatoAndNavn(Collections.emptyList(), List.of(new Navn()));
 
         Person person = PersonMapper.fromDto(pdlResponse, PidGenerator.generatePid(expectedFodselsdato));
 
@@ -60,7 +55,7 @@ class PersonMapperTest {
 
     @Test
     void should_handle_that_navn_is_null() {
-        PdlResponse pdlResponse = getPdlResponseWithFoedselAndNavn(List.of(new Foedsel()), Collections.emptyList());
+        PdlResponse pdlResponse = getPdlResponseWithFoedselsdatoAndNavn(List.of(new Foedselsdato()), Collections.emptyList());
 
         Person person = PersonMapper.fromDto(pdlResponse, PidGenerator.generatePidAtAge(66));
 
@@ -79,7 +74,7 @@ class PersonMapperTest {
         PdlMetadata metadata = new PdlMetadata();
         metadata.setMaster("FREG");
 
-        PdlResponse pdlResponse = getPdlResponseWithFoedselAndNavn(null, List.of(navn));
+        PdlResponse pdlResponse = getPdlResponseWithFoedselsdatoAndNavn(null, List.of(navn));
 
         Person person = PersonMapper.fromDto(pdlResponse, PidGenerator.generatePidAtAge(66));
 
@@ -94,7 +89,7 @@ class PersonMapperTest {
         PdlMetadata metadata = new PdlMetadata();
         metadata.setMaster("NAV");
 
-        PdlResponse pdlResponse = getPdlResponseWithFoedselAndNavn(null, List.of(navn));
+        PdlResponse pdlResponse = getPdlResponseWithFoedselsdatoAndNavn(null, List.of(navn));
 
         Person person = PersonMapper.fromDto(pdlResponse, PidGenerator.generatePidAtAge(66));
 
@@ -124,7 +119,7 @@ class PersonMapperTest {
         endring2.setRegistrert(LocalDate.of(1955, 4, 2));
         metadata2.setEndringer(List.of(endring1, endring2));
         navn2.setMetadata(metadata2);
-        PdlResponse pdlResponse = getPdlResponseWithFoedselAndNavn(null, List.of(navn1, navn2));
+        PdlResponse pdlResponse = getPdlResponseWithFoedselsdatoAndNavn(null, List.of(navn1, navn2));
 
         Person person = PersonMapper.fromDto(pdlResponse, PidGenerator.generatePidAtAge(66));
 
@@ -152,7 +147,7 @@ class PersonMapperTest {
         endring.setRegistrert(LocalDate.of(1950, 4, 2));
         metadata2.setEndringer(List.of(endring));
         navn2.setMetadata(metadata2);
-        PdlResponse pdlResponse = getPdlResponseWithFoedselAndNavn(null, List.of(navn1, navn2));
+        PdlResponse pdlResponse = getPdlResponseWithFoedselsdatoAndNavn(null, List.of(navn1, navn2));
 
         Person person = PersonMapper.fromDto(pdlResponse, PidGenerator.generatePidAtAge(66));
 
@@ -164,17 +159,17 @@ class PersonMapperTest {
     void should_pick_first_fodselsdato_when_multiple_fodselsdato_from_PDL() {
         LocalDate expectedFodselsdato = LocalDate.of(1982, 3, 4);
 
-        Person person = PersonMapper.fromDto(getPdlResponseWithFoedselAndNavn(List.of(
-                createFoedsel(expectedFodselsdato),
-                createFoedsel(LocalDate.of(1982, 3, 3)),
-                createFoedsel(LocalDate.of(1982, 3, 5))), null), PidGenerator.generatePidAtAge(50));
+        Person person = PersonMapper.fromDto(getPdlResponseWithFoedselsdatoAndNavn(List.of(
+                createFoedselsdato(expectedFodselsdato),
+                createFoedselsdato(LocalDate.of(1982, 3, 3)),
+                createFoedselsdato(LocalDate.of(1982, 3, 5))), null), PidGenerator.generatePidAtAge(50));
 
         assertEquals(expectedFodselsdato, person.getFodselsdato());
     }
 
-    private PdlResponse getPdlResponseWithFoedselAndNavn(List<Foedsel> foedsel, List<Navn> navn) {
+    private PdlResponse getPdlResponseWithFoedselsdatoAndNavn(List<Foedselsdato> foedselsdato, List<Navn> navn) {
         HentPersonResponse hentPersonResponse = new HentPersonResponse();
-        hentPersonResponse.setFoedsel(foedsel);
+        hentPersonResponse.setFoedselsdato(foedselsdato);
         hentPersonResponse.setNavn(navn);
         PdlData pdlData = new PdlData();
         pdlData.setHentPerson(hentPersonResponse);
@@ -184,10 +179,10 @@ class PersonMapperTest {
         return pdlResponse;
     }
 
-    private Foedsel createFoedsel(LocalDate date) {
-        Foedsel foedsel = new Foedsel();
-        foedsel.setFoedselsdato(date);
-        return foedsel;
+    private Foedselsdato createFoedselsdato(LocalDate date) {
+        Foedselsdato foedselsdato = new Foedselsdato();
+        foedselsdato.setFoedselsdato(date);
+        return foedselsdato;
     }
 
 }

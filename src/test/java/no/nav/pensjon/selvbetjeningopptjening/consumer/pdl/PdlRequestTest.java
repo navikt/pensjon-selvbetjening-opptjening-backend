@@ -16,7 +16,7 @@ class PdlRequestTest {
 
         assertEquals("{\"variables\":{\"ident\":\"03029119367\"}," +
                 "\"query\":\"query($ident: ID!){    hentPerson(ident: $ident){        navn(historikk: false){            fornavn            mellomnavn            etternavn            folkeregistermetadata {                ajourholdstidspunkt            }" +
-                "            metadata {                master                endringer {                    registrert                }            }        }        foedsel{            foedselsdato            foedselsaar        }    }}\"}",
+                "            metadata {                master                endringer {                    registrert                }            }        }        foedselsdato{            foedselsdato            foedselsaar        }    }}\"}",
                 query);
     }
 }
