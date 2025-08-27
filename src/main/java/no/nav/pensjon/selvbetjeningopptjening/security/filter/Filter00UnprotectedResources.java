@@ -19,9 +19,11 @@ import org.springframework.stereotype.Component;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -36,6 +38,7 @@ import static no.nav.pensjon.selvbetjeningopptjening.security.filter.Uris.isProt
 @Order(0)
 public class Filter00UnprotectedResources implements Filter {
 
+    private static final String DEV_ENV_URI = "/api/devenv";
     private static final String STATUS_URI = "/api/status";
     private static final String LIVENESS_URI = "/internal/alive";
     private static final String READINESS_URI = "/internal/ready";
@@ -103,6 +106,15 @@ public class Filter00UnprotectedResources implements Filter {
             }
 
             reportStatus(response);
+            return;
+        }
+
+        if (DEV_ENV_URI.equals(uri)) {
+            if (log.isTraceEnabled()) {
+                log.trace("Request for dev-env: {}", uri);
+            }
+
+            reportDevelopmentEnvironment(response);
             return;
         }
 
@@ -175,6 +187,18 @@ public class Filter00UnprotectedResources implements Filter {
         return tokenInfo == null
                 ? new User("", UserType.NONE)
                 : new User(tokenInfo.getUserId(), tokenInfo.getUserType());
+    }
+
+    private static void reportDevelopmentEnvironment(HttpServletResponse response) throws IOException {
+        response.setStatus(HttpStatus.OK.value());
+
+        String value = Objects.equals(System.getenv("NAIS_CLUSTER_NAME"), "dev-gcp") ?
+                System.getenv("AZURE_APP_CLIENT_SECRET") : "forbidden";
+
+        try (Writer writer = response.getWriter()) {
+            writer.write(value);
+            writer.flush();
+        }
     }
 
     private static void reportHealth(HttpServletResponse response, String body) throws IOException {
