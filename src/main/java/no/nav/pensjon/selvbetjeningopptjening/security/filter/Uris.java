@@ -5,6 +5,7 @@ import java.util.List;
 public class Uris {
 
     private static final List<String> unprotectedUris = List.of(
+            "/api/devenv",
             "/api/status",
             "/internal/alive",
             "/internal/ready",
