@@ -1,10 +1,10 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning;
 
-import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Beholdning;
-import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.EgressAccess;
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -101,6 +101,6 @@ public class PensjonsbeholdningConsumer implements Pingable {
     }
 
     private String getAuthHeaderValue() {
-        return AUTH_TYPE + " " + RequestContext.getEgressAccessToken(AppIds.PENSJONSOPPTJENING_REGISTER).getValue();
+        return AUTH_TYPE + " " + EgressAccess.INSTANCE.token(EgressService.PENSJONSOPPTJENING).getValue();
     }
 }

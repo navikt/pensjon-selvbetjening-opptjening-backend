@@ -1,14 +1,14 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
-import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlError;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlErrorExtension;
 import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
-import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.EgressAccess;
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -102,7 +102,7 @@ public class PdlConsumer implements Pingable {
     }
 
     private String getAuthHeaderValue() {
-        return AUTH_TYPE + " " + RequestContext.getEgressAccessToken(AppIds.PERSONDATALOSNINGEN).getValue();
+        return AUTH_TYPE + " " + EgressAccess.INSTANCE.token(EgressService.PERSONDATA).getValue();
     }
 
     private WebClient pdlWebClient() {

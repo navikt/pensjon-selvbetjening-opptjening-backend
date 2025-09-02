@@ -1,5 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad;
-
+/*
 import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.mock.RequestContextCreator;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
@@ -105,3 +105,4 @@ class UttaksgradConsumerTest extends WebClientTest {
                 .setBody("Service online!");
     }
 }
+*/

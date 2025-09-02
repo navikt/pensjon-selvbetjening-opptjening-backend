@@ -1,8 +1,8 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pen;
 
-import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.EgressAccess;
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -33,7 +33,7 @@ public abstract class AuthorizedPenConsumer {
     }
 
     private String getAuthHeaderValue() {
-        return AUTH_TYPE + " " + RequestContext.getEgressAccessToken(AppIds.PENSJONSFAGLIG_KJERNE).getValue();
+        return AUTH_TYPE + " " + EgressAccess.INSTANCE.token(EgressService.PENSJONSFAGLIG_KJERNE).getValue();
     }
 
     private static FailedCallingExternalServiceException handle(WebClientResponseException e, String serviceIdentifier) {

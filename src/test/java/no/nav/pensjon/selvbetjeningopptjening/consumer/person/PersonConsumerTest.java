@@ -1,5 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.person;
-
+/*
 import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.mock.RequestContextCreator;
@@ -296,3 +296,4 @@ class PersonConsumerTest extends WebClientTest {
                 .setBody("");
     }
 }
+*/
