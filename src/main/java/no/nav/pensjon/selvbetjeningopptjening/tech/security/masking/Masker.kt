@@ -6,7 +6,7 @@ object Masker {
 
     private const val NORMAL_FNR_LENGTH: Int = 11
     private const val END_INDEX_OF_BIRTH_DATE_PART_OF_FNR: Int = 6
-    private val controlCharacterRegex = "\\p{Cntrl}".toRegex()
+    private val controlCharacterRegex = "[\\p{Cntrl}\\u2028\\u2029]".toRegex()
 
     fun maskFnr(pid: Pid?): String =
         pid?.let { maskFnr(it.pid) } ?: "null"

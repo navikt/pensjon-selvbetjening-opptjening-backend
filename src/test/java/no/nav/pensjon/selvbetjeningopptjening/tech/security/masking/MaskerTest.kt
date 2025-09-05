@@ -16,7 +16,7 @@ class MaskerTest : FunSpec({
     }
 
     test("maskFnr removes control characters") {
-        Masker.maskFnr("\n0492539\r8980\t") shouldBe "049253*****"
+        Masker.maskFnr("\u2029\n0492\u2028539\r8980\t") shouldBe "049253*****"
     }
 
     test("maskFnr handles empty string") {
