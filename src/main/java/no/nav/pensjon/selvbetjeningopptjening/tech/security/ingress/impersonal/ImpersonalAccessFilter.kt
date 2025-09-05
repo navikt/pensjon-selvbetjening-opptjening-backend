@@ -47,6 +47,7 @@ class ImpersonalAccessFilter(
 
     private fun hasPid(request: HttpServletRequest): Boolean =
         hasLength(request.getHeader(CustomHttpHeaders.PID))
+                || hasLength(request.getParameter("pid")) //TODO remove this line when PID no longer in URL
 
     private fun forbidden(response: HttpServletResponse) {
         "Adgang nektet pga. manglende gruppemedlemskap".let {

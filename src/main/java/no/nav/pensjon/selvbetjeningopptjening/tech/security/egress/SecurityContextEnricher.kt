@@ -52,8 +52,12 @@ class SecurityContextEnricher(
             initialAuth = auth,
             authType = authTypeDeducer.deduce(),
             egressTokenSuppliersByService = tokenSuppliers,
-            target = headerPid(request)?.let(::personUnderVeiledning) ?: selv()
+            target = veiledetPid(request)?.let(::personUnderVeiledning) ?: selv()
         )
+
+    private fun veiledetPid(request: HttpServletRequest): Pid? =
+        headerPid(request)
+            ?: request.getParameter("pid")?.let(::Pid) //TODO remove this line when PID no longer in URL
 
     private fun applyPotentialFullmakt(
         auth: Authentication,

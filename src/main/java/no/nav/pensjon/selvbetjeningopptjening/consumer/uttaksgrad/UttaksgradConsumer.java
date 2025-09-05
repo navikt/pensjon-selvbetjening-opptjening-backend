@@ -8,6 +8,7 @@ import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uttaksgrad;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.UttaksgradMapper;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.EgressAccess;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressService;
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.masking.Masker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -23,7 +24,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
-import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.PEN;
 
@@ -73,7 +73,7 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
     @Override
     public List<Uttaksgrad> getAlderSakUttaksgradhistorikkForPerson(String fnr) {
         if (log.isDebugEnabled()) {
-            log.debug("Calling {} for PID {}", UTTAKSGRAD_HISTORIKK_SERVICE, maskFnr(fnr));
+            log.debug("Calling {} for PID {}", UTTAKSGRAD_HISTORIKK_SERVICE, Masker.INSTANCE.maskFnr(fnr));
         }
 
         try {

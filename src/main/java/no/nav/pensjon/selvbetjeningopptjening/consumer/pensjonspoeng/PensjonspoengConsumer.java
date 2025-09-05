@@ -6,6 +6,7 @@ import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pensjonspoeng;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.PensjonspoengMapper;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.EgressAccess;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressService;
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.masking.Masker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -21,7 +22,6 @@ import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.PoppUtil.handle;
-import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
 
 @Component
@@ -46,7 +46,7 @@ public class PensjonspoengConsumer implements Pingable {
 
     public List<Pensjonspoeng> getPensjonspoengListe(String fnr) {
         if (log.isDebugEnabled()) {
-            log.debug("Calling {} for PID {}", CONSUMED_SERVICE, maskFnr(fnr));
+            log.debug("Calling {} for PID {}", CONSUMED_SERVICE, Masker.INSTANCE.maskFnr(fnr));
         }
 
         try {

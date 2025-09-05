@@ -3,6 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.pen;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.EgressAccess;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressService;
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.masking.Masker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -10,7 +11,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import java.util.function.BiFunction;
 
-import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.PEN;
 
 public abstract class AuthorizedPenConsumer {
@@ -20,7 +20,7 @@ public abstract class AuthorizedPenConsumer {
 
     protected <T> T getObject(BiFunction<String, String, T> getter, String argument, String serviceName) {
         if (log.isDebugEnabled()) {
-            log.debug("Calling {} with argument {}", serviceName, maskFnr(argument));
+            log.debug("Calling {} with argument {}", serviceName, Masker.INSTANCE.maskFnr(argument));
         }
 
         try {

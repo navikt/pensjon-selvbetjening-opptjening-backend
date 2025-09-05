@@ -155,11 +155,13 @@ private fun securityContextTargetPid() =
 private fun arrangeFoedselsnummer(value: String?) =
     mockk<HttpServletRequest>(relaxed = true).apply {
         every { getHeader("pid") } returns value
+        every { getParameter("pid") } returns value
     }
 
 private fun arrangeOnBehalfOfCookie() =
     mockk<HttpServletRequest>(relaxed = true).apply {
         every { cookies } returns listOf(Cookie("nav-obo", "12906498357")).toTypedArray()
+        every { getParameter("pid") } returns null
     }
 
 private fun arrange(representasjon: Representasjon) =
