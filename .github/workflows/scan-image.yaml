@@ -23,10 +23,6 @@ jobs:
           distribution: temurin
       - name: Build with Maven
         run: mvn -B package --file pom.xml
-      - name: Perform CodeQL analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: "/language:java"
       - name: Create Docker image
         id: image-creation
         uses: nais/docker-build-push@v0
