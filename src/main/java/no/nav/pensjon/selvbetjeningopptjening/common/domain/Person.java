@@ -1,12 +1,11 @@
 package no.nav.pensjon.selvbetjeningopptjening.common.domain;
 
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.masking.Masker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
-
-import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
 
 public class Person {
 
@@ -55,7 +54,7 @@ public class Person {
 
     private static LocalDate getFodselsdato(BirthDate fodselsdato, Pid pid) {
         if (fodselsdato == null) {
-            log.warn("No birth dates found for PID {}", maskFnr(pid.getPid()));
+            log.warn("No birth dates found for PID {}", Masker.INSTANCE.maskFnr(pid.getPid()));
             return getDefaultFodselsdato(pid);
         }
 

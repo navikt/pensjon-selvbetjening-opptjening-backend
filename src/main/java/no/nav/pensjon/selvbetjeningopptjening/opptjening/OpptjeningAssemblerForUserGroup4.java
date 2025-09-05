@@ -3,7 +3,6 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
-import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,7 +10,7 @@ import java.util.Map;
 
 public class OpptjeningAssemblerForUserGroup4 extends OpptjeningAssembler {
 
-    public OpptjeningAssemblerForUserGroup4(UttaksgradGetter uttaksgradGetter) {
+    public OpptjeningAssemblerForUserGroup4(UttaksgradGetter uttaksgradGetter /*, PidExtractor pidExtractor*/) {
         super(uttaksgradGetter);
     }
 
@@ -34,7 +33,8 @@ public class OpptjeningAssemblerForUserGroup4 extends OpptjeningAssembler {
                                               AfpHistorikk afpHistorikk,
                                               UforeHistorikk uforeHistorikk) {
         LocalDate fodselsdato = person.getFodselsdato();
-        OpptjeningResponse response = new OpptjeningResponse(person, calculateAndelNyttRegelverkUsergroup4(fodselsdato.getYear()), person.getPid().getPid(), RequestContext.getFullmektigPid());
+        OpptjeningResponse response = new OpptjeningResponse(person,
+                calculateAndelNyttRegelverkUsergroup4(fodselsdato.getYear()), person.getPid().getPid(), getFullmektigPid());
         Map<Integer, Opptjening> opptjeningerByYear = getOpptjeningerByYear(pensjonspoengList, restpensjoner);
         populatePensjonspoeng(opptjeningerByYear, pensjonspoengList, uttaksgrader);
         populatePensjonsbeholdning(opptjeningerByYear, getBeholdningerByYear(beholdninger));

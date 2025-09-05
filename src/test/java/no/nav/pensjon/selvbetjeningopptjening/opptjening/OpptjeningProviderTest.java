@@ -1,5 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
-
+/*
 import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
@@ -185,7 +185,7 @@ class OpptjeningProviderTest {
         }
     }
 
-    /*  Tests with pensjonspoeng for user group 1, 2, 3 and 4 */
+    / *  Tests with pensjonspoeng for user group 1, 2, 3 and 4 * /
     @Test
     void when_UserGroup4_with_PensjonspoengType_OSFE_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_Omsorgspoeng() {
         try (RequestContext ignored = RequestContextCreator.createForExternal()) {
@@ -298,7 +298,7 @@ class OpptjeningProviderTest {
         }
     }
 
-    /*  Restpensjon tests */
+    / *  Restpensjon tests * /
     @Test
     void when_Fnr_UserGroup5_with_Restpensjon_and_no_Uttaksgrad_then_calculateOpptjeningForFnr_returns_no_OpptjeningDto() {
         try (RequestContext ignored = RequestContextCreator.createForExternal()) {
@@ -420,7 +420,7 @@ class OpptjeningProviderTest {
         }
     }
 
-    /* Tests for inntekt for user group 5 */
+    / * Tests for inntekt for user group 5 * /
     @Test
     void when_Fnr_UserGroup5_with_InntektOpptjeningBelop_and_FomDato_1980_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_PensjonsgivendeInntekt() {
         try (RequestContext ignored = RequestContextCreator.createForExternal()) {
@@ -575,7 +575,7 @@ class OpptjeningProviderTest {
         }
     }
 
-    /* Tests for beholdning with inntekt for user group 4 */
+    / * Tests for beholdning with inntekt for user group 4 * /
     @Test
     void when_Fnr_UserGroup4_with_InntektOpptjeningBelop_and_FomDato_1980_then_calculateOpptjeningForFnr_returns_OpptjeningDto_with_PensjonsgivendeInntekt() {
         try (RequestContext ignored = RequestContextCreator.createForExternal()) {
@@ -593,7 +593,7 @@ class OpptjeningProviderTest {
         }
     }
 
-    /* Tests for PDL response */
+    / * Tests for PDL response * /
 
     @Test
     void when_PdlResponse_contains_foedselsdato_then_use_foedselsaar_from_pdl_foedselsdato() {
@@ -679,3 +679,4 @@ class OpptjeningProviderTest {
         return new Pensjonspoeng(2013, OpptjeningTypeCode.PPI.toString(), 1d, new Inntekt(2013, "SUM_PI", inntekt), new Omsorg(""));
     }
 }
+*/

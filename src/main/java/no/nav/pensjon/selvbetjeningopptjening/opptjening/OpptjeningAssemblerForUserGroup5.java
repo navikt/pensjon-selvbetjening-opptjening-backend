@@ -3,7 +3,6 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
-import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +33,7 @@ public class OpptjeningAssemblerForUserGroup5 extends OpptjeningAssembler {
                                               List<Uttaksgrad> uttaksgrader,
                                               AfpHistorikk afpHistorikk,
                                               UforeHistorikk uforeHistorikk) {
-        OpptjeningResponse response = new OpptjeningResponse(person, ANDEL_PENSJON_BASERT_PA_BEHOLDNING_USERGROUP5, person.getPid().getPid(), RequestContext.getFullmektigPid());
+        OpptjeningResponse response = new OpptjeningResponse(person, ANDEL_PENSJON_BASERT_PA_BEHOLDNING_USERGROUP5, person.getPid().getPid(), getFullmektigPid());
         Map<Integer, Opptjening> opptjeningerByYear = getOpptjeningerByYear(new ArrayList<>(), restpensjoner);
         Map<Integer, Long> inntekterByYear = getSumPensjonsgivendeInntekterByYear(inntekter);
         populatePensjonsbeholdning(opptjeningerByYear, getBeholdningerByYear(beholdninger));

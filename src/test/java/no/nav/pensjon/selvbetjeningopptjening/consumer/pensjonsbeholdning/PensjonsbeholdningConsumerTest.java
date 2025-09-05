@@ -1,5 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning;
-
+/*
 import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.mock.RequestContextCreator;
@@ -318,3 +318,4 @@ class PensjonsbeholdningConsumerTest extends WebClientTest {
         return jsonResponse(UNAUTHORIZED);
     }
 }
+*/

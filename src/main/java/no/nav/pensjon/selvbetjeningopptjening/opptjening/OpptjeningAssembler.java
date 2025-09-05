@@ -4,6 +4,9 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGett
 import no.nav.pensjon.selvbetjeningopptjening.model.code.OpptjeningTypeCode;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningDto;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.OpptjeningMapper;
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.EnrichedAuthentication;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -179,6 +182,12 @@ abstract class OpptjeningAssembler {
         Map<Integer, OpptjeningDto> dtoMap = new HashMap<>();
         opptjeningerByYear.forEach((year, value) -> dtoMap.put(year, OpptjeningMapper.toDto(value)));
         return dtoMap;
+    }
+
+    @Nullable
+    static String getFullmektigPid() {
+        Pid pid = ((EnrichedAuthentication) SecurityContextHolder.getContext().getAuthentication()).fullmektigPid();
+        return pid == null ? null : pid.getPid();
     }
 
     private static void addMerknaderOnOpptjening(List<Beholdning> beholdninger, List<Uttaksgrad> uttaksgrader,
