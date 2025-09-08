@@ -46,7 +46,7 @@ _EndringPensjonsopptjening_-objektet beskriver en enkelt endring som har skjedd 
 |endringBelop           |Number (desimaltall)                                       |123.45        |Beløpet pensjonsbeholdningen har økt/minket med (negativt hvis redusert pensjonsbeholdning).
 |pensjonsbeholdningBelop|Number (desimaltall)                                       |123.45        |Total pensjonsbeholdning etter endringen.
 |grunnlag               |Number (desimaltall)                                       |123.45        |For endringer som har arsakType lik OPPTJENING eller INNGAENDE_2010 vil denne inneholde grunnlaget endringen er regnet ut fra.
-|grunnlagTypes          |String[] (<<#grunnlagTypeCode,GrunnlagTypeCode>>)|UFORE_GRUNNLAG|GrunnlagTypes-lista inneholder en liste av koder som beskriver hvilke ytelser eller inntekt som har påvirket grunnlagstallet i grunnlag-feltet.
+|grunnlagTypes          |String[] (<<#grunnlagTypeCode,GrunnlagTypeCode>>)|UFORE_GRUNNLAG|GrunnlagTypes-listen inneholder en liste av koder som beskriver hvilke ytelser eller inntekt som har påvirket grunnlagstallet i grunnlag-feltet.
 |uttaksgrad             |Number (heltall)                                           |10            |Hvis bruker har uttak av alderspensjon, viser denne uttaksgrad på tidspunktet hvor endringen skjedde.
 |uforegrad              |Number (heltall)                                           |10            |Grad av uførhet.
 |=======================
@@ -130,8 +130,7 @@ Informasjonskoder som brukes til å angi type omsorgspoeng.
 
 === UserGroup
 [#userGroup]
-_UserGroup_-kodene er koder som brukes internt i applikasjonen til å skille de ulike brukergruppene fra hverandre. Merk at disse kodene da altså ikke er del av responsen,
-men forståelse av disse kodene er vesentlig for å forstå applikasjonens interne logikk.
+_UserGroup_-kodene er koder som brukes internt i applikasjonen til å skille de ulike brukergruppene fra hverandre. Merk at disse kodene da altså ikke er del av responsen, men forståelse av disse kodene er vesentlig for å forstå applikasjonens interne logikk.
 [options="header"]
 
 |=======================

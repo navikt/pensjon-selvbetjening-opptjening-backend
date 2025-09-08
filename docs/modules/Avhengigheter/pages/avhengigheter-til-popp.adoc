@@ -2,7 +2,7 @@
 
 == PROPOPP006 HentPensjonsbeholdningListe
 [#propopp006]
-PROPOPP006 leverer en liste med beholdning-objekter som beskriver en brukers pensjonsbeholdning. Hvert beholdning-objekt representerer pensjonsbehlodning-data for en bestemt periode definert med en fom-dato og en tom-dato. Disse dataene er veldig sentrale applikasjonens forretningslogikk for å kunne vise hvordan pensjonsbeholdningen har utviklet seg for brukere født etter 1953.
+PROPOPP006 leverer en liste med beholdning-objekter som beskriver en brukers pensjonsbeholdning. Hvert beholdning-objekt representerer pensjonsbehlodning-data for en bestemt periode definert med en fom-dato og en tom-dato. Disse dataene er veldig sentrale i applikasjonens forretningslogikk for å kunne vise hvordan pensjonsbeholdningen har utviklet seg for brukere født etter 1953.
 
 .Domeneobjekter relevante for PROPOPP006:
 [options="header"]
