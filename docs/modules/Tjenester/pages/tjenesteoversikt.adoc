@@ -4,12 +4,14 @@ Applikasjonen eksponeres som REST-endepunkt og har følgende API:
 
 [options="header"]
 |=======================
-|Type   |Path                |Beskrivelse                                                                       |Merknad
-|GET    |/api/opptjening     |Returnerer alle de ferdig orkestrerte dataene for opptjening for en gitt person.  |Her trengs brukers fødselsnummer som input, dette henter applikasjonen fra et token som må være satt som cookie.
+|Type   |Path                    |Beskrivelse                                                                      |Merknad
+|GET    |/api/opptjening         |Returnerer alle de ferdig orkestrerte dataene for opptjening for en gitt person. |Brukers fødselsnummer hentes fra token (JWT) fra innlogging.
+|GET    |/api/opptjeningonbehalf |Returnerer alle de ferdig orkestrerte dataene for opptjening for en gitt person. |Brukes for veiledning. Innlogget bruker er en Nav-ansatt.
+|PUT    |/api/logg               |Tjeneste for å logge informasjon eller feilmeldinger.                            |
 
 |=======================
 
-=== Eksempel på respons fra /api/opptjening
+== Eksempel på respons fra /api/opptjening
 [source,json]
 ----
 {
