@@ -1,0 +1,3 @@
+.Implementasjon
+*** xref:funksjonell-oversikt.adoc[Funksjonell oversikt]
+*** xref:modell.adoc[Datamodell]

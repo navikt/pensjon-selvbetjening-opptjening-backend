@@ -1,0 +1,8 @@
+name: pensjon-selvbetjening-opptjening-backend
+title: Pensjonsopptjening-backend (selvbetjening)
+version: main
+start_page: ROOT:index.adoc
+nav:
+  - modules/Tjenester/nav.adoc
+  - modules/Avhengigheter/nav.adoc
+  - modules/Implementasjon/nav.adoc

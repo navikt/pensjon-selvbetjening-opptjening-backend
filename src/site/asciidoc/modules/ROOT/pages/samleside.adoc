@@ -1,8 +1,0 @@
-include::Beskrivelse.adoc[]
-
-include::Modell.adoc[]
-
-include::funksjonell_oversikt.adoc[]
-
-include::Avhengigheter.adoc[]
-

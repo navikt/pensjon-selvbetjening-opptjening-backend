@@ -1,0 +1,54 @@
+= Avhengigheter til PDL
+
+PDL (Persondataløsningen) er Navs interne register for grunnleggende personopplysninger. Registeret inneholder
+opplysninger om alle personer i Folkeregisteret og andre kilder til persondata som Nav har tilgang til.
+
+== Bruk av data fra PDL
+
+Applikasjonen trenger å identifisere en brukers fødselsdato for å plassere brukeren i riktig xref:Implementasjon:modell.adoc#userGroup[brukergruppe].
+For å få mest mulig korrekt fødselsdato, hentes dette derfor fra PDL. Men i de aller fleste tilfeller kan egentlig
+fødselsdato utledes fra selve fødselsnummeret. Derfor vil applikasjonen i tilfeller hvor kallet til PDL feiler alltid prøve å utlede fødselsåret i stedet basert på den informasjonen det har. Det første som kan skje er at PDL ikke returnerer en fødselsdato, men kun fødselsåret. Da setter applikasjonen fødselsdatoen til første dag i fødselsåret. Dette er en løsning som vil fungere fordi man først og fremst er interessert i fødselsåret for å plassere brukerne i brukergruppene. Skulle kallet til PDL feile fullstendig vil applikasjonen prøve å utlede fødselsdato fra selve fødselsnummeret som en siste backup. Hvis dette også feiler har applikasjonen ikke noe annet valg enn å returnere feilmelding til frontend, fordi ingenting kan gjøres uten å vite når brukeren er født.
+
+I tillegg til fødselsdato hentes også brukers navn fra PDL. Navnet brukes kun i visning til bruker. Det hentes fornavn, mellomnavn og etternavn. En bruker kan ha registrert flere navn. Ett navn i folkeregisteret og ett navn som er registrert hos Nav. I valg av navn velges den av disse som det sist ble gjort endring på. For å finne ut når et navn ble endret sist brukes ajourholdstidspunkt for navn fra Folkeregisteret. Ajourholdstidspunkt hentes fra folkeregistermetadata som returneres av PDL. For NAV-navn brukes listen endringer i metadata for å avgjøre når navnet sist ble endret.
+
+== Strategi for henting av data
+
+Data fra PDL hentes ved å spesifisere en GraphQL-spørring som beskriver hvilke data som man vil ha. PDL inneholder ganske mange forskjellige data om en person. Man ønsker ikke å hente mer data om en person enn det man trenger for å utføre den tjenesten man skal gi brukeren. Gitt at man her kun trenger fødselsdato og fødselsår, vil man kun trenge å benytte operasjonen hentPerson, hvor man spesifiserer at man vil hente opplysningstypen fødsel med informasjonselementene fødselsdato og fødselsår. Det er også et mål at man ikke ønsker å ha mange gjentatte kall til PDL. Derfor kaller applikasjonen PDL kun en gang, og så spesifiserer man alt som applikasjonen kommer til å få bruk for i dette kallet, i stedet for å spørre en gang til senere hvis man plutselig trenger mer data.
+
+.Eksempel på respons fra PDL
+[source,json]
+----
+{
+    "data": {
+        "hentPerson": {
+            "navn": [
+                {
+                    "fornavn": "KLØKTIG",
+                    "mellomnavn": null,
+                    "etternavn": "POTET",
+                    "folkeregistermetadata": {
+                        "ajourholdstidspunkt": "2021-03-26T10:56:01"
+                    },
+                    "metadata": {
+                        "master": "FREG",
+                        "endringer": [
+                            {
+                                "registrert": "2021-03-26T10:56:01"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "foedselsdato": [
+                {
+                    "foedselsdato": "1972-11-05",
+                    "foedselsaar": null
+                }
+            ]
+        }
+    }
+}
+----
+Merk at en person kan ha flere fødselsdatoer registrert på seg. Applikasjonen velger da den første i lista.
+
+

@@ -1,0 +1,17 @@
+= Pensjon-selvbetjening-opptjening-backend
+
+== Formål
+
+Applikasjonen samler inn pensjonsopptjeningsdata og orkestrerer disse slik at de kan hentes og presenteres til bruker av applikasjonen https://github.com/navikt/pensjon-selvbetjening-opptjening-frontend[pensjon-selvbetjening-opptjening-frontend].
+
+== Datakilder
+
+Applikasjonen får rådataene den trenger hovedsakelig fra POPP (registeret for pensjonsopptjening) og PEN (den pensjonsfaglige kjerne).
+
+I mange av tilfellene har ikke applikasjonen behov for alle dataene den får fra de eksterne tjenestene, kun en liten del av dataene, men siden de eksterne tjenestene er generaliserte mottas disse dataene likevel.
+
+Se xref:Avhengigheter:avhengigheter-til-popp.adoc[Avhengigheter til POPP] og xref:Avhengigheter:avhengigheter-til-pen.adoc[Avhengigheter til PEN] for detaljer.
+
+== Historikk
+
+Applikasjonen er laget med utgangspunkt i logikk fra det gamle JSF-baserte skjermbildet "Din pensjonsopptjening" i PSELV (Din pensjon), som applikasjonen erstatter.

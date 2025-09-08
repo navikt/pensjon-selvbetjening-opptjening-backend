@@ -1,0 +1,61 @@
+= Avhengigheter til PEN
+
+==== PROPEN2602 GetAfphistorikkForPerson
+[#propen2602]
+.Bruk av data fra PROPEN2602
+Tjenesten PROPEN2602 ble opprettet i PEN for å dekke behovet pensjon-selvbetjening-opptjening-backend har for å
+kunne hente AFP-historikk via REST. Tjenesten returnerer AFP-historikk for en person som brukes for å avgjøre om en person
+har AFP på et gitt år, og dermed legge ved en merknad i responsen om dette.
+
+.Domene-objekter relevante for PROPEN2602:
+[options="header"]
+|=======================
+|Objekt|Beskrivelse
+|AfpHistorikk|Et objekt som inneholder virkFom og virkTom for brukerens AFP.
+|=======================
+Disse domeneobjektene tilhører PEN, se PEN-dokumentasjon for ytterligere detaljer.
+
+==== PROPEN2603 GetUforehistorikkForPerson
+[#propen2603]
+.Bruk av data fra PROPEN2603
+Tjenesten PROPEN2603 ble opprettet i PEN for å dekke behovet pensjon-selvbetjening-opptjening-backend har for å
+kunne hente uførehistorikk via REST. Tjenesten returnerer uførehistorikk for en person som brukes for å avgjøre om en person
+har uføretrygd på et gitt år, og dermed legge ved en merknad i responsen om dette.
+
+.Domene-objekter relevante for PROPEN2602:
+[options="header"]
+|=======================
+|Objekt|Beskrivelse
+|UforeHistorikk|Et objekt som inneholder uføreperioder for en person.
+|UforePeriode|Et objekt som ligger i UforeHistorikk og beskriver fom, tom, type og uføregrad en bruker hadde i en periode.
+|=======================
+Disse domeneobjektene tilhører PEN, se PEN-dokumentasjon for ytterligere detaljer.
+
+==== PROPEN3000 GetUttaksgradForVedtak
+[#propen3000]
+.Bruk av data fra PROPEN3000
+Tjenesten PROPEN3000 ble opprettet i PEN for å dekke behovet pensjon-selvbetjening-opptjening-backend har for å
+kunne hente uttaksgrad for alderspensjon via REST. Basert på vedtakId man gir som input til tjenesten, returnerer
+den en liste med uttaksgrad-objekter som beskriver uttaksgrad en person hadde knyttet til det aktuelle vedtaket.
+Tjenesten benyttes for å identifisere når bruker har uttak av alderspensjon, og hvor stort dette uttaket er.
+
+.Domene-objekter relevante for PROPEN3000:
+[options="header"]
+|=======================
+|Objekt|Beskrivelse
+|Uttaksgrad|Beskriver fom, tom, grad og tilknyttet vedtak for en uttaksgrad en person har hatt.
+|=======================
+Disse domeneobjektene tilhører PEN, se PEN-dokumentasjon for ytterligere detaljer.
+
+==== PROPEN3001 GetAlderSakUttaksgradhistorikkForPerson
+[#propen3001]
+.Bruk av data fra PROPEN3001
+Tjenesten PROPEN3001 ble opprettet i PEN for å dekke behovet pensjon-selvbetjening-opptjening-backend har for å kunne hente uttaksgrad for alderspensjon via REST. Basert på fødselsnummer som gis inn som input returneres alle uttaksgrader som er registrert på den aktuelle personen. Tjenesten benyttes for å identifisere når bruker har uttak av alderspensjon, og hvor stort dette uttaket er.
+
+.Domene-objekter relevante for PROPEN3000:
+[options="header"]
+|=======================
+|Objekt|Beskrivelse
+|Uttaksgrad|Beskriver fom, tom og grad for en uttaksgrad en person har hatt. Feltet vedtakId er tomt.
+|=======================
+Disse domeneobjektene tilhører PEN, se PEN-dokumentasjon for ytterligere detaljer.
