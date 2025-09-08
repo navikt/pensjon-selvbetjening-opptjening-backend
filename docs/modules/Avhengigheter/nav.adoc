@@ -1,0 +1,4 @@
+.Avhengigheter
+*** xref:avhengigheter-til-pen.adoc[Avhengigheter til PEN]
+*** xref:avhengigheter-til-popp.adoc[Avhengigheter til POPP]
+*** xref:avhengigheter-til-pdl.adoc[Avhengigheter til PDL]
