@@ -65,22 +65,24 @@ open class SpringSecurityConfiguration {
     @Bean("combo-provider")
     @Primary
     open fun comboProvider(
-        @Value("\${id-porten.issuer}") issuer: String,
-        @Value("\${id-porten.audience}") audience: String,
-        @Value("\${token-x.issuer}") issuer2: String,
-        @Value("\${token-x.client.id}") clientId: String,
-        @Value("\${azure-app.issuer}") issuer3: String,
-        @Value("\${azure-app.client-id}") clientId2: String
+        @Value("\${id-porten.issuer}") idPortenIssuer: String,
+        @Value("\${id-porten.audience}") idPortenAudience: String,
+        @Value("\${token-x.issuer}") tokenXIssuer: String,
+        @Value("\${token-x.client.id}") tokenXClientId: String,
+        @Value("\${azure-app.issuer}") entraIdIssuer: String,
+        // Use sob.frontend.client-id until frontend exchanges Entra token into OBO token:
+        //@Value("\${azure-app.client-id}") entraIdClientId: String
+        @Value("\${sob.frontend.client-id}") entraIdClientId: String
     ): ProviderManager =
         ProviderManager(
             JwtAuthenticationProvider(
-                jwtDecoder(issuer, tokenValidator = TokenAudienceValidator(audience))
+                jwtDecoder(idPortenIssuer, tokenValidator = TokenAudienceValidator(idPortenAudience))
             ),
             JwtAuthenticationProvider(
-                jwtDecoder(issuer2, tokenValidator = TokenAudienceValidator(clientId))
+                jwtDecoder(tokenXIssuer, tokenValidator = TokenAudienceValidator(tokenXClientId))
             ),
             JwtAuthenticationProvider(
-                jwtDecoder(issuer3, tokenValidator = TokenAudienceValidator(clientId2))
+                jwtDecoder(entraIdIssuer, tokenValidator = TokenAudienceValidator(entraIdClientId))
             )
         )
 
