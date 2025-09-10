@@ -10,11 +10,11 @@ import org.springframework.stereotype.Component
 @Component
 class AuthTypeDeducer {
 
-    fun deduce(): AuthType =
+    fun deduce(isRepresentant: Boolean): AuthType =
         when {
-            claimExists(PID_CLAIM_KEY) -> AuthType.PERSON_SELF
-            claimExists(NAV_IDENT_CLAIM_KEY) -> AuthType.PERSON_ON_BEHALF
-            else -> AuthType.MACHINE_INSIDE_NAV
+            claimExists(PID_CLAIM_KEY) -> if (isRepresentant) AuthType.REPRESENTANT else AuthType.PERSON_SELF
+            claimExists(NAV_IDENT_CLAIM_KEY) -> AuthType.NAV_ANSATT
+            else -> AuthType.NAV_MACHINE
         }
 
     companion object {

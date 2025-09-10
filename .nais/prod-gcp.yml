@@ -40,8 +40,9 @@ spec:
           - id: "70ef8e7f-7456-4298-95e0-b13c0ef2422b" # 0000-GA-Pensjon_Okonomi
           - id: "0af3955f-df85-4eb0-b5b2-45bf2c8aeb9e" # 0000-GA-PENSJON_SAKSBEHANDLER
           - id: "959ead5b-99b5-466b-a0ff-5fdbc687517b" # 0000-GA-Pensjon_VEILEDER
-          - id: "676b5e1f-84e6-46e5-8814-04233699ed4b" # 0000-GA-Pensjon_UTVIDET
           - id: "e750ceb5-b70b-4d94-b4fa-9d22467b786b" # 0000-GA-Egne_ansatte
+          - id: "9ec6487d-f37a-4aad-a027-cd221c1ac32b" # 0000-GA-Fortrolig_Adresse
+          - id: "ad7b87a6-9180-467c-affc-20a566b0fec0" # 0000-GA-Strengt_Fortrolig_Adresse
         extra:
           - NAVident
       replyURLs:
@@ -96,6 +97,8 @@ spec:
       value: prod-gcp:nom:skjermede-personer-pip
     - name: SKJERMING_URL
       value: https://skjermede-personer-pip.intern.nav.no
+    - name: FRONTEND_CLIENT_ID
+      value: TBD
     - name: BRUKERHJELP_GROUP_ID
       value: 7845a796-1516-4d14-b500-fd65c001f35c
     - name: OEKONOMI_GROUP_ID
@@ -104,10 +107,12 @@ spec:
       value: 0af3955f-df85-4eb0-b5b2-45bf2c8aeb9e
     - name: VEILEDER_GROUP_ID
       value: 959ead5b-99b5-466b-a0ff-5fdbc687517b
-    - name: UTVIDET_GROUP_ID
-      value: 676b5e1f-84e6-46e5-8814-04233699ed4b
     - name: EGNE_ANSATTE_TILGANG_GROUP_ID
       value: e750ceb5-b70b-4d94-b4fa-9d22467b786b
+    - name: FORTROLIG_ADRESSE_TILGANG_GROUP_ID
+      value: 9ec6487d-f37a-4aad-a027-cd221c1ac32b
+    - name: STRENGT_FORTROLIG_ADRESSE_TILGANG_GROUP_ID
+      value: ad7b87a6-9180-467c-affc-20a566b0fec0
     - name: APP_ENVIRONMENT
       value: p
     - name: COOKIES_DOMAIN

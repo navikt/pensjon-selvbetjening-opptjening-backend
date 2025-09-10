@@ -30,10 +30,13 @@ class GroupMembershipServiceTest {
     @BeforeEach
     fun initialize() {
         groupMembershipService = GroupMembershipService(
-            "veileder-gruppa",
-            "egne-ansatte-gruppa",
-            "fortrolig-adresse-gruppa",
-            "strengt-fortrolig-adresse-gruppa",
+            brukerhjelpGroupId = "brukerhjelp-gruppa",
+            oekonomiGroupId = "økonomi-gruppa",
+            saksbehandlerGroupId = "saksbehandler-gruppa",
+            veilederGroupId = "veileder-gruppa",
+            egneAnsatteGroupId = "egne-ansatte-gruppa",
+            fortroligAdresseGroupId = "fortrolig-adresse-gruppa",
+            strengtFortroligAdresseGroupId = "strengt-fortrolig-adresse-gruppa",
             groupService,
             skjermingService,
             adresseService
@@ -126,7 +129,7 @@ class GroupMembershipServiceTest {
 
 
     private fun arrangeBeskyttelse(personErSkjermet: Boolean, gradering: AdressebeskyttelseGradering) {
-        `when`(skjermingService.personErTilgjengelig(pid)).thenReturn(!personErSkjermet)
+        `when`(skjermingService.personErTilgjengelig(pid)).thenReturn(personErSkjermet.not())
         `when`(adresseService.adressebeskyttelseGradering(pid)).thenReturn(gradering)
     }
 }

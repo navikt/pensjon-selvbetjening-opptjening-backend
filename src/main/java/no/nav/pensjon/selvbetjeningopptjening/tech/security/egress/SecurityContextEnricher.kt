@@ -50,7 +50,7 @@ class SecurityContextEnricher(
     private fun enrich(auth: Authentication, request: HttpServletRequest) =
         EnrichedAuthentication(
             initialAuth = auth,
-            authType = authTypeDeducer.deduce(),
+            authType = authTypeDeducer.deduce(isRepresentant = false),
             egressTokenSuppliersByService = tokenSuppliers,
             target = veiledetPid(request)?.let(::personUnderVeiledning) ?: selv()
         )
@@ -80,7 +80,7 @@ class SecurityContextEnricher(
     private fun enrichWithFullmakt(auth: Authentication, fullmaktGiverPid: Pid) =
         EnrichedAuthentication(
             initialAuth = auth,
-            authType = authTypeDeducer.deduce(),
+            authType = authTypeDeducer.deduce(isRepresentant = true),
             egressTokenSuppliersByService = tokenSuppliers,
             target = RepresentasjonTarget(pid = fullmaktGiverPid, rolle = RepresentertRolle.FULLMAKT_GIVER)
         )
@@ -94,7 +94,7 @@ class SecurityContextEnricher(
     private fun anonymousAuthentication() =
         EnrichedAuthentication(
             initialAuth = null,
-            authType = authTypeDeducer.deduce(),
+            authType = authTypeDeducer.deduce(isRepresentant = false),
             egressTokenSuppliersByService = tokenSuppliers,
             target = RepresentasjonTarget(rolle = RepresentertRolle.NONE)
         )

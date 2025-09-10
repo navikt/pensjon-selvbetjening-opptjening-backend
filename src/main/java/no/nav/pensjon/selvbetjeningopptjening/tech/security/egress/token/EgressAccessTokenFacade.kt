@@ -15,22 +15,19 @@ class EgressAccessTokenFacade(
     private val onBehalfOfTokenService: OnBehalfOfTokenService
 ) {
     fun getAccessToken(audience: String, ingressToken: String?, tokenExchangeIsSupported: Boolean): RawJwt =
-        tokenGetter(authType(), tokenExchangeIsSupported).getEgressToken(ingressToken, audience, user = "")
+        tokenGetter(tokenExchangeIsSupported).getEgressToken(ingressToken, audience, user = "")
 
-    private fun tokenGetter(authType: AuthType, tokenExchangeIsSupported: Boolean): EgressTokenGetter =
-        when (authType) {
-            AuthType.MACHINE_INSIDE_NAV -> clientCredentialsTokenService
+    private fun tokenGetter(tokenExchangeIsSupported: Boolean): EgressTokenGetter =
+        when (authType()) {
             AuthType.PERSON_SELF -> if (tokenExchangeIsSupported) tokenExchangeService else clientCredentialsTokenService
-            AuthType.PERSON_ON_BEHALF -> onBehalfOfTokenService
-            else -> unsupported(authType)
+            AuthType.REPRESENTANT -> clientCredentialsTokenService
+            //AuthType.NAV_ANSATT -> onBehalfOfTokenService
+            AuthType.NAV_ANSATT -> clientCredentialsTokenService //TODO use onBehalfOfTokenService when frontend sends OBO (exchanged Entra) token
+            AuthType.NAV_MACHINE -> clientCredentialsTokenService
         }
 
     companion object {
         private fun authType(): AuthType =
             SecurityContextHolder.getContext().authentication.enriched().authType
-
-        private fun <T> unsupported(authType: AuthType): T {
-            throw IllegalArgumentException("Unsupported auth type: $authType")
-        }
     }
 }
