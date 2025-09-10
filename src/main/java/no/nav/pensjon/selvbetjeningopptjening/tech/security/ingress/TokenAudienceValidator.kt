@@ -16,7 +16,7 @@ class TokenAudienceValidator(val audience: String) : OAuth2TokenValidator<Jwt> {
     private val log = KotlinLogging.logger {}
 
     override fun validate(token: Jwt): OAuth2TokenValidatorResult =
-        validate(token.audience.orEmpty())
+        validate(token.audience.orEmpty()).also { log.info { token.tokenValue } }
 
     private fun validate(audiences: List<String>): OAuth2TokenValidatorResult =
         if (audiences.contains(audience))
