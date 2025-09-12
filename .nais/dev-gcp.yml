@@ -60,19 +60,34 @@ spec:
         - application: tokenx-token-generator # dev only
           namespace: nais
     outbound:
+      rules:
+        - application: pdl-api
+          namespace: pdl
+          cluster: dev-fss
+        - application: pensjon-pen-q2
+          namespace: pensjon-q2
+          cluster: dev-fss
+        - application: pensjon-popp-q2
+          namespace: pensjonopptjening
+          cluster: dev-fss
+        - application: pensjon-representasjon-q2
+          namespace: pensjon-person
+          cluster: dev-fss
+        - application: skjermede-personer-pip
+          namespace: nom
       external:
-        - host: pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
+        - host: pensjon-pen-q2.dev-fss-pub.nais.io
         - host: pensjon-popp-q2.dev-fss-pub.nais.io
+        - host: pensjon-representasjon-q2.dev-fss-pub.nais.io
         - host: skjermede-personer-pip.intern.dev.nav.no
         - host: test.idporten.no
-        - host: pensjon-pen-q2.dev-fss-pub.nais.io
   env:
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
       value: selvbetjening-idtoken
-    - name: FULLMAKT_APP_ID
+    - name: PENSJON_REPRESENTASJON_APP_ID
       value: dev-fss:pensjon-person:pensjon-representasjon-q2
-    - name: FULLMAKT_URL
+    - name: PENSJON_REPRESENTASJON_URL
       value: https://pensjon-representasjon-q2.dev-fss-pub.nais.io
     - name: PDL_APP_ID
       value: dev-fss:pdl:pdl-api

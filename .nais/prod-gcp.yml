@@ -56,30 +56,34 @@ spec:
           cluster: prod-gcp
     outbound:
       rules:
+        - application: pdl-api
+          namespace: pdl
+          cluster: prod-fss
+        - application: pensjon-pen
+          namespace: pensjondeployer
+          cluster: prod-fss
         - application: pensjon-popp
           namespace: pensjonopptjening
           cluster: prod-fss
-        - application: pensjon-selvbetjening-fss-gateway
-          namespace: pensjonselvbetjening
+        - application: pensjon-representasjon
+          namespace: pensjon-person
           cluster: prod-fss
         - application: skjermede-personer-pip
           namespace: nom
       external:
-        - host: pensjon-selvbetjening-fss-gateway.prod-fss-pub.nais.io
         - host: pdl-api.prod-fss-pub.nais.io
+        - host: pensjon-pen.prod-fss-pub.nais.io
         - host: pensjon-popp.prod-fss-pub.nais.io
+        - host: pensjon-representasjon.prod-fss-pub.nais.io
         - host: skjermede-personer-pip.intern.nav.no
         - host: idporten.no
         - host: oidc.difi.no
-        - host: pensjon-pen.prod-fss-pub.nais.io
   env:
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
       value: selvbetjening-idtoken
-    - name: FSS_GATEWAY_APP_ID
-      value: prod-fss:pensjonselvbetjening:pensjon-selvbetjening-fss-gateway
-    - name: FULLMAKT_APP_ID
+    - name: PENSJON_REPRESENTASJON_APP_ID
       value: prod-fss:pensjon-person:pensjon-representasjon
-    - name: FULLMAKT_URL
+    - name: PENSJON_REPRESENTASJON_URL
       value: https://pensjon-representasjon.prod-fss-pub.nais.io
     - name: PDL_APP_ID
       value: prod-fss:pdl:pdl-api
