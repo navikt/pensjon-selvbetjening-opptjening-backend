@@ -1,17 +1,15 @@
 package no.nav.pensjon.selvbetjeningopptjening.health;
 
 import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication;
-import no.nav.pensjon.selvbetjeningopptjening.audit.Auditor;
-import no.nav.pensjon.selvbetjeningopptjening.security.filter.CookieBasedBrukerbytte;
-import no.nav.pensjon.selvbetjeningopptjening.security.group.GroupChecker;
-import no.nav.pensjon.selvbetjeningopptjening.security.oauth2.egress.EgressAccessTokenFacade;
-import no.nav.pensjon.selvbetjeningopptjening.security.token.IngressTokenFinder;
-import no.nav.pensjon.selvbetjeningopptjening.security.token.TokenAudiencesVsApps;
-import no.nav.pensjon.selvbetjeningopptjening.usersession.Logout;
+import no.nav.pensjon.selvbetjeningopptjening.mock.MockSecurityConfiguration;
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.TargetPidExtractor;
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.impersonal.audit.Auditor;
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.impersonal.group.GroupMembershipService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -20,26 +18,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ReadinessEndpoint.class)
 @ContextConfiguration(classes = SelvbetjeningOpptjeningApplication.class)
+@Import(MockSecurityConfiguration.class)
 class ReadinessEndpointTest {
 
     @Autowired
     private MockMvc mvc;
     @MockBean
-    IngressTokenFinder ingressTokenFinder;
-    @MockBean
-    EgressAccessTokenFacade egressAccessTokenFacade;
-    @MockBean
-    TokenAudiencesVsApps tokenAudiencesVsApps;
-    @MockBean
-    Logout logout;
-    @MockBean
-    CookieBasedBrukerbytte brukerbytte;
-    @MockBean
-    GroupChecker groupChecker;
-    @MockBean
     Auditor auditor;
     @MockBean
     Selftest selftest;
+    @MockBean
+    TargetPidExtractor pidExtractor;
+    @MockBean
+    GroupMembershipService groupMembershipService;
 
     @Test
     void selftest() throws Exception {

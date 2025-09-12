@@ -1,14 +1,15 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
-import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlError;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlErrorExtension;
 import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
-import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.EgressAccess;
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressService;
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.masking.Masker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -28,7 +29,6 @@ import java.util.List;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.mapping.PersonMapper.fromDto;
-import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
 
 @Component
@@ -76,7 +76,7 @@ public class PdlConsumer implements Pingable {
 
     private PdlResponse getPersonResponse(Pid pid) {
         if (log.isDebugEnabled()) {
-            log.debug("Calling {} for PID {}", CONSUMED_SERVICE, maskFnr(pid));
+            log.debug("Calling {} for PID {}", CONSUMED_SERVICE, Masker.INSTANCE.maskFnr(pid));
         }
 
         try {
@@ -102,7 +102,7 @@ public class PdlConsumer implements Pingable {
     }
 
     private String getAuthHeaderValue() {
-        return AUTH_TYPE + " " + RequestContext.getEgressAccessToken(AppIds.PERSONDATALOSNINGEN).getValue();
+        return AUTH_TYPE + " " + EgressAccess.INSTANCE.token(EgressService.PERSONDATA).getValue();
     }
 
     private WebClient pdlWebClient() {

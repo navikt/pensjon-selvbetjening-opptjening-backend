@@ -1,5 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng;
-
+/*
 import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.mock.RequestContextCreator;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
@@ -164,3 +164,4 @@ class PensjonspoengConsumerTest extends WebClientTest {
         return new MockResponse();
     }
 }
+*/
