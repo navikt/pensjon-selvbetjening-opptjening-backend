@@ -1,14 +1,14 @@
-== Modell
+= Modell
 
 Applikasjonens respons bygges opp av følgende objekter:
 
-=== OpptjeningResponse
+== OpptjeningResponse
 [#opptjeningResponse]
-OpptjeningResponse-objektet inneholder et map som lister opptjeningsdata for hvert år brukeren har hatt opptjening.
+_OpptjeningResponse_-objektet inneholder et map som lister opptjeningsdata for hvert år brukeren har hatt opptjening.
 [options="header"]
 |=======================
 |Informasjonselement           |Type                                                      |Eksempel|Beskrivelse
-|opptjeningData                |Object (Map<String, <<index.adoc#opptjening,Opptjening>>>)|        |Map som holder opptjeningsdata. Hvert opptjeningData-objekt inneholder data for ett år. Nøkkelen i mapet er årstallet.
+|opptjeningData                |Object (Map<String, <<#opptjening,Opptjening>>>)|        |Map som holder opptjeningsdata. Hvert opptjeningData-objekt inneholder data for ett år. Nøkkelen i mapet er årstallet.
 |numberOfYearsWithPensjonspoeng|Number (heltall)                                          |10      |Antall av årene i opptjeningData hvor brukeren har opptjening i form av pensjonspoeng.
 |fodselsaar                    |Number (år)                                               |1960    |Året den aktuelle brukeren er født.
 |andelPensjonBasertPaBeholdning|Number (heltall)                                          |10      |Andelen av pensjonen som er basert på beholdning. Verdien er 0–10.
@@ -17,44 +17,44 @@ OpptjeningResponse-objektet inneholder et map som lister opptjeningsdata for hve
 |mellomnavn                    |String                                                    |Olasen  |Mellomnavnet til personen opptjeningen gjelder for, hvis personen har mellomnavn.
 |=======================
 
-=== Opptjening
+== Opptjening
 [#opptjening]
-Opptjening-objektet inneholder alle opptjeningsdata for et bestemt år for brukeren.
+_Opptjening_-objektet inneholder alle opptjeningsdata for et bestemt år for brukeren.
 [options="header"]
 |=======================
 |Informasjonselement   |Type                                                                 |Eksempel|Beskrivelse
 |pensjonsgivendeInntekt|Number (heltall)                                                     |10      |Brukerens pensjonsgivende inntekt det aktuelle året.
 |pensjonsbeholdning    |Number (heltall)                                                     |10      |Brukerens pensjonsbeholdning ved utløp av det aktuelle året, hvis bruker har pensjonsbeholdning.
 |omsorgspoeng          |Number (desimaltall)                                                 |1.23    |Brukerens omsorgspoeng det aktuelle året.
-|omsorgspoengType      |String (<<index.adoc#omsorgspoengTypeCode,OmsorgspoengTypeCode>>)    |OBO6H   |Type omsorgspoeng.
+|omsorgspoengType      |String (<<#omsorgspoengTypeCode,OmsorgspoengTypeCode>>)    |OBO6H   |Type omsorgspoeng.
 |pensjonspoeng         |Number (desimaltall)                                                 |1.23    |Brukerens pensjonspoeng det aktuelle året, hvis bruker har pensjonspoeng.
-|merknader             |String[] (<<index.adoc#merknadCode,MerknadCode>>)                    |AFP     |Merknader forbundet med det aktuelle året.
+|merknader             |String[] (<<#merknadCode,MerknadCode>>)                    |AFP     |Merknader forbundet med det aktuelle året.
 |restpensjon           |Number (desimaltall)                                                 |123.45  |Brukerens restpensjon det aktuelle året.
 |maksUforegrad         |Number (heltall)                                                     |10      |Uføregrad, hvis bruker har uføretrygd det aktuelle året.
-|endringOpptjening     |Object[] (<<index.adoc#endringOpptjening,EndringPensjonsopptjening>>)|        |Liste med endringer som skjedde på brukerens pensjonsbeholdning det aktuelle året.
+|endringOpptjening     |Object[] (<<#endringOpptjening,EndringPensjonsopptjening>>)|        |Liste med endringer som skjedde på brukerens pensjonsbeholdning det aktuelle året.
 |=======================
 
-=== EndringPensjonsopptjening
+== EndringPensjonsopptjening
 [#endringOpptjening]
-EndringPensjonsopptjening-objektet beskriver en enkelt endring som har skjedd på pensjonsbeholdningen til brukeren.
+_EndringPensjonsopptjening_-objektet beskriver en enkelt endring som har skjedd på pensjonsbeholdningen til brukeren.
 [options="header"]
 |=======================
 |Informasjonselement    |Type                                                       |Eksempel      |Beskrivelse
 |dato                   |String (dato)                                              |2021-02-03    |Dato endringen skjedde. Formatet er ÅÅÅÅ-MM-DD (ISO 8601).
-|arsakType              |String (<<index.adoc#typeArsakCode,TypeArsakCode>>)        |INNGAENDE     |Kode som beskriver hva slags type endring det er snakk om. Se <<index.adoc#beregning_endring, beregning av endring av pensjonsbeholdning>> for flere detaljer.
-|arsakDetails           |String[] (<<index.adoc#detailsArsakCode,DetailsArsakCode>>)|UTTAK         |Liste med koder som beskriver ytterligere informasjon om endringen.
+|arsakType              |String (<<#typeArsakCode,TypeArsakCode>>)        |INNGAENDE     |Kode som beskriver hva slags type endring det er snakk om. Se xref:funksjonell-oversikt.adoc#beregning_endring[beregning av endring av pensjonsbeholdning] for flere detaljer.
+|arsakDetails           |String[] (<<#detailsArsakCode,DetailsArsakCode>>)|UTTAK         |Liste med koder som beskriver ytterligere informasjon om endringen.
 |endringBelop           |Number (desimaltall)                                       |123.45        |Beløpet pensjonsbeholdningen har økt/minket med (negativt hvis redusert pensjonsbeholdning).
 |pensjonsbeholdningBelop|Number (desimaltall)                                       |123.45        |Total pensjonsbeholdning etter endringen.
 |grunnlag               |Number (desimaltall)                                       |123.45        |For endringer som har arsakType lik OPPTJENING eller INNGAENDE_2010 vil denne inneholde grunnlaget endringen er regnet ut fra.
-|grunnlagTypes          |String[] (<<index.adoc#grunnlagTypeCode,GrunnlagTypeCode>>)|UFORE_GRUNNLAG|GrunnlagTypes-lista inneholder en liste av koder som beskriver hvilke ytelser eller inntekt som har påvirket grunnlagstallet i grunnlag-feltet.
+|grunnlagTypes          |String[] (<<#grunnlagTypeCode,GrunnlagTypeCode>>)|UFORE_GRUNNLAG|GrunnlagTypes-listen inneholder en liste av koder som beskriver hvilke ytelser eller inntekt som har påvirket grunnlagstallet i grunnlag-feltet.
 |uttaksgrad             |Number (heltall)                                           |10            |Hvis bruker har uttak av alderspensjon, viser denne uttaksgrad på tidspunktet hvor endringen skjedde.
 |uforegrad              |Number (heltall)                                           |10            |Grad av uførhet.
 |=======================
 
-=== Funksjonelle koder
-==== MerknadCode
+== Funksjonelle koder
+=== MerknadCode
 [#merknadCode]
-Informasjonskoder som brukes til å identifisere merknader angående hendelser som kan påvirke <<index.adoc#opptjening,opptjeningen>> et bestemt år.
+Informasjonskoder som brukes til å identifisere merknader angående hendelser som kan påvirke <<#opptjening,opptjeningen>> et bestemt år.
 [options="header"]
 |=======================
 |Kode                      |Beskrivelse
@@ -70,9 +70,9 @@ Informasjonskoder som brukes til å identifisere merknader angående hendelser s
 |HELT_UTTAK                |Brukeren hadde helt uttak av alderspensjon dette året.
 |=======================
 
-==== TypeArsakCode
+=== TypeArsakCode
 [#typeArsakCode]
-Informasjonskoder som brukes til å identifisere hva slags type endring et <<index.adoc#endringOpptjening,EndringPensjonsopptjening>>-objekt representerer.
+Informasjonskoder som brukes til å identifisere hva slags type endring et <<#endringOpptjening,EndringPensjonsopptjening>>-objekt representerer.
 [options="header"]
 |=======================
 |Kode|Beskrivelse
@@ -84,9 +84,9 @@ Informasjonskoder som brukes til å identifisere hva slags type endring et <<ind
 |UTGAENDE|Utgående beholdning ved slutten av året.
 |=======================
 
-==== DetailsArsakCode
+=== DetailsArsakCode
 [#detailsArsakCode]
-Informasjonskoder som brukes til å gi utfyllende informasjon om en <<index.adoc#endringOpptjening,endring>> som har skjedd på pensjonsopptjeningen.
+Informasjonskoder som brukes til å gi utfyllende informasjon om en <<#endringOpptjening,endring>> som har skjedd på pensjonsopptjeningen.
 [options="header"]
 |=======================
 |Kode|Beskrivelse
@@ -100,10 +100,10 @@ Informasjonskoder som brukes til å gi utfyllende informasjon om en <<index.adoc
 |BEHOLDNING_2010|Pensjonsbeholdningen ble etablert med virkning 1. januar 2010 i forbindelse med at pensjonsreformen trådte i kraft. Da ble den opptjeningen bruker hadde i kalenderår fram til og med 2008 (siste ferdiglignede år) summert til beholdningsstørrelse.
 |=======================
 
-==== GrunnlagTypeCode
+=== GrunnlagTypeCode
 [#grunnlagTypeCode]
-Informasjonskoder som brukes til å gi informasjon om hva slags grunnlag opptjeningen i en <<index.adoc#endringOpptjening,endring>> av pensjonsbeholdningen skyldes.
-Disse kodene er kun aktuelle for <<index.adoc#endringOpptjening,endringer>> som er av <<index.adoc#typeArsakCode,TypeArsakCode>> OPPTJENING eller INNGAENDE_2010
+Informasjonskoder som brukes til å gi informasjon om hva slags grunnlag opptjeningen i en <<#endringOpptjening,endring>> av pensjonsbeholdningen skyldes.
+Disse kodene er kun aktuelle for <<#endringOpptjening,endringer>> som er av <<#typeArsakCode,TypeArsakCode>> OPPTJENING eller INNGAENDE_2010.
 [options="header"]
 |=======================
 |Kode|Beskrivelse
@@ -115,7 +115,7 @@ Disse kodene er kun aktuelle for <<index.adoc#endringOpptjening,endringer>> som 
 |NO_GRUNNLAG|Angir at det ikke finnes noe opptjeningsgrunnlag for det aktuelle året.
 |=======================
 
-==== OmsorgspoengTypeCode
+=== OmsorgspoengTypeCode
 [#omsorgspoengTypeCode]
 Informasjonskoder som brukes til å angi type omsorgspoeng.
 [options="header"]
@@ -128,10 +128,9 @@ Informasjonskoder som brukes til å angi type omsorgspoeng.
 |OSFE |Omsorg for syke/funksjonshemmede/eldre.
 |=======================
 
-==== UserGroup
+=== UserGroup
 [#userGroup]
-UserGroup-kodene er koder som brukes internt i applikasjonen til å skille de ulike brukergruppene fra hverandre. Merk at disse kodene da altså ikke er del av responsen,
-men forsåelse av disse kodene er vesentlig for å forstå applikasjonens interne logikk.
+_UserGroup_-kodene er koder som brukes internt i applikasjonen til å skille de ulike brukergruppene fra hverandre. Merk at disse kodene da altså ikke er del av responsen, men forståelse av disse kodene er vesentlig for å forstå applikasjonens interne logikk.
 [options="header"]
 
 |=======================
