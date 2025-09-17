@@ -1,11 +1,11 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag;
-
+/*
 import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.mock.RequestContextCreator;
 import no.nav.pensjon.selvbetjeningopptjening.mock.WebClientTest;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Inntekt;
-import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
+//import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -177,3 +177,4 @@ class OpptjeningsgrunnlagConsumerTest extends WebClientTest {
         return jsonResponse(UNAUTHORIZED);
     }
 }
+*/

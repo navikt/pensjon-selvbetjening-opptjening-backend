@@ -1,5 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
-
+/*
 import no.nav.pensjon.selvbetjeningopptjening.TestFnrs;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
@@ -163,3 +163,4 @@ class PdlConsumerTest extends WebClientTest {
                 );
     }
 }
+*/

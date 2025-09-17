@@ -38,8 +38,9 @@ spec:
           - id: "05ae245b-7b47-428a-9074-4ff6b59eddbc" # 0000-GA-Pensjon_Okonomi
           - id: "8bb9b8d1-f46a-4ade-8ee8-5895eccdf8cf" # 0000-GA-PENSJON_SAKSBEHANDLER
           - id: "a3f91493-1ab8-4b64-a544-0a77cbba9240" # 0000-GA-Pensjon_VEILEDER
-          - id: "b1e04468-a53a-48fb-a3f7-996c06c8c163" # 0000-GA-Pensjon_UTVIDET
           - id: "dbe4ad45-320b-4e9a-aaa1-73cca4ee124d" # 0000-GA-Egne_ansatte
+          - id: "ea930b6b-9397-44d9-b9e6-f4cf527a632a" # 0000-GA-Fortrolig_Adresse
+          - id: "5ef775f2-61f8-4283-bf3d-8d03f428aa14" # 0000-GA-Strengt_Fortrolig_Adresse
         extra:
           - NAVident
       replyURLs:
@@ -59,19 +60,34 @@ spec:
         - application: tokenx-token-generator # dev only
           namespace: nais
     outbound:
+      rules:
+        - application: pdl-api
+          namespace: pdl
+          cluster: dev-fss
+        - application: pensjon-pen-q2
+          namespace: pensjon-q2
+          cluster: dev-fss
+        - application: pensjon-popp-q2
+          namespace: pensjonopptjening
+          cluster: dev-fss
+        - application: pensjon-representasjon-q2
+          namespace: pensjon-person
+          cluster: dev-fss
+        - application: skjermede-personer-pip
+          namespace: nom
       external:
-        - host: pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
+        - host: pensjon-pen-q2.dev-fss-pub.nais.io
         - host: pensjon-popp-q2.dev-fss-pub.nais.io
+        - host: pensjon-representasjon-q2.dev-fss-pub.nais.io
         - host: skjermede-personer-pip.intern.dev.nav.no
         - host: test.idporten.no
-        - host: pensjon-pen-q2.dev-fss-pub.nais.io
   env:
     - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
       value: selvbetjening-idtoken
-    - name: FULLMAKT_APP_ID
+    - name: PENSJON_REPRESENTASJON_APP_ID
       value: dev-fss:pensjon-person:pensjon-representasjon-q2
-    - name: FULLMAKT_URL
+    - name: PENSJON_REPRESENTASJON_URL
       value: https://pensjon-representasjon-q2.dev-fss-pub.nais.io
     - name: PDL_APP_ID
       value: dev-fss:pdl:pdl-api
@@ -85,18 +101,6 @@ spec:
       value: https://pensjon-popp-q2.dev-fss-pub.nais.io
     - name: SKJERMING_URL
       value: https://skjermede-personer-pip.intern.dev.nav.no
-    - name: BRUKERHJELP_GROUP_ID
-      value: 9e122ddd-e542-4cc1-a7eb-92c99140fe0e
-    - name: OEKONOMI_GROUP_ID
-      value: 05ae245b-7b47-428a-9074-4ff6b59eddbc
-    - name: SAKSBEHANDLER_GROUP_ID
-      value: 8bb9b8d1-f46a-4ade-8ee8-5895eccdf8cf
-    - name: VEILEDER_GROUP_ID
-      value: a3f91493-1ab8-4b64-a544-0a77cbba9240
-    - name: UTVIDET_GROUP_ID
-      value: b1e04468-a53a-48fb-a3f7-996c06c8c163
-    - name: EGNE_ANSATTE_TILGANG_GROUP_ID
-      value: dbe4ad45-320b-4e9a-aaa1-73cca4ee124d
     - name: APP_ENVIRONMENT
       value: q2
     - name: COOKIES_DOMAIN

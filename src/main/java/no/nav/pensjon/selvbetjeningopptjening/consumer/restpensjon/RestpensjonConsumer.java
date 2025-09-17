@@ -1,10 +1,11 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon;
 
-import no.nav.pensjon.selvbetjeningopptjening.config.AppIds;
 import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Restpensjon;
-import no.nav.pensjon.selvbetjeningopptjening.security.RequestContext;
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.EgressAccess;
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressService;
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.masking.Masker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -21,7 +22,6 @@ import java.util.List;
 import static java.util.Objects.requireNonNull;
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.PoppUtil.handle;
 import static no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.RestpensjonMapper.fromDto;
-import static no.nav.pensjon.selvbetjeningopptjening.security.masking.Masker.maskFnr;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
 
 @Component
@@ -46,7 +46,7 @@ public class RestpensjonConsumer implements Pingable {
 
     public List<Restpensjon> getRestpensjonListe(String fnr) {
         if (log.isDebugEnabled()) {
-            log.debug("Calling {} for PID {}", CONSUMED_SERVICE, maskFnr(fnr));
+            log.debug("Calling {} for PID {}", CONSUMED_SERVICE, Masker.INSTANCE.maskFnr(fnr));
         }
 
         try {
@@ -103,6 +103,6 @@ public class RestpensjonConsumer implements Pingable {
     }
 
     private String getAuthHeaderValue() {
-        return AUTH_TYPE + " " + RequestContext.getEgressAccessToken(AppIds.PENSJONSOPPTJENING_REGISTER).getValue();
+        return AUTH_TYPE + " " + EgressAccess.INSTANCE.token(EgressService.PENSJONSOPPTJENING).getValue();
     }
 }

@@ -44,7 +44,7 @@ public class OpptjeningProvider {
         this.uttaksgradGetter = uttaksgradGetter;
     }
 
-    OpptjeningResponse calculateOpptjeningForFnr(Pid pid) {
+    public OpptjeningResponse calculateOpptjeningForFnr(Pid pid) {
         Person person = personService.getPerson(pid);
         String fnr = pid.getPid();
         UserGroup userGroup = findUserGroup(person.getFodselsdato());

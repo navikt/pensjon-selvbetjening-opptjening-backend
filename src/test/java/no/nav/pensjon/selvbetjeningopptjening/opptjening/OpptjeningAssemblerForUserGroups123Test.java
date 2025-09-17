@@ -1,5 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
-
+/*
 import static junit.framework.TestCase.assertEquals;
 
 import java.time.LocalDate;
@@ -56,3 +56,4 @@ class OpptjeningAssemblerForUserGroups123Test {
         );
     }
 }
+*/

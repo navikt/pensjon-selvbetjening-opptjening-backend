@@ -3,7 +3,6 @@ package no.nav.pensjon.selvbetjeningopptjening.util;
 public final class Constants {
 
     public static final String NAV_CALL_ID = "Nav-Call-Id";
-    public static final String ISSUER = "selvbetjening";
     public static final String POPP = "POPP";
     public static final String PEN = "PEN";
 
