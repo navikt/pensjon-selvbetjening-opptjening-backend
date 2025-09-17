@@ -103,6 +103,8 @@ spec:
       value: https://skjermede-personer-pip.intern.nav.no
     - name: FRONTEND_CLIENT_ID
       value: 35e23674-b465-4664-88c6-ae7539d67f5d
+    - name: IDPORTEN_ISSUER
+      value: https://idporten.no
     - name: BRUKERHJELP_GROUP_ID
       value: 7845a796-1516-4d14-b500-fd65c001f35c
     - name: OEKONOMI_GROUP_ID
