@@ -41,7 +41,10 @@ class PensjonRepresentasjonClientTest : FunSpec({
                     Representasjon(isValid = true, fullmaktGiverNavn = "Abc Æøå")
 
             server.takeRequest().requestUrl?.query shouldBe "validRepresentasjonstyper=PENSJON_FULLSTENDIG" +
+                    "&validRepresentasjonstyper=PENSJON_BEGRENSET" +
                     "&validRepresentasjonstyper=PENSJON_SKRIV" +
+                    "&validRepresentasjonstyper=PENSJON_KOMMUNISER" +
+                    "&validRepresentasjonstyper=PENSJON_LES" +
                     "&validRepresentasjonstyper=PENSJON_PENGEMOTTAKER" +
                     "&validRepresentasjonstyper=PENSJON_VERGE" +
                     "&validRepresentasjonstyper=PENSJON_VERGE_PENGEMOTTAKER" +
