@@ -93,7 +93,10 @@ class PensjonRepresentasjonClient(
         private val representasjonTypeListe: List<String> =
             listOf(
                 "PENSJON_FULLSTENDIG",
+                "PENSJON_BEGRENSET",
                 "PENSJON_SKRIV",
+                "PENSJON_KOMMUNISER",
+                "PENSJON_LES",
                 "PENSJON_PENGEMOTTAKER",
                 "PENSJON_VERGE",
                 "PENSJON_VERGE_PENGEMOTTAKER"
