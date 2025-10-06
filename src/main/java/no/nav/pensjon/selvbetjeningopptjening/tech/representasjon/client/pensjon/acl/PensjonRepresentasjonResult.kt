@@ -2,5 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.client.pensjo
 
 data class PensjonRepresentasjonResult(
     val hasValidRepresentasjonsforhold: Boolean?,
-    val fullmaktsgiverNavn: String?
+    val fullmaktsgiverNavn: String?,
+    val fullmaktsgiverFnrKryptert: String?,
+    val fullmaktsgiverFnr: String?
 )

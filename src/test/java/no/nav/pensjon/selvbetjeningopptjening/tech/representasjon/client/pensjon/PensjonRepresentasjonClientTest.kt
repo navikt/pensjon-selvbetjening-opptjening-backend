@@ -9,12 +9,21 @@ import no.nav.pensjon.selvbetjeningopptjening.tech.trace.TraceAid
 import no.nav.pensjon.selvbetjeningopptjening.testutil.Arrange
 import no.nav.pensjon.selvbetjeningopptjening.testutil.arrangeOkJsonResponse
 import okhttp3.mockwebserver.MockWebServer
+import org.intellij.lang.annotations.Language
 import org.springframework.web.reactive.function.client.WebClient
 
 class PensjonRepresentasjonClientTest : FunSpec({
 
     var server: MockWebServer? = null
     var baseUrl: String? = null
+
+    @Language("json")
+    val responseBody = """{
+    "hasValidRepresentasjonsforhold": true,
+    "fullmaktsgiverNavn": "Abc Æøå",
+    "fullmaktsgiverFnrKryptert": "kryptisk",
+    "fullmaktsgiverFnr": "$pid"
+}"""
 
     beforeSpec {
         Arrange.security()
@@ -27,7 +36,7 @@ class PensjonRepresentasjonClientTest : FunSpec({
     }
 
     test("hasValidRepresentasjonsforhold should return fullmaktsgiver if valid representasjon") {
-        server!!.arrangeOkJsonResponse("""{ "hasValidRepresentasjonsforhold": true, "fullmaktsgiverNavn": "Abc Æøå"}""")
+        server!!.arrangeOkJsonResponse(responseBody)
 
         Arrange.webClientContextRunner().run {
             val client = PensjonRepresentasjonClient(
