@@ -1,5 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.tech.crypto
 
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.nio.charset.StandardCharsets
@@ -24,11 +25,13 @@ import kotlin.text.toRegex
  */
 @Service
 class PidEncryptionService(
+    private val client: PidEncryptionClient,
     @Value("\${pid.encryption.key.new}") newKey: String,
     @Value("\${pid.encryption.key.old}") oldKey: String
 ) {
     private val newKeyPair = KeyPair.fromString(newKey)
     private val oldKeyPair = KeyPair.fromString(oldKey)
+    private val log = KotlinLogging.logger {}
 
     val publicKey: String
         get() = newKeyPair.exportablePublicKey
@@ -92,6 +95,18 @@ class PidEncryptionService(
             throw kotlin.RuntimeException("The private key for decryption is invalid", e)
         }
     }
+
+    fun decryptPid(encryptedPid: String?): String? {
+        if (isEncrypted(encryptedPid)) {
+            val decryptedPid = client.decrypt(encryptedPid)
+            log.info("======================== Decrypted pid :${decryptedPid} ========================")
+            return decryptedPid
+        }
+        else return encryptedPid
+    }
+
+    private fun isEncrypted(value: String?): Boolean =
+        !value.isNullOrEmpty() && value.contains(".")
 
     private fun encryptionCipher(): Cipher {
         val cipher = Cipher.getInstance(TRANSFORMATION)

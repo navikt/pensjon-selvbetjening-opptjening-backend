@@ -41,19 +41,34 @@ class SecurityContextEnricher(
             if (authentication == null) {
                 authentication = anonymousAuthentication()
             } else {
-                authentication = enrich(authentication, request)
+                authentication = enrichStep1(authentication, request)
+                authentication = enrichStep2(authentication as EnrichedAuthentication, request)
                 authentication = applyPotentialFullmakt(authentication, request)
             }
         }
     }
 
-    private fun enrich(auth: Authentication, request: HttpServletRequest) =
+    private fun enrichStep1(auth: Authentication, request: HttpServletRequest) =
         EnrichedAuthentication(
             initialAuth = auth,
             authType = authTypeDeducer.deduce(isRepresentant = false),
             egressTokenSuppliersByService = tokenSuppliers,
-            target = veiledetPid(request)?.let(::personUnderVeiledning) ?: selv()
+            target = selv()
         )
+
+    private fun enrichStep2(auth: EnrichedAuthentication, request: HttpServletRequest): EnrichedAuthentication {
+        val kryptertVeiledetPid = veiledetPid(request)
+        var veiledetPid = kryptertVeiledetPid
+        if (kryptertVeiledetPid?.getPid()?.contains(ENCRYPTION_MARK) == true) {
+            veiledetPid = Pid(pidDecrypter.decryptPid(kryptertVeiledetPid.getPid()))
+        }
+        return EnrichedAuthentication(
+            initialAuth = auth,
+            authType = auth.authType,
+            egressTokenSuppliersByService = tokenSuppliers,
+            target = veiledetPid?.let(::personUnderVeiledning) ?: selv()
+        )
+    }
 
     private fun veiledetPid(request: HttpServletRequest): Pid? =
         headerPid(request)
@@ -103,7 +118,7 @@ class SecurityContextEnricher(
         request.getHeader(CustomHttpHeaders.PID)?.let {
             when {
                 hasLength(it).not() -> null
-                else -> if (it.contains(ENCRYPTION_MARK)) pidDecrypter.decrypt(it) else it
+                else -> if (it.contains(ENCRYPTION_MARK)) pidDecrypter.decryptPid(it) else it
             }
         }?.let(::Pid)
 
