@@ -1,5 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.tech.crypto
 
+import mu.KotlinLogging
+import no.nav.pensjon.selvbetjeningopptjening.tech.web.EgressException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.nio.charset.StandardCharsets
@@ -28,6 +30,9 @@ class PidEncryptionService(
     @Value("\${pid.encryption.key.new}") newKey: String,
     @Value("\${pid.encryption.key.old}") oldKey: String
 ) {
+
+    private val log = KotlinLogging.logger {}
+
     private val newKeyPair = KeyPair.fromString(newKey)
     private val oldKeyPair = KeyPair.fromString(oldKey)
 
@@ -96,8 +101,13 @@ class PidEncryptionService(
 
     fun decryptPid(encryptedPid: String?): String? {
         if (isEncrypted(encryptedPid)) {
-            val decryptedPid = client.decrypt(encryptedPid)
-            return decryptedPid
+            try {
+                val decryptedPid = client.decrypt(encryptedPid)
+                return decryptedPid
+            } catch (e: EgressException) {
+                log.error("Pid decryption failed for " + encryptedPid + " : " + e.message)
+                throw kotlin.RuntimeException(e)
+            }
         }
         else return encryptedPid
     }
