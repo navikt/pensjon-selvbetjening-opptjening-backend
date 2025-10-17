@@ -25,7 +25,7 @@ public class Pid {
 
     public Pid(String value, boolean acceptSpecialCircumstances) throws PidValidationException {
         this.value = value;
-        //validate(acceptSpecialCircumstances);  /FIXME:Anders
+        validate(acceptSpecialCircumstances);
     }
 
     public String getPid() {
