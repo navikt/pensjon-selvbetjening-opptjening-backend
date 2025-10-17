@@ -11,7 +11,9 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
-
+import org.springframework.web.reactive.function.client.WebClientRequestException
+import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.security.core.AuthenticationException
 
 @Component
 class PidEncryptionClient(
@@ -21,35 +23,35 @@ class PidEncryptionClient(
     @Value("\${sob.web-client.retry-attempts}") retryAttempts: String
 ): PingableServiceClient(null, webClientBuilder, retryAttempts){
     fun decrypt(encryptedPid: String?): String? =
-        webClient
-            .post()
-            .uri("$baseUrl/api/decrypt")
-            .headers(::setHeaders)
-            .accept(MediaType.APPLICATION_JSON)
-            .bodyValue(encryptedPid!!)
-            .retrieve()
-            .bodyToMono(String::class.java)
-            .block()
+        try {
+            webClient
+                .post()
+                .uri("$baseUrl/api/decrypt")
+                .headers(::setHeaders)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(encryptedPid!!)
+                .retrieve()
+                .bodyToMono(String::class.java)
+                .block()
+        } catch (e: AuthenticationException)  {
+            throw EgressException("Failed obtaining access token for $baseUrl/api/decrypt", e)
+        } catch (e: WebClientRequestException) {
+            throw EgressException("Failed calling $baseUrl/api/decrypt", e)
+        } catch (e: WebClientResponseException) {
+            throw EgressException(e.responseBodyAsString, e)
+        }
 
     private fun setHeaders(headers: HttpHeaders) {
-        headers.setBearerAuth(EgressAccess.token(service).value)
+        headers.setBearerAuth(EgressAccess.token(service()).value)
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
     }
 
-    override fun toString(
-        e: EgressException,
-        uri: String
-    ): String {
-        TODO("Not yet implemented")
-    }
     override fun pingPath(): String = "$baseUrl/isAlive"
 
     override fun setPingHeaders(headers: HttpHeaders) {
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
     }
-    override fun service(): EgressService = PidEncryptionClient.Companion.service
 
-    companion object {
-        private val service = EgressService.PID_ENCRYPTION
-    }
+    override fun service(): EgressService = EgressService.PID_ENCRYPTION
+
 }

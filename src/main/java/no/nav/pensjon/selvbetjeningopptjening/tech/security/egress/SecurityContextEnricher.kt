@@ -41,14 +41,14 @@ class SecurityContextEnricher(
             if (authentication == null) {
                 authentication = anonymousAuthentication()
             } else {
-                authentication = enrichStep1(authentication, request)
+                authentication = enrichStep1(authentication)
                 authentication = enrichStep2(authentication as EnrichedAuthentication, request)
                 authentication = applyPotentialFullmakt(authentication, request)
             }
         }
     }
 
-    private fun enrichStep1(auth: Authentication, request: HttpServletRequest) =
+    private fun enrichStep1(auth: Authentication) =
         EnrichedAuthentication(
             initialAuth = auth,
             authType = authTypeDeducer.deduce(isRepresentant = false),

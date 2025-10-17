@@ -1,6 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.tech.crypto
 
-import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.nio.charset.StandardCharsets
@@ -31,7 +30,6 @@ class PidEncryptionService(
 ) {
     private val newKeyPair = KeyPair.fromString(newKey)
     private val oldKeyPair = KeyPair.fromString(oldKey)
-    private val log = KotlinLogging.logger {}
 
     val publicKey: String
         get() = newKeyPair.exportablePublicKey
@@ -99,7 +97,6 @@ class PidEncryptionService(
     fun decryptPid(encryptedPid: String?): String? {
         if (isEncrypted(encryptedPid)) {
             val decryptedPid = client.decrypt(encryptedPid)
-            log.info("======================== Decrypted pid :${decryptedPid} ========================")
             return decryptedPid
         }
         else return encryptedPid
