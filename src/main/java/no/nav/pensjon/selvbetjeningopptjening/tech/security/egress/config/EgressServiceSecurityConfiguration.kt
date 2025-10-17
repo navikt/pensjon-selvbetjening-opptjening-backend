@@ -18,6 +18,7 @@ open class EgressServiceSecurityConfiguration {
         @Value("\${pensjon.representasjon.app-id}") representasjonServiceId: String,
         @Value("\${skjermede-personer-pip-app-id}") skjermingServiceId: String,
         @Value("\${pensjonsopptjening-register-app-id}") opptjeningServiceId: String,
+        @Value("\${pid-encryption-app-id}") pidEncryptionServiceId: String
     ) =
         EgressServicesByAudience(
             mapOf(
@@ -26,6 +27,7 @@ open class EgressServiceSecurityConfiguration {
                 representasjonServiceId to EgressService.PENSJON_REPRESENTASJON,
                 skjermingServiceId to EgressService.SKJERMEDE_PERSONER,
                 opptjeningServiceId to EgressService.PENSJONSOPPTJENING,
+                pidEncryptionServiceId to EgressService.PID_ENCRYPTION,
             )
         )
 

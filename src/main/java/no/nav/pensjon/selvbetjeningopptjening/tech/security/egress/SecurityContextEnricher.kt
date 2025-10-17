@@ -41,23 +41,40 @@ class SecurityContextEnricher(
             if (authentication == null) {
                 authentication = anonymousAuthentication()
             } else {
-                authentication = enrich(authentication, request)
+                authentication = enrichStep1(authentication)
+                authentication = enrichStep2(authentication as EnrichedAuthentication, request)
                 authentication = applyPotentialFullmakt(authentication, request)
             }
         }
     }
 
-    private fun enrich(auth: Authentication, request: HttpServletRequest) =
+    private fun enrichStep1(auth: Authentication) =
         EnrichedAuthentication(
             initialAuth = auth,
             authType = authTypeDeducer.deduce(isRepresentant = false),
             egressTokenSuppliersByService = tokenSuppliers,
-            target = veiledetPid(request)?.let(::personUnderVeiledning) ?: selv()
+            target = selv()
         )
 
-    private fun veiledetPid(request: HttpServletRequest): Pid? =
-        headerPid(request)
-            ?: request.getParameter("pid")?.let(::Pid) //TODO remove this line when PID no longer in URL
+    private fun enrichStep2(auth: EnrichedAuthentication, request: HttpServletRequest): EnrichedAuthentication {
+        val kryptertPid = veiledetPid(request)
+        var veiledetPid: Pid?
+        if (kryptertPid?.contains(ENCRYPTION_MARK) == true) {
+            veiledetPid = Pid(pidDecrypter.decryptPid(kryptertPid))
+        } else {
+            veiledetPid = kryptertPid?.let { Pid(it) }
+        }
+        return EnrichedAuthentication(
+            initialAuth = auth,
+            authType = auth.authType,
+            egressTokenSuppliersByService = tokenSuppliers,
+            target = veiledetPid?.let(::personUnderVeiledning) ?: selv()
+        )
+    }
+
+    private fun veiledetPid(request: HttpServletRequest): String? =
+        ((headerPid(request)
+            ?: request.getParameter("pid")))
 
     private fun applyPotentialFullmakt(
         auth: Authentication,
@@ -99,13 +116,13 @@ class SecurityContextEnricher(
             target = RepresentasjonTarget(rolle = RepresentertRolle.NONE)
         )
 
-    private fun headerPid(request: HttpServletRequest): Pid? =
+    private fun headerPid(request: HttpServletRequest): String? =
         request.getHeader(CustomHttpHeaders.PID)?.let {
             when {
                 hasLength(it).not() -> null
-                else -> if (it.contains(ENCRYPTION_MARK)) pidDecrypter.decrypt(it) else it
+                else -> it
             }
-        }?.let(::Pid)
+        }
 
     private fun onBehalfOfPid(cookies: Array<Cookie>?): Pid? =
         cookies.orEmpty()
@@ -114,7 +131,7 @@ class SecurityContextEnricher(
             .firstOrNull()
 
     private companion object {
-        private const val ENCRYPTION_MARK = "."
+        const val ENCRYPTION_MARK = "."
         private const val ON_BEHALF_OF_COOKIE_NAME = "nav-obo"
 
         private fun personUnderVeiledning(pid: Pid) =
