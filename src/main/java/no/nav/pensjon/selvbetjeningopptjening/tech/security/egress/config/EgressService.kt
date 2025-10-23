@@ -22,5 +22,6 @@ enum class EgressService(
 
     PENSJONSOPPTJENING("Pensjonsopptjening", "POPP", "Pensjonsopptjeningsdata", supportsTokenExchange = true),
     PERSONDATA("Persondataløsningen", "PDL", "Persondata", supportsTokenExchange = true),
-    SKJERMEDE_PERSONER("Skjermede personer", "SP", "Skjerming", supportsTokenExchange = true);
+    SKJERMEDE_PERSONER("Skjermede personer", "SP", "Skjerming", supportsTokenExchange = false),
+    PID_ENCRYPTION("PID Encryption Service", "PES", "PID encryption", supportsTokenExchange = false);
 }
