@@ -1,12 +1,11 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
+import no.nav.pensjon.selvbetjeningopptjening.person.Person;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public class OpptjeningArguments {

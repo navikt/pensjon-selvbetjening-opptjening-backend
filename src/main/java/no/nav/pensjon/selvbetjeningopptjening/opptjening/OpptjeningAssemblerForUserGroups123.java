@@ -1,8 +1,8 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
+import no.nav.pensjon.selvbetjeningopptjening.person.Person;
 
 import java.util.List;
 import java.util.Map;

@@ -1,8 +1,8 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
+import no.nav.pensjon.selvbetjeningopptjening.person.Person;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -57,27 +57,17 @@ public class OpptjeningAssemblerForUserGroup4 extends OpptjeningAssembler {
     }
 
     private int calculateAndelNyttRegelverkUsergroup4(int fodselsaar) {
-        switch (fodselsaar) {
-            case 1954:
-                return 1;
-            case 1955:
-                return 2;
-            case 1956:
-                return 3;
-            case 1957:
-                return 4;
-            case 1958:
-                return 5;
-            case 1959:
-                return 6;
-            case 1960:
-                return 7;
-            case 1961:
-                return 8;
-            case 1962:
-                return 9;
-            default:
-                throw new IllegalStateException("Fodselsaar " + fodselsaar + " is not valid for Usergroup4");
-        }
+        return switch (fodselsaar) {
+            case 1954 -> 1;
+            case 1955 -> 2;
+            case 1956 -> 3;
+            case 1957 -> 4;
+            case 1958 -> 5;
+            case 1959 -> 6;
+            case 1960 -> 7;
+            case 1961 -> 8;
+            case 1962 -> 9;
+            default -> throw new IllegalStateException("Fodselsaar " + fodselsaar + " is not valid for Usergroup4");
+        };
     }
 }
