@@ -1,7 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.mapping;
 
-import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
-import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlResponse;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedselsdato;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Navn;
@@ -9,19 +7,20 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlData;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlMetadata;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlMetadataEndring;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
+import no.nav.pensjon.selvbetjeningopptjening.person.Foedselsdato2;
+import no.nav.pensjon.selvbetjeningopptjening.person.Person;
 
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
-import static no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.mapping.BirthDateMapper.fromDtos;
 
 public class PersonMapper {
 
     public static Person fromDto(PdlResponse response, Pid pid) {
-        List<BirthDate> birthDates = fromDtos(getBirths(response));
-        BirthDate birthDate = birthDates.isEmpty() ? null : birthDates.get(0);
+        List<Foedselsdato2> birthDates = PdlFoedselsdatoMapper.INSTANCE.fromDtos(getBirths(response));
+        Foedselsdato2 birthDate = birthDates.isEmpty() ? null : birthDates.getFirst();
         Navn navn = getLatestRegisteredNavn(getAllNavn(response));
         if (navn != null) {
             return new Person(pid, navn.getFornavn(), navn.getMellomnavn(), navn.getEtternavn(), birthDate);
@@ -58,7 +57,7 @@ public class PersonMapper {
     private static LocalDate getEndringstidspunkt(Navn navn) {
         PdlMetadata metadata = navn.getMetadata();
         if (metadata != null) {
-            return metadata.getMaster().toUpperCase().equals("FREG") ?
+            return metadata.getMaster().equalsIgnoreCase("FREG") ?
                     navn.getFolkeregistermetadata().getAjourholdstidspunkt()
                     :
                     getLatestEndring(metadata.getEndringer()).getRegistrert();

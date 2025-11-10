@@ -1,6 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.person;
 
-import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlException;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;

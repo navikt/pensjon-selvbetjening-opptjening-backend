@@ -1,12 +1,12 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl;
 
-import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlError;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlErrorExtension;
 import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
+import no.nav.pensjon.selvbetjeningopptjening.person.Person;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.EgressAccess;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressService;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.masking.Masker;
@@ -64,7 +64,7 @@ public class PdlConsumer implements Pingable {
         } catch (WebClientResponseException e) {
             throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, "", e.getResponseBodyAsString(), e);
         } catch (RuntimeException e) {
-            // E.g. Exceptions$ReactiveException when connection is broken
+            // E.g. Exceptions$ReactiveException when the connection is broken
             throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, e);
         }
     }
@@ -96,7 +96,7 @@ public class PdlConsumer implements Pingable {
         } catch (WebClientResponseException e) {
             throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, "", e.getResponseBodyAsString(), e);
         } catch (RuntimeException e) {
-            // E.g. Exceptions$ReactiveException when connection is broken
+            // E.g. Exceptions$ReactiveException when the connection is broken
             throw new FailedCallingExternalServiceException(CONSUMED_SERVICE, e);
         }
     }
@@ -150,7 +150,7 @@ public class PdlConsumer implements Pingable {
             return;
         }
 
-        PdlError error = errors.get(0);
+        PdlError error = errors.getFirst();
         PdlErrorExtension extensions = error.getExtensions();
 
         if (extensions == null || !StringUtils.hasText(extensions.getCode())) {
