@@ -1,6 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening.dto;
 
-import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
+import no.nav.pensjon.selvbetjeningopptjening.person.Person;
 
 import java.util.Map;
 

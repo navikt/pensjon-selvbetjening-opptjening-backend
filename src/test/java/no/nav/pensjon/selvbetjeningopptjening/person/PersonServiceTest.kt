@@ -1,73 +1,55 @@
-package no.nav.pensjon.selvbetjeningopptjening.person;
+package no.nav.pensjon.selvbetjeningopptjening.person
 
-import no.nav.pensjon.selvbetjeningopptjening.TestFnrs;
-import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
-import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlException;
-import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
+import no.nav.pensjon.selvbetjeningopptjening.TestFnrs
+import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer
+import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlException
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid
+import java.time.LocalDate
 
-import java.time.LocalDate;
+class PersonServiceTest : ShouldSpec({
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+    val pid = Pid(TestFnrs.NORMAL)
+    val pidFoedselsdato = LocalDate.of(1991, 2, 3)
 
-@ExtendWith(SpringExtension.class)
-class PersonServiceTest {
+    should("use that birthdate when PDL returns one birthdate") {
+        val pdlConsumer = mockk<PdlConsumer> {
+            every {
+                getPerson(any())
+            } returns Person(
+                pid = pid,
+                fornavn = null,
+                mellomnavn = null,
+                etternavn = null,
+                foedselsdato = Foedselsdato2(LocalDate.of(1982, 3, 4))
+            )
+        }
 
-    private static final Pid PID = new Pid(TestFnrs.NORMAL);
-    private static final LocalDate BIRTH_DATE_FROM_PID = LocalDate.of(1991, 2, 3);
-    private PersonService personService;
-
-    @Mock
-    private PdlConsumer pdlConsumer;
-
-    @BeforeEach
-    void initialize() {
-        personService = new PersonService(pdlConsumer);
-    }
-
-    @Test
-    void when_pdl_returns_oneBirthDate_then_getBirthDate_shall_use_that_birthDate() throws PdlException {
-        when(pdlConsumer.getPerson(any(Pid.class)))
-                .thenReturn(new Person(
-                        PID,
-                        null,
-                        null,
-                        null,
-                        new BirthDate(LocalDate.of(1982, 3, 4))));
-
-        LocalDate birthDate = personService.getPerson(PID).getFodselsdato();
-
-        assertEquals(LocalDate.of(1982, 3, 4), birthDate);
+        PersonService(pdlConsumer).getPerson(pid).getFodselsdato() shouldBe LocalDate.of(1982, 3, 4)
     }
 
 
+    should("use birthdate from PID when PDL call is unauthorized") {
+        val pdlConsumer = mockk<PdlConsumer> {
+            every {
+                getPerson(any())
+            } throws PdlException("message", "unauthorized")
+        }
 
-    @Test
-    void when_pdlCall_unauthorized_then_getBirthDate_shall_use_birthDate_from_Pid() throws PdlException {
-        when(pdlConsumer.getPerson(any(Pid.class)))
-                .thenThrow(new PdlException("message", "unauthorized"));
-
-        Person person = personService.getPerson(PID);
-
-        assertEquals(BIRTH_DATE_FROM_PID, person.getFodselsdato());
+        PersonService(pdlConsumer).getPerson(pid).getFodselsdato() shouldBe pidFoedselsdato
     }
 
-    @Test
-    void when_pdlCall_fails_then_getBirthDate_shall_use_birthDate_from_Pid() throws PdlException {
-        when(pdlConsumer.getPerson(any(Pid.class)))
-                .thenThrow(new FailedCallingExternalServiceException("", ""));
+    should("use birthdate from PID when PDL call fails") {
+        val pdlConsumer = mockk<PdlConsumer> {
+            every {
+                getPerson(any())
+            } throws FailedCallingExternalServiceException("", "")
+        }
 
-        Person person = personService.getPerson(PID);
-
-        assertEquals(BIRTH_DATE_FROM_PID, person.getFodselsdato());
+        PersonService(pdlConsumer).getPerson(pid).getFodselsdato() shouldBe pidFoedselsdato
     }
-}
+})

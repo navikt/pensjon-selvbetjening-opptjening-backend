@@ -1,7 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.mapping;
 
 import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
-import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlResponse;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.Foedselsdato;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.HentPersonResponse;
@@ -10,6 +9,7 @@ import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlData;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlFolkeregisterMetadata;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlMetadata;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.model.PdlMetadataEndring;
+import no.nav.pensjon.selvbetjeningopptjening.person.Person;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -17,8 +17,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 
 class PersonMapperTest {
     @Test
