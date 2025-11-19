@@ -21,7 +21,7 @@
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
         <kotlin.version>2.2.21</kotlin.version>
-        <okhttp3.version>5.1.0</okhttp3.version>
+        <okhttp3.version>5.3.2</okhttp3.version>
     </properties>
     <build>
         <finalName>selvbetjening-opptjening</finalName>
