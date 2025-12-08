@@ -131,6 +131,8 @@ spec:
       value: SYSLOG
     - name: STDOUT_LOG_OUTPUT
       value: JSON
+    - name: PID_ENCRYPTION_APP_ID
+      value: prod-gcp:pensjon-person:pensjon-pid-encryption
     - name: PID_ENCRYPTION_URL
       value: http://pensjon-pid-encryption.pensjon-person
     - name: PID_ENCRYPTION_SCOPE
