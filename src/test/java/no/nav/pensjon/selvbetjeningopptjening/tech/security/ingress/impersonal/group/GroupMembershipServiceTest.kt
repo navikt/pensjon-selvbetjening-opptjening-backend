@@ -1,135 +1,138 @@
 package no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.impersonal.group
 
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.pensjon.selvbetjeningopptjening.mock.TestObjects.pid
 import no.nav.pensjon.selvbetjeningopptjening.person.AdressebeskyttelseGradering
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.impersonal.fortrolig.FortroligAdresseService
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.impersonal.skjerming.SkjermingService
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.springframework.test.context.junit.jupiter.SpringExtension
 
-@ExtendWith(SpringExtension::class)
-class GroupMembershipServiceTest {
+class GroupMembershipServiceTest : ShouldSpec({
 
-    private lateinit var groupMembershipService: GroupMembershipService
-
-    @Mock
-    private lateinit var groupService: GroupService
-
-    @Mock
-    private lateinit var skjermingService: SkjermingService
-
-    @Mock
-    private lateinit var adresseService: FortroligAdresseService
-
-    @BeforeEach
-    fun initialize() {
-        groupMembershipService = GroupMembershipService(
-            brukerhjelpGroupId = "brukerhjelp-gruppa",
-            oekonomiGroupId = "økonomi-gruppa",
-            saksbehandlerGroupId = "saksbehandler-gruppa",
-            veilederGroupId = "veileder-gruppa",
-            egneAnsatteGroupId = "egne-ansatte-gruppa",
-            fortroligAdresseGroupId = "fortrolig-adresse-gruppa",
-            strengtFortroligAdresseGroupId = "strengt-fortrolig-adresse-gruppa",
-            groupService,
-            skjermingService,
-            adresseService
-        )
-    }
-
-    @Test
-    fun `innlogget bruker har i utgangspunktet ikke tilgang`() {
-        `when`(groupService.groups()).thenReturn(emptyList())
-        arrangeBeskyttelse(personErSkjermet = false, AdressebeskyttelseGradering.UGRADERT)
-
-        val harTilgang = groupMembershipService.innloggetBrukerHarTilgang(pid)
-
-        assertFalse(harTilgang)
-    }
-
-    @Test
-    fun `alminnelig veileder har tilgang til ubeskyttet person`() {
-        `when`(groupService.groups()).thenReturn(listOf("veileder-gruppa"))
-        arrangeBeskyttelse(personErSkjermet = false, AdressebeskyttelseGradering.UGRADERT)
-
-        val harTilgang = groupMembershipService.innloggetBrukerHarTilgang(pid)
-
-        assertTrue(harTilgang)
-    }
-
-    @Test
-    fun `alminnelig veileder har ikke tilgang til beskyttet person`() {
-        `when`(groupService.groups()).thenReturn(listOf("veileder-gruppa"))
-        arrangeBeskyttelse(personErSkjermet = true, AdressebeskyttelseGradering.UGRADERT)
-
-        val harTilgang = groupMembershipService.innloggetBrukerHarTilgang(pid)
-
-        assertFalse(harTilgang)
-    }
-
-    @Test
-    fun `veileder med fortrolig tilgang har ikke tilgang til personer med strengt fortrolig adresse`() {
-        `when`(groupService.groups()).thenReturn(listOf("veileder-gruppa", "fortrolig-adresse-gruppa"))
-        arrangeBeskyttelse(personErSkjermet = false, AdressebeskyttelseGradering.STRENGT_FORTROLIG)
-
-        val harTilgang = groupMembershipService.innloggetBrukerHarTilgang(pid)
-
-        assertFalse(harTilgang)
-    }
-
-    @Test
-    fun `veileder med strengt fortrolig tilgang har ikke tilgang til skjermet person`() {
-        `when`(groupService.groups()).thenReturn(listOf("veileder-gruppa", "strengt-fortrolig-adresse-gruppa"))
-        arrangeBeskyttelse(personErSkjermet = true, AdressebeskyttelseGradering.UGRADERT)
-
-        val harTilgang = groupMembershipService.innloggetBrukerHarTilgang(pid)
-
-        assertFalse(harTilgang)
-    }
-
-    @Test
-    fun `veileder med full tilgang har tilgang til skjermede personer med strengt fortrolig adresse`() {
-        `when`(groupService.groups()).thenReturn(
-            listOf(
-                "veileder-gruppa",
-                "egne-ansatte-gruppa",
-                "fortrolig-adresse-gruppa",
-                "strengt-fortrolig-adresse-gruppa"
+    context("innlogget bruker") {
+        should("i utgangspunktet ikke ha tilgang") {
+            val membershipService = arrangeMembershipService(
+                groups = emptyList(),
+                personErSkjermet = false,
+                gradering = AdressebeskyttelseGradering.UGRADERT
             )
-        )
-        arrangeBeskyttelse(personErSkjermet = true, AdressebeskyttelseGradering.STRENGT_FORTROLIG)
 
-        val harTilgang = groupMembershipService.innloggetBrukerHarTilgang(pid)
-
-        assertTrue(harTilgang)
+            membershipService.innloggetBrukerHarTilgang(pid) shouldBe false
+        }
     }
 
-    @Test
-    fun `veileder med kun tilleggstilganger har ikke tilgang til applikasjonen`() {
-        `when`(groupService.groups()).thenReturn(
-            listOf(
-                "egne-ansatte-gruppa",
-                "fortrolig-adresse-gruppa",
-                "strengt-fortrolig-adresse-gruppa"
-                // mangler grunntilgang (veileder-gruppa)
+    context("alminnelig veileder") {
+        should("ha tilgang til ubeskyttet person") {
+            val membershipService = arrangeMembershipService(
+                groups = listOf("veileder-gruppa"),
+                personErSkjermet = false,
+                gradering = AdressebeskyttelseGradering.UGRADERT
             )
-        )
-        arrangeBeskyttelse(personErSkjermet = false, AdressebeskyttelseGradering.UGRADERT)
 
-        val harTilgang = groupMembershipService.innloggetBrukerHarTilgang(pid)
+            membershipService.innloggetBrukerHarTilgang(pid) shouldBe true
+        }
 
-        assertFalse(harTilgang)
+        should("ikke ha tilgang til beskyttet person") {
+            val membershipService = arrangeMembershipService(
+                groups = listOf("veileder-gruppa"),
+                personErSkjermet = true,
+                gradering = AdressebeskyttelseGradering.UGRADERT
+            )
+
+            membershipService.innloggetBrukerHarTilgang(pid) shouldBe false
+        }
     }
 
+    context("veileder med fortrolig tilgang") {
+        should("ikke ha tilgang til personer med strengt fortrolig adresse") {
+            val membershipService = arrangeMembershipService(
+                groups = listOf("veileder-gruppa", "fortrolig-adresse-gruppa"),
+                personErSkjermet = false,
+                gradering = AdressebeskyttelseGradering.STRENGT_FORTROLIG
+            )
 
-    private fun arrangeBeskyttelse(personErSkjermet: Boolean, gradering: AdressebeskyttelseGradering) {
-        `when`(skjermingService.personErTilgjengelig(pid)).thenReturn(personErSkjermet.not())
-        `when`(adresseService.adressebeskyttelseGradering(pid)).thenReturn(gradering)
+            membershipService.innloggetBrukerHarTilgang(pid) shouldBe false
+        }
     }
-}
+
+    context("veileder med strengt fortrolig tilgang") {
+        should("ikke ha tilgang til skjermet person") {
+            val membershipService = arrangeMembershipService(
+                groups = listOf("veileder-gruppa", "strengt-fortrolig-adresse-gruppa"),
+                personErSkjermet = true,
+                gradering = AdressebeskyttelseGradering.UGRADERT
+            )
+
+            membershipService.innloggetBrukerHarTilgang(pid) shouldBe false
+        }
+    }
+
+    context("veileder med full tilgang") {
+        should("ha tilgang til skjermede personer med strengt fortrolig adresse") {
+            val membershipService = arrangeMembershipService(
+                groups = listOf(
+                    "veileder-gruppa",
+                    "egne-ansatte-gruppa",
+                    "fortrolig-adresse-gruppa",
+                    "strengt-fortrolig-adresse-gruppa"
+                ),
+                personErSkjermet = true,
+                gradering = AdressebeskyttelseGradering.STRENGT_FORTROLIG
+            )
+
+            membershipService.innloggetBrukerHarTilgang(pid) shouldBe true
+        }
+    }
+
+    context("veileder med kun tilleggstilganger") {
+        should("ikke ha tilgang til applikasjonen") {
+            val membershipService = arrangeMembershipService(
+                groups = listOf(
+                    "egne-ansatte-gruppa",
+                    "fortrolig-adresse-gruppa",
+                    "strengt-fortrolig-adresse-gruppa"
+                    // mangler grunntilgang (veileder-gruppa)
+                ),
+                personErSkjermet = false,
+                gradering = AdressebeskyttelseGradering.UGRADERT
+            )
+
+            membershipService.innloggetBrukerHarTilgang(pid) shouldBe false
+        }
+    }
+})
+
+private fun arrangeMembershipService(
+    groups: List<String>,
+    personErSkjermet: Boolean,
+    gradering: AdressebeskyttelseGradering
+) =
+    GroupMembershipService(
+        brukerhjelpGroupId = "brukerhjelp-gruppa",
+        oekonomiGroupId = "økonomi-gruppa",
+        saksbehandlerGroupId = "saksbehandler-gruppa",
+        veilederGroupId = "veileder-gruppa",
+        egneAnsatteGroupId = "egne-ansatte-gruppa",
+        fortroligAdresseGroupId = "fortrolig-adresse-gruppa",
+        strengtFortroligAdresseGroupId = "strengt-fortrolig-adresse-gruppa",
+        groupService = arrangeGroupService(groups),
+        skjermingService = arrangeSkjerming(personErSkjermet),
+        adresseService = arrangeAdressebeskyttelse(gradering)
+    )
+
+private fun arrangeAdressebeskyttelse(gradering: AdressebeskyttelseGradering) =
+    mockk<FortroligAdresseService>().apply {
+        every { adressebeskyttelseGradering(any()) } returns gradering
+    }
+
+private fun arrangeGroupService(groups: List<String>) =
+    mockk<GroupService>().apply {
+        every { groups() } returns groups
+    }
+
+private fun arrangeSkjerming(personErSkjermet: Boolean) =
+    mockk<SkjermingService>().apply {
+        every { personErTilgjengelig(any()) } returns personErSkjermet.not()
+    }

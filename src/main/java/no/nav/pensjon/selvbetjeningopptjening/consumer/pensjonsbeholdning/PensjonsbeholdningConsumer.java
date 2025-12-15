@@ -89,13 +89,13 @@ public class PensjonsbeholdningConsumer implements Pingable {
     }
 
     private String beholdningUri() {
-        return UriComponentsBuilder.fromHttpUrl(url)
+        return UriComponentsBuilder.fromUriString(url)
                 .path(SUB_PATH)
                 .toUriString();
     }
 
     private String pingUri() {
-        return UriComponentsBuilder.fromHttpUrl(url)
+        return UriComponentsBuilder.fromUriString(url)
                 .path(SUB_PATH + "/ping")
                 .toUriString();
     }

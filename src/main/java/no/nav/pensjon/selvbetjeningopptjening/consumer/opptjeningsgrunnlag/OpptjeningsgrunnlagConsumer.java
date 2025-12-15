@@ -88,7 +88,7 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
     }
 
     private String opptjeningUri(String fnr, Integer fomAr, Integer tomAr) {
-        var builder = UriComponentsBuilder.fromHttpUrl(url)
+        var builder = UriComponentsBuilder.fromUriString(url)
                 .path(SUB_PATH + fnr);
 
         if (fomAr != null) {
@@ -103,7 +103,7 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
     }
 
     private String pingUri() {
-        return UriComponentsBuilder.fromHttpUrl(url)
+        return UriComponentsBuilder.fromUriString(url)
                 .path(SUB_PATH + "ping")
                 .toUriString();
     }

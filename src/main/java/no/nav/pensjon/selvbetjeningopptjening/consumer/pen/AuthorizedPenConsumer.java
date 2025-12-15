@@ -27,7 +27,7 @@ public abstract class AuthorizedPenConsumer {
             return getter.apply(argument, getAuthHeaderValue());
         } catch (WebClientResponseException e) {
             throw handle(e, serviceName);
-        } catch (RuntimeException e) { // e.g. when connection broken
+        } catch (RuntimeException e) { // e.g., when connection broken
             throw handle(e, serviceName);
         }
     }
@@ -37,19 +37,16 @@ public abstract class AuthorizedPenConsumer {
     }
 
     private static FailedCallingExternalServiceException handle(WebClientResponseException e, String serviceIdentifier) {
-        if (e.getRawStatusCode() == HttpStatus.UNAUTHORIZED.value()) {
-            return new FailedCallingExternalServiceException(PEN, serviceIdentifier, "Received 401 UNAUTHORIZED", e);
-        }
-
-        if (e.getRawStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
-            return new FailedCallingExternalServiceException(PEN, serviceIdentifier, "An error occurred in the provider, received 500 INTERNAL SERVER ERROR", e);
-        }
-
-        if (e.getRawStatusCode() == HttpStatus.BAD_REQUEST.value()) {
-            return new FailedCallingExternalServiceException(PEN, serviceIdentifier, "Received 400 BAD REQUEST", e);
-        }
-
-        return new FailedCallingExternalServiceException(PEN, serviceIdentifier, "An error occurred in the consumer", e);
+        return switch (e.getStatusCode()) {
+            case HttpStatus.UNAUTHORIZED ->
+                    new FailedCallingExternalServiceException(PEN, serviceIdentifier, "Received 401 UNAUTHORIZED", e);
+            case HttpStatus.INTERNAL_SERVER_ERROR ->
+                    new FailedCallingExternalServiceException(PEN, serviceIdentifier, "An error occurred in the provider, received 500 INTERNAL SERVER ERROR", e);
+            case HttpStatus.BAD_REQUEST ->
+                    new FailedCallingExternalServiceException(PEN, serviceIdentifier, "Received 400 BAD REQUEST", e);
+            default ->
+                    new FailedCallingExternalServiceException(PEN, serviceIdentifier, "An error occurred in the consumer", e);
+        };
     }
 
     private static FailedCallingExternalServiceException handle(RuntimeException e, String service) {

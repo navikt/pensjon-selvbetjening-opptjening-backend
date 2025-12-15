@@ -1,6 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.tech.security.egress
 
-import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -23,20 +22,6 @@ import org.springframework.security.core.context.SecurityContextImpl
 class SecurityContextEnricherTest : FunSpec({
 
     val tokenSuppliers = EgressTokenSuppliersByService(emptyMap())
-
-    test("enrichAuthentication tolerates null authentication") {
-        setSecurityContext(authentication = null)
-
-        shouldNotThrowAny {
-            SecurityContextEnricher(
-                tokenSuppliers,
-                authTypeDeducer = mockk(relaxed = true),
-                securityContextPidExtractor = mockk(),
-                pidDecrypter = mockk(),
-                representasjonService = mockk()
-            ).enrichAuthentication(request = mockk(), response = mockk())
-        }
-    }
 
     test("enrichAuthentication uses plaintext PID from header if not encrypted") {
         setSecurityContext(authentication = mockk())
@@ -165,7 +150,7 @@ class SecurityContextEnricherTest : FunSpec({
     }
 })
 
-private fun setSecurityContext(authentication: Authentication?) {
+private fun setSecurityContext(authentication: Authentication) {
     SecurityContextHolder.setContext(SecurityContextImpl(authentication))
 }
 

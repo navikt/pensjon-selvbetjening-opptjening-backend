@@ -90,14 +90,14 @@ public class RestpensjonConsumer implements Pingable {
     }
 
     private String buildUrl(String fnr) {
-        return UriComponentsBuilder.fromHttpUrl(url)
+        return UriComponentsBuilder.fromUriString(url)
                 .pathSegment(RESOURCE, fnr)
                 .queryParam("hentSiste", "false")
                 .toUriString();
     }
 
     private String pingUri() {
-        return UriComponentsBuilder.fromHttpUrl(url)
+        return UriComponentsBuilder.fromUriString(url)
                 .pathSegment(RESOURCE, PING_ACTION)
                 .toUriString();
     }

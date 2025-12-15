@@ -1,41 +1,41 @@
-package no.nav.pensjon.selvbetjeningopptjening.config;
+package no.nav.pensjon.selvbetjeningopptjening.config
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import no.nav.pensjon.selvbetjeningopptjening.util.LocalDateTimeFromEpochDeserializer;
-import org.springframework.http.MediaType;
-import org.springframework.http.codec.ClientCodecConfigurer;
-import org.springframework.http.codec.json.Jackson2JsonDecoder;
-import org.springframework.web.reactive.function.client.ExchangeStrategies;
+import no.nav.pensjon.selvbetjeningopptjening.tech.json.LocalDateTimeFromEpochDeserializer
+import org.springframework.http.MediaType
+import org.springframework.http.codec.ClientCodecConfigurer
+import org.springframework.http.codec.json.JacksonJsonDecoder
+import org.springframework.web.reactive.function.client.ExchangeStrategies
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.databind.module.SimpleModule
+import java.time.LocalDate
 
-import java.time.LocalDate;
+object JsonEpochExchangeStrategies {
 
-class JsonEpochExchangeStrategies {
+    fun build(): ExchangeStrategies =
+        ExchangeStrategies.builder()
+            .codecs(::jsonEpochCodec)
+            .codecs { it.defaultCodecs().maxInMemorySize(16 * 1024 * 1024) }
+            .build()
 
-    static ExchangeStrategies build() {
-        return ExchangeStrategies.builder()
-                .codecs(JsonEpochExchangeStrategies::jsonEpochCodec)
-                .codecs(configurer -> configurer
-                        .defaultCodecs()
-                        .maxInMemorySize(16 * 1024 * 1024))
-                .build();
-    }
-
-    private static void jsonEpochCodec(ClientCodecConfigurer configurer) {
+    private fun jsonEpochCodec(configurer: ClientCodecConfigurer) {
         configurer
-                .defaultCodecs()
-                .jackson2JsonDecoder(jsonEpochDecoder());
+            .defaultCodecs()
+            .jacksonJsonDecoder(jsonEpochDecoder())
     }
 
-    private static Jackson2JsonDecoder jsonEpochDecoder() {
-        return new Jackson2JsonDecoder(epoch2DateMapper(), MediaType.APPLICATION_JSON);
-    }
+    private fun jsonEpochDecoder() =
+        JacksonJsonDecoder(epoch2DateMapper(), MediaType.APPLICATION_JSON)
 
-    private static ObjectMapper epoch2DateMapper() {
-        var mapper = new ObjectMapper();
-        var module = new SimpleModule();
-        module.addDeserializer(LocalDate.class, new LocalDateTimeFromEpochDeserializer());
-        mapper.registerModule(module);
-        return mapper;
-    }
+    /**
+     * Required for calls to POPP.
+     */
+    private fun epoch2DateMapper(): JsonMapper =
+        JsonMapper.builder()
+            .addModule(dateSerializerModule())
+            .build()
+
+    private fun dateSerializerModule() =
+        SimpleModule().apply {
+            addDeserializer(LocalDate::class.java, LocalDateTimeFromEpochDeserializer())
+        }
 }
