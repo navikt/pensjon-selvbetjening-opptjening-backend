@@ -91,13 +91,13 @@ public class PensjonspoengConsumer implements Pingable {
     }
 
     private String buildUrl(String fnr) {
-        return UriComponentsBuilder.fromHttpUrl(url)
+        return UriComponentsBuilder.fromUriString(url)
                 .pathSegment(RESOURCE, fnr)
                 .toUriString();
     }
 
     private String pingUri() {
-        return UriComponentsBuilder.fromHttpUrl(url)
+        return UriComponentsBuilder.fromUriString(url)
                 .pathSegment(RESOURCE, PING_ACTION)
                 .toUriString();
     }

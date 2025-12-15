@@ -28,6 +28,6 @@ class EgressAccessTokenFacade(
 
     companion object {
         private fun authType(): AuthType =
-            SecurityContextHolder.getContext().authentication.enriched().authType
+            SecurityContextHolder.getContext().authentication!!.enriched().authType
     }
 }

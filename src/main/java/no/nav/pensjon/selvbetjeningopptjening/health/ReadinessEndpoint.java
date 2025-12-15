@@ -4,7 +4,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,7 +36,7 @@ public class ReadinessEndpoint {
                 HttpStatus.OK);
     }
 
-    private static MultiValueMap<String, String> contentTypeHeaders(String mediaType) {
+    private static HttpHeaders contentTypeHeaders(String mediaType) {
         var headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, mediaType);
         return headers;

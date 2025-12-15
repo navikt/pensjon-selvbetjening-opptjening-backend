@@ -1,6 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -12,17 +13,17 @@ public class PoppUtil {
     private static final int CHECKED_EXCEPTION_HTTP_STATUS = 512;
 
     public static FailedCallingExternalServiceException handle(RestClientResponseException e, String service) {
-        int status = e.getRawStatusCode();
+        HttpStatusCode status = e.getStatusCode();
 
-        if (status == HttpStatus.UNAUTHORIZED.value()) {
+        if (status == HttpStatus.UNAUTHORIZED) {
             return new FailedCallingExternalServiceException(POPP, service, "Received 401 UNAUTHORIZED", e);
         }
 
-        if (status == CHECKED_EXCEPTION_HTTP_STATUS && isPersonDoesNotExistMessage(e.getMessage())) {
+        if (status.value() == CHECKED_EXCEPTION_HTTP_STATUS && isPersonDoesNotExistMessage(e.getMessage())) {
             return new FailedCallingExternalServiceException(POPP, service, "Person ikke funnet", e);
         }
 
-        if (status == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
+        if (status == HttpStatus.INTERNAL_SERVER_ERROR) {
             return new FailedCallingExternalServiceException(POPP, service, "An error occurred in the provider, received 500 INTERNAL SERVER ERROR", e);
         }
 
@@ -34,17 +35,17 @@ public class PoppUtil {
     }
 
     public static FailedCallingExternalServiceException handle(WebClientResponseException e, String service) {
-        int status = e.getRawStatusCode();
+        HttpStatusCode status = e.getStatusCode();
 
-        if (status == HttpStatus.UNAUTHORIZED.value()) {
+        if (status == HttpStatus.UNAUTHORIZED) {
             return new FailedCallingExternalServiceException(POPP, service, "Received 401 UNAUTHORIZED", e);
         }
 
-        if (status == CHECKED_EXCEPTION_HTTP_STATUS && isPersonDoesNotExistMessage(e.getResponseBodyAsString())) {
+        if (status.value() == CHECKED_EXCEPTION_HTTP_STATUS && isPersonDoesNotExistMessage(e.getResponseBodyAsString())) {
             return new FailedCallingExternalServiceException(POPP, service, "Person ikke funnet", e);
         }
 
-        if (status == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
+        if (status == HttpStatus.INTERNAL_SERVER_ERROR) {
             return new FailedCallingExternalServiceException(POPP, service, "An error occurred in the provider, received 500 INTERNAL SERVER ERROR", e);
         }
 

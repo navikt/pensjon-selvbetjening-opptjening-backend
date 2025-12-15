@@ -1,77 +1,82 @@
 package no.nav.pensjon.selvbetjeningopptjening.tech.security.egress
 
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import no.nav.pensjon.selvbetjeningopptjening.mock.TestObjects.pid
 import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.RepresentasjonTarget
 import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.RepresentertRolle
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressService
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressTokenSuppliersByService
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.token.RawJwt
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.util.function.Function
 
-@ExtendWith(SpringExtension::class)
-class EnrichedAuthenticationTest {
+class EnrichedAuthenticationTest : ShouldSpec({
 
-    private lateinit var enrichedAuthentication: EnrichedAuthentication
+    should("return access token for given egress service") {
+        EnrichedAuthentication(
+            initialAuth = mockk(),
+            authType = AuthType.PERSON_SELF,
+            egressTokenSuppliersByService = tokenSuppliersByService,
+            target = RepresentasjonTarget(pid, rolle = RepresentertRolle.SELV)
+        ).getEgressAccessToken(
+            service = EgressService.PERSONDATA,
+            ingressToken = ""
+        ).value shouldBe "token1"
+    }
 
-    @Mock
-    private lateinit var initialAuth: Authentication
+    context("getter functions") {
+        should("return values from the wrapped class") {
+            val initialAuth = mockk<Authentication>().apply {
+                every { name } returns "name1"
+                every { authorities } returns mutableListOf(GrantedAuthority { "authority1" })
+                every { credentials } returns "credentials1"
+                every { details } returns "details1"
+                every { principal } returns "principal1"
+                every { isAuthenticated } returns true
+            }
 
-    @BeforeEach
-    fun initialize() {
-        val tokenSuppliersByService =
-            EgressTokenSuppliersByService(mapOf(EgressService.PERSONDATA to Function { RawJwt("token1") }))
+            with(
+                EnrichedAuthentication(
+                    initialAuth,
+                    authType = AuthType.PERSON_SELF,
+                    egressTokenSuppliersByService = tokenSuppliersByService,
+                    target = RepresentasjonTarget(pid, rolle = RepresentertRolle.SELV)
+                )
+            ) {
+                name shouldBe "name1"
+                authorities.first().authority shouldBe "authority1"
+                credentials shouldBe "credentials1"
+                details shouldBe "details1"
+                principal shouldBe "principal1"
+                isAuthenticated shouldBe true
+            }
+        }
+    }
 
-        enrichedAuthentication =
-            EnrichedAuthentication(
-                initialAuth,
+    context("setAuthenticated") {
+        should("set the 'isAuthenticated' value in the wrapped class") {
+            val initialAuth = mockk<Authentication>().apply {
+                every { isAuthenticated = false } returns Unit
+            }
+            val enrichedAuthentication = EnrichedAuthentication(
+                initialAuth = initialAuth,
                 authType = AuthType.PERSON_SELF,
                 egressTokenSuppliersByService = tokenSuppliersByService,
-                target = RepresentasjonTarget(pid, RepresentertRolle.SELV)
+                target = RepresentasjonTarget(pid, rolle = RepresentertRolle.SELV)
             )
-    }
+            enrichedAuthentication.isAuthenticated = false
 
-    @Test
-    fun `getEgressAccessToken returns access token for given egress service`() {
-        val token = enrichedAuthentication.getEgressAccessToken(EgressService.PERSONDATA, "")
-        assertEquals("token1", token.value)
-    }
-
-    @Test
-    fun `verify that getters return values from wrapped class`() {
-        with(initialAuth) {
-            `when`(name).thenReturn("name1")
-            `when`(authorities).thenReturn(mutableListOf(GrantedAuthority { "authority1" }))
-            `when`(credentials).thenReturn("credentials1")
-            `when`(details).thenReturn("details1")
-            `when`(principal).thenReturn("principal1")
-            `when`(isAuthenticated).thenReturn(true)
-        }
-
-        with(enrichedAuthentication) {
-            assertEquals("name1", name)
-            assertEquals("authority1", authorities.first().authority)
-            assertEquals("credentials1", credentials)
-            assertEquals("details1", details)
-            assertEquals("principal1", principal)
-            assertTrue(isAuthenticated)
+            verify(exactly = 1) { initialAuth.isAuthenticated = false }
         }
     }
+})
 
-    @Test
-    fun `setAuthenticated sets the value in the wrapped class`() {
-        enrichedAuthentication.isAuthenticated = false
-        verify(initialAuth, times(1)).isAuthenticated = false
-    }
-}
+private val tokenSuppliersByService =
+    EgressTokenSuppliersByService(
+        value = mapOf(EgressService.PERSONDATA to Function { RawJwt("token1") })
+    )

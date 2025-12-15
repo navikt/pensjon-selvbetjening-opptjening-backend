@@ -117,7 +117,7 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
     }
 
     private String pingUri() {
-        return UriComponentsBuilder.fromHttpUrl(url).path(ENDPOINT_PATH + "/ping").toUriString();
+        return UriComponentsBuilder.fromUriString(url).path(ENDPOINT_PATH + "/ping").toUriString();
     }
 
     private String getAuthHeaderValue() {
@@ -125,25 +125,22 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
     }
 
     private String buildUrl(String endpoint, List<Long> vedtakIds) {
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(endpoint).path(ENDPOINT_PATH + "/search");
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(endpoint).path(ENDPOINT_PATH + "/search");
         vedtakIds.forEach(vedtakId -> uriBuilder.queryParam("vedtakId", vedtakId));
         return uriBuilder.toUriString();
     }
 
     private FailedCallingExternalServiceException handle(WebClientResponseException e, String serviceIdentifier) {
-        if (e.getRawStatusCode() == HttpStatus.UNAUTHORIZED.value()) {
-            return new FailedCallingExternalServiceException(PEN, serviceIdentifier, "Received 401 UNAUTHORIZED", e);
-        }
-
-        if (e.getRawStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
-            return new FailedCallingExternalServiceException(PEN, serviceIdentifier, "An error occurred in the provider, received 500 INTERNAL SERVER ERROR", e);
-        }
-
-        if (e.getRawStatusCode() == HttpStatus.BAD_REQUEST.value()) {
-            return new FailedCallingExternalServiceException(PEN, serviceIdentifier, "Received 400 BAD REQUEST", e);
-        }
-
-        return new FailedCallingExternalServiceException(PEN, serviceIdentifier, "An error occurred in the consumer", e);
+        return switch (e.getStatusCode()) {
+            case HttpStatus.UNAUTHORIZED ->
+                    new FailedCallingExternalServiceException(PEN, serviceIdentifier, "Received 401 UNAUTHORIZED", e);
+            case HttpStatus.INTERNAL_SERVER_ERROR ->
+                    new FailedCallingExternalServiceException(PEN, serviceIdentifier, "An error occurred in the provider, received 500 INTERNAL SERVER ERROR", e);
+            case HttpStatus.BAD_REQUEST ->
+                    new FailedCallingExternalServiceException(PEN, serviceIdentifier, "Received 400 BAD REQUEST", e);
+            default ->
+                    new FailedCallingExternalServiceException(PEN, serviceIdentifier, "An error occurred in the consumer", e);
+        };
     }
 
     private static FailedCallingExternalServiceException handle(RuntimeException e, String service) {

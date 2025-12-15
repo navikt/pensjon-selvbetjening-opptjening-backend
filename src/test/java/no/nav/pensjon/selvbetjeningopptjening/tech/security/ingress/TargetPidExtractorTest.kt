@@ -1,17 +1,24 @@
 package no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress
 
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.PidValidationException
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.EnrichedAuthentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.context.SecurityContextImpl
 
-class TargetPidExtractorTest {
+class TargetPidExtractorTest : ShouldSpec({
 
-    @Test
-    fun `'pid' function throws PidValidationException if no PID in security context`() {
-        SecurityContextHolder.setContext(SecurityContextImpl(null))
-        val exception = assertThrows(PidValidationException::class.java) { TargetPidExtractor().pid() }
-        assertEquals("Pid validation failed: No PID found", exception.message)
+    should("throw informative exception if no PID in security context") {
+        SecurityContextHolder.setContext(
+            SecurityContextImpl(
+                mockk<EnrichedAuthentication>().apply { every { targetPid() } returns null })
+        )
+
+        shouldThrow<PidValidationException> { TargetPidExtractor().pid() }.message shouldBe
+                "Pid validation failed: No PID found"
     }
-}
+})

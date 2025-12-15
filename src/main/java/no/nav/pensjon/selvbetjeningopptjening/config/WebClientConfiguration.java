@@ -36,7 +36,7 @@ public class WebClientConfiguration {
 
         return WebClient.builder()
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
-                .exchangeStrategies(JsonEpochExchangeStrategies.build())
+                .exchangeStrategies(JsonEpochExchangeStrategies.INSTANCE.build())
                 .build();
     }
 }

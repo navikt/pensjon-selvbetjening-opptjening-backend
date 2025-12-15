@@ -1,44 +1,40 @@
 package no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.impersonal.fortrolig
 
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.pensjon.selvbetjeningopptjening.mock.TestObjects.pid
 import no.nav.pensjon.selvbetjeningopptjening.person.AdressebeskyttelseGradering
 import no.nav.pensjon.selvbetjeningopptjening.person.Person2
 import no.nav.pensjon.selvbetjeningopptjening.person.Sivilstand
 import no.nav.pensjon.selvbetjeningopptjening.person.client.PersonClient
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.LocalDate
 
-@ExtendWith(SpringExtension::class)
-class FortroligAdresseServiceTest {
+class FortroligAdresseServiceTest : ShouldSpec({
 
-    @Mock
-    private lateinit var personClient: PersonClient
-
-    @Test
-    fun `adressebeskyttelseGradering returns person's adressebeskyttelsesgradering`() {
-        `when`(personClient.fetchAdressebeskyttelse(pid)).thenReturn(
-            Person2(
-                navn = "F",
+    should("return person's adressebeskyttelsesgradering") {
+        val personClient = mockk<PersonClient>().apply {
+            every {
+                fetchAdressebeskyttelse(any())
+            } returns Person2(
+                navn = "F E",
                 foedselsdato = LocalDate.MIN,
                 sivilstand = Sivilstand.UOPPGITT,
                 adressebeskyttelse = AdressebeskyttelseGradering.STRENGT_FORTROLIG
             )
-        )
+        }
 
-        val gradering = FortroligAdresseService(personClient).adressebeskyttelseGradering(pid)
-
-        assertEquals(AdressebeskyttelseGradering.STRENGT_FORTROLIG, gradering)
+        FortroligAdresseService(personClient).adressebeskyttelseGradering(pid) shouldBe
+                AdressebeskyttelseGradering.STRENGT_FORTROLIG
     }
 
-    @Test
-    fun `adressebeskyttelseGradering returns 'unknown' by default`() {
-        `when`(personClient.fetchAdressebeskyttelse(pid)).thenReturn(null)
-        val gradering = FortroligAdresseService(personClient).adressebeskyttelseGradering(pid)
-        assertEquals(AdressebeskyttelseGradering.UNKNOWN, gradering)
+    should("return 'unknown' by default") {
+        val personClient = mockk<PersonClient>().apply {
+            every { fetchAdressebeskyttelse(any()) } returns null
+        }
+
+        FortroligAdresseService(personClient).adressebeskyttelseGradering(pid) shouldBe
+                AdressebeskyttelseGradering.UNKNOWN
     }
-}
+})
