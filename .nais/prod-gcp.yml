@@ -28,6 +28,14 @@ spec:
   prometheus:
     enabled: true
     path: /internal/prometheus
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
+    logging:
+      destinations:
+        - id: elastic
+        - id: loki
   tokenx:
     enabled: true
   azure:
@@ -135,7 +143,5 @@ spec:
       value: prod-gcp:pensjon-person:pensjon-pid-encryption
     - name: PID_ENCRYPTION_URL
       value: http://pensjon-pid-encryption.pensjon-person
-    - name: PID_ENCRYPTION_SCOPE
-      value: api://prod-gcp.pensjon-person.pensjon-pid-encryption/.default
   envFrom:
     - configmap: loginservice-idporten
