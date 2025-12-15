@@ -272,7 +272,7 @@
         <dependency>
             <groupId>io.kotest</groupId>
             <artifactId>kotest-extensions-spring</artifactId>
-            <version>6.0.4</version>
+            <version>6.0.7</version>
             <scope>test</scope>
         </dependency>
         <dependency>
