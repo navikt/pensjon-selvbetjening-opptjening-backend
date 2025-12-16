@@ -8,12 +8,12 @@ import no.nav.pensjon.selvbetjeningopptjening.mock.TestObjects.emptyOpptjeningBa
 import no.nav.pensjon.selvbetjeningopptjening.person.Person
 import no.nav.pensjon.selvbetjeningopptjening.testutil.Arrange
 
-class OpptjeningAssemblerForUserGroup5Test : ShouldSpec({
+class OpptjeningAssemblerForUserGroups123Test : ShouldSpec({
 
-    should("returnere andel pensjon basert på beholdning = 10") {
+    should("returnere andel pensjon basert på beholdning = 0") {
         Arrange.security()
 
-        OpptjeningAssemblerForUserGroup5(mockk()).createResponse(
+        OpptjeningAssemblerForUserGroups123(mockk()).createResponse(
             Person(
                 PidGenerator.generatePidAtAge(50),
                 null,
@@ -22,6 +22,6 @@ class OpptjeningAssemblerForUserGroup5Test : ShouldSpec({
                 null
             ),
             emptyOpptjeningBasis
-        ).andelPensjonBasertPaBeholdning shouldBe 10
+        ).andelPensjonBasertPaBeholdning shouldBe 0
     }
 })

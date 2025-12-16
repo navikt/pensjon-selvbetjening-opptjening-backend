@@ -1,42 +1,29 @@
-package no.nav.pensjon.selvbetjeningopptjening.opptjening;
+package no.nav.pensjon.selvbetjeningopptjening.opptjening
 
-import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.maps.shouldHaveSize
+import io.mockk.mockk
+import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter
 
-import java.util.HashMap;
-import java.util.Map;
+class OpptjeningAssemblerTest : ShouldSpec({
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+    should("remove entry for given year") {
+        val opptjeningerByYear: Map<Int, Opptjening> = mapOf(
+            2018 to opptjening(),
+            2019 to opptjening(),
+            2020 to opptjening()
+        )
 
-@ExtendWith(SpringExtension.class)
-class OpptjeningAssemblerTest {
+        TestOpptjeningAssembler(
+            getter = mockk<UttaksgradGetter>()
+        ).removeFutureOpptjening(opptjeningerByYear, 2019)
 
-    @Mock
-    UttaksgradGetter uttaksgradGetter;
-
-    @Test
-    void test_that_removeFutureOpptjening_removes_entry_for_given_year() {
-        Map<Integer, Opptjening> opptjeningerByYear = new HashMap<>();
-        opptjeningerByYear.put(2018, opptjening());
-        opptjeningerByYear.put(2019, opptjening());
-        opptjeningerByYear.put(2020, opptjening());
-
-        new TestOpptjeningAssembler(uttaksgradGetter).removeFutureOpptjening(opptjeningerByYear, 2019);
-
-        assertEquals(2, opptjeningerByYear.size());
+        opptjeningerByYear shouldHaveSize 2
     }
+})
 
-    private static Opptjening opptjening() {
-        return new Opptjening(1L, 1.1D);
-    }
+private class TestOpptjeningAssembler(getter: UttaksgradGetter) :
+    OpptjeningAssembler(getter)
 
-    private static class TestOpptjeningAssembler extends OpptjeningAssembler {
-
-        TestOpptjeningAssembler(UttaksgradGetter uttaksgradGetter) {
-            super(uttaksgradGetter);
-        }
-    }
-}
+private fun opptjening() =
+    Opptjening(1L, 1.1)
