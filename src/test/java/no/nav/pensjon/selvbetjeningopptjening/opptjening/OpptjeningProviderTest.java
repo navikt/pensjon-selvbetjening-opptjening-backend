@@ -1,5 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
-/*
+/* TODO: Turn tests into Kotlin
 import no.nav.pensjon.selvbetjeningopptjening.PidGenerator;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.BirthDate;
 import no.nav.pensjon.selvbetjeningopptjening.common.domain.Person;
@@ -70,66 +70,6 @@ class OpptjeningProviderTest {
                 personConsumer,
                 personService,
                 uttaksgradConsumer);
-    }
-
-    @Test
-    void when_UserGroup5_then_set_fodselsaar_on_response() {
-        try (RequestContext ignored = RequestContextCreator.createForExternal()) {
-            int expectedFodselsaar = 1968;
-            LocalDate fodselsdato = LocalDate.of(expectedFodselsaar, 7, 6);
-            when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-            when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
-            when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
-            when(opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(any(String.class), anyInt(), anyInt())).thenReturn(emptyList());
-            when(personService.getPerson(any(Pid.class))).thenReturn(new Person(
-                    PidGenerator.generatePid(fodselsdato),
-                    null,
-                    null,
-                    null,
-                    new BirthDate(fodselsdato)));
-
-            OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato));
-
-            assertThat(opptjeningResponse.getFodselsaar(), is(expectedFodselsaar));
-        }
-    }
-
-    @Test
-    void when_UserGroup4_then_set_fodselsaar_on_response() {
-        try (RequestContext ignored = RequestContextCreator.createForExternal()) {
-            int expectedFodselsaar = 1956;
-            LocalDate fodselsdato = LocalDate.of(expectedFodselsaar, 7, 6);
-            when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-            when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
-            when(pensjonsbeholdningConsumer.getPensjonsbeholdning(any(String.class))).thenReturn(emptyList());
-            when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(emptyList());
-            when(personService.getPerson(any(Pid.class))).thenReturn(new Person(
-                    PidGenerator.generatePid(fodselsdato),
-                    null,
-                    null,
-                    null,
-                    new BirthDate(fodselsdato)));
-
-            OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato));
-
-            assertThat(opptjeningResponse.getFodselsaar(), is(expectedFodselsaar));
-        }
-    }
-
-    @Test
-    void when_UserGroup123_then_set_fodselsaar_on_response() {
-        try (RequestContext ignored = RequestContextCreator.createForExternal()) {
-            int expectedFodselsaar = 1950;
-            LocalDate fodselsdato = LocalDate.of(expectedFodselsaar, 7, 6);
-            when(uttaksgradConsumer.getAlderSakUttaksgradhistorikkForPerson(any(String.class))).thenReturn(emptyList());
-            when(personConsumer.getUforeHistorikkForPerson(any(String.class))).thenReturn(uforeHistorikk());
-            when(pensjonspoengConsumer.getPensjonspoengListe(any(String.class))).thenReturn(emptyList());
-            mockPerson(fodselsdato);
-
-            OpptjeningResponse opptjeningResponse = opptjeningProvider.calculateOpptjeningForFnr(generatePid(fodselsdato));
-
-            assertThat(opptjeningResponse.getFodselsaar(), is(expectedFodselsaar));
-        }
     }
 
     @Test
