@@ -4,8 +4,12 @@ import io.netty.channel.ChannelOption
 import io.netty.handler.logging.LogLevel
 import io.netty.handler.timeout.ReadTimeoutHandler
 import io.netty.handler.timeout.WriteTimeoutHandler
+import no.nav.pensjon.selvbetjeningopptjening.tech.json.EpochConfigurer.jsonEpochCodec
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.webclient.WebClientCustomizer
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
@@ -45,9 +49,44 @@ open class WebClientConfig : WebClientCustomizer {
             .filter(filterResponse())
     }
 
+    /**
+     * Web client for old-school service clients.
+     */
+    @Bean
+    @Primary
+    open fun webClient(): WebClient =
+        WebClient.builder()
+            .clientConnector(ReactorClientHttpConnector(httpClient()))
+            .build()
+
+    /**
+     * Web client for old-school service clients using epoch milliseconds for dates.
+     */
+    @Bean
+    @Qualifier("epoch-support")
+    open fun webClientWithEpochSupport(): WebClient =
+        WebClient.builder()
+            .clientConnector(ReactorClientHttpConnector(httpClient()))
+            .exchangeStrategies(exchangeStrategies())
+            .build()
+
     companion object {
         private const val MAX_IN_MEMORY_SIZE = 10485760 // 10 MB (10 * 1024 * 1024)
         private const val TIMEOUT: Long = 20_000
+
+        private fun httpClient(): HttpClient =
+            HttpClient.create()
+                .wiretap(
+                    "reactor.netty.http.client.HttpClient",
+                    LogLevel.DEBUG,
+                    AdvancedByteBufFormat.TEXTUAL
+                )
+
+        private fun exchangeStrategies(): ExchangeStrategies =
+            ExchangeStrategies.builder()
+                .codecs(::jsonEpochCodec)
+                .codecs { it.defaultCodecs().maxInMemorySize(16 * 1024 * 1024) }
+                .build()
 
         private fun addTimeoutHandlers(connection: Connection) {
             connection.addHandlerLast(ReadTimeoutHandler(TIMEOUT, TimeUnit.MILLISECONDS))
