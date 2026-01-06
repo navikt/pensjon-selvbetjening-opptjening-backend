@@ -19,14 +19,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import static java.util.Objects.requireNonNull;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
-import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.PEN;
 
 @Component
 public class PersonConsumer extends AuthorizedPenConsumer implements Pingable {
 
     private static final String PATH = "/pen/api/";
     private static final String PERSON_RESOURCE = "person";
-    private static final String SERVICE_DESCRIPTION = PEN + " " + PERSON_RESOURCE;
+    private static final String SERVICE_DESCRIPTION = PROVIDER + " " + PERSON_RESOURCE;
     private static final String AFP_HISTORIKK_SERVICE = "PROPEN2602 getAfphistorikkForPerson";
     private static final String UFORE_HISTORIKK_SERVICE = "PROPEN2603 getUforehistorikkForPerson";
     private static final String AFP_HISTORIKK_RESOURCE = "afphistorikk";

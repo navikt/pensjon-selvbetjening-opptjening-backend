@@ -10,12 +10,11 @@ import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.person.Person;
 import no.nav.pensjon.selvbetjeningopptjening.person.PersonService;
+import no.nav.pensjon.selvbetjeningopptjening.person.group.UserGroupUtil;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static no.nav.pensjon.selvbetjeningopptjening.util.UserGroupUtil.findUserGroup;
 
 @Component
 public class OpptjeningProvider {
@@ -47,7 +46,7 @@ public class OpptjeningProvider {
     public OpptjeningResponse calculateOpptjeningForFnr(Pid pid) {
         Person person = personService.getPerson(pid);
         String fnr = pid.getPid();
-        UserGroup userGroup = findUserGroup(person.getFodselsdato());
+        UserGroup userGroup = UserGroupUtil.INSTANCE.findUserGroup(person.getFodselsdato());
         List<Uttaksgrad> uttaksgrader = uttaksgradGetter.getAlderSakUttaksgradhistorikkForPerson(fnr);
         AfpHistorikk afpHistorikk = personConsumer.getAfpHistorikkForPerson(fnr);
         UforeHistorikk uforehistorikk = personConsumer.getUforeHistorikkForPerson(fnr);

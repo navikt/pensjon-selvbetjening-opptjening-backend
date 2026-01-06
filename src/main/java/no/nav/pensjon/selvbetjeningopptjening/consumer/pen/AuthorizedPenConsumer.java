@@ -11,10 +11,9 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import java.util.function.BiFunction;
 
-import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.PEN;
-
 public abstract class AuthorizedPenConsumer {
 
+    protected static final String PROVIDER = "PEN";
     private static final String AUTH_TYPE = "Bearer";
     private static final Logger log = LoggerFactory.getLogger(AuthorizedPenConsumer.class);
 
@@ -39,17 +38,17 @@ public abstract class AuthorizedPenConsumer {
     private static FailedCallingExternalServiceException handle(WebClientResponseException e, String serviceIdentifier) {
         return switch (e.getStatusCode()) {
             case HttpStatus.UNAUTHORIZED ->
-                    new FailedCallingExternalServiceException(PEN, serviceIdentifier, "Received 401 UNAUTHORIZED", e);
+                    new FailedCallingExternalServiceException(PROVIDER, serviceIdentifier, "Received 401 UNAUTHORIZED", e);
             case HttpStatus.INTERNAL_SERVER_ERROR ->
-                    new FailedCallingExternalServiceException(PEN, serviceIdentifier, "An error occurred in the provider, received 500 INTERNAL SERVER ERROR", e);
+                    new FailedCallingExternalServiceException(PROVIDER, serviceIdentifier, "An error occurred in the provider, received 500 INTERNAL SERVER ERROR", e);
             case HttpStatus.BAD_REQUEST ->
-                    new FailedCallingExternalServiceException(PEN, serviceIdentifier, "Received 400 BAD REQUEST", e);
+                    new FailedCallingExternalServiceException(PROVIDER, serviceIdentifier, "Received 400 BAD REQUEST", e);
             default ->
-                    new FailedCallingExternalServiceException(PEN, serviceIdentifier, "An error occurred in the consumer", e);
+                    new FailedCallingExternalServiceException(PROVIDER, serviceIdentifier, "An error occurred in the consumer", e);
         };
     }
 
     private static FailedCallingExternalServiceException handle(RuntimeException e, String service) {
-        return new FailedCallingExternalServiceException(PEN, service, "Failed to call service", e);
+        return new FailedCallingExternalServiceException(PROVIDER, service, "Failed to call service", e);
     }
 }

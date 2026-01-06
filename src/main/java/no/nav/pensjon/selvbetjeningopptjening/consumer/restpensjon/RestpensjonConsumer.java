@@ -3,6 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon;
 import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Restpensjon;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.popp.ErrorHandler;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.EgressAccess;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressService;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.masking.Masker;
@@ -20,7 +21,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
-import static no.nav.pensjon.selvbetjeningopptjening.consumer.PoppUtil.handle;
 import static no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.RestpensjonMapper.fromDto;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
 
@@ -61,9 +61,9 @@ public class RestpensjonConsumer implements Pingable {
 
             return response == null ? null : fromDto(response.getRestpensjoner());
         } catch (WebClientResponseException e) {
-            throw handle(e, CONSUMED_SERVICE);
+            throw ErrorHandler.INSTANCE.handle(e, CONSUMED_SERVICE);
         } catch (RuntimeException e) { // e.g. when connection broken
-            throw handle(e, CONSUMED_SERVICE);
+            throw ErrorHandler.INSTANCE.handle(e, CONSUMED_SERVICE);
         }
     }
 
@@ -78,9 +78,9 @@ public class RestpensjonConsumer implements Pingable {
                     .toBodilessEntity()
                     .block();
         } catch (WebClientResponseException e) {
-            throw handle(e, PING_SERVICE);
+            throw ErrorHandler.INSTANCE.handle(e, PING_SERVICE);
         } catch (RuntimeException e) { // e.g. when connection broken
-            throw handle(e, PING_SERVICE);
+            throw ErrorHandler.INSTANCE.handle(e, PING_SERVICE);
         }
     }
 
