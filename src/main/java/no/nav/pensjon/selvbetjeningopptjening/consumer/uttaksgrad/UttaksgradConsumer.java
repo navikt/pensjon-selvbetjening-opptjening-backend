@@ -9,6 +9,7 @@ import no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping.UttaksgradMappe
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.EgressAccess;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressService;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.masking.Masker;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -25,11 +26,11 @@ import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
-import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.PEN;
 
 @Component
 public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
 
+    private static final String PROVIDER = "PEN";
     private static final String PATH = "/pen/api/";
     private static final String UTTAKSGRAD_SERVICE = "PROPEN3000 getUttaksgradForVedtak";
     private static final String UTTAKSGRAD_HISTORIKK_SERVICE = "PROPEN3001 getAlderSakUttaksgradhistorikkForPerson";
@@ -66,7 +67,7 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
         } catch (WebClientResponseException e) {
             throw handle(e, UTTAKSGRAD_SERVICE);
         } catch (RuntimeException e) { // e.g. when connection broken
-            throw handle(e, UTTAKSGRAD_SERVICE);
+            throw exception(e, UTTAKSGRAD_SERVICE);
         }
     }
 
@@ -90,7 +91,7 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
         } catch (WebClientResponseException e) {
             throw handle(e, UTTAKSGRAD_HISTORIKK_SERVICE);
         } catch (RuntimeException e) { // e.g. when connection broken
-            throw handle(e, UTTAKSGRAD_HISTORIKK_SERVICE);
+            throw exception(e, UTTAKSGRAD_HISTORIKK_SERVICE);
         }
     }
 
@@ -107,7 +108,7 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
         } catch (WebClientResponseException e) {
             throw handle(e, PING_SERVICE);
         } catch (RuntimeException e) { // e.g. when connection broken
-            throw handle(e, PING_SERVICE);
+            throw exception(e, PING_SERVICE);
         }
     }
 
@@ -132,18 +133,20 @@ public class UttaksgradConsumer implements UttaksgradGetter, Pingable {
 
     private FailedCallingExternalServiceException handle(WebClientResponseException e, String serviceIdentifier) {
         return switch (e.getStatusCode()) {
-            case HttpStatus.UNAUTHORIZED ->
-                    new FailedCallingExternalServiceException(PEN, serviceIdentifier, "Received 401 UNAUTHORIZED", e);
+            case HttpStatus.UNAUTHORIZED -> exception(e, serviceIdentifier, "Received 401 UNAUTHORIZED");
             case HttpStatus.INTERNAL_SERVER_ERROR ->
-                    new FailedCallingExternalServiceException(PEN, serviceIdentifier, "An error occurred in the provider, received 500 INTERNAL SERVER ERROR", e);
-            case HttpStatus.BAD_REQUEST ->
-                    new FailedCallingExternalServiceException(PEN, serviceIdentifier, "Received 400 BAD REQUEST", e);
-            default ->
-                    new FailedCallingExternalServiceException(PEN, serviceIdentifier, "An error occurred in the consumer", e);
+                    exception(e, serviceIdentifier, "An error occurred in the provider, received 500 INTERNAL SERVER ERROR");
+            case HttpStatus.BAD_REQUEST -> exception(e, serviceIdentifier, "Received 400 BAD REQUEST");
+            default -> exception(e, serviceIdentifier, "An error occurred in the consumer");
         };
     }
 
-    private static FailedCallingExternalServiceException handle(RuntimeException e, String service) {
-        return new FailedCallingExternalServiceException(PEN, service, "Failed to call service", e);
+    @NotNull
+    private static FailedCallingExternalServiceException exception(WebClientResponseException e, String service, String message) {
+        return new FailedCallingExternalServiceException(PROVIDER, service, message, e);
+    }
+
+    private static FailedCallingExternalServiceException exception(RuntimeException e, String service) {
+        return new FailedCallingExternalServiceException(PROVIDER, service, "Failed to call service", e);
     }
 }

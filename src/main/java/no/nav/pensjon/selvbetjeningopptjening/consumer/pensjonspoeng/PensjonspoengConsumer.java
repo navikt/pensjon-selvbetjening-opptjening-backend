@@ -4,6 +4,7 @@ import no.nav.pensjon.selvbetjeningopptjening.health.PingInfo;
 import no.nav.pensjon.selvbetjeningopptjening.health.Pingable;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pensjonspoeng;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.PensjonspoengMapper;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.popp.ErrorHandler;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.EgressAccess;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressService;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.masking.Masker;
@@ -21,7 +22,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
-import static no.nav.pensjon.selvbetjeningopptjening.consumer.PoppUtil.handle;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
 
 @Component
@@ -61,9 +61,9 @@ public class PensjonspoengConsumer implements Pingable {
 
             return response == null ? null : PensjonspoengMapper.fromDto(response.getPensjonspoeng());
         } catch (WebClientResponseException e) {
-            throw handle(e, CONSUMED_SERVICE);
+            throw ErrorHandler.INSTANCE.serviceException(e, CONSUMED_SERVICE);
         } catch (RuntimeException e) { // e.g. when connection broken
-            throw handle(e, CONSUMED_SERVICE);
+            throw ErrorHandler.INSTANCE.specificException(e, CONSUMED_SERVICE);
         }
     }
 
@@ -79,9 +79,9 @@ public class PensjonspoengConsumer implements Pingable {
                     .toBodilessEntity()
                     .block();
         } catch (WebClientResponseException e) {
-            throw handle(e, PING_SERVICE);
+            throw ErrorHandler.INSTANCE.serviceException(e, PING_SERVICE);
         } catch (RuntimeException e) { // e.g. when connection broken
-            throw handle(e, PING_SERVICE);
+            throw ErrorHandler.INSTANCE.specificException(e, PING_SERVICE);
         }
     }
 
