@@ -10,7 +10,7 @@ object ErrorHandler {
     private const val CHECKED_EXCEPTION_HTTP_STATUS: Int = 512
     private const val PROVIDER: String = "POPP"
 
-    fun handle(e: RestClientResponseException, service: String): FailedCallingExternalServiceException {
+    fun serviceException(e: RestClientResponseException, service: String): FailedCallingExternalServiceException {
         val status = e.statusCode
 
         return when {
@@ -39,7 +39,7 @@ object ErrorHandler {
         }
     }
 
-    fun handle(e: WebClientResponseException, service: String): FailedCallingExternalServiceException {
+    fun serviceException(e: WebClientResponseException, service: String): FailedCallingExternalServiceException {
         val status = e.statusCode
 
         return when {
@@ -65,7 +65,7 @@ object ErrorHandler {
         }
     }
 
-    fun handle(e: RuntimeException?, service: String) =
+    fun specificException(e: RuntimeException?, service: String) =
         FailedCallingExternalServiceException(PROVIDER, service, "Failed to call service", e)
 
     private fun isPersonDoesNotExistMessage(responseBody: String?): Boolean =

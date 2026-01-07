@@ -58,9 +58,9 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
 
             return response == null ? null : fromDto(response.getOpptjeningsGrunnlag());
         } catch (WebClientResponseException e) {
-            throw ErrorHandler.INSTANCE.handle(e, CONSUMED_SERVICE);
+            throw ErrorHandler.INSTANCE.serviceException(e, CONSUMED_SERVICE);
         } catch (RuntimeException e) { // e.g. when connection broken
-            throw ErrorHandler.INSTANCE.handle(e, CONSUMED_SERVICE);
+            throw ErrorHandler.INSTANCE.specificException(e, CONSUMED_SERVICE);
         }
     }
 
@@ -76,9 +76,9 @@ public class OpptjeningsgrunnlagConsumer implements Pingable {
                     .toBodilessEntity()
                     .block();
         } catch (WebClientResponseException e) {
-            throw ErrorHandler.INSTANCE.handle(e, CONSUMED_SERVICE);
+            throw ErrorHandler.INSTANCE.serviceException(e, CONSUMED_SERVICE);
         } catch (RuntimeException e) { // e.g. when connection broken
-            throw ErrorHandler.INSTANCE.handle(e, CONSUMED_SERVICE);
+            throw ErrorHandler.INSTANCE.specificException(e, CONSUMED_SERVICE);
         }
     }
 

@@ -83,7 +83,7 @@ class ErrorHandlerTest : ShouldSpec({
         should("return 'failed calling external service' exception") {
             val exception = RuntimeException("oops")
 
-            val result: FailedCallingExternalServiceException = ErrorHandler.handle(exception, "service")
+            val result: FailedCallingExternalServiceException = ErrorHandler.specificException(exception, "service")
 
             with(result) {
                 message shouldBe "Error when calling the external service service in POPP. Failed to call service"
@@ -103,7 +103,7 @@ private fun testRestClientResponseException(message: String, status: Int, expect
         StandardCharsets.UTF_8
     )
 
-    ErrorHandler.handle(e = exception, service = "service").message shouldBe expectedMessage
+    ErrorHandler.serviceException(e = exception, service = "service").message shouldBe expectedMessage
 }
 
 private fun testWebClientResponseException(body: String, status: Int, expectedMessage: String) {
@@ -116,5 +116,5 @@ private fun testWebClientResponseException(body: String, status: Int, expectedMe
         StandardCharsets.UTF_8
     )
 
-    ErrorHandler.handle(e = exception, service = "service").message shouldBe expectedMessage
+    ErrorHandler.serviceException(e = exception, service = "service").message shouldBe expectedMessage
 }

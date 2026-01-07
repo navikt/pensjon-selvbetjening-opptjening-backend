@@ -61,9 +61,9 @@ public class PensjonspoengConsumer implements Pingable {
 
             return response == null ? null : PensjonspoengMapper.fromDto(response.getPensjonspoeng());
         } catch (WebClientResponseException e) {
-            throw ErrorHandler.INSTANCE.handle(e, CONSUMED_SERVICE);
+            throw ErrorHandler.INSTANCE.serviceException(e, CONSUMED_SERVICE);
         } catch (RuntimeException e) { // e.g. when connection broken
-            throw ErrorHandler.INSTANCE.handle(e, CONSUMED_SERVICE);
+            throw ErrorHandler.INSTANCE.specificException(e, CONSUMED_SERVICE);
         }
     }
 
@@ -79,9 +79,9 @@ public class PensjonspoengConsumer implements Pingable {
                     .toBodilessEntity()
                     .block();
         } catch (WebClientResponseException e) {
-            throw ErrorHandler.INSTANCE.handle(e, PING_SERVICE);
+            throw ErrorHandler.INSTANCE.serviceException(e, PING_SERVICE);
         } catch (RuntimeException e) { // e.g. when connection broken
-            throw ErrorHandler.INSTANCE.handle(e, PING_SERVICE);
+            throw ErrorHandler.INSTANCE.specificException(e, PING_SERVICE);
         }
     }
 
