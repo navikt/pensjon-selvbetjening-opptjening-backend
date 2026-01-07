@@ -125,5 +125,3 @@ spec:
       value: dev-gcp:pensjon-person:pensjon-pid-encryption
     - name: PID_ENCRYPTION_URL
       value: http://pensjon-pid-encryption.pensjon-person
-  envFrom:
-    - configmap: loginservice-idporten
