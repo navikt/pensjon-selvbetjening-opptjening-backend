@@ -7,10 +7,10 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import mu.KotlinLogging
 import no.nav.pensjon.selvbetjeningopptjening.common.exception.NotFoundException
-import no.nav.pensjon.selvbetjeningopptjening.consumer.CustomHttpHeaders
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.TargetPidExtractor
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.impersonal.audit.Auditor
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.impersonal.group.GroupMembershipService
+import no.nav.pensjon.selvbetjeningopptjening.tech.web.CustomHttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.util.StringUtils.hasLength

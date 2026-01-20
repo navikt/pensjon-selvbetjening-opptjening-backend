@@ -2,7 +2,6 @@ package no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.client.pensjo
 
 import mu.KotlinLogging
 import no.nav.pensjon.selvbetjeningopptjening.common.client.PingableServiceClient
-import no.nav.pensjon.selvbetjeningopptjening.consumer.CustomHttpHeaders
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid
 import no.nav.pensjon.selvbetjeningopptjening.tech.metric.MetricResult
 import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.Representasjon
@@ -12,6 +11,7 @@ import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.client.pensjon
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.EgressAccess
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressService
 import no.nav.pensjon.selvbetjeningopptjening.tech.trace.TraceAid
+import no.nav.pensjon.selvbetjeningopptjening.tech.web.CustomHttpHeaders
 import no.nav.pensjon.selvbetjeningopptjening.tech.web.EgressException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
@@ -28,10 +28,10 @@ import org.springframework.web.util.UriComponentsBuilder
  */
 @Component
 class PensjonRepresentasjonClient(
-    @param:Value("\${pensjon-representasjon.url}") private val baseUrl: String,
+    @param:Value($$"${pensjon-representasjon.url}") private val baseUrl: String,
     webClientBuilder: WebClient.Builder,
     private val traceAid: TraceAid,
-    @Value("\${sob.web-client.retry-attempts}") retryAttempts: String
+    @Value($$"${sob.web-client.retry-attempts}") retryAttempts: String
 ) : PingableServiceClient(null, webClientBuilder, retryAttempts),
     RepresentasjonClient {
 

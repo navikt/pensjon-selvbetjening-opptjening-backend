@@ -2,7 +2,6 @@ package no.nav.pensjon.selvbetjeningopptjening.person.client.pdl
 
 import mu.KotlinLogging
 import no.nav.pensjon.selvbetjeningopptjening.common.client.ExternalServiceClient
-import no.nav.pensjon.selvbetjeningopptjening.consumer.CustomHttpHeaders
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid
 import no.nav.pensjon.selvbetjeningopptjening.person.Person2
 import no.nav.pensjon.selvbetjeningopptjening.person.client.PersonClient
@@ -15,6 +14,7 @@ import no.nav.pensjon.selvbetjeningopptjening.tech.selftest.PingResult
 import no.nav.pensjon.selvbetjeningopptjening.tech.selftest.Pingable2
 import no.nav.pensjon.selvbetjeningopptjening.tech.selftest.ServiceStatus
 import no.nav.pensjon.selvbetjeningopptjening.tech.trace.TraceAid
+import no.nav.pensjon.selvbetjeningopptjening.tech.web.CustomHttpHeaders
 import no.nav.pensjon.selvbetjeningopptjening.tech.web.EgressException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
@@ -26,10 +26,10 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 @Component
 class PdlPersonClient(
-    @param:Value("\${persondata.url}") private val baseUrl: String,
+    @param:Value($$"${persondata.url}") private val baseUrl: String,
     webClientBuilder: WebClient.Builder,
     private val traceAid: TraceAid,
-    @Value("\${sob.web-client.retry-attempts}") retryAttempts: String
+    @Value($$"${sob.web-client.retry-attempts}") retryAttempts: String
 ) : ExternalServiceClient(retryAttempts), PersonClient, Pingable2 {
 
     private val webClient: WebClient = webClientBuilder.baseUrl(baseUrl).build()
@@ -81,7 +81,7 @@ class PdlPersonClient(
 
             PingResult(service, ServiceStatus.UP, "$baseUrl$uri", "Ping OK")
         } catch (e: EgressException) {
-            // Happens if failing to obtain access token
+            // Happens if failing to get an access token
             down(e)
         } catch (e: WebClientRequestException) {
             down(e)

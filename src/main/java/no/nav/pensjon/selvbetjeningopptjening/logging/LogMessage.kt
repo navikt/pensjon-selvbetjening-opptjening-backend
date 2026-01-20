@@ -1,12 +1,4 @@
-package no.nav.pensjon.selvbetjeningopptjening.logging;
+package no.nav.pensjon.selvbetjeningopptjening.logging
 
-public record LogMessage(String type, Object jsonContent) {
-
-    public Object getJsonContent() {
-        return jsonContent;
-    }
-
-    public String getType() {
-        return type;
-    }
+data class LogMessage(val type: String, val  jsonContent: Object) {
 }
