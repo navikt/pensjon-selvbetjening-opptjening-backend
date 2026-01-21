@@ -1,10 +1,10 @@
 package no.nav.pensjon.selvbetjeningopptjening.tech.crypto
 
 import no.nav.pensjon.selvbetjeningopptjening.common.client.PingableServiceClient
-import no.nav.pensjon.selvbetjeningopptjening.consumer.CustomHttpHeaders
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.EgressAccess
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressService
 import no.nav.pensjon.selvbetjeningopptjening.tech.trace.TraceAid
+import no.nav.pensjon.selvbetjeningopptjening.tech.web.CustomHttpHeaders
 import no.nav.pensjon.selvbetjeningopptjening.tech.web.EgressException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
@@ -17,7 +17,7 @@ import org.springframework.security.core.AuthenticationException
 
 @Component
 class PidEncryptionClient(
-    @Value("\${pid-encryption.endpoint.url}") private val baseUrl: String,
+    @param:Value($$"${pid-encryption.endpoint.url}") private val baseUrl: String,
     webClientBuilder: WebClient.Builder,
     private val traceAid: TraceAid,
     @Value("\${sob.web-client.retry-attempts}") retryAttempts: String
@@ -53,5 +53,4 @@ class PidEncryptionClient(
     }
 
     override fun service(): EgressService = EgressService.PID_ENCRYPTION
-
 }

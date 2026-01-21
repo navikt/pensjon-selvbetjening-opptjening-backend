@@ -3,7 +3,6 @@ package no.nav.pensjon.selvbetjeningopptjening.tech.security.egress
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import no.nav.pensjon.selvbetjeningopptjening.consumer.CustomHttpHeaders
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid
 import no.nav.pensjon.selvbetjeningopptjening.tech.crypto.PidEncryptionService
 import no.nav.pensjon.selvbetjeningopptjening.tech.metric.Metrics
@@ -14,6 +13,7 @@ import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.Egress
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.AccessDeniedReason
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.AuthTypeDeducer
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.SecurityContextPidExtractor
+import no.nav.pensjon.selvbetjeningopptjening.tech.web.CustomHttpHeaders
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder

@@ -6,15 +6,13 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static no.nav.pensjon.selvbetjeningopptjening.util.DateUtil.*;
-import static no.nav.pensjon.selvbetjeningopptjening.util.PeriodeUtil.isPeriodeWithinInterval;
-import static no.nav.pensjon.selvbetjeningopptjening.util.PeriodeUtil.sortPerioderByFomDate;
 
 public class EndringPensjonsbeholdningCalculator {
 
     static List<EndringPensjonsopptjening> calculatePensjonsbeholdningsendringer(int year,
                                                                                  List<Beholdning> beholdninger,
                                                                                  List<Uttaksgrad> uttaksgrader) {
-        List<Beholdning> sortedBeholdninger = sortPerioderByFomDate(beholdninger);
+        List<Beholdning> sortedBeholdninger = PeriodeUtil.INSTANCE.sortPerioderByFomDate(beholdninger);
 
         return sortedBeholdninger.isEmpty()
                 ? emptyList()
@@ -89,7 +87,7 @@ public class EndringPensjonsbeholdningCalculator {
             if (beholdning.startsFirstDayOf(year)) {
                 previousBeholdningsbelop = beholdning.getBelop();
                 previousBeholdning = beholdning;
-            } else if (isPeriodeWithinInterval(beholdning, firstDayOf(year), reguleringDayOf(year))) {
+            } else if (PeriodeUtil.INSTANCE.isPeriodeWithinInterval(beholdning, firstDayOf(year), reguleringDayOf(year))) {
                 double endringsbelop = beholdning.getBelop() - previousBeholdningsbelop;
 
                 beholdningsendringer.add(
@@ -247,7 +245,7 @@ public class EndringPensjonsbeholdningCalculator {
             return beholdning;
         }
 
-        if (!isPeriodeWithinInterval(beholdning, reguleringDate, lastDayOf(year))) {
+        if (!PeriodeUtil.INSTANCE.isPeriodeWithinInterval(beholdning, reguleringDate, lastDayOf(year))) {
             return previousBeholdning;
         }
 

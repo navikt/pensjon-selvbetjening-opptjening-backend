@@ -2,7 +2,6 @@ package no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.impersonal.
 
 import mu.KotlinLogging
 import no.nav.pensjon.selvbetjeningopptjening.common.client.PingableServiceClient
-import no.nav.pensjon.selvbetjeningopptjening.consumer.CustomHttpHeaders
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid
 import no.nav.pensjon.selvbetjeningopptjening.tech.metric.MetricResult
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.EgressAccess
@@ -11,6 +10,7 @@ import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.impersonal.s
 import no.nav.pensjon.selvbetjeningopptjening.tech.selftest.PingResult
 import no.nav.pensjon.selvbetjeningopptjening.tech.selftest.ServiceStatus
 import no.nav.pensjon.selvbetjeningopptjening.tech.trace.TraceAid
+import no.nav.pensjon.selvbetjeningopptjening.tech.web.CustomHttpHeaders
 import no.nav.pensjon.selvbetjeningopptjening.tech.web.EgressException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
@@ -29,10 +29,10 @@ import kotlin.jvm.java
  */
 @Component
 class NomSkjermingClient(
-    @param:Value("\${skjermede-personer.url}") private val baseUrl: String,
+    @param:Value($$"${skjermede-personer.url}") private val baseUrl: String,
     webClientBuilder: WebClient.Builder,
     private val traceAid: TraceAid,
-    @Value("\${sob.web-client.retry-attempts}") retryAttempts: String
+    @Value($$"${sob.web-client.retry-attempts}") retryAttempts: String
 ) : PingableServiceClient(baseUrl, webClientBuilder, retryAttempts),
     SkjermingClient {
 
@@ -80,7 +80,7 @@ class NomSkjermingClient(
                 message = "Ping OK"
             )
         } catch (e: EgressException) {
-            // Happens if failing to obtain access token
+            // Happens if failing to get an access token
             down(e)
         } catch (e: WebClientRequestException) {
             down(e)

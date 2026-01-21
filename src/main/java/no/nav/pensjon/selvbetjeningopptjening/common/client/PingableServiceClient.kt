@@ -41,7 +41,7 @@ abstract class PingableServiceClient(
 
             up(endpoint = fullUrl, message = responseBody)
         } catch (e: EgressException) {
-            // Happens if failing to obtain access token
+            // Happens if failing to get an access token
             down(uri = fullUrl, e)
         } catch (e: WebClientRequestException) {
             down(uri = fullUrl, e)
