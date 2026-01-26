@@ -275,7 +275,7 @@
         <dependency>
             <groupId>io.kotest</groupId>
             <artifactId>kotest-extensions-spring</artifactId>
-            <version>6.1.0</version>
+            <version>6.1.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
