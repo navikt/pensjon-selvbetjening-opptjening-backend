@@ -6,9 +6,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
+import no.nav.pensjon.selvbetjeningopptjening.person.PidValidator;
 
 import static java.lang.Integer.parseInt;
-import static no.nav.pensjon.selvbetjeningopptjening.person.PidValidator.isValidPid;
 
 public class PidGenerator {
 
@@ -39,7 +39,7 @@ public class PidGenerator {
             String candidate = date + padIndividnummer(nr);
             candidate += getk1k2(candidate);
 
-            if (isValidPid(candidate)) {
+            if (PidValidator.INSTANCE.isValidPid(candidate, false)) {
                 return new Pid(candidate);
             }
         }

@@ -1,12 +1,12 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
+import no.nav.pensjon.selvbetjeningopptjening.person.PidValidator;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 import static java.lang.String.format;
-import static no.nav.pensjon.selvbetjeningopptjening.person.PidValidator.getDatoPart;
-import static no.nav.pensjon.selvbetjeningopptjening.person.PidValidator.isValidPid;
 
 /**
  * Represents a personal identification number (PID).
@@ -41,7 +41,7 @@ public class Pid {
         }
 
         try {
-            return foedselsdato = LocalDate.parse(getDatoPart(value), DateTimeFormatter.ofPattern(DATO_PATTERN));
+            return foedselsdato = LocalDate.parse(PidValidator.INSTANCE.getDatoPart(value), DateTimeFormatter.ofPattern(DATO_PATTERN));
         } catch (DateTimeParseException e) {
             throw new PidValidationException(format("The value '%s' does not contain dato", value));
         }
@@ -58,7 +58,7 @@ public class Pid {
     }
 
     private void validate(boolean acceptSpecialCircumstances) throws PidValidationException {
-        if (isValidPid(value, acceptSpecialCircumstances)) {
+        if (PidValidator.INSTANCE.isValidPid(value, acceptSpecialCircumstances)) {
             return;
         }
 

@@ -8,101 +8,98 @@ class PidValidatorTest : ShouldSpec({
 
     context("isValidPid when PID has special circumstances") {
         should("return 'false' when special circumstances not allowed") {
-            PidValidator.isValidPid(SPECIAL_FNR_0, false) shouldBe false
-            PidValidator.isValidPid(SPECIAL_FNR_0) shouldBe false
-            PidValidator.isValidPid(SPECIAL_FNR_1, false) shouldBe false
-            PidValidator.isValidPid(SPECIAL_FNR_1) shouldBe false
-            PidValidator.isValidPid(SPECIAL_FNR_2) shouldBe false
-            PidValidator.isValidPid(SPECIAL_FNR_29_FEB) shouldBe false
-            PidValidator.isValidPid(SPECIAL_FNR_29_FEB, false) shouldBe false
-            PidValidator.isValidPid(SPECIAL_FNR_30_FEB) shouldBe false
-            PidValidator.isValidPid(SPECIAL_FNR_30_FEB, false) shouldBe false
-            PidValidator.isValidPid(SPECIAL_FNR_61_MAY) shouldBe false
-            PidValidator.isValidPid(SPECIAL_FNR_61_MAY, false) shouldBe false
-            PidValidator.isValidPid(SPECIAL_FNR_21_XXX) shouldBe false
-            PidValidator.isValidPid(SPECIAL_FNR_21_XXX, false) shouldBe false
-            PidValidator.isValidPid(SPECIAL_FNR_ZERO) shouldBe false
-            PidValidator.isValidPid(SPECIAL_FNR_ZERO, false) shouldBe false
-            PidValidator.isValidPid(SPECIAL_FNR_3_JAN_73, false) shouldBe false
-            PidValidator.isValidPid(SPECIAL_FNR_3_JAN_76, false) shouldBe false
-            PidValidator.isValidPid(SPECIAL_FNR_8_JUN_57, false) shouldBe false
+            PidValidator.isValidPid(value = SPECIAL_FNR_0, acceptSpecialCircumstances = false) shouldBe false
+            PidValidator.isValidPid(value = SPECIAL_FNR_1, acceptSpecialCircumstances = false) shouldBe false
+            PidValidator.isValidPid(value = SPECIAL_FNR_2, acceptSpecialCircumstances = false) shouldBe false
+            PidValidator.isValidPid(value = SPECIAL_FNR_29_FEB, acceptSpecialCircumstances = false) shouldBe false
+            PidValidator.isValidPid(value = SPECIAL_FNR_30_FEB, acceptSpecialCircumstances = false) shouldBe false
+            PidValidator.isValidPid(value = SPECIAL_FNR_61_MAY, acceptSpecialCircumstances = false) shouldBe false
+            PidValidator.isValidPid(value = SPECIAL_FNR_21_XXX, acceptSpecialCircumstances = false) shouldBe false
+            PidValidator.isValidPid(value = SPECIAL_FNR_ZERO, acceptSpecialCircumstances = false) shouldBe false
+            PidValidator.isValidPid(value = SPECIAL_FNR_3_JAN_73, acceptSpecialCircumstances = false) shouldBe false
+            PidValidator.isValidPid(value = SPECIAL_FNR_3_JAN_76, acceptSpecialCircumstances = false) shouldBe false
+            PidValidator.isValidPid(value = SPECIAL_FNR_8_JUN_57, acceptSpecialCircumstances = false) shouldBe false
+        }
+
+        should("use default 'false' for 'acceptSpecialCircumstances'") {
+            PidValidator.isValidPid(value = SPECIAL_FNR_0) shouldBe false
         }
 
         should("return 'true' when special circumstances allowed") {
-            PidValidator.isValidPid(SPECIAL_FNR_0, true) shouldBe true
-            PidValidator.isValidPid(SPECIAL_FNR_1, true) shouldBe true
-            PidValidator.isValidPid(SPECIAL_FNR_29_FEB, true) shouldBe true
-            PidValidator.isValidPid(SPECIAL_FNR_61_MAY, true) shouldBe true
-            PidValidator.isValidPid(SPECIAL_FNR_21_XXX, true) shouldBe true
-            PidValidator.isValidPid(SPECIAL_FNR_3_JAN_73, true) shouldBe true
-            PidValidator.isValidPid(SPECIAL_FNR_3_JAN_76, true) shouldBe true
+            PidValidator.isValidPid(value = SPECIAL_FNR_0, acceptSpecialCircumstances = true) shouldBe true
+            PidValidator.isValidPid(value = SPECIAL_FNR_1, acceptSpecialCircumstances = true) shouldBe true
+            PidValidator.isValidPid(value = SPECIAL_FNR_29_FEB, acceptSpecialCircumstances = true) shouldBe true
+            PidValidator.isValidPid(value = SPECIAL_FNR_61_MAY, acceptSpecialCircumstances = true) shouldBe true
+            PidValidator.isValidPid(value = SPECIAL_FNR_21_XXX, acceptSpecialCircumstances = true) shouldBe true
+            PidValidator.isValidPid(value = SPECIAL_FNR_3_JAN_73, acceptSpecialCircumstances = true) shouldBe true
+            PidValidator.isValidPid(value = SPECIAL_FNR_3_JAN_76, acceptSpecialCircumstances = true) shouldBe true
         }
     }
 
     context("isValidPid when PID has illegal special circumstances") {
         should("return 'false'") {
-            PidValidator.isValidPid(SPECIAL_FNR_ZERO, true) shouldBe false
-            PidValidator.isValidPid(SPECIAL_FNR_30_FEB, true) shouldBe false
-            PidValidator.isValidPid(SPECIAL_FNR_2, true) shouldBe false
+            PidValidator.isValidPid(value = SPECIAL_FNR_ZERO, acceptSpecialCircumstances = true) shouldBe false
+            PidValidator.isValidPid(value = SPECIAL_FNR_30_FEB, acceptSpecialCircumstances = true) shouldBe false
+            PidValidator.isValidPid(value = SPECIAL_FNR_2, acceptSpecialCircumstances = true) shouldBe false
         }
     }
 
     context("isValidPid when valid input") {
         should("return 'true' when valid fødselsnummer") {
-            PidValidator.isValidPid(TestFnrs.NORMAL) shouldBe true
+            PidValidator.isValidPid(value = TestFnrs.NORMAL) shouldBe true
         }
 
         should("return 'true' when valid Test-Norge-fødselsnummer") {
-            PidValidator.isValidPid(TESTNORGE_FNR) shouldBe true
+            PidValidator.isValidPid(value = TESTNORGE_FNR) shouldBe true
         }
 
         should("return 'true' when valid Dolly-fødselsnummer") {
-            PidValidator.isValidPid(DOLLY_FNR) shouldBe true
+            PidValidator.isValidPid(value = DOLLY_FNR) shouldBe true
         }
 
         should("return 'true' when valid BOST-nummer") {
-            PidValidator.isValidPid(MONTH_ABOVE_9_BOST_NR) shouldBe true
-            PidValidator.isValidPid(MONTH_BELOW_10_BOST_NR) shouldBe true
+            PidValidator.isValidPid(value = MONTH_ABOVE_9_BOST_NR) shouldBe true
+            PidValidator.isValidPid(value = MONTH_BELOW_10_BOST_NR) shouldBe true
         }
 
         should("return 'true' when valid D-nummer") {
-            PidValidator.isValidPid(D_NUMMER_VALID_0) shouldBe true
+            PidValidator.isValidPid(value = D_NUMMER_VALID_0) shouldBe true
         }
     }
 
     context("isValidPid when D-nummer ending with 00000N") {
         should("return 'true' when not accepting special circumstances") {
-            PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_1, false) shouldBe true
-            PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_2, false) shouldBe true
-            PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_3, false) shouldBe true
-            PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_4, false) shouldBe true
-            PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_5, false) shouldBe true
-            PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_6, false) shouldBe true
-            PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_7, false) shouldBe true
-            PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_8, false) shouldBe true
-            PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_9, false) shouldBe true
+            PidValidator.isValidPid(value = D_NUMMER_VALID_LOW_PNR_1, acceptSpecialCircumstances = false) shouldBe true
+            PidValidator.isValidPid(value = D_NUMMER_VALID_LOW_PNR_2, acceptSpecialCircumstances = false) shouldBe true
+            PidValidator.isValidPid(value = D_NUMMER_VALID_LOW_PNR_3, acceptSpecialCircumstances = false) shouldBe true
+            PidValidator.isValidPid(value = D_NUMMER_VALID_LOW_PNR_4, acceptSpecialCircumstances = false) shouldBe true
+            PidValidator.isValidPid(value = D_NUMMER_VALID_LOW_PNR_5, acceptSpecialCircumstances = false) shouldBe true
+            PidValidator.isValidPid(value = D_NUMMER_VALID_LOW_PNR_6, acceptSpecialCircumstances = false) shouldBe true
+            PidValidator.isValidPid(value = D_NUMMER_VALID_LOW_PNR_7, acceptSpecialCircumstances = false) shouldBe true
+            PidValidator.isValidPid(value = D_NUMMER_VALID_LOW_PNR_8, acceptSpecialCircumstances = false) shouldBe true
+            PidValidator.isValidPid(value = D_NUMMER_VALID_LOW_PNR_9, acceptSpecialCircumstances = false) shouldBe true
         }
 
         should("return 'true' when accepting special circumstances") {
-            PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_1, true) shouldBe true
-            PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_2, true) shouldBe true
-            PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_3, true) shouldBe true
-            PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_4, true) shouldBe true
-            PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_5, true) shouldBe true
-            PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_6, true) shouldBe true
-            PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_7, true) shouldBe true
-            PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_8, true) shouldBe true
-            PidValidator.isValidPid(D_NUMMER_VALID_LOW_PNR_9, true) shouldBe true
+            PidValidator.isValidPid(value = D_NUMMER_VALID_LOW_PNR_1, acceptSpecialCircumstances = true) shouldBe true
+            PidValidator.isValidPid(value = D_NUMMER_VALID_LOW_PNR_2, acceptSpecialCircumstances = true) shouldBe true
+            PidValidator.isValidPid(value = D_NUMMER_VALID_LOW_PNR_3, acceptSpecialCircumstances = true) shouldBe true
+            PidValidator.isValidPid(value = D_NUMMER_VALID_LOW_PNR_4, acceptSpecialCircumstances = true) shouldBe true
+            PidValidator.isValidPid(value = D_NUMMER_VALID_LOW_PNR_5, acceptSpecialCircumstances = true) shouldBe true
+            PidValidator.isValidPid(value = D_NUMMER_VALID_LOW_PNR_6, acceptSpecialCircumstances = true) shouldBe true
+            PidValidator.isValidPid(value = D_NUMMER_VALID_LOW_PNR_7, acceptSpecialCircumstances = true) shouldBe true
+            PidValidator.isValidPid(value = D_NUMMER_VALID_LOW_PNR_8, acceptSpecialCircumstances = true) shouldBe true
+            PidValidator.isValidPid(value = D_NUMMER_VALID_LOW_PNR_9, acceptSpecialCircumstances = true) shouldBe true
         }
     }
 
     context("getDatoPart") {
-        should("return adjustedDatoPart when valid testNorgeFnr as input") {
-            PidValidator.getDatoPart(TESTNORGE_FNR) shouldBe "29081955"
+        should("return adjusted dato part when valid 'Test-Norge'-fødselsnummer as input") {
+            PidValidator.getDatoPart(pid = TESTNORGE_FNR) shouldBe "29081955"
         }
 
-        should("return adjustedDatoPart when valid dollyFnr as input") {
-            PidValidator.getDatoPart(DOLLY_FNR) shouldBe "28051978"
+        should("return adjusted dato part when valid Dolly-fødselsnummer as input") {
+            PidValidator.getDatoPart(pid = DOLLY_FNR) shouldBe "28051978"
         }
     }
 })
