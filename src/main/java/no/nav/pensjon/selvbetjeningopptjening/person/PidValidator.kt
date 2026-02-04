@@ -10,6 +10,7 @@ import java.lang.Integer.parseInt
 object PidValidator {
     private const val FNR_LENGTH: Int = 11
     private const val MONTHS_PER_YEAR: Int = 12
+    private const val MAX_DAGER_I_FEBRUAR: Int = 29 // TODO: merge with DAYS_IN_FEBRUARY_IN_LEAP_YEARS
     private const val DNR_DAG_ADDITION: Int = 40
     private const val BOST_NUMMER_MAANED_ADDITION: Int = 20 // BOST is a legacy PID type (replaced by NPID)
     private const val DOLLY_FNR_MAANED_ADDITION: Int = 40
@@ -61,7 +62,7 @@ object PidValidator {
         }
 
         // FNR format will be <DDMMAAXXXYY>
-        val maaned = parseInt(value.substring(MAANED_START, AAR_START))
+        val maaned = rawMaaned(value)
 
         val result =
             when {
@@ -77,10 +78,10 @@ object PidValidator {
                 else -> value
             }
 
-        val dayValue = parseInt(value.take(2))
+        val dag: Int = dag(value)
 
         return when {
-            isDnrDag(dayValue) -> replaceDag(result, dayValue - DNR_DAG_ADDITION)
+            isDnrDag(dag) -> replaceDag(result, dag - DNR_DAG_ADDITION)
 
             isValidMaaned(maaned, BOST_NUMMER_MAANED_ADDITION) ->
                 replaceMaaned(result, maaned - BOST_NUMMER_MAANED_ADDITION)
@@ -95,16 +96,12 @@ object PidValidator {
     }
 
     private fun replaceDag(value: String, dag: Int): String =
-        StringBuffer(value).replace(DAG_START, MAANED_START, String.format("%02d", dag)).toString()
+        StringBuffer(value).replace(DAG_START, DAG_END, String.format("%02d", dag)).toString()
 
     private fun replaceMaaned(value: String, maaned: Int): String =
-        StringBuffer(value).replace(MAANED_START, AAR_START, String.format("%02d", maaned)).toString()
+        StringBuffer(value).replace(MAANED_START, MAANED_END, String.format("%02d", maaned)).toString()
 
     private fun isDnrDag(value: Int): Boolean =
-        // In a D-nummer 40 is added to the date part
-        value in DNR_DAG_ADDITION..71
-
-    private fun isDnrDagValidDayOfMonth(value: Int): Boolean =
         isDayOfMonth(value - DNR_DAG_ADDITION)
 
     /**
@@ -115,10 +112,10 @@ object PidValidator {
      * as such PIDs can never be guaranteed.
      */
     private fun isDnr(value: String): Boolean =
-        isDnrDagValidDayOfMonth(dag(value))
+        isDnrDag(dag(value))
 
     private fun dag(pid: String): Int =
-        parseInt(pid.substring(DAG_START, DAG_END))
+        parseInt(pid.take(DAG_END))
 
     private fun rawDagAndMaaned(pid: String): String =
         pid.substring(DAG_START, MAANED_END)
@@ -192,6 +189,9 @@ object PidValidator {
         val k1 = parseInt(value.substring(9, 10))
         val k2 = parseInt(value.substring(10))
 
+        // Try to satisfy overflow check in CodeQL:
+        if (d1 + d2 + m1 + m2 + a1 + a2 + i1 + i2 + i3 + k1 + k2 !in 0..99) return false
+
         // Control 1:
         val v1 = 3 * d1 + 7 * d2 + 6 * m1 + m2 + 8 * a1 + 9 * a2 + 4 * i1 + 5 * i2 + 2 * i3
         var tmp = v1 / 11
@@ -239,7 +239,7 @@ object PidValidator {
 
     private fun dagerIMaaneden(maaned: Int, aar: Int): Int =
         if (maaned == 2 && aar == DOEDFOEDT_BARN_AAR)
-            29 // år -1 anses som skuddår
+            MAX_DAGER_I_FEBRUAR // år -1 anses her som skuddår
         else
             getDaysInMonth(maaned, aar)
 }
