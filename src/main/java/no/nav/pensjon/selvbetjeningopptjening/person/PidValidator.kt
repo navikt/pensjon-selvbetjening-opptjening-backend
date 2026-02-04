@@ -149,6 +149,8 @@ object PidValidator {
         val individnummer = individnummer(pid)
         val aar = rawAar(pid)
 
+        if (aar > 99) return 0 // overflow guard
+
         return when {
             individnummer < 500 -> aar + 1900
             individnummer < 750 && 54 < aar -> aar + 1800
@@ -240,4 +242,7 @@ object PidValidator {
 }
 
 fun Int.x(digit: Int): Int =
-    if (abs(digit) < 10 && abs(this) < 10) this * digit else throw IllegalArgumentException("digit must be 0..9")
+    if (this in 0..9 && digit in 0..9)
+        this * digit
+    else
+        throw IllegalArgumentException("digit must be 0..9")
