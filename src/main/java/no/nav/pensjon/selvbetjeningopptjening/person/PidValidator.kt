@@ -177,28 +177,26 @@ object PidValidator {
 
     private fun isStrictlyModulus11Compliant(value: String): Boolean {
         // Format: DDMMYYiiikk
-        val d1 = parseInt(value.take(1)).also { if (abs(it) > 9) return false }
-        val d2 = parseInt(value.substring(1, 2)).also { if (abs(it) > 9) return false }
-        val m1 = parseInt(value.substring(2, 3)).also { if (abs(it) > 9) return false }
-        val m2 = parseInt(value.substring(3, 4)).also { if (abs(it) > 9) return false }
-        val a1 = parseInt(value.substring(4, 5)).also { if (abs(it) > 9) return false }
-        val a2 = parseInt(value.substring(5, 6)).also { if (abs(it) > 9) return false }
-        val i1 = parseInt(value.substring(6, 7)).also { if (abs(it) > 9) return false }
-        val i2 = parseInt(value.substring(7, 8)).also { if (abs(it) > 9) return false }
-        val i3 = parseInt(value.substring(8, 9)).also { if (abs(it) > 9) return false }
-        val k1 = parseInt(value.substring(9, 10)).also { if (abs(it) > 9) return false }
-        val k2 = parseInt(value.substring(10)).also { if (abs(it) > 9) return false }
+        val d1 = parseInt(value.take(1))
+        val d2 = parseInt(value.substring(1, 2))
+        val m1 = parseInt(value.substring(2, 3))
+        val m2 = parseInt(value.substring(3, 4))
+        val a1 = parseInt(value.substring(4, 5))
+        val a2 = parseInt(value.substring(5, 6))
+        val i1 = parseInt(value.substring(6, 7))
+        val i2 = parseInt(value.substring(7, 8))
+        val i3 = parseInt(value.substring(8, 9))
+        val k1 = parseInt(value.substring(9, 10))
+        val k2 = parseInt(value.substring(10))
 
         // Control 1:
-        val v1 = 3 * d1 + 7 * d2 + 6 * m1 + m2 + 8 * a1 + 9 * a2 + 4 * i1 + 5 * i2 + 2 * i3
-        var tmp = v1 / 11
-        val rest1 = v1 - tmp * 11
+        val v1 = 3.x(d1) + 7.x(d2) + 6.x(m1) + m2 + 8.x(a1) + 9.x(a2) + 4.x(i1) + 5.x(i2) + 2.x(i3)
+        val rest1 = v1 - (v1 / 11) * 11
         val kontK1 = if (rest1 == 0) 0 else 11 - rest1
 
         // Control 2:
-        val v2 = 5 * d1 + 4 * d2 + 3 * m1 + 2 * m2 + 7 * a1 + 6 * a2 + 5 * i1 + 4 * i2 + 3 * i3 + 2 * k1
-        tmp = v2 / 11
-        val rest2 = v2 - tmp * 11
+        val v2 = 5.x(d1) + 4.x(d2) + 3.x(m1) + 2.x(m2) + 7.x(a1) + 6.x(a2) + 5.x(i1) + 4.x(i2) + 3.x(i3) + 2.x(k1)
+        val rest2 = v2 - (v2 / 11) * 11
         val kontK2 = if (rest2 == 0) 0 else 11 - rest2
 
         // Check that control numbers are correct:
@@ -240,3 +238,6 @@ object PidValidator {
         else
             getDaysInMonth(maaned, aar)
 }
+
+fun Int.x(digit: Int): Int =
+    if (abs(digit) < 10 && abs(this) < 10) this * digit else throw IllegalArgumentException("digit must be 0..9")
