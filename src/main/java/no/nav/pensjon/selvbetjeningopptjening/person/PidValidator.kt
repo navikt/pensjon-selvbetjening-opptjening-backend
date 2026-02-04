@@ -1,8 +1,8 @@
 package no.nav.pensjon.selvbetjeningopptjening.person
 
 import com.nimbusds.oauth2.sdk.util.StringUtils.isNumeric
-import no.nav.pensjon.selvbetjeningopptjening.util.DateUtil
 import no.nav.pensjon.selvbetjeningopptjening.util.DateUtil.getDaysInMonth
+import no.nav.pensjon.selvbetjeningopptjening.util.DateUtil.isDayOfMonth
 import org.springframework.util.StringUtils.hasText
 import org.springframework.util.StringUtils.trimAllWhitespace
 import java.lang.Integer.parseInt
@@ -15,6 +15,8 @@ object PidValidator {
     private const val DOLLY_FNR_MAANED_ADDITION: Int = 40
     private const val NPID_SYNTHETIC_FNR_MAANED_ADDITION: Int = 60
     private const val TESTNORGE_FNR_MAANED_ADDITION: Int = 80
+    private const val DOEDFOEDT_BARN_AAR: Int = -1
+
     // Indexes of parts of a person-ID:
     private const val DAG_START: Int = 0
     private const val MAANED_START: Int = 2
@@ -34,17 +36,18 @@ object PidValidator {
     fun isValidPid(value: String?, acceptSpecialCircumstances: Boolean = false): Boolean {
         val trimmedValue = value?.let(::trimAllWhitespace) ?: return false
 
-        if (isValid(trimmedValue, acceptSpecialCircumstances).not()) {
-            return false
-        }
-
-        val adjustedValue = makeDnrOrNpidOrSyntAdjustments(trimmedValue)
-        return hasValidDatoPart(pid = adjustedValue, isDnr = isDnr(trimmedValue))
+        return if (isValid(trimmedValue, acceptSpecialCircumstances).not())
+            false
+        else
+            hasValidDatoPart(
+                pid = makeDnrOrNpidOrSyntAdjustments(trimmedValue),
+                isDnr = isDnr(trimmedValue)
+            )
     }
 
     fun getDatoPart(pid: String): String {
         val adjustedPid = makeDnrOrNpidOrSyntAdjustments(pid)
-        return getDagAndMaaned(adjustedPid) + getAdjustedAar(adjustedPid, isDnr(pid))
+        return rawDagAndMaaned(adjustedPid) + adjustedAar(adjustedPid, isDnr(pid))
     }
 
     private fun isValid(value: String, acceptSpecialCircumstances: Boolean): Boolean =
@@ -58,18 +61,18 @@ object PidValidator {
         }
 
         // FNR format will be <DDMMAAXXXYY>
-        val monthValue = parseInt(value.substring(2, 4))
+        val maaned = parseInt(value.substring(MAANED_START, AAR_START))
 
         val result =
             when {
-                isMonth(monthValue, DOLLY_FNR_MAANED_ADDITION) ->
-                    replaceMonth(value, monthValue - DOLLY_FNR_MAANED_ADDITION)
+                isValidMaaned(value = maaned, adjustment = DOLLY_FNR_MAANED_ADDITION) ->
+                    replaceMaaned(value, maaned - DOLLY_FNR_MAANED_ADDITION)
 
-                isMonth(monthValue, NPID_SYNTHETIC_FNR_MAANED_ADDITION) ->
-                    replaceMonth(value, monthValue - NPID_SYNTHETIC_FNR_MAANED_ADDITION)
+                isValidMaaned(value = maaned, adjustment = NPID_SYNTHETIC_FNR_MAANED_ADDITION) ->
+                    replaceMaaned(value, maaned - NPID_SYNTHETIC_FNR_MAANED_ADDITION)
 
-                isMonth(monthValue, TESTNORGE_FNR_MAANED_ADDITION) ->
-                    replaceMonth(value, monthValue - TESTNORGE_FNR_MAANED_ADDITION)
+                isValidMaaned(value = maaned, adjustment = TESTNORGE_FNR_MAANED_ADDITION) ->
+                    replaceMaaned(value, maaned - TESTNORGE_FNR_MAANED_ADDITION)
 
                 else -> value
             }
@@ -77,30 +80,32 @@ object PidValidator {
         val dayValue = parseInt(value.take(2))
 
         return when {
-            isDnrDay(dayValue) -> replaceDay(result, dayValue - DNR_DAG_ADDITION)
+            isDnrDag(dayValue) -> replaceDag(result, dayValue - DNR_DAG_ADDITION)
 
-            isMonth(monthValue, BOST_NUMMER_MAANED_ADDITION) ->
-                replaceMonth(result, monthValue - BOST_NUMMER_MAANED_ADDITION)
+            isValidMaaned(maaned, BOST_NUMMER_MAANED_ADDITION) ->
+                replaceMaaned(result, maaned - BOST_NUMMER_MAANED_ADDITION)
 
             else -> result // value is neither BOST-nr. nor D-nr.
         }
     }
 
-    private fun isMonth(value: Int, adjustment: Int): Boolean {
+    private fun isValidMaaned(value: Int, adjustment: Int): Boolean {
         val monthValue = value - adjustment
         return monthValue in 1..MONTHS_PER_YEAR
     }
 
-    private fun replaceDay(value: String, day: Int): String =
-        StringBuffer(value).replace(0, 2, String.format("%02d", day)).toString()
+    private fun replaceDag(value: String, dag: Int): String =
+        StringBuffer(value).replace(DAG_START, MAANED_START, String.format("%02d", dag)).toString()
 
-    private fun replaceMonth(value: String, month: Int): String =
-        StringBuffer(value).replace(2, 4, String.format("%02d", month)).toString()
+    private fun replaceMaaned(value: String, maaned: Int): String =
+        StringBuffer(value).replace(MAANED_START, AAR_START, String.format("%02d", maaned)).toString()
 
-    private fun isDnrDay(day: Int): Boolean {
+    private fun isDnrDag(value: Int): Boolean =
         // In a D-nummer 40 is added to the date part
-        return (day in DNR_DAG_ADDITION..71)
-    }
+        value in DNR_DAG_ADDITION..71
+
+    private fun isDnrDagValidDayOfMonth(value: Int): Boolean =
+        isDayOfMonth(value - DNR_DAG_ADDITION)
 
     /**
      * A D-nummer (DNR) is used as the PID for foreigners living in Norway.
@@ -110,46 +115,49 @@ object PidValidator {
      * as such PIDs can never be guaranteed.
      */
     private fun isDnr(value: String): Boolean =
-        isDnrDag(getDag(value))
+        isDnrDagValidDayOfMonth(dag(value))
 
-    private fun getDagAndMaaned(pid: String): String =
-        pid.substring(DAG_START, MAANED_END)
-
-    private fun getDag(pid: String): Int =
+    private fun dag(pid: String): Int =
         parseInt(pid.substring(DAG_START, DAG_END))
 
-    private fun getMaaned(pid: String): Int =
+    private fun rawDagAndMaaned(pid: String): String =
+        pid.substring(DAG_START, MAANED_END)
+
+    private fun rawMaaned(pid: String): Int =
         parseInt(pid.substring(MAANED_START, MAANED_END))
 
-    private fun getAar(pid: String): Int =
+    private fun rawAar(pid: String): Int =
         parseInt(pid.substring(AAR_START, AAR_END))
 
-    private fun getIndividnummer(pid: String): Int =
+    private fun individnummer(pid: String): Int =
         parseInt(pid.substring(INDIVIDNUMMER_START, INDIVIDNUMMER_END))
 
-    private fun getPersonnummer(pid: String): Int =
+    private fun personnummer(pid: String): Int =
         parseInt(pid.substring(PERSONNUMMER_START))
 
-    private fun getAdjustedAar(pid: String, isDnr: Boolean): Int =
-        if (isDnr.not() && getPersonnummer(pid) < 10)
-            -1 // Stillborn baby (dødfødt barn)
+    private fun adjustedMaaned(pid: String): Int =
+        rawMaaned(pid).let { it - maanedAdjustment(maaned = it) }
+
+    private fun adjustedAar(pid: String, isDnr: Boolean): Int =
+        if (isDnr.not() && personnummer(pid) < 10)
+            DOEDFOEDT_BARN_AAR
         else
-            getAdjustedAar(pid)
+            adjustedAar(pid)
 
     /**
      * For an explanation of the magic numbers used in this method, see
      * e.g. http://www.fnrinfo.no/Info/Oppbygging.aspx
      */
-    private fun getAdjustedAar(pid: String): Int {
-        val individnummer = getIndividnummer(pid)
-        val aar = getAar(pid)
+    private fun adjustedAar(pid: String): Int {
+        val individnummer = individnummer(pid)
+        val aar = rawAar(pid)
 
         return when {
             individnummer < 500 -> aar + 1900
             individnummer < 750 && 54 < aar -> aar + 1800
             individnummer < 1000 && aar < 40 -> aar + 2000
             individnummer in 900..<1000 -> aar + 1900
-            else -> -1
+            else -> DOEDFOEDT_BARN_AAR
         }
     }
 
@@ -204,44 +212,34 @@ object PidValidator {
      * Checks that an FNR is formatted according to "special circumstances", i.e. when the personnummer part is 0 or 1.
      */
     private fun isSpecialCircumstance(pid: String): Boolean =
-        getPersonnummer(pid).let { it == 0 || it == 1 }
-
-    private fun isDnrDag(value: Int): Boolean =
-        DateUtil.isDayOfMonth(value - DNR_DAG_ADDITION)
+        personnummer(pid).let { it == 0 || it == 1 }
 
     private fun hasValidDatoPart(pid: String, isDnr: Boolean): Boolean {
-        var validDato = true
-        var maaned = getMaaned(pid)
+        val aar: Int = adjustedAar(pid, isDnr)
 
-        if (maaned > TESTNORGE_FNR_MAANED_ADDITION) {
-            maaned -= TESTNORGE_FNR_MAANED_ADDITION
-        } else if (maaned > DOLLY_FNR_MAANED_ADDITION) {
-            maaned -= DOLLY_FNR_MAANED_ADDITION
-        }
-
-        val aar = getAdjustedAar(pid, isDnr)
-        val isSpecial = isSpecialCircumstance(pid)
-
-        if (aar == -1 && !isSpecial) {
+        if (aar == DOEDFOEDT_BARN_AAR && isSpecialCircumstance(pid).not()) {
             return false // invalid year
         }
 
-        val dag = getDag(pid)
-
-        if (dag < 1) {
-            validDato = false
-        }
+        val dag = dag(pid)
 
         return try {
-            validDato and (dag <= getDagerInMaaned(maaned, aar))
+            0 < dag && dag <= dagerIMaaneden(maaned = adjustedMaaned(pid), aar)
         } catch (_: IllegalArgumentException) {
             false
         }
     }
 
-    private fun getDagerInMaaned(maaned: Int, aar: Int): Int =
-        if (maaned == 2 && aar == -1)
-            29 // For unknown reasons
+    private fun maanedAdjustment(maaned: Int): Int =
+        when {
+            maaned > TESTNORGE_FNR_MAANED_ADDITION -> TESTNORGE_FNR_MAANED_ADDITION
+            maaned > DOLLY_FNR_MAANED_ADDITION -> DOLLY_FNR_MAANED_ADDITION
+            else -> 0
+        }
+
+    private fun dagerIMaaneden(maaned: Int, aar: Int): Int =
+        if (maaned == 2 && aar == DOEDFOEDT_BARN_AAR)
+            29 // år -1 anses som skuddår
         else
             getDaysInMonth(maaned, aar)
 }
