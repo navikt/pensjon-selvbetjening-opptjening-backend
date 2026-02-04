@@ -102,7 +102,7 @@ object PidValidator {
         StringBuffer(value).replace(MAANED_START, MAANED_END, String.format("%02d", maaned)).toString()
 
     private fun isDnrDag(value: Int): Boolean =
-        isDayOfMonth(value - DNR_DAG_ADDITION)
+        value in 0..99 && isDayOfMonth(value - DNR_DAG_ADDITION)
 
     /**
      * A D-nummer (DNR) is used as the PID for foreigners living in Norway.
@@ -242,7 +242,9 @@ object PidValidator {
 }
 
 fun Int.x(digit: Int): Int =
-    if (this in 0..9 && digit in 0..9)
+    if (this == 0 || digit == 0)
+        0
+    else if (this in 1..9 && digit in 1..9 && digit < Int.MAX_VALUE / this)
         this * digit
     else
         throw IllegalArgumentException("digit must be 0..9")
