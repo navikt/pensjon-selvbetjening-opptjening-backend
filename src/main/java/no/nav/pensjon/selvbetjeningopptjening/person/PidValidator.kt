@@ -6,6 +6,7 @@ import no.nav.pensjon.selvbetjeningopptjening.util.DateUtil.isDayOfMonth
 import org.springframework.util.StringUtils.hasText
 import org.springframework.util.StringUtils.trimAllWhitespace
 import java.lang.Integer.parseInt
+import kotlin.math.abs
 
 object PidValidator {
     private const val FNR_LENGTH: Int = 11
@@ -61,8 +62,7 @@ object PidValidator {
             return value
         }
 
-        // FNR format will be <DDMMAAXXXYY>
-        val maaned = rawMaaned(value)
+        val maaned = rawMaaned(value).also { if (abs(it) > 99) return value }
 
         val result =
             when {
@@ -177,20 +177,17 @@ object PidValidator {
 
     private fun isStrictlyModulus11Compliant(value: String): Boolean {
         // Format: DDMMYYiiikk
-        val d1 = parseInt(value.take(1))
-        val d2 = parseInt(value.substring(1, 2))
-        val m1 = parseInt(value.substring(2, 3))
-        val m2 = parseInt(value.substring(3, 4))
-        val a1 = parseInt(value.substring(4, 5))
-        val a2 = parseInt(value.substring(5, 6))
-        val i1 = parseInt(value.substring(6, 7))
-        val i2 = parseInt(value.substring(7, 8))
-        val i3 = parseInt(value.substring(8, 9))
-        val k1 = parseInt(value.substring(9, 10))
-        val k2 = parseInt(value.substring(10))
-
-        // Try to satisfy overflow check in CodeQL:
-        if (d1 + d2 + m1 + m2 + a1 + a2 + i1 + i2 + i3 + k1 + k2 !in 0..99) return false
+        val d1 = parseInt(value.take(1)).also { if (abs(it) > 9) return false }
+        val d2 = parseInt(value.substring(1, 2)).also { if (abs(it) > 9) return false }
+        val m1 = parseInt(value.substring(2, 3)).also { if (abs(it) > 9) return false }
+        val m2 = parseInt(value.substring(3, 4)).also { if (abs(it) > 9) return false }
+        val a1 = parseInt(value.substring(4, 5)).also { if (abs(it) > 9) return false }
+        val a2 = parseInt(value.substring(5, 6)).also { if (abs(it) > 9) return false }
+        val i1 = parseInt(value.substring(6, 7)).also { if (abs(it) > 9) return false }
+        val i2 = parseInt(value.substring(7, 8)).also { if (abs(it) > 9) return false }
+        val i3 = parseInt(value.substring(8, 9)).also { if (abs(it) > 9) return false }
+        val k1 = parseInt(value.substring(9, 10)).also { if (abs(it) > 9) return false }
+        val k2 = parseInt(value.substring(10)).also { if (abs(it) > 9) return false }
 
         // Control 1:
         val v1 = 3 * d1 + 7 * d2 + 6 * m1 + m2 + 8 * a1 + 9 * a2 + 4 * i1 + 5 * i2 + 2 * i3
