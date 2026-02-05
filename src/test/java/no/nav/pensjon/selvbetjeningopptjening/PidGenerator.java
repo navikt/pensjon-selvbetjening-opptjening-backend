@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid;
-import no.nav.pensjon.selvbetjeningopptjening.person.PidValidator;
+import no.nav.pensjon.selvbetjeningopptjening.person.pid.PidValidator;
 
 import static java.lang.Integer.parseInt;
 

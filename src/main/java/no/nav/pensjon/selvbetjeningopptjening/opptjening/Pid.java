@@ -1,6 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.person.PidValidator;
+import no.nav.pensjon.selvbetjeningopptjening.person.pid.PidValidator;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -41,7 +41,7 @@ public class Pid {
         }
 
         try {
-            return foedselsdato = LocalDate.parse(PidValidator.INSTANCE.getDatoPart(value), DateTimeFormatter.ofPattern(DATO_PATTERN));
+            return foedselsdato = LocalDate.parse(PidValidator.INSTANCE.datoPart(value), DateTimeFormatter.ofPattern(DATO_PATTERN));
         } catch (DateTimeParseException e) {
             throw new PidValidationException(format("The value '%s' does not contain dato", value));
         }
