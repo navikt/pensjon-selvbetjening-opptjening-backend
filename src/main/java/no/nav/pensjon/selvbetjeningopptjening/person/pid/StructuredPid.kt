@@ -3,7 +3,6 @@ package no.nav.pensjon.selvbetjeningopptjening.person.pid
 import no.nav.pensjon.selvbetjeningopptjening.common.Aarstall
 import no.nav.pensjon.selvbetjeningopptjening.common.Base10Digit
 import no.nav.pensjon.selvbetjeningopptjening.util.DateUtil.getDaysInMonth
-import java.lang.Integer.parseInt
 
 /**
  * Strukturert person-ID for behandling av dens bestanddeler.
@@ -13,8 +12,8 @@ data class StructuredPid private constructor(
     val aar: PidAar,
     val maaned: PidMaaned,
     val dag: PidDag,
-    val individnummer: Int,
-    val personnummer: Int,
+    val individnummer: UShort,
+    val personnummer: UInt,
     val doedfoedt: Boolean,
     val digits: List<PidDigit>
 ) {
@@ -22,9 +21,9 @@ data class StructuredPid private constructor(
         aar = PidAar(pid.substring(AAR_START, AAR_END).toUByte()),
         maaned = PidMaaned(pid.substring(MAANED_START, MAANED_END).toUByte()),
         dag = PidDag.from(pid),
-        individnummer = parseInt(pid.substring(INDIVIDNUMMER_START, INDIVIDNUMMER_END)),
+        individnummer = pid.substring(INDIVIDNUMMER_START, INDIVIDNUMMER_END).toUShort(),
         personnummer = personnummer(pid),
-        doedfoedt = PidDag.from(pid).isDnrDag().not() && personnummer(pid) < 10,
+        doedfoedt = PidDag.from(pid).isDnrDag().not() && personnummer(pid) < 10u,
         digits = IntRange(0, 10).map {
             PidDigit(
                 base10Digit = Base10Digit(pid.substring(it, it + 1).toUByte()),
@@ -46,8 +45,8 @@ data class StructuredPid private constructor(
             .medDag(dag.justert())
 
     private fun datoPart(): String =
-        String.format("%02d", dag.value.toInt()) +
-                String.format("%02d", maaned.value.toInt()) +
+        twoDigitString(dag.value) +
+                twoDigitString(maaned.value) +
                 (if (doedfoedt) DOEDFOEDT_BARN_AAR else aar.justert(individnummer).value)
 
     private fun harGyldigDato(): Boolean {
@@ -95,7 +94,7 @@ data class StructuredPid private constructor(
      * Checks that an FNR is formatted according to "special circumstances", i.e. when the personnummer part is 0 or 1.
      */
     private fun isSpecialCircumstance(): Boolean =
-        personnummer.let { it == 0 || it == 1 }
+        personnummer.let { it == SPECIAL_PERSONNUMMER_0 || it == SPECIAL_PERSONNUMMER_1 }
 
     private fun medDag(value: PidDag) =
         StructuredPid(
@@ -128,6 +127,8 @@ data class StructuredPid private constructor(
         private const val MODULUS: UByte = 11u
         private const val ZERO: UByte = 0u
         private const val DOEDFOEDT_BARN_AAR: Int = -1
+        private const val SPECIAL_PERSONNUMMER_0: UInt = 0u
+        private const val SPECIAL_PERSONNUMMER_1: UInt = 1u
 
         // Indexes of parts of a person-ID:
         private const val MAANED_START: Int = 2
@@ -142,8 +143,8 @@ data class StructuredPid private constructor(
         private val weights1 = listOf(3, 7, 6, 1, 8, 9, 4, 5, 2, 0, 0)
         private val weights2 = listOf(5, 4, 3, 2, 7, 6, 5, 4, 3, 2, 0)
 
-        private fun personnummer(pid: String) =
-            parseInt(pid.substring(PERSONNUMMER_START))
+        private fun personnummer(pid: String): UInt =
+            pid.substring(PERSONNUMMER_START).toUInt()
 
         private fun dagerIMaaneden(maaned: PidMaaned, aar: Aarstall, doedfoedt: Boolean): Int {
             val maanedsnummer = maaned.value.toInt()
@@ -154,5 +155,8 @@ data class StructuredPid private constructor(
             else
                 getDaysInMonth(maanedsnummer, aarstall)
         }
+
+        private fun twoDigitString(byte: UByte): String =
+            String.format("%02d", byte.toInt())
     }
 }
