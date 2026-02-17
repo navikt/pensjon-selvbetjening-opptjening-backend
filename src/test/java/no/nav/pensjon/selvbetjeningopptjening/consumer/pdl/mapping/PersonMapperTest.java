@@ -25,8 +25,6 @@ class PersonMapperTest {
         navn.setFornavn("fornavn");
         navn.setEtternavn("etternavn");
         navn.setMellomnavn("mellomnavn");
-        PdlMetadata metadata = new PdlMetadata();
-        metadata.setMaster("FREG");
 
         Foedselsdato foedselsdato = new Foedselsdato();
         foedselsdato.setFoedselsdato(LocalDate.of(1960, 3, 4));
@@ -42,16 +40,6 @@ class PersonMapperTest {
     }
 
     @Test
-    void should_return_fodselsdato_from_pid_when_no_fodselsdato_returned_from_PDL() {
-        LocalDate expectedFodselsdato = LocalDate.of(1980, 4, 5);
-        PdlResponse pdlResponse = getPdlResponseWithFoedselsdatoAndNavn(Collections.emptyList(), List.of(new Navn()));
-
-        Person person = PersonMapper.fromDto(pdlResponse, PidGenerator.generatePid(expectedFodselsdato));
-
-        assertEquals(expectedFodselsdato, person.getFodselsdato());
-    }
-
-    @Test
     void should_handle_that_navn_is_null() {
         PdlResponse pdlResponse = getPdlResponseWithFoedselsdatoAndNavn(List.of(new Foedselsdato()), Collections.emptyList());
 
@@ -61,7 +49,6 @@ class PersonMapperTest {
         assertNull(person.getEtternavn());
         assertNull(person.getMellomnavn());
         assertNotNull(person.getPid());
-        assertNotNull(person.getFodselsdato());
     }
 
     @Test
@@ -69,8 +56,6 @@ class PersonMapperTest {
         String expectedNavnToBePicked = "navn";
         Navn navn = new Navn();
         navn.setFornavn(expectedNavnToBePicked);
-        PdlMetadata metadata = new PdlMetadata();
-        metadata.setMaster("FREG");
 
         PdlResponse pdlResponse = getPdlResponseWithFoedselsdatoAndNavn(null, List.of(navn));
 
@@ -84,15 +69,12 @@ class PersonMapperTest {
         String expectedNavnToBePicked = "navn";
         Navn navn = new Navn();
         navn.setFornavn(expectedNavnToBePicked);
-        PdlMetadata metadata = new PdlMetadata();
-        metadata.setMaster("NAV");
 
         PdlResponse pdlResponse = getPdlResponseWithFoedselsdatoAndNavn(null, List.of(navn));
 
         Person person = PersonMapper.fromDto(pdlResponse, PidGenerator.generatePidAtAge(66));
 
         assertEquals(expectedNavnToBePicked, person.getFornavn());
-
     }
 
     @Test
@@ -122,7 +104,6 @@ class PersonMapperTest {
         Person person = PersonMapper.fromDto(pdlResponse, PidGenerator.generatePidAtAge(66));
 
         assertEquals(expectedNavnToBePicked, person.getFornavn());
-
     }
 
     @Test
@@ -150,7 +131,6 @@ class PersonMapperTest {
         Person person = PersonMapper.fromDto(pdlResponse, PidGenerator.generatePidAtAge(66));
 
         assertEquals(expectedNavnToBePicked, person.getFornavn());
-
     }
 
     @Test
@@ -182,5 +162,4 @@ class PersonMapperTest {
         foedselsdato.setFoedselsdato(date);
         return foedselsdato;
     }
-
 }

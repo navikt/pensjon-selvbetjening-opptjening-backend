@@ -2,10 +2,6 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import no.nav.pensjon.selvbetjeningopptjening.person.pid.PidValidator;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-
 import static java.lang.String.format;
 
 /**
@@ -15,9 +11,7 @@ import static java.lang.String.format;
  */
 public class Pid {
 
-    private static final String DATO_PATTERN = "ddMMyyyy";
     private final String value;
-    private LocalDate foedselsdato;
 
     public Pid(String value) throws PidValidationException {
         this(value, false);
@@ -30,21 +24,6 @@ public class Pid {
 
     public String getPid() {
         return value;
-    }
-
-    //TODO This is not a reliable way of getting fødselsdato,
-    // since the date part of the PID is not always the fødselsdato
-    @Deprecated
-    public LocalDate getFodselsdato() {
-        if (foedselsdato != null) {
-            return foedselsdato;
-        }
-
-        try {
-            return foedselsdato = LocalDate.parse(PidValidator.INSTANCE.datoPart(value), DateTimeFormatter.ofPattern(DATO_PATTERN));
-        } catch (DateTimeParseException e) {
-            throw new PidValidationException(format("The value '%s' does not contain dato", value));
-        }
     }
 
     @Override

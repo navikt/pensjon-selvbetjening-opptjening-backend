@@ -10,6 +10,7 @@ import no.nav.pensjon.selvbetjeningopptjening.person.Person;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.EgressAccess;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressService;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.masking.Masker;
+import no.nav.pensjon.selvbetjeningopptjening.tech.web.CustomHttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -110,6 +111,7 @@ public class PdlConsumer implements Pingable {
                 .builder()
                 .baseUrl(url)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader(CustomHttpHeaders.BEHANDLINGSNUMMER, "B353") // TODO opprett relevant behandling
                 .defaultHeader(PdlHttpHeaders.THEME, THEME)
                 .build();
     }
