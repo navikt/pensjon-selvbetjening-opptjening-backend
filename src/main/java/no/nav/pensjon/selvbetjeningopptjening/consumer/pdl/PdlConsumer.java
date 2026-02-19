@@ -30,6 +30,7 @@ import java.util.List;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.mapping.PersonMapper.fromDto;
+import static no.nav.pensjon.selvbetjeningopptjening.person.client.pdl.PdlPersonClient.BEHANDLINGSNUMMER;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
 
 @Component
@@ -111,7 +112,7 @@ public class PdlConsumer implements Pingable {
                 .builder()
                 .baseUrl(url)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .defaultHeader(CustomHttpHeaders.BEHANDLINGSNUMMER, "B353") // TODO opprett relevant behandling
+                .defaultHeader(CustomHttpHeaders.BEHANDLINGSNUMMER, BEHANDLINGSNUMMER)
                 .defaultHeader(PdlHttpHeaders.THEME, THEME)
                 .build();
     }
