@@ -10,6 +10,7 @@ import no.nav.pensjon.selvbetjeningopptjening.person.Person;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.EgressAccess;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressService;
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.masking.Masker;
+import no.nav.pensjon.selvbetjeningopptjening.tech.web.CustomHttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -29,6 +30,7 @@ import java.util.List;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.mapping.PersonMapper.fromDto;
+import static no.nav.pensjon.selvbetjeningopptjening.person.client.pdl.PdlPersonClient.BEHANDLINGSNUMMER;
 import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.NAV_CALL_ID;
 
 @Component
@@ -110,6 +112,7 @@ public class PdlConsumer implements Pingable {
                 .builder()
                 .baseUrl(url)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader(CustomHttpHeaders.BEHANDLINGSNUMMER, BEHANDLINGSNUMMER)
                 .defaultHeader(PdlHttpHeaders.THEME, THEME)
                 .build();
     }

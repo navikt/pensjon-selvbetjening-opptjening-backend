@@ -13,7 +13,4 @@ object PidValidator {
             ?.let(::trimAllWhitespace)
             ?.let(::StructuredPid)
             ?.isValid(acceptSpecialCircumstances) == true
-
-    fun datoPart(pid: String): String =
-        StructuredPid(trimAllWhitespace(pid)).justertDato()
 }

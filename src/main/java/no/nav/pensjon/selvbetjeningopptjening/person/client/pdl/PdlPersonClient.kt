@@ -106,11 +106,11 @@ class PdlPersonClient(
     private fun down(message: String) = PingResult(service(), ServiceStatus.DOWN, "$baseUrl$RESOURCE", message)
 
     companion object {
+        // behandlingskatalog.ansatt.nav.no/process/subdepartment/NFP/636249e5-392e-4d9b-8498-033e48ae0d8c
+        const val BEHANDLINGSNUMMER = "B414"
+
         private const val RESOURCE = "graphql"
         private const val THEME = "PEN"
-
-        // https://behandlingskatalog.nais.adeo.no/process/team/d55cc783-7850-4606-9ff6-1fc44b646c9d/91a4e540-5e39-4c10-971f-49b48f35fe11
-        private const val BEHANDLINGSNUMMER = "B353"
         private val service = EgressService.PERSONDATA
 
         private fun personaliaQuery(pid: Pid, fetchFulltNavn: Boolean) = """{
