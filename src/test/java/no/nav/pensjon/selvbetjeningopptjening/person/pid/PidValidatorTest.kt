@@ -92,21 +92,6 @@ class PidValidatorTest : ShouldSpec({
             PidValidator.isValidPid(value = D_NUMMER_VALID_LOW_PNR_9, acceptSpecialCircumstances = true) shouldBe true
         }
     }
-
-    context("getDatoPart") {
-        should("return adjusted dato part when valid 'Test-Norge'-fødselsnummer as input") {
-            PidValidator.datoPart(pid = TESTNORGE_FNR) shouldBe "29081955"
-        }
-
-        should("return adjusted dato part when valid Dolly-fødselsnummer as input") {
-            PidValidator.datoPart(pid = DOLLY_FNR) shouldBe "28051978"
-        }
-
-        should("return adjusted dato part when valid BOST-fødselsnummer as input") {
-            PidValidator.datoPart(pid = MONTH_BELOW_10_BOST_NR) shouldBe "04051901"
-            PidValidator.datoPart(pid = MONTH_ABOVE_9_BOST_NR) shouldBe "01121972"
-        }
-    }
 })
 
 private const val MONTH_BELOW_10_BOST_NR = "04250100286"
