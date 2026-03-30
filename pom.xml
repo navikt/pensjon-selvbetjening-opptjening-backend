@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.3</version>
+        <version>4.0.5</version>
         <relativePath/> <!-- lookup parent from the repository -->
     </parent>
     <groupId>no.nav.pensjon</groupId>
@@ -21,7 +21,7 @@
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>25</kotlin.compiler.jvmTarget>
         <kotlin.version>2.3.10</kotlin.version>
-        <kotest.version>6.1.4</kotest.version>
+        <kotest.version>6.1.9</kotest.version>
         <okhttp3.version>5.3.2</okhttp3.version>
     </properties>
     <build>
@@ -154,7 +154,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-resolver-dns-native-macos</artifactId>
-            <version>4.2.10.Final</version>
+            <version>4.2.12.Final</version>
             <classifier>osx-aarch_64</classifier>
         </dependency>
         <dependency>
@@ -170,7 +170,7 @@
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>oauth2-oidc-sdk</artifactId>
-            <version>11.33</version>
+            <version>11.35</version>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
@@ -299,7 +299,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.22.0</version>
+            <version>5.23.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
