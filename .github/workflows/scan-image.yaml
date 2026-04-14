@@ -25,7 +25,7 @@ jobs:
         run: mvn -B package --file pom.xml
       - name: Create Docker image
         id: image-creation
-        uses: nais/docker-build-push@45d352fb62fb52ccb5ff6cba22c047fa02b35321 # v0
+        uses: nais/docker-build-push@cd5ec5663feb0e05c3fa374d1fb442605b046c6b # v0
         with:
           dockerfile: .docker/Dockerfile
           team: pensjonselvbetjening
