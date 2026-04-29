@@ -1,36 +1,31 @@
-package no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping;
+package no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping
 
-import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikkDto;
-import no.nav.pensjon.selvbetjeningopptjening.opptjening.AfpHistorikk;
-import org.junit.jupiter.api.Test;
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.shouldBe
+import no.nav.pensjon.selvbetjeningopptjening.model.AfpHistorikkDto
+import java.time.LocalDate
 
-import java.time.LocalDate;
+class AfpHistorikkMapperTest : ShouldSpec({
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+    should("map relevant values") {
+        val dto = AfpHistorikkDto(
+            virkFom = LocalDate.of(1991, 2, 4),
+            virkTom = LocalDate.of(1992, 3, 5)
+        )
 
-class AfpHistorikkMapperTest {
+        val historikk = AfpHistorikkMapper.fromDto(dto)
 
-    @Test
-    void test_that_fromDto_maps_relevant_values() {
-        var dto = new AfpHistorikkDto();
-        dto.setVirkFom(LocalDate.of(1991, 2, 4));
-        dto.setVirkTom(LocalDate.of(1992, 3, 5));
-
-        AfpHistorikk historikk = AfpHistorikkMapper.fromDto(dto);
-
-        assertEquals(LocalDate.of(1991, 2, 4), historikk.getVirkningFomDate());
-        assertEquals(1991, historikk.getStartYear());
-        assertEquals(1992, historikk.getEndYearOrDefault(() -> null));
+        with(historikk!!) {
+            virkningFomDate shouldBe LocalDate.of(1991, 2, 4)
+            startYear shouldBe 1991
+            getEndYearOrDefault(defaultYear = { 0 }) shouldBe 1992
+        }
     }
 
-    @Test
-    void test_that_defaultValue_used_when_no_endYear() {
-        var dto = new AfpHistorikkDto();
-        dto.setVirkFom(LocalDate.MIN);
-        dto.setVirkTom(null); // hence no end year
+    should("use default value when no end year") {
+        val dto = AfpHistorikkDto(virkFom = LocalDate.MIN, virkTom = null) // hence no end year
 
-        AfpHistorikk beholdninger = AfpHistorikkMapper.fromDto(dto);
-
-        assertEquals(1992, beholdninger.getEndYearOrDefault(() -> 1992));
+        AfpHistorikkMapper.fromDto(dto)!!
+            .getEndYearOrDefault(defaultYear = { 1992 }) shouldBe 1992
     }
-}
+})

@@ -60,7 +60,7 @@ public class PersonConsumer extends AuthorizedPenConsumer implements Pingable {
 
     private AfpHistorikk getAfpHistorikk(String fnr, String authHeaderValue) {
         AfpHistorikkDto dto = getAfpHistorikkDto(fnr, authHeaderValue);
-        return AfpHistorikkMapper.fromDto(dto);
+        return AfpHistorikkMapper.INSTANCE.fromDto(dto);
     }
 
     private AfpHistorikkDto getAfpHistorikkDto(String fnr, String authHeaderValue) {
