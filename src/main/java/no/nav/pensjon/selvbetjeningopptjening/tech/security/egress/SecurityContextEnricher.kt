@@ -19,20 +19,12 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.util.StringUtils.hasLength
-import kotlin.also
-import kotlin.collections.filter
-import kotlin.collections.firstOrNull
-import kotlin.collections.map
-import kotlin.collections.orEmpty
-import kotlin.let
-import kotlin.text.contains
-import kotlin.text.equals
 
 @Component
 class SecurityContextEnricher(
     val tokenSuppliers: EgressTokenSuppliersByService,
     private val authTypeDeducer: AuthTypeDeducer,
-    private val securityContextPidExtractor: SecurityContextPidExtractor,
+    private val pidExtractor: SecurityContextPidExtractor,
     private val pidDecrypter: PidEncryptionService,
     private val representasjonService: RepresentasjonService
 ) {
@@ -48,66 +40,6 @@ class SecurityContextEnricher(
         }
     }
 
-    private fun enrichStep1(auth: Authentication) =
-        EnrichedAuthentication(
-            initialAuth = auth,
-            authType = authTypeDeducer.deduce(isRepresentant = false),
-            egressTokenSuppliersByService = tokenSuppliers,
-            target = selv()
-        )
-
-    private fun enrichStep2(auth: EnrichedAuthentication, request: HttpServletRequest): EnrichedAuthentication {
-        val kryptertPid = veiledetPid(request)
-        var veiledetPid: Pid?
-        if (kryptertPid?.contains(ENCRYPTION_MARK) == true) {
-            veiledetPid = Pid(pidDecrypter.decryptPid(kryptertPid))
-        } else {
-            veiledetPid = kryptertPid?.let { Pid(it) }
-        }
-        return EnrichedAuthentication(
-            initialAuth = auth,
-            authType = auth.authType,
-            egressTokenSuppliersByService = tokenSuppliers,
-            target = veiledetPid?.let(::personUnderVeiledning) ?: selv()
-        )
-    }
-
-    private fun veiledetPid(request: HttpServletRequest): String? =
-        ((headerPid(request)
-            ?: request.getParameter("pid")))
-
-    private fun applyPotentialFullmakt(
-        auth: Authentication,
-        request: HttpServletRequest
-    ): Authentication =
-        onBehalfOfPid(request.cookies)?.let {
-            if (validRepresentasjonForhold(it))
-                enrichWithFullmakt(auth, it).also { Metrics.countEvent(eventName = "obo", result = "ok") }
-            else
-                invalidRepresentasjonForhold()
-        } ?: auth
-
-    /**
-     * NB: Dette støtter ikke brukstilfellet der veileder er logget inn på vegne av en fullmektig.
-     * Dette fordi pensjon-representasjon henter ut PID fra TokenX-tokenet (som ikke finnes når veileder er logget inn).
-     */
-    private fun validRepresentasjonForhold(pid: Pid) =
-        representasjonService.hasValidRepresentasjonsforhold(pid).isValid
-
-    private fun enrichWithFullmakt(auth: Authentication, fullmaktGiverPid: Pid) =
-        EnrichedAuthentication(
-            initialAuth = auth,
-            authType = authTypeDeducer.deduce(isRepresentant = true),
-            egressTokenSuppliersByService = tokenSuppliers,
-            target = RepresentasjonTarget(pid = fullmaktGiverPid, rolle = RepresentertRolle.FULLMAKT_GIVER)
-        )
-
-    private fun selv() =
-        RepresentasjonTarget(
-            pid = securityContextPidExtractor.pid(),
-            rolle = RepresentertRolle.SELV
-        )
-
     private fun anonymousAuthentication() =
         EnrichedAuthentication(
             initialAuth = null,
@@ -116,30 +48,104 @@ class SecurityContextEnricher(
             target = RepresentasjonTarget(rolle = RepresentertRolle.NONE)
         )
 
-    private fun headerPid(request: HttpServletRequest): String? =
-        request.getHeader(CustomHttpHeaders.PID)?.let {
-            when {
-                hasLength(it).not() -> null
-                else -> it
-            }
-        }
+    /**
+     * enrichStep1 is a precondition for the personUnderVeiledning call in enrichStep2.
+     */
+    private fun enrichStep1(auth: Authentication) =
+        EnrichedAuthentication(
+            initialAuth = auth,
+            authType = authTypeDeducer.deduce(isRepresentant = false),
+            egressTokenSuppliersByService = tokenSuppliers,
+            target = selv()
+        )
+
+    private fun enrichStep2(auth: EnrichedAuthentication, request: HttpServletRequest) =
+        EnrichedAuthentication(
+            initialAuth = auth,
+            authType = auth.authType,
+            egressTokenSuppliersByService = tokenSuppliers,
+            target = personUnderVeiledning(request) ?: selv()
+        )
+
+    private fun enrichWithFullmakt(auth: Authentication, fullmaktgiverPid: Pid) =
+        EnrichedAuthentication(
+            initialAuth = auth,
+            authType = authTypeDeducer.deduce(isRepresentant = true),
+            egressTokenSuppliersByService = tokenSuppliers,
+            target = fullmaktgiver(pid = fullmaktgiverPid)
+        )
+
+    private fun selv(): RepresentasjonTarget =
+        selv(pid = pidExtractor.pid())
+
+    private fun personUnderVeiledning(request: HttpServletRequest): RepresentasjonTarget? =
+        onBehalfOfPid(request)
+            ?.let { personUnderVeiledning(pid = Pid(decrypt(it))) }
+
+    private fun applyPotentialFullmakt(
+        auth: Authentication,
+        request: HttpServletRequest
+    ): Authentication =
+        onBehalfOfPid(request.cookies)?.let {
+            if (validRepresentasjonForhold(pid = it))
+                enrichWithFullmakt(auth, fullmaktgiverPid = it).also { countOnBehalfOfEvent(result = "ok") }
+            else
+                invalidRepresentasjonForhold()
+        } ?: auth
+
+    /**
+     * NB: Dette støtter ikke brukstilfellet der veileder er logget inn på vegne av en fullmektig.
+     * Dette fordi pensjon-representasjon henter ut PID fra TokenX-tokenet (som ikke finnes når veileder er logget inn).
+     */
+    private fun validRepresentasjonForhold(pid: Pid): Boolean =
+        representasjonService.hasValidRepresentasjonsforhold(fullmaktGiverPid = pid).isValid
 
     private fun onBehalfOfPid(cookies: Array<Cookie>?): Pid? =
         cookies.orEmpty()
             .filter { ON_BEHALF_OF_COOKIE_NAME.equals(it.name, ignoreCase = true) }
-            .map { Pid(it.value) }
+            .map { Pid((decrypt(it.value.orEmpty()))) }
             .firstOrNull()
 
+    private fun decrypt(value: String): String =
+        if (value.contains(ENCRYPTION_MARK))
+            pidDecrypter.decryptPid(encryptedPid = value).orEmpty()
+        else
+            value
+
     private companion object {
-        const val ENCRYPTION_MARK = "."
+        private const val ENCRYPTION_MARK = "."
         private const val ON_BEHALF_OF_COOKIE_NAME = "nav-obo"
+
+        private fun onBehalfOfPid(request: HttpServletRequest): String? =
+            headerPid(request) ?: request.getParameter("pid")
+
+        private fun headerPid(request: HttpServletRequest): String? =
+            request.getHeader(CustomHttpHeaders.PID)?.let {
+                when {
+                    hasLength(it).not() -> null
+                    else -> it
+                }
+            }
+
+        /**
+         * NB: pid is null when veileder is logged in (veileder is identified by Nav-ID, not PID).
+         */
+        private fun selv(pid: Pid?) =
+            RepresentasjonTarget(pid, rolle = RepresentertRolle.SELV)
+
+        private fun fullmaktgiver(pid: Pid) =
+            RepresentasjonTarget(pid, rolle = RepresentertRolle.FULLMAKT_GIVER)
 
         private fun personUnderVeiledning(pid: Pid) =
             RepresentasjonTarget(pid, rolle = RepresentertRolle.UNDER_VEILEDNING)
 
         private fun invalidRepresentasjonForhold(): Nothing {
-            Metrics.countEvent(eventName = "obo", result = "avvist")
+            countOnBehalfOfEvent(result = "avvist")
             throw AccessDeniedException(AccessDeniedReason.INVALID_REPRESENTASJON.name)
+        }
+
+        private fun countOnBehalfOfEvent(result: String) {
+            Metrics.countEvent(eventName = "obo", result)
         }
     }
 }
