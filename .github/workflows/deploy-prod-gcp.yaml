@@ -38,7 +38,7 @@ jobs:
           team: pensjonselvbetjening
           dockerfile: .docker/Dockerfile
       - name: Deploy to gcp
-        uses: nais/deploy/actions/deploy@ab841e4d99cbb00edd996d3ae39bd4cea6b8e2c2 # v2
+        uses: nais/deploy/actions/deploy@8a6fb62e73f837af6287d5db84a46ea96aa6c30d # v2
         env:
           IMAGE: ${{ steps.docker-build-push.outputs.image }}
           CLUSTER: prod-gcp
