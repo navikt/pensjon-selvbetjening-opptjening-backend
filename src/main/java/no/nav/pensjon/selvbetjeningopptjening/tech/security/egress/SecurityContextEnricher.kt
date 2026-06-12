@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid
 import no.nav.pensjon.selvbetjeningopptjening.tech.crypto.PidEncryptionService
 import no.nav.pensjon.selvbetjeningopptjening.tech.metric.Metrics
+import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.Representasjonstype
 import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.RepresentasjonService
 import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.RepresentasjonTarget
 import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.RepresentertRolle
@@ -98,7 +99,10 @@ class SecurityContextEnricher(
      * Dette fordi pensjon-representasjon henter ut PID fra TokenX-tokenet (som ikke finnes når veileder er logget inn).
      */
     private fun validRepresentasjonForhold(pid: Pid): Boolean =
-        representasjonService.hasValidRepresentasjonsforhold(fullmaktGiverPid = pid).isValid
+        representasjonService.hasValidRepresentasjonsforhold(
+            fullmaktGiverPid = pid,
+            representasjonstyper = Representasjonstype.VALID_SKRIV_TYPES
+        ).isValid
 
     private fun onBehalfOfPid(cookies: Array<Cookie>?): Pid? =
         cookies.orEmpty()
@@ -115,6 +119,7 @@ class SecurityContextEnricher(
     private companion object {
         private const val ENCRYPTION_MARK = "."
         private const val ON_BEHALF_OF_COOKIE_NAME = "nav-obo"
+
 
         private fun onBehalfOfPid(request: HttpServletRequest): String? =
             headerPid(request) ?: request.getParameter("pid")
