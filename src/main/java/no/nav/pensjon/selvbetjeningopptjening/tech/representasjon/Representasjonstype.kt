@@ -1,21 +1,17 @@
 package no.nav.pensjon.selvbetjeningopptjening.tech.representasjon
 
 enum class Representasjonstype {
-    PENSJON_FULLSTENDIG,
-    PENSJON_BEGRENSET,
-    PENSJON_SKRIV,
-    PENSJON_KOMMUNISER,
     PENSJON_LES,
-    PENSJON_PENGEMOTTAKER,
-    PENSJON_VERGE,
-    PENSJON_VERGE_PENGEMOTTAKER;
+    PENSJON_SKRIV,
+    VERGE_PENSJON_LES,
+    VERGE_PENSJON_SKRIV;
 
     companion object {
         val VALID_SKRIV_TYPES = listOf(
-            PENSJON_FULLSTENDIG,
-            PENSJON_BEGRENSET,
+            PENSJON_LES,
             PENSJON_SKRIV,
-            PENSJON_KOMMUNISER
+            VERGE_PENSJON_LES,
+            VERGE_PENSJON_SKRIV;
         )
     }
 }
