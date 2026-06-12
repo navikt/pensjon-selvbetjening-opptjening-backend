@@ -7,11 +7,11 @@ enum class Representasjonstype {
     VERGE_PENSJON_SKRIV;
 
     companion object {
-        val VALID_SKRIV_TYPES = listOf(
+        val VALID_REPRESENTASJON_TYPES = listOf(
             PENSJON_LES,
             PENSJON_SKRIV,
             VERGE_PENSJON_LES,
-            VERGE_PENSJON_SKRIV;
+            VERGE_PENSJON_SKRIV
         )
     }
 }

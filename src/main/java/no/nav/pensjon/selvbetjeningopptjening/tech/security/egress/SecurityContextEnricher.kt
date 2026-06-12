@@ -101,7 +101,7 @@ class SecurityContextEnricher(
     private fun validRepresentasjonForhold(pid: Pid): Boolean =
         representasjonService.hasValidRepresentasjonsforhold(
             fullmaktGiverPid = pid,
-            representasjonstyper = Representasjonstype.VALID_SKRIV_TYPES
+            representasjonstyper = Representasjonstype.VALID_REPRESENTASJON_TYPES
         ).isValid
 
     private fun onBehalfOfPid(cookies: Array<Cookie>?): Pid? =
