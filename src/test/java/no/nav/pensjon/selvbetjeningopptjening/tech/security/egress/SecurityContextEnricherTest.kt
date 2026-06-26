@@ -195,7 +195,7 @@ private fun arrangeOnBehalfOfCookie(value: String) =
 private fun arrange(representasjon: Representasjon) =
     mockk<RepresentasjonService>().apply {
         every {
-            hasValidRepresentasjonsforhold(fullmaktGiverPid = ON_BEHALF_OF_PID)
+            hasValidRepresentasjonsforhold(fullmaktGiverPid = ON_BEHALF_OF_PID, representasjonstyper = any())
         } returns representasjon
     }
 

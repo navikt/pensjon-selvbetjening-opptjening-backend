@@ -6,13 +6,13 @@ import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.Representasjon
 
 class PensjonRepresentasjonMapperTest : FunSpec({
 
-    test("'fromDto' should map validity and 'fullmaktsgivers navn'") {
+    test("'fromDto' should map validity and 'representert navn'") {
         PensjonRepresentasjonMapper.fromDto(
             source = PensjonRepresentasjonResult(
                 hasValidRepresentasjonsforhold = true,
-                fullmaktsgiverNavn = "X",
-                fullmaktsgiverFnrKryptert = "Y",
-                fullmaktsgiverFnr = "Z"
+                representertNavn = "X",
+                representertPidKryptert = "Y",
+                representertPid = "Z"
             )
         ) shouldBe Representasjon(
             isValid = true,

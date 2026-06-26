@@ -5,8 +5,10 @@ import no.nav.pensjon.selvbetjeningopptjening.common.client.PingableServiceClien
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid
 import no.nav.pensjon.selvbetjeningopptjening.tech.metric.MetricResult
 import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.Representasjon
+import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.Representasjonstype
 import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.client.RepresentasjonClient
 import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.client.pensjon.acl.PensjonRepresentasjonMapper.fromDto
+import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.client.pensjon.acl.PensjonRepresentasjonRequest
 import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.client.pensjon.acl.PensjonRepresentasjonResult
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.EgressAccess
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressService
@@ -20,7 +22,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
-import org.springframework.web.util.UriComponentsBuilder
 
 /**
  * Client for accessing the 'pensjon-representasjon' service
@@ -37,16 +38,25 @@ class PensjonRepresentasjonClient(
 
     private val log = KotlinLogging.logger {}
 
-    override fun hasValidRepresentasjonsforhold(fullmaktGiverPid: Pid): Representasjon {
-        val uri = uri()
-        log.debug { "GET from URI: '$uri'" }
+    override fun hasValidRepresentasjonsforhold(fullmaktGiverPid: Pid, representasjonstyper: List<Representasjonstype>): Representasjon {
+        val uri = "$baseUrl$PATH"
+        log.debug { "POST to URI: '$uri'" }
+
+        val requestBody = PensjonRepresentasjonRequest(
+            representertPid = fullmaktGiverPid.pid,
+            representantPid = null,
+            validRepresentasjonstyper = representasjonstyper.map { it.name },
+            includeRepresentertNavn = false
+        )
 
         return try {
             webClient
-                .get()
+                .post()
                 .uri(uri)
+                .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .headers { setHeaders(it, fullmaktGiverPid) }
+                .headers { setHeaders(it) }
+                .bodyValue(requestBody)
                 .retrieve()
                 .bodyToMono(PensjonRepresentasjonResult::class.java)
                 .retryWhen(retryBackoffSpec(uri))
@@ -71,36 +81,14 @@ class PensjonRepresentasjonClient(
 
     override fun toString(e: EgressException, uri: String) = "Failed calling $uri"
 
-    private fun uri(): String =
-        UriComponentsBuilder.fromUriString(baseUrl)
-            .path(PATH)
-            .queryParam(VALID_REPRESENTASJON_TYPER_QUERY_PARAM_NAME, representasjonTypeListe)
-            .queryParam(INCLUDE_FULLMAKT_GIVER_NAVN_QUERY_PARAM_NAME, false)
-            .build()
-            .toUriString()
-
-    private fun setHeaders(headers: HttpHeaders, fullmaktGiverPid: Pid? = null) {
+    private fun setHeaders(headers: HttpHeaders) {
         headers.setBearerAuth(EgressAccess.token(service).value)
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
-        fullmaktGiverPid?.let { headers[CustomHttpHeaders.FULLMAKTSGIVER_PID] = it.pid }
     }
 
     companion object {
         private const val PATH = "/representasjon/hasValidRepresentasjonsforhold"
-        private const val INCLUDE_FULLMAKT_GIVER_NAVN_QUERY_PARAM_NAME = "includeFullmaktsgiverNavn"
-        private const val VALID_REPRESENTASJON_TYPER_QUERY_PARAM_NAME = "validRepresentasjonstyper"
 
-        private val representasjonTypeListe: List<String> =
-            listOf(
-                "PENSJON_FULLSTENDIG",
-                "PENSJON_BEGRENSET",
-                "PENSJON_SKRIV",
-                "PENSJON_KOMMUNISER",
-                "PENSJON_LES",
-                "PENSJON_PENGEMOTTAKER",
-                "PENSJON_VERGE",
-                "PENSJON_VERGE_PENGEMOTTAKER"
-            )
 
         private val service = EgressService.PENSJON_REPRESENTASJON
 

@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import no.nav.pensjon.selvbetjeningopptjening.mock.TestObjects.pid
 import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.Representasjon
+import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.Representasjonstype
 import no.nav.pensjon.selvbetjeningopptjening.tech.trace.TraceAid
 import no.nav.pensjon.selvbetjeningopptjening.testutil.Arrange
 import no.nav.pensjon.selvbetjeningopptjening.testutil.arrangeOkJsonResponse
@@ -20,9 +21,9 @@ class PensjonRepresentasjonClientTest : FunSpec({
     @Language("json")
     val responseBody = """{
     "hasValidRepresentasjonsforhold": true,
-    "fullmaktsgiverNavn": "Abc Æøå",
-    "fullmaktsgiverFnrKryptert": "kryptisk",
-    "fullmaktsgiverFnr": "$pid"
+    "representertNavn": "Abc Æøå",
+    "representertPidKryptert": "kryptisk",
+    "representertPid": "$pid"
 }"""
 
     beforeSpec {
@@ -46,18 +47,12 @@ class PensjonRepresentasjonClientTest : FunSpec({
                 retryAttempts = "0"
             )
 
-            client.hasValidRepresentasjonsforhold(pid) shouldBe
+            client.hasValidRepresentasjonsforhold(pid, listOf(Representasjonstype.PENSJON_LES)) shouldBe
                     Representasjon(isValid = true, fullmaktGiverNavn = "Abc Æøå")
 
-            server.takeRequest().requestUrl?.query shouldBe "validRepresentasjonstyper=PENSJON_FULLSTENDIG" +
-                    "&validRepresentasjonstyper=PENSJON_BEGRENSET" +
-                    "&validRepresentasjonstyper=PENSJON_SKRIV" +
-                    "&validRepresentasjonstyper=PENSJON_KOMMUNISER" +
-                    "&validRepresentasjonstyper=PENSJON_LES" +
-                    "&validRepresentasjonstyper=PENSJON_PENGEMOTTAKER" +
-                    "&validRepresentasjonstyper=PENSJON_VERGE" +
-                    "&validRepresentasjonstyper=PENSJON_VERGE_PENGEMOTTAKER" +
-                    "&includeFullmaktsgiverNavn=false"
+            val recordedRequest = server.takeRequest()
+            recordedRequest.method shouldBe "POST"
+            recordedRequest.getHeader("Content-Type") shouldBe "application/json"
         }
     }
 })

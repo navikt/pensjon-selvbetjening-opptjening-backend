@@ -7,6 +7,6 @@ import org.springframework.stereotype.Component
 @Component
 class RepresentasjonService(private val client: RepresentasjonClient) {
 
-    fun hasValidRepresentasjonsforhold(fullmaktGiverPid: Pid): Representasjon =
-        client.hasValidRepresentasjonsforhold(fullmaktGiverPid)
+    fun hasValidRepresentasjonsforhold(fullmaktGiverPid: Pid, representasjonstyper: List<Representasjonstype>): Representasjon =
+        client.hasValidRepresentasjonsforhold(fullmaktGiverPid, representasjonstyper)
 }
