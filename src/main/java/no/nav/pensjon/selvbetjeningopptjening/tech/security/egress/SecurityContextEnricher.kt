@@ -87,28 +87,31 @@ class SecurityContextEnricher(
         auth: Authentication,
         request: HttpServletRequest
     ): Authentication =
-        onBehalfOfPid(request.cookies)?.let {
-            if (validRepresentasjonForhold(pid = it))
-                enrichWithFullmakt(auth, fullmaktgiverPid = it).also { countOnBehalfOfEvent(result = "ok") }
-            else
-                invalidRepresentasjonForhold()
+        onBehalfOfCookieValue(request.cookies)?.let { encryptedPid ->
+            validRepresentasjon(encryptedPid)?.let { representertPid ->
+                enrichWithFullmakt(auth, fullmaktgiverPid = Pid(representertPid))
+                    .also { countOnBehalfOfEvent(result = "ok") }
+            } ?: invalidRepresentasjonForhold()
         } ?: auth
 
     /**
      * NB: Dette støtter ikke brukstilfellet der veileder er logget inn på vegne av en fullmektig.
      * Dette fordi pensjon-representasjon henter ut PID fra TokenX-tokenet (som ikke finnes når veileder er logget inn).
+     *
+     * PID-en fra obo-cookien sendes kryptert til pensjon-representasjon, som returnerer den dekrypterte PID-en.
+     * Dermed slipper vi å dekryptere PID-en selv.
      */
-    private fun validRepresentasjonForhold(pid: Pid): Boolean =
+    private fun validRepresentasjon(encryptedPid: String): String? =
         representasjonService.hasValidRepresentasjonsforhold(
-            fullmaktGiverPid = pid,
+            representertPid = encryptedPid,
             representasjonstyper = Representasjonstype.VALID_REPRESENTASJON_TYPES
-        ).isValid
+        ).takeIf { it.isValid }?.representertPid
 
-    private fun onBehalfOfPid(cookies: Array<Cookie>?): Pid? =
+    private fun onBehalfOfCookieValue(cookies: Array<Cookie>?): String? =
         cookies.orEmpty()
             .filter { ON_BEHALF_OF_COOKIE_NAME.equals(it.name, ignoreCase = true) }
-            .map { Pid((decrypt(it.value.orEmpty()))) }
-            .firstOrNull()
+            .map { it.value.orEmpty() }
+            .firstOrNull { it.isNotEmpty() }
 
     private fun decrypt(value: String): String =
         if (value.contains(ENCRYPTION_MARK))
