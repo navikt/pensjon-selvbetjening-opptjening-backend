@@ -2,7 +2,6 @@ package no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.client.pensjo
 
 import mu.KotlinLogging
 import no.nav.pensjon.selvbetjeningopptjening.common.client.PingableServiceClient
-import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid
 import no.nav.pensjon.selvbetjeningopptjening.tech.metric.MetricResult
 import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.Representasjon
 import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.Representasjonstype
@@ -38,12 +37,12 @@ class PensjonRepresentasjonClient(
 
     private val log = KotlinLogging.logger {}
 
-    override fun hasValidRepresentasjonsforhold(fullmaktGiverPid: Pid, representasjonstyper: List<Representasjonstype>): Representasjon {
+    override fun hasValidRepresentasjonsforhold(representertPid: String, representasjonstyper: List<Representasjonstype>): Representasjon {
         val uri = "$baseUrl$PATH"
         log.debug { "POST to URI: '$uri'" }
 
         val requestBody = PensjonRepresentasjonRequest(
-            representertPid = fullmaktGiverPid.pid,
+            representertPid = representertPid,
             representantPid = null,
             validRepresentasjonstyper = representasjonstyper.map { it.name },
             includeRepresentertNavn = false

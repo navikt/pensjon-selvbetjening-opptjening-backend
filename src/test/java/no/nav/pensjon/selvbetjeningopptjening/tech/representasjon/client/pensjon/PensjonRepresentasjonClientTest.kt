@@ -47,8 +47,8 @@ class PensjonRepresentasjonClientTest : FunSpec({
                 retryAttempts = "0"
             )
 
-            client.hasValidRepresentasjonsforhold(pid, listOf(Representasjonstype.PENSJON_LES)) shouldBe
-                    Representasjon(isValid = true, fullmaktGiverNavn = "Abc Æøå")
+            client.hasValidRepresentasjonsforhold(pid.pid, listOf(Representasjonstype.PENSJON_LES)) shouldBe
+                    Representasjon(isValid = true, fullmaktGiverNavn = "Abc Æøå", representertPid = pid.pid)
 
             val recordedRequest = server.takeRequest()
             recordedRequest.method shouldBe "POST"

@@ -7,6 +7,7 @@ object PensjonRepresentasjonMapper {
     fun fromDto(source: PensjonRepresentasjonResult) =
         Representasjon(
             isValid = source.hasValidRepresentasjonsforhold,
-            fullmaktGiverNavn = source.representertNavn ?: ""
+            fullmaktGiverNavn = source.representertNavn ?: "",
+            representertPid = source.representertPid
         )
 }
