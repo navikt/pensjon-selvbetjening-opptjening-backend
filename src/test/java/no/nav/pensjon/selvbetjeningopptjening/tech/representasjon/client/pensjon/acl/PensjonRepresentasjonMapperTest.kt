@@ -16,7 +16,8 @@ class PensjonRepresentasjonMapperTest : FunSpec({
             )
         ) shouldBe Representasjon(
             isValid = true,
-            fullmaktGiverNavn = "X"
+            fullmaktGiverNavn = "X",
+            representertPid = "Z"
         )
     }
 })
