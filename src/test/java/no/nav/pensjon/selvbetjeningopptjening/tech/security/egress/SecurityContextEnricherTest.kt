@@ -101,7 +101,7 @@ class SecurityContextEnricherTest : FunSpec({
             authTypeDeducer = mockk(relaxed = true),
             pidExtractor = arrangeSecurityContextPidExtractor(pid = LOGGED_IN_PID),
             pidDecrypter = arrangeDecryption(),
-            representasjonService = arrange(Representasjon(isValid = true, fullmaktGiverNavn = "F. Giver"))
+            representasjonService = arrange(Representasjon(isValid = true, fullmaktGiverNavn = "F. Giver", representertPid = ON_BEHALF_OF_PID.pid))
         ).enrichAuthentication(
             request = arrangeOnBehalfOfCookie(value = "contains.dot"), // encrypted PID
             response = mockk()
@@ -135,7 +135,7 @@ class SecurityContextEnricherTest : FunSpec({
             authTypeDeducer = mockk(relaxed = true),
             pidExtractor = arrangeSecurityContextPidExtractor(pid = LOGGED_IN_PID),
             pidDecrypter = mockk(),
-            representasjonService = arrange(Representasjon(isValid = true, fullmaktGiverNavn = "F. Giver"))
+            representasjonService = arrange(Representasjon(isValid = true, fullmaktGiverNavn = "F. Giver", representertPid = ON_BEHALF_OF_PID.pid))
         ).enrichAuthentication(
             request = arrangeOnBehalfOfCookie(value = ON_BEHALF_OF_PID.pid),
             response = mockk()
@@ -195,7 +195,7 @@ private fun arrangeOnBehalfOfCookie(value: String) =
 private fun arrange(representasjon: Representasjon) =
     mockk<RepresentasjonService>().apply {
         every {
-            hasValidRepresentasjonsforhold(fullmaktGiverPid = ON_BEHALF_OF_PID, representasjonstyper = any())
+            hasValidRepresentasjonsforhold(representertPid = any(), representasjonstyper = any())
         } returns representasjon
     }
 
