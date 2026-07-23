@@ -60,9 +60,9 @@ spec:
     inbound:
       rules:
         - application: pensjon-selvbetjening-opptjening-frontend
-          cluster: dev-gcp
         - application: pensjon-veiledning-opptjening-frontend
-          cluster: dev-gcp
+        - application: pensjonskalkulator-backend
+          namespace: pensjonskalkulator
         - application: azure-token-generator # dev only
           namespace: nais
         - application: tokenx-token-generator # dev only
@@ -93,8 +93,6 @@ spec:
         - host: skjermede-personer-pip.intern.dev.nav.no
         - host: test.idporten.no
   env:
-    - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
-      value: selvbetjening-idtoken
     - name: PENSJON_REPRESENTASJON_APP_ID
       value: dev-fss:pensjon-person:pensjon-representasjon-q2
     - name: PENSJON_REPRESENTASJON_URL
