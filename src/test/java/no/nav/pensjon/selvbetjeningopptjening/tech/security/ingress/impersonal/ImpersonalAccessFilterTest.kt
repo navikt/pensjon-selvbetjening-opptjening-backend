@@ -10,10 +10,12 @@ import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import no.nav.pensjon.selvbetjeningopptjening.common.exception.NotFoundException
+import no.nav.pensjon.selvbetjeningopptjening.mock.TestObjects.jwt
 import no.nav.pensjon.selvbetjeningopptjening.mock.TestObjects.pid
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.TargetPidExtractor
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.impersonal.audit.Auditor
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.impersonal.group.GroupMembershipService
+import no.nav.pensjon.selvbetjeningopptjening.testutil.Arrange
 
 class ImpersonalAccessFilterTest : ShouldSpec({
 
@@ -31,7 +33,27 @@ class ImpersonalAccessFilterTest : ShouldSpec({
         verify(exactly = 1) { chain.doFilter(request, response) }
     }
 
+    context("access as application") {
+        should("continue filter chain, no audit logging") {
+            Arrange.security(credentials = jwt(claims = mapOf("roles" to listOf("access_as_application"))))
+            val chain = mockk<FilterChain>(relaxed = true)
+            val request = arrangeRequest(pid = pid.pid, uri = "/api/foo")
+            val response = mockk<HttpServletResponse>(relaxed = true)
+            val auditor = mockk<Auditor>(relaxed = true)
+
+            ImpersonalAccessFilter(
+                pidGetter = arrangePid(),
+                groupMembershipService = arrangeTilgang(false),
+                auditor
+            ).doFilter(request, response, chain)
+
+            verify(exactly = 1) { chain.doFilter(request, response) }
+            verify { auditor wasNot Called }
+        }
+    }
+
     should("report 'forbidden' and break filter chain when innlogget bruker mangler gruppemedlemskap") {
+        Arrange.security()
         val chain = mockk<FilterChain>(relaxed = true)
         val request = arrangeRequest(pid = pid.pid, uri = "/api/foo")
         val response = mockk<HttpServletResponse>(relaxed = true)
@@ -47,6 +69,7 @@ class ImpersonalAccessFilterTest : ShouldSpec({
     }
 
     should("report 'not found' and break filter chain when person not found") {
+        Arrange.security()
         val chain = mockk<FilterChain>(relaxed = true)
         val request = arrangeRequest(pid = pid.pid, uri = "/api/foo")
         val response = mockk<HttpServletResponse>(relaxed = true)
@@ -62,6 +85,7 @@ class ImpersonalAccessFilterTest : ShouldSpec({
     }
 
     should("log audit info and continue filter chain when innlogget bruker har tilgang") {
+        Arrange.security()
         val chain = mockk<FilterChain>(relaxed = true)
         val auditor = mockk<Auditor>(relaxed = true)
         val request = arrangeRequest(pid = pid.pid, uri = "/foo")
@@ -79,23 +103,17 @@ class ImpersonalAccessFilterTest : ShouldSpec({
 })
 
 private fun arrangePid(): TargetPidExtractor =
-    mockk<TargetPidExtractor>().apply {
-        every { pid() } returns pid
-    }
+    mockk { every { pid() } returns pid }
 
 private fun arrangeRequest(pid: String?, uri: String): HttpServletRequest =
-    mockk<HttpServletRequest>().apply {
+    mockk {
         every { getHeader("pid") } returns pid
         every { getParameter("pid") } returns pid
         every { requestURI } returns uri
     }
 
 private fun arrangeTilgang(harTilgang: Boolean): GroupMembershipService =
-    mockk<GroupMembershipService>().apply {
-        every { innloggetBrukerHarTilgang(pid) } returns harTilgang
-    }
+    mockk { every { innloggetBrukerHarTilgang(pid) } returns harTilgang }
 
 private fun arrangeMissingPerson(): GroupMembershipService =
-    mockk<GroupMembershipService>().apply {
-        every { innloggetBrukerHarTilgang(pid) } throws NotFoundException("person")
-    }
+    mockk { every { innloggetBrukerHarTilgang(pid) } throws NotFoundException("person") }

@@ -1,6 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.person.Person;
 
@@ -11,10 +10,6 @@ import java.util.Map;
 public class OpptjeningAssemblerForUserGroup5 extends OpptjeningAssembler {
     private static final int ANDEL_PENSJON_BASERT_PA_BEHOLDNING_USERGROUP5 = 10;
 
-    public OpptjeningAssemblerForUserGroup5(UttaksgradGetter uttaksgradGetter) {
-        super(uttaksgradGetter);
-    }
-
     public OpptjeningResponse createResponse(Person person, OpptjeningBasis basis) {
         return createResponse(
                 person,
@@ -22,6 +17,7 @@ public class OpptjeningAssemblerForUserGroup5 extends OpptjeningAssembler {
                 basis.getRestpensjoner(),
                 basis.getInntekter(),
                 basis.getUttaksgrader(),
+                basis.getUttaksgraderForBeholdningAfter2009(),
                 basis.getAfpHistorikk(),
                 basis.getUforeHistorikk());
     }
@@ -31,6 +27,7 @@ public class OpptjeningAssemblerForUserGroup5 extends OpptjeningAssembler {
                                               List<Restpensjon> restpensjoner,
                                               List<Inntekt> inntekter,
                                               List<Uttaksgrad> uttaksgrader,
+                                              List<Uttaksgrad> uttaksgraderForBeholdningAfter2009,
                                               AfpHistorikk afpHistorikk,
                                               UforeHistorikk uforeHistorikk) {
         OpptjeningResponse response = new OpptjeningResponse(person, ANDEL_PENSJON_BASERT_PA_BEHOLDNING_USERGROUP5, person.getPid().getPid(), getFullmektigPid());
@@ -49,7 +46,7 @@ public class OpptjeningAssemblerForUserGroup5 extends OpptjeningAssembler {
         putYearsWithAdditionalInntekt(inntekterByYear, opptjeningerByYear, firstYearWithOpptjening, lastYearWithOpptjening);
         putYearsWithNoOpptjening(opptjeningerByYear, firstYearWithOpptjening, lastYearWithOpptjening);
         populateMerknadForOpptjening(opptjeningerByYear, beholdninger, uttaksgrader, afpHistorikk, uforeHistorikk);
-        setEndringerOpptjening(opptjeningerByYear, beholdninger);
+        setEndringerOpptjening(opptjeningerByYear, beholdninger, uttaksgraderForBeholdningAfter2009);
         response.setOpptjeningData(toDto(opptjeningerByYear));
         return response;
     }

@@ -19,15 +19,15 @@ public class OpptjeningArguments {
     private final PensjonsbeholdningConsumer beholdningConsumer;
     private final UttaksgradGetter uttaksgradGetter;
 
-    OpptjeningArguments(Person person,
-                        List<Restpensjon> restpensjoner,
-                        List<Uttaksgrad> uttaksgrader,
-                        AfpHistorikk afpHistorikk,
-                        UforeHistorikk uforeHistorikk,
-                        OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer,
-                        PensjonspoengConsumer pensjonspoengConsumer,
-                        PensjonsbeholdningConsumer beholdningConsumer,
-                        UttaksgradGetter uttaksgradGetter) {
+    public OpptjeningArguments(Person person,
+                               List<Restpensjon> restpensjoner,
+                               List<Uttaksgrad> uttaksgrader,
+                               AfpHistorikk afpHistorikk,
+                               UforeHistorikk uforeHistorikk,
+                               OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer,
+                               PensjonspoengConsumer pensjonspoengConsumer,
+                               PensjonsbeholdningConsumer beholdningConsumer,
+                               UttaksgradGetter uttaksgradGetter) {
         this.person = person;
         this.restpensjoner = restpensjoner;
         this.uttaksgrader = uttaksgrader;

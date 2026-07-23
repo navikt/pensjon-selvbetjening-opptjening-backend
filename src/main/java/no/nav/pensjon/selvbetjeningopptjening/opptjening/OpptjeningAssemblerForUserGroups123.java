@@ -1,6 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.person.Person;
 
@@ -9,10 +8,6 @@ import java.util.Map;
 
 public class OpptjeningAssemblerForUserGroups123 extends OpptjeningAssembler {
     private static final int ANDEL_PENSJON_BASERT_PA_BEHOLDNING_USERGROUPS123 = 0;
-
-    public OpptjeningAssemblerForUserGroups123(UttaksgradGetter uttaksgradGetter) {
-        super(uttaksgradGetter);
-    }
 
     public OpptjeningResponse createResponse(Person person, OpptjeningBasis basis) {
         return createResponse(

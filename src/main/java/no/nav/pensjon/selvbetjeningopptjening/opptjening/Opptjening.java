@@ -118,7 +118,7 @@ public class Opptjening {
         return merknader;
     }
 
-    boolean hasMerknad(MerknadCode value) {
+    public boolean hasMerknad(MerknadCode value) {
         return merknader.contains(value);
     }
 
@@ -132,6 +132,10 @@ public class Opptjening {
 
     public boolean hasPensjonsgivendeInntekt() {
         return hasPensjonsgivendeInntekt;
+    }
+
+    public boolean isPositive() {
+        return !isNotPositive();
     }
 
     boolean isNotPositive() {

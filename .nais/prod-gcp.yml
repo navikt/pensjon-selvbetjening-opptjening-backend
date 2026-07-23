@@ -59,9 +59,9 @@ spec:
     inbound:
       rules:
         - application: pensjon-selvbetjening-opptjening-frontend
-          cluster: prod-gcp
         - application: pensjon-veiledning-opptjening-frontend
-          cluster: prod-gcp
+        - application: pensjonskalkulator-backend
+          namespace: pensjonskalkulator
     outbound:
       rules:
         - application: pdl-api
@@ -89,8 +89,6 @@ spec:
         - host: idporten.no
         - host: oidc.difi.no
   env:
-    - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_COOKIE_NAME
-      value: selvbetjening-idtoken
     - name: PENSJON_REPRESENTASJON_APP_ID
       value: prod-fss:pensjon-person:pensjon-representasjon
     - name: PENSJON_REPRESENTASJON_URL
