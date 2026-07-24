@@ -2,7 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.api.merknad.v1.acl
 
 import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknader
 
-object ResultMapper {
+object MerknadMapper {
 
     fun transferable(source: Merknader) =
         MerknaderV1(

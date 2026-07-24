@@ -37,7 +37,6 @@ object MerknadDeducer {
         val merknadListe = mutableListOf<MerknadCode>()
         afpHistorikk?.let { afpMerknad(aar, historikk = it)?.let(merknadListe::add) }
         ufoereHistorikk?.let { ufoeregradMerknad(aar, historikk = it)?.let(merknadListe::add) }
-        ingenOpptjeningMerknad(opptjening, merknadListe)?.let(merknadListe::add)
 
         if (erBrukergruppe4Eller5) {
             reformMerknad(aar)?.let(merknadListe::add)
@@ -46,6 +45,8 @@ object MerknadDeducer {
             foerstegangstjenesteMerknad(aar, beholdningListe)?.let(merknadListe::add)
         }
 
+        // NB: ingenOpptjeningMerknad must be after reformMerknad
+        ingenOpptjeningMerknad(opptjening, merknadListe)?.let(merknadListe::add)
         return merknadListe
     }
 

@@ -2,7 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.api.merknad.v1
 
 import mu.KotlinLogging
 import no.nav.pensjon.selvbetjeningopptjening.api.merknad.v1.acl.MerknaderV1
-import no.nav.pensjon.selvbetjeningopptjening.api.merknad.v1.acl.ResultMapper.transferable
+import no.nav.pensjon.selvbetjeningopptjening.api.merknad.v1.acl.MerknadMapper.transferable
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException
 import no.nav.pensjon.selvbetjeningopptjening.merknad.MerknadService
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.PidValidationException
