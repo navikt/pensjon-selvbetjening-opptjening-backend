@@ -11,7 +11,7 @@ import kotlin.collections.joinToString
 import kotlin.collections.orEmpty
 import kotlin.let
 
-class TokenAudienceValidator(val audience: String) : OAuth2TokenValidator<Jwt> {
+class TokenAudienceValidator(val audience: String, val audience2: String? = null) : OAuth2TokenValidator<Jwt> {
 
     private val log = KotlinLogging.logger {}
 
@@ -19,7 +19,7 @@ class TokenAudienceValidator(val audience: String) : OAuth2TokenValidator<Jwt> {
         validate(token.audience.orEmpty())
 
     private fun validate(audiences: List<String>): OAuth2TokenValidatorResult =
-        if (audiences.contains(audience))
+        if (audiences.contains(audience) || audience2?.let(audiences::contains) == true)
             success()
         else
             "Invalid audience claim: ${audiences.joinToString()}".let {

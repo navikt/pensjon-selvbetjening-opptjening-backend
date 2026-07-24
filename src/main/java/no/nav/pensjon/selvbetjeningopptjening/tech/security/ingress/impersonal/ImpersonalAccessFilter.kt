@@ -10,11 +10,13 @@ import no.nav.pensjon.selvbetjeningopptjening.common.exception.NotFoundException
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.TargetPidExtractor
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.impersonal.audit.Auditor
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.impersonal.group.GroupMembershipService
+import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.jwt.SecurityContextClaimExtractor
 import no.nav.pensjon.selvbetjeningopptjening.tech.web.CustomHttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.util.StringUtils.hasLength
 import org.springframework.web.filter.GenericFilterBean
+import kotlin.collections.orEmpty
 
 @Component
 class ImpersonalAccessFilter(
@@ -28,9 +30,10 @@ class ImpersonalAccessFilter(
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
         if (hasPid(request as HttpServletRequest)) {
             val pid = pidGetter.pid()
+            val personalAccess = accessAsApplication().not()
 
             try {
-                if (!groupMembershipService.innloggetBrukerHarTilgang(pid)) {
+                if (personalAccess && groupMembershipService.innloggetBrukerHarTilgang(pid).not()) {
                     forbidden(response as HttpServletResponse)
                     return
                 }
@@ -39,11 +42,16 @@ class ImpersonalAccessFilter(
                 return
             }
 
-            auditor.audit(pid, request.requestURI)
+            if (personalAccess) {
+                auditor.audit(onBehalfOfPid = pid, requestUri = request.requestURI)
+            }
         }
 
         chain.doFilter(request, response)
     }
+
+    private fun accessAsApplication(): Boolean =
+        rolesFromSecurityContext()?.map { it.toString() }.orEmpty().contains("access_as_application")
 
     private fun hasPid(request: HttpServletRequest): Boolean =
         hasLength(request.getHeader(CustomHttpHeaders.PID))
@@ -61,5 +69,11 @@ class ImpersonalAccessFilter(
             log.info { it }
             response.sendError(HttpStatus.NOT_FOUND.value(), it)
         }
+    }
+
+    private companion object {
+        private const val CLAIM_KEY = "roles"
+
+        private fun rolesFromSecurityContext() = SecurityContextClaimExtractor.claim(CLAIM_KEY) as? List<*>
     }
 }

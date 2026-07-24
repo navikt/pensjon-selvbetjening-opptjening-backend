@@ -2,8 +2,6 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.maps.shouldHaveSize
-import io.mockk.mockk
-import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter
 
 class OpptjeningAssemblerTest : ShouldSpec({
 
@@ -14,16 +12,13 @@ class OpptjeningAssemblerTest : ShouldSpec({
             2020 to opptjening()
         )
 
-        TestOpptjeningAssembler(
-            getter = mockk<UttaksgradGetter>()
-        ).removeFutureOpptjening(opptjeningerByYear, 2019)
+        TestOpptjeningAssembler().removeFutureOpptjening(opptjeningerByYear, 2019)
 
         opptjeningerByYear shouldHaveSize 2
     }
 })
 
-private class TestOpptjeningAssembler(getter: UttaksgradGetter) :
-    OpptjeningAssembler(getter)
+private class TestOpptjeningAssembler : OpptjeningAssembler()
 
 private fun opptjening() =
     Opptjening(1L, 1.1)

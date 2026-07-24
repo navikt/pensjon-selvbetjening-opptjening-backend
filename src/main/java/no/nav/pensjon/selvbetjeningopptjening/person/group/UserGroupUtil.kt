@@ -1,6 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.person.group
 
 import io.micrometer.core.instrument.Metrics
+import no.nav.pensjon.selvbetjeningopptjening.gruppe.Brukergruppe
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup
 import java.time.LocalDate
 import java.time.Month
@@ -27,6 +28,9 @@ object UserGroupUtil {
      * The last birthyear that has "overgangsregler for opptjening"
      */
     private const val LAST_BIRTHYEAR_WITH_OVERGANGSREGLER: Int = 1962
+
+    fun brukergruppe(foedselsdato: LocalDate): Brukergruppe =
+        brukergruppe(kalenderaar = foedselsdato.year, kalendermaaned = foedselsdato.month)
 
     fun findUserGroup(birthDate: LocalDate): UserGroup =
         findUserGroup(birthDate.year, birthDate.month)
@@ -56,6 +60,22 @@ object UserGroupUtil {
         incrementCounter("Født etter 1962")
         return UserGroup.USER_GROUP_5
     }
+
+    private fun brukergruppe(kalenderaar: Int, kalendermaaned: Month): Brukergruppe =
+        when {
+            kalenderaar < FIRST_BIRTHYEAR_WITH_NEW_ALDER -> Brukergruppe.EN
+            kalenderaar <= FIRST_BIRTHYEAR_WITH_NEW_PRIVAT_AFP ->
+                if (kalenderaar == FIRST_BIRTHYEAR_WITH_NEW_PRIVAT_AFP && kalendermaaned == Month.DECEMBER)
+                    Brukergruppe.TRE
+                else
+                    Brukergruppe.TO
+
+            kalenderaar < FIRST_BIRTHYEAR_WITH_OVERGANGSREGLER -> Brukergruppe.TRE
+            kalenderaar <= LAST_BIRTHYEAR_WITH_OVERGANGSREGLER -> Brukergruppe.FIRE
+            else -> Brukergruppe.FEM
+        }.also {
+            incrementCounter(it.aldersbeskrivelse)
+        }
 
     private fun incrementCounter(group: String) {
         Metrics.counter("pensjon_selvbetjening_user_group_counter", "user-group", group).increment()

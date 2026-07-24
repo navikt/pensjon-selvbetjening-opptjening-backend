@@ -17,15 +17,14 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import kotlin.jvm.java
 
 object Arrange {
 
-    fun security() {
+    fun security(credentials: Any = jwt) {
         SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext())
 
         SecurityContextHolder.getContext().authentication = EnrichedAuthentication(
-            initialAuth = TestingAuthenticationToken("TEST_USER", jwt),
+            initialAuth = TestingAuthenticationToken("TEST_USER", credentials),
             egressTokenSuppliersByService = EgressTokenSuppliersByService(mapOf()),
             target = RepresentasjonTarget(pid, rolle = RepresentertRolle.SELV),
             authType = AuthType.PERSON_SELF

@@ -66,7 +66,7 @@ public class MerknadHandler {
                 .ifPresent(beholdning -> merknader.add(MerknadCode.FORSTEGANGSTJENESTE));
     }
 
-    private static boolean mottattDagpenger(int year, Beholdning beholdning) {
+    public static boolean mottattDagpenger(int year, Beholdning beholdning) {
         return (mottattDagpengerFiskere(beholdning) || mottattDagpenger(beholdning))
                 && year == beholdning.getDagpengeopptjening().getYear();
     }
@@ -82,7 +82,7 @@ public class MerknadHandler {
         return belop != null && belop.getOrdinartBelop() > 0;
     }
 
-    private static boolean mottattForstegangstjeneste(int year, Beholdning beholdning) {
+    public static boolean mottattForstegangstjeneste(int year, Beholdning beholdning) {
         Forstegangstjenesteopptjening belop = beholdning.getForstegangstjenesteopptjening();
 
         return belop != null
@@ -118,7 +118,7 @@ public class MerknadHandler {
         merknader.add(MerknadCode.UFOREGRAD);
     }
 
-    private static Integer getMaxUforegrad(int year, UforeHistorikk historikk) {
+    public static Integer getMaxUforegrad(int year, UforeHistorikk historikk) {
         Integer maxUforegrad = null;
 
         for (Uforeperiode periode : historikk.getUforeperioder()) {
@@ -170,7 +170,7 @@ public class MerknadHandler {
                 });
     }
 
-    private static boolean hasOmsorgsopptjening(int year, Beholdning beholdning) {
+    public static boolean hasOmsorgsopptjening(int year, Beholdning beholdning) {
         Omsorgsopptjening opptjening = beholdning.getOmsorgsopptjening();
 
         return opptjening != null

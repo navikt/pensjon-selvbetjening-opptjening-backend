@@ -2,7 +2,6 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.mockk
 import no.nav.pensjon.selvbetjeningopptjening.PidGenerator.generatePidAtAge
 import no.nav.pensjon.selvbetjeningopptjening.mock.TestObjects.emptyOpptjeningBasis
 import no.nav.pensjon.selvbetjeningopptjening.person.Foedselsdato2
@@ -15,7 +14,7 @@ class OpptjeningAssemblerForUserGroups123Test : ShouldSpec({
     should("returnere andel pensjon basert på beholdning = 0") {
         Arrange.security()
 
-        OpptjeningAssemblerForUserGroups123(mockk()).createResponse(
+        OpptjeningAssemblerForUserGroups123().createResponse(
             Person(
                 pid = generatePidAtAge(50),
                 fornavn = null,

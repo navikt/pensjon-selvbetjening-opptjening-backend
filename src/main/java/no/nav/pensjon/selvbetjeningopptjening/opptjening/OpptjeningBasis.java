@@ -9,6 +9,7 @@ public class OpptjeningBasis {
     private final List<Restpensjon> restpensjoner;
     private final List<Inntekt> inntekter;
     private final List<Uttaksgrad> uttaksgrader;
+    private final List<Uttaksgrad> uttaksgraderForBeholdningAfter2009;
     private final AfpHistorikk afpHistorikk;
     private final UforeHistorikk uforeHistorikk;
 
@@ -17,6 +18,7 @@ public class OpptjeningBasis {
                            List<Restpensjon> restpensjoner,
                            List<Inntekt> inntekter,
                            List<Uttaksgrad> uttaksgrader,
+                           List<Uttaksgrad> uttaksgraderForBeholdningAfter2009,
                            AfpHistorikk afpHistorikk,
                            UforeHistorikk uforeHistorikk) {
         this.pensjonspoengList = pensjonspoengList;
@@ -24,35 +26,40 @@ public class OpptjeningBasis {
         this.restpensjoner = restpensjoner;
         this.inntekter = inntekter;
         this.uttaksgrader = uttaksgrader;
+        this.uttaksgraderForBeholdningAfter2009 = uttaksgraderForBeholdningAfter2009;
         this.afpHistorikk = afpHistorikk;
         this.uforeHistorikk = uforeHistorikk;
     }
 
-    List<Pensjonspoeng> getPensjonspoengList() {
+    public List<Pensjonspoeng> getPensjonspoengList() {
         return pensjonspoengList;
     }
 
-    List<Beholdning> getPensjonsbeholdninger() {
+    public List<Beholdning> getPensjonsbeholdninger() {
         return beholdninger;
     }
 
-    List<Restpensjon> getRestpensjoner() {
+    public List<Restpensjon> getRestpensjoner() {
         return restpensjoner;
     }
 
-    List<Inntekt> getInntekter() {
+    public List<Inntekt> getInntekter() {
         return inntekter;
     }
 
-    List<Uttaksgrad> getUttaksgrader() {
+    public List<Uttaksgrad> getUttaksgrader() {
         return uttaksgrader;
     }
 
-    AfpHistorikk getAfpHistorikk() {
+    public List<Uttaksgrad> getUttaksgraderForBeholdningAfter2009() {
+        return uttaksgraderForBeholdningAfter2009;
+    }
+
+    public AfpHistorikk getAfpHistorikk() {
         return afpHistorikk;
     }
 
-    UforeHistorikk getUforeHistorikk() {
+    public UforeHistorikk getUforeHistorikk() {
         return uforeHistorikk;
     }
 }

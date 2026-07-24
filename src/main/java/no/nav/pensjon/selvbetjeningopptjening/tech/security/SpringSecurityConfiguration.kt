@@ -22,10 +22,10 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import kotlin.apply
 
 @Configuration
-open class SpringSecurityConfiguration {
+class SpringSecurityConfiguration {
 
     @Bean
-    open fun filterChain(
+    fun filterChain(
         http: HttpSecurity,
         authResolver: AuthenticationManagerResolver<HttpServletRequest>,
         securityContextEnricher: SecurityContextEnricher
@@ -57,22 +57,22 @@ open class SpringSecurityConfiguration {
             .build()
 
     @Bean
-    open fun tokenAuthenticationManagerResolver(
+    fun tokenAuthenticationManagerResolver(
         @Qualifier("combo-provider") universalProviderManager: ProviderManager
     ): AuthenticationManagerResolver<HttpServletRequest> =
         AuthenticationManagerResolver { universalProviderManager }
 
     @Bean("combo-provider")
     @Primary
-    open fun comboProvider(
-        @Value("\${id-porten.issuer}") idPortenIssuer: String,
-        @Value("\${id-porten.audience}") idPortenAudience: String,
-        @Value("\${token-x.issuer}") tokenXIssuer: String,
-        @Value("\${token-x.client.id}") tokenXClientId: String,
-        @Value("\${azure-app.issuer}") entraIdIssuer: String,
-        // Use sob.frontend.client-id until frontend exchanges Entra token into OBO token:
-        //@Value("\${azure-app.client-id}") entraIdClientId: String
-        @Value("\${sob.frontend.client-id}") entraIdClientId: String
+    fun comboProvider(
+        @Value($$"${id-porten.issuer}") idPortenIssuer: String,
+        @Value($$"${id-porten.audience}") idPortenAudience: String,
+        @Value($$"${token-x.issuer}") tokenXIssuer: String,
+        @Value($$"${token-x.client.id}") tokenXClientId: String,
+        @Value($$"${azure-app.issuer}") entraIdIssuer: String,
+        @Value($$"${azure-app.client-id}") entraIdClientId: String,
+        // Needed until frontend exchanges Entra token into OBO token:
+        @Value($$"${sob.frontend.client-id}") entraIdClientId2: String
     ): ProviderManager =
         ProviderManager(
             JwtAuthenticationProvider(
@@ -82,7 +82,7 @@ open class SpringSecurityConfiguration {
                 jwtDecoder(tokenXIssuer, tokenValidator = TokenAudienceValidator(tokenXClientId))
             ),
             JwtAuthenticationProvider(
-                jwtDecoder(entraIdIssuer, tokenValidator = TokenAudienceValidator(entraIdClientId))
+                jwtDecoder(entraIdIssuer, tokenValidator = TokenAudienceValidator(entraIdClientId, entraIdClientId2))
             )
         )
 

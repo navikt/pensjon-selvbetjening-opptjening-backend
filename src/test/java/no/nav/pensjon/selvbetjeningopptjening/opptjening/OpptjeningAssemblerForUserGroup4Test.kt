@@ -2,7 +2,6 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.mockk
 import no.nav.pensjon.selvbetjeningopptjening.PidGenerator.generatePid
 import no.nav.pensjon.selvbetjeningopptjening.mock.TestObjects.emptyOpptjeningBasis
 import no.nav.pensjon.selvbetjeningopptjening.person.Foedselsdato2
@@ -30,7 +29,7 @@ class OpptjeningAssemblerForUserGroup4Test : ShouldSpec({
         expectedPerAar.keys.forEach {
             val foedselsdato = LocalDate.of(it, 5, 5)
 
-            OpptjeningAssemblerForUserGroup4(mockk()).createResponse(
+            OpptjeningAssemblerForUserGroup4().createResponse(
                 Person(
                     pid = generatePid(foedselsdato),
                     fornavn = null,
