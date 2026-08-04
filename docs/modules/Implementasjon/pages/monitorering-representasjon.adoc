@@ -1,0 +1,106 @@
+= Monitorering av representasjon (OBO)
+
+Denne siden beskriver hvordan tilgangskontrollen for representasjon kan følges opp i produksjon. Det gjelder forespørsler med `nav-obo`-cookie, der en innlogget bruker gjør et kall på vegne av en annen person.
+
+== Metrikk
+
+Metrikken eksponeres på `/internal/prometheus` og skrapes til `prometheus-prod-gcp`.
+
+[cols="2,1,3"]
+|===
+|Metrikk |Tags |Beskrivelse
+
+|`representasjon_obo_tilgang_total`
+|`outcome`, `method`
+|Resultatet av representasjonssjekken for forespørsler med `nav-obo`-cookie.
+`outcome` er `innvilget`, `ingen_gyldig_representasjon` eller `fullmakt_feil`.
+|===
+
+`method` er HTTP-metoden på innkommende forespørsel. De brukerrettede endepunktene som kan bruke OBO er GET-endepunkter, så applikasjonen forhåndsregistrerer kun `GET`.
+
+NOTE: Applikasjonen har ingen adressebeskyttelsessjekk på OBO-stien. Utfallet `adressebeskyttelse` er derfor ikke instrumentert her.
+
+NOTE: Representasjon brukes sjelden. Alle kjente kombinasjoner av `outcome` og `method` forhåndsregistreres med verdi 0 ved oppstart av `RepresentasjonMetricsInitializer`, slik at 0 betyr "ikke skjedd" og ikke "mangler instrumentering".
+
+== Logging
+
+Kun avslag logges. Vellykkede OBO-forespørsler gir ingen logglinje; antall vellykkede kall leses fra metrikken.
+
+[cols="2,2,2"]
+|===
+|Felt |Verdier |Når
+
+|`event`
+|`obo_tilgang_avvist`
+|alle avslag
+
+|`obo_outcome`
+|`ingen_gyldig_representasjon`, `fullmakt_feil`
+|alle avslag
+
+|`obo_method`
+|HTTP-metode, normalt `GET`
+|alle avslag
+
+|`obo_paakrevde_typer`
+|`PENSJON_LES,PENSJON_SKRIV,VERGE_PENSJON_LES,VERGE_PENSJON_SKRIV`
+|når pensjon-representasjon returnerer tomt svar eller ugyldig representasjon
+
+|`obo_tomt_svar`
+|`true`/`false`
+|`ingen_gyldig_representasjon`
+
+|`obo_feilmelding`
+|feilmelding fra unntaket
+|`fullmakt_feil`
+|===
+
+PID logges ikke.
+
+== Sjekk i Grafana
+
+Bruk datakilden `prometheus-prod-gcp` i https://grafana.nav.cloud.nais.io/explore[Grafana Explore].
+
+IMPORTANT: Bruk `increase(...[7d])`, ikke `rate(...[5m])`. Representasjon kan ha få hendelser per dag, og korte rater kan se ut som null selv om metrikken virker.
+
+.Antall OBO-forespørsler per applikasjon og utfall siste 7 dager
+[source]
+----
+sum by (app, outcome) (increase(representasjon_obo_tilgang_total[7d]))
+----
+
+.Feilandel siste 7 dager
+[source]
+----
+sum(increase(representasjon_obo_tilgang_total{outcome!="innvilget"}[7d]))
+  / sum(increase(representasjon_obo_tilgang_total[7d]))
+----
+
+== Søk i OpenSearch
+
+OpenSearch brukes til feilsøking av avslag, ikke til rater. Bruk basefilter:
+
+[source]
+----
+application: "pensjon-selvbetjening-opptjening-backend" and cluster: "prod-gcp"
+----
+
+Nyttige søk:
+
+[source]
+----
+event: "obo_tilgang_avvist"
+event: "obo_tilgang_avvist" and obo_outcome: "ingen_gyldig_representasjon"
+event: "obo_tilgang_avvist" and obo_outcome: "fullmakt_feil"
+event: "obo_tilgang_avvist" and obo_tomt_svar: true
+----
+
+== Verifisering etter deploy
+
+[source,bash]
+----
+kubectl --context=prod-gcp -n pensjonselvbetjening exec deploy/pensjon-selvbetjening-opptjening-backend -- \
+  curl -s localhost:8080/internal/prometheus | grep representasjon_obo_tilgang
+----
+
+Alle forhåndsregistrerte serier for `GET` skal finnes med verdi 0 rett etter deploy.

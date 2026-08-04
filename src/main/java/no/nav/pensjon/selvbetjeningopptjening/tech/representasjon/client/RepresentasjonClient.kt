@@ -5,5 +5,5 @@ import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.Representasjon
 
 interface RepresentasjonClient {
 
-    fun hasValidRepresentasjonsforhold(representertPid: String, representasjonstyper: List<Representasjonstype>): Representasjon
+    fun hasValidRepresentasjonsforhold(representertPid: String, representasjonstyper: List<Representasjonstype>): Representasjon?
 }

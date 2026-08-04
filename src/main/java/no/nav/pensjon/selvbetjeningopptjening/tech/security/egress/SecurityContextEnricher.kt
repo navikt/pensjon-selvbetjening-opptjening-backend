@@ -3,18 +3,24 @@ package no.nav.pensjon.selvbetjeningopptjening.tech.security.egress
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import net.logstash.logback.argument.StructuredArguments.kv
+import mu.KotlinLogging
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid
 import no.nav.pensjon.selvbetjeningopptjening.tech.crypto.PidEncryptionService
-import no.nav.pensjon.selvbetjeningopptjening.tech.metric.Metrics
+import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.EVENT_OBO_TILGANG_AVVIST
+import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.OboTilgangOutcome
+import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.Representasjon
 import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.Representasjonstype
 import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.RepresentasjonService
 import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.RepresentasjonTarget
 import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.RepresentertRolle
+import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.countOboTilgang
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressTokenSuppliersByService
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.AccessDeniedReason
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.AuthTypeDeducer
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.SecurityContextPidExtractor
 import no.nav.pensjon.selvbetjeningopptjening.tech.web.CustomHttpHeaders
+import no.nav.pensjon.selvbetjeningopptjening.tech.web.EgressException
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
@@ -29,6 +35,8 @@ class SecurityContextEnricher(
     private val pidDecrypter: PidEncryptionService,
     private val representasjonService: RepresentasjonService
 ) {
+    private val log = KotlinLogging.logger {}
+
     fun enrichAuthentication(request: HttpServletRequest, response: HttpServletResponse) {
         with(SecurityContextHolder.getContext()) {
             if (authentication == null) {
@@ -88,9 +96,10 @@ class SecurityContextEnricher(
         request: HttpServletRequest
     ): Authentication =
         onBehalfOfCookieValue(request.cookies)?.let { encryptedPid ->
-            validRepresentasjon(encryptedPid)?.let { representertPid ->
+            val httpMethod = request.method
+            validRepresentasjon(encryptedPid, httpMethod)?.let { representertPid ->
                 enrichWithFullmakt(auth, fullmaktgiverPid = Pid(representertPid))
-                    .also { countOnBehalfOfEvent(result = "ok") }
+                    .also { countOboTilgang(OboTilgangOutcome.INNVILGET, httpMethod) }
             } ?: invalidRepresentasjonForhold()
         } ?: auth
 
@@ -101,11 +110,38 @@ class SecurityContextEnricher(
      * PID-en fra obo-cookien sendes kryptert til pensjon-representasjon, som returnerer den dekrypterte PID-en.
      * Dermed slipper vi å dekryptere PID-en selv.
      */
-    private fun validRepresentasjon(encryptedPid: String): String? =
-        representasjonService.hasValidRepresentasjonsforhold(
-            representertPid = encryptedPid,
-            representasjonstyper = Representasjonstype.VALID_REPRESENTASJON_TYPES
-        ).takeIf { it.isValid }?.representertPid
+    private fun validRepresentasjon(encryptedPid: String, httpMethod: String): String? =
+        try {
+            val representasjon = representasjonService.hasValidRepresentasjonsforhold(
+                representertPid = encryptedPid,
+                representasjonstyper = Representasjonstype.VALID_REPRESENTASJON_TYPES
+            )
+            representasjon.takeIf { it?.isValid == true }?.representertPid
+                ?: logAndReturnInvalidRepresentasjon(representasjon, httpMethod)
+        } catch (e: EgressException) {
+            countOboTilgang(OboTilgangOutcome.FULLMAKT_FEIL, httpMethod)
+            log.error(
+                "Noe gikk galt ved kall til fullmakt. Nekter adgang.",
+                kv("event", EVENT_OBO_TILGANG_AVVIST),
+                kv("obo_outcome", OboTilgangOutcome.FULLMAKT_FEIL.tag),
+                kv("obo_method", httpMethod),
+                kv("obo_feilmelding", e.message)
+            )
+            invalidRepresentasjonForhold()
+        }
+
+    private fun logAndReturnInvalidRepresentasjon(representasjon: Representasjon?, httpMethod: String): String? {
+        countOboTilgang(OboTilgangOutcome.INGEN_GYLDIG_REPRESENTASJON, httpMethod)
+        log.warn(
+            "Fullmaktsforhold er ikke funnet. Nekter adgang.",
+            kv("event", EVENT_OBO_TILGANG_AVVIST),
+            kv("obo_outcome", OboTilgangOutcome.INGEN_GYLDIG_REPRESENTASJON.tag),
+            kv("obo_method", httpMethod),
+            kv("obo_paakrevde_typer", Representasjonstype.VALID_REPRESENTASJON_TYPES.joinToString(",")),
+            kv("obo_tomt_svar", representasjon == null)
+        )
+        return null
+    }
 
     private fun onBehalfOfCookieValue(cookies: Array<Cookie>?): String? =
         cookies.orEmpty()
@@ -148,12 +184,7 @@ class SecurityContextEnricher(
             RepresentasjonTarget(pid, rolle = RepresentertRolle.UNDER_VEILEDNING)
 
         private fun invalidRepresentasjonForhold(): Nothing {
-            countOnBehalfOfEvent(result = "avvist")
             throw AccessDeniedException(AccessDeniedReason.INVALID_REPRESENTASJON.name)
-        }
-
-        private fun countOnBehalfOfEvent(result: String) {
-            Metrics.countEvent(eventName = "obo", result)
         }
     }
 }

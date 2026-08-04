@@ -2,7 +2,9 @@ package no.nav.pensjon.selvbetjeningopptjening.tech.security.egress
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.doubles.shouldBeExactly
 import io.kotest.matchers.shouldBe
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -10,10 +12,13 @@ import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Pid
 import no.nav.pensjon.selvbetjeningopptjening.tech.crypto.PidEncryptionService
+import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.OboTilgangOutcome
 import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.Representasjon
+import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.REPRESENTASJON_OBO_TILGANG_EVENT
 import no.nav.pensjon.selvbetjeningopptjening.tech.representasjon.RepresentasjonService
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.egress.config.EgressTokenSuppliersByService
 import no.nav.pensjon.selvbetjeningopptjening.tech.security.ingress.SecurityContextPidExtractor
+import no.nav.pensjon.selvbetjeningopptjening.tech.web.EgressException
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.context.SecurityContextImpl
@@ -21,6 +26,19 @@ import org.springframework.security.core.context.SecurityContextImpl
 class SecurityContextEnricherTest : FunSpec({
 
     val tokenSuppliers = EgressTokenSuppliersByService(emptyMap())
+    lateinit var meterRegistry: SimpleMeterRegistry
+
+    beforeEach {
+        meterRegistry = SimpleMeterRegistry()
+        io.micrometer.core.instrument.Metrics.globalRegistry.add(meterRegistry)
+    }
+
+    afterEach {
+        io.micrometer.core.instrument.Metrics.globalRegistry.remove(meterRegistry)
+        meterRegistry.clear()
+        meterRegistry.close()
+        SecurityContextHolder.clearContext()
+    }
 
     test("enrichAuthentication uses plaintext PID from header if not encrypted") {
         arrangeSecurityContext(authentication = mockk())
@@ -142,6 +160,7 @@ class SecurityContextEnricherTest : FunSpec({
         )
 
         securityContextTargetPid() shouldBe ON_BEHALF_OF_PID
+        oboCounter(OboTilgangOutcome.INNVILGET) shouldBeExactly 1.0
     }
 
     test("enrichAuthentication throws AccessDeniedException if invalid representasjon") {
@@ -161,6 +180,45 @@ class SecurityContextEnricherTest : FunSpec({
         }.message shouldBe "INVALID_REPRESENTASJON"
 
         securityContextTargetPid() shouldBe LOGGED_IN_PID // not on-behalf-of PID
+        oboCounter(OboTilgangOutcome.INGEN_GYLDIG_REPRESENTASJON) shouldBeExactly 1.0
+    }
+
+    test("enrichAuthentication counts no valid representasjon when fullmakt response is empty") {
+        arrangeSecurityContext(authentication = mockk())
+
+        shouldThrow<org.springframework.security.access.AccessDeniedException> {
+            SecurityContextEnricher(
+                tokenSuppliers,
+                authTypeDeducer = mockk(relaxed = true),
+                pidExtractor = arrangeSecurityContextPidExtractor(pid = LOGGED_IN_PID),
+                pidDecrypter = mockk(),
+                representasjonService = arrange(null)
+            ).enrichAuthentication(
+                request = arrangeOnBehalfOfCookie(value = ON_BEHALF_OF_PID.pid),
+                response = mockk()
+            )
+        }.message shouldBe "INVALID_REPRESENTASJON"
+
+        oboCounter(OboTilgangOutcome.INGEN_GYLDIG_REPRESENTASJON) shouldBeExactly 1.0
+    }
+
+    test("enrichAuthentication counts fullmakt failure") {
+        arrangeSecurityContext(authentication = mockk())
+
+        shouldThrow<org.springframework.security.access.AccessDeniedException> {
+            SecurityContextEnricher(
+                tokenSuppliers,
+                authTypeDeducer = mockk(relaxed = true),
+                pidExtractor = arrangeSecurityContextPidExtractor(pid = LOGGED_IN_PID),
+                pidDecrypter = mockk(),
+                representasjonService = arrangeFailure()
+            ).enrichAuthentication(
+                request = arrangeOnBehalfOfCookie(value = ON_BEHALF_OF_PID.pid),
+                response = mockk()
+            )
+        }.message shouldBe "INVALID_REPRESENTASJON"
+
+        oboCounter(OboTilgangOutcome.FULLMAKT_FEIL) shouldBeExactly 1.0
     }
 })
 
@@ -189,14 +247,22 @@ private fun arrangeFoedselsnummerInHeader(value: String?) =
 private fun arrangeOnBehalfOfCookie(value: String) =
     mockk<HttpServletRequest>(relaxed = true).apply {
         every { cookies } returns listOf(Cookie("nav-obo", value)).toTypedArray()
+        every { method } returns "GET"
         every { getParameter("pid") } returns null
     }
 
-private fun arrange(representasjon: Representasjon) =
+private fun arrange(representasjon: Representasjon?) =
     mockk<RepresentasjonService>().apply {
         every {
             hasValidRepresentasjonsforhold(representertPid = any(), representasjonstyper = any())
         } returns representasjon
+    }
+
+private fun arrangeFailure() =
+    mockk<RepresentasjonService>().apply {
+        every {
+            hasValidRepresentasjonsforhold(representertPid = any(), representasjonstyper = any())
+        } throws EgressException("fullmakt svarte med feil")
     }
 
 private fun arrangeDecryption() =
@@ -208,3 +274,10 @@ private fun arrangeSecurityContextPidExtractor(pid: Pid?): SecurityContextPidExt
     mockk<SecurityContextPidExtractor>().apply {
         every { pid() } returns pid
     }
+
+private fun oboCounter(outcome: OboTilgangOutcome): Double =
+    io.micrometer.core.instrument.Metrics.globalRegistry
+        .find(REPRESENTASJON_OBO_TILGANG_EVENT)
+        .tags("outcome", outcome.tag, "method", "GET")
+        .counter()
+        ?.count() ?: 0.0

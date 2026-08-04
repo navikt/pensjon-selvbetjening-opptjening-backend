@@ -37,7 +37,7 @@ class PensjonRepresentasjonClient(
 
     private val log = KotlinLogging.logger {}
 
-    override fun hasValidRepresentasjonsforhold(representertPid: String, representasjonstyper: List<Representasjonstype>): Representasjon {
+    override fun hasValidRepresentasjonsforhold(representertPid: String, representasjonstyper: List<Representasjonstype>): Representasjon? {
         val uri = "$baseUrl$PATH"
         log.debug { "POST to URI: '$uri'" }
 
@@ -62,7 +62,6 @@ class PensjonRepresentasjonClient(
                 .block()
                 ?.let(::fromDto)
                 .also { countCalls(MetricResult.OK) }
-                ?: noRepresentasjonForhold()
         } catch (e: WebClientRequestException) {
             throw EgressException("Failed calling $uri", e)
         } catch (e: WebClientResponseException) {
@@ -90,8 +89,5 @@ class PensjonRepresentasjonClient(
 
 
         private val service = EgressService.PENSJON_REPRESENTASJON
-
-        private fun noRepresentasjonForhold() =
-            Representasjon(isValid = false, fullmaktGiverNavn = "")
     }
 }

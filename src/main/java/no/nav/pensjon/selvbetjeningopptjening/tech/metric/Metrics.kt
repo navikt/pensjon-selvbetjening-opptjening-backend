@@ -11,10 +11,6 @@ object Metrics {
             .increment()
     }
 
-    fun countEvent(eventName: String, result: String) {
-        Metrics.counter("${PREFIX}_$eventName", "result", result).increment()
-    }
-
     fun countType(eventName: String, type: String) {
         Metrics.counter("${PREFIX}_$eventName", "type", type).increment()
     }
