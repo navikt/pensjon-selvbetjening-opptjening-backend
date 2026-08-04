@@ -121,7 +121,7 @@ class SecurityContextEnricher(
         } catch (e: EgressException) {
             countOboTilgang(OboTilgangOutcome.FULLMAKT_FEIL, httpMethod)
             log.error(
-                "Noe gikk galt ved kall til fullmakt. Nekter adgang.",
+                "Noe gikk galt ved kall til fullmakt. Nekter adgang. {} {} {} {}",
                 kv("event", EVENT_OBO_TILGANG_AVVIST),
                 kv("obo_outcome", OboTilgangOutcome.FULLMAKT_FEIL.tag),
                 kv("obo_method", httpMethod),
@@ -132,14 +132,14 @@ class SecurityContextEnricher(
 
     private fun logAndReturnInvalidRepresentasjon(representasjon: Representasjon?, httpMethod: String): String? {
         countOboTilgang(OboTilgangOutcome.INGEN_GYLDIG_REPRESENTASJON, httpMethod)
-        log.warn(
-            "Fullmaktsforhold er ikke funnet. Nekter adgang.",
-            kv("event", EVENT_OBO_TILGANG_AVVIST),
-            kv("obo_outcome", OboTilgangOutcome.INGEN_GYLDIG_REPRESENTASJON.tag),
-            kv("obo_method", httpMethod),
-            kv("obo_paakrevde_typer", Representasjonstype.VALID_REPRESENTASJON_TYPES.joinToString(",")),
-            kv("obo_tomt_svar", representasjon == null)
-        )
+        log.warn {
+            "Fullmaktsforhold er ikke funnet. Nekter adgang. " +
+                "event=$EVENT_OBO_TILGANG_AVVIST, " +
+                "obo_outcome=${OboTilgangOutcome.INGEN_GYLDIG_REPRESENTASJON.tag}, " +
+                "obo_method=$httpMethod, " +
+                "obo_paakrevde_typer=${Representasjonstype.VALID_REPRESENTASJON_TYPES.joinToString(",")}, " +
+                "obo_tomt_svar=${representasjon == null}"
+        }
         return null
     }
 
