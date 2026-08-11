@@ -17,6 +17,7 @@ class MerknadDeducerTest : ShouldSpec({
                 beholdningListe = emptyList(),
                 afpHistorikk = null,
                 ufoereHistorikk = null,
+                uttaksgradListe = emptyList(),
                 erBrukergruppe4Eller5 = false
             ) shouldBe mapOf(2026 to listOf(MerknadCode.INGEN_OPPTJENING))
         }
@@ -28,6 +29,7 @@ class MerknadDeducerTest : ShouldSpec({
                     beholdningListe = emptyList(),
                     afpHistorikk = null,
                     ufoereHistorikk = null,
+                    uttaksgradListe = emptyList(),
                     erBrukergruppe4Eller5 = true
                 ) shouldBe mapOf(2010 to listOf(MerknadCode.REFORM))
             }
@@ -44,6 +46,7 @@ class MerknadDeducerTest : ShouldSpec({
                     virkningTomDate = LocalDate.of(2030, 12, 31)
                 ),
                 ufoereHistorikk = null,
+                uttaksgradListe = emptyList(),
                 erBrukergruppe4Eller5 = false
             ) shouldBe mapOf(2026 to listOf(MerknadCode.AFP))
         }
@@ -65,6 +68,7 @@ class MerknadDeducerTest : ShouldSpec({
                         )
                     )
                 ),
+                uttaksgradListe = emptyList(),
                 erBrukergruppe4Eller5 = false
             ) shouldBe mapOf(2026 to listOf(MerknadCode.UFOREGRAD))
         }
@@ -77,6 +81,7 @@ class MerknadDeducerTest : ShouldSpec({
                 beholdningListe = emptyList(),
                 afpHistorikk = null,
                 ufoereHistorikk = null,
+                uttaksgradListe = emptyList(),
                 erBrukergruppe4Eller5 = false
             ) shouldBe mapOf(2010 to emptyList())
         }
@@ -89,6 +94,7 @@ class MerknadDeducerTest : ShouldSpec({
                 beholdningListe = emptyList(),
                 afpHistorikk = null,
                 ufoereHistorikk = null,
+                uttaksgradListe = emptyList(),
                 erBrukergruppe4Eller5 = true
             ) shouldBe mapOf(2010 to listOf(MerknadCode.REFORM))
         }
@@ -100,6 +106,7 @@ class MerknadDeducerTest : ShouldSpec({
                     beholdningListe = listOf(beholdning(aar = 2026, omsorgsopptjening = 123.4)),
                     afpHistorikk = null,
                     ufoereHistorikk = null,
+                    uttaksgradListe = emptyList(),
                     erBrukergruppe4Eller5 = true
                 ) shouldBe mapOf(2026 to listOf(MerknadCode.OMSORGSOPPTJENING))
             }
@@ -114,6 +121,7 @@ class MerknadDeducerTest : ShouldSpec({
                     ),
                     afpHistorikk = null,
                     ufoereHistorikk = null,
+                    uttaksgradListe = emptyList(),
                     erBrukergruppe4Eller5 = true
                 ) shouldBe mapOf(2026 to listOf(MerknadCode.DAGPENGER))
             }
@@ -128,6 +136,7 @@ class MerknadDeducerTest : ShouldSpec({
                     ),
                     afpHistorikk = null,
                     ufoereHistorikk = null,
+                    uttaksgradListe = emptyList(),
                     erBrukergruppe4Eller5 = true
                 ) shouldBe mapOf(2026 to listOf(MerknadCode.DAGPENGER))
             }
@@ -142,8 +151,81 @@ class MerknadDeducerTest : ShouldSpec({
                     ),
                     afpHistorikk = null,
                     ufoereHistorikk = null,
+                    uttaksgradListe = emptyList(),
                     erBrukergruppe4Eller5 = true
                 ) shouldBe mapOf(2025 to listOf(MerknadCode.FORSTEGANGSTJENESTE))
+            }
+        }
+
+        context("har gradert uttak") {
+            should("gi merknad 'gradert uttak'") {
+                MerknadDeducer.merknaderPerAar(
+                    opptjeningPerAar = opptjening(aar = 2021),
+                    beholdningListe = emptyList(),
+                    afpHistorikk = null,
+                    ufoereHistorikk = null,
+                    uttaksgradListe = listOf(
+                        Uttaksgrad(
+                            1L,
+                            50,
+                            LocalDate.of(2021, 1, 1),
+                            LocalDate.of(2022, 12, 31)
+                        )
+                    ),
+                    erBrukergruppe4Eller5 = false
+                ) shouldBe mapOf(2021 to listOf(MerknadCode.GRADERT_UTTAK))
+            }
+        }
+
+        context("har helt uttak") {
+            should("gi merknad 'helt uttak'") {
+                MerknadDeducer.merknaderPerAar(
+                    opptjeningPerAar = opptjening(aar = 2021),
+                    beholdningListe = emptyList(),
+                    afpHistorikk = null,
+                    ufoereHistorikk = null,
+                    uttaksgradListe = listOf(
+                        Uttaksgrad(
+                            1L,
+                            100,
+                            LocalDate.of(2021, 1, 1),
+                            LocalDate.of(2021, 1, 31)
+                        )
+                    ),
+                    erBrukergruppe4Eller5 = true
+                ) shouldBe mapOf(2021 to listOf(MerknadCode.HELT_UTTAK))
+            }
+        }
+
+        context("har gradert og helt uttak") {
+            should("gi merknader 'gradert uttak' og 'helt uttak'") {
+                MerknadDeducer.merknaderPerAar(
+                    opptjeningPerAar = mapOf(
+                        2021 to Opptjening(111000L, 2.3),
+                        2022 to Opptjening(112000L, 2.4)
+                    ),
+                    beholdningListe = emptyList(),
+                    afpHistorikk = null,
+                    ufoereHistorikk = null,
+                    uttaksgradListe = listOf(
+                        Uttaksgrad(
+                            1L,
+                            20,
+                            LocalDate.of(2021, 2, 1),
+                            LocalDate.of(2021, 3, 31)
+                        ),
+                        Uttaksgrad(
+                            2L,
+                            100,
+                            LocalDate.of(2022, 1, 1),
+                            null
+                        )
+                    ),
+                    erBrukergruppe4Eller5 = true
+                ) shouldBe mapOf(
+                    2021 to listOf(MerknadCode.GRADERT_UTTAK),
+                    2022 to listOf(MerknadCode.HELT_UTTAK)
+                )
             }
         }
     }

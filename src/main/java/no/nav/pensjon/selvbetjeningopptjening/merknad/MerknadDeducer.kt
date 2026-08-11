@@ -13,6 +13,7 @@ object MerknadDeducer {
         beholdningListe: List<Beholdning>,
         afpHistorikk: AfpHistorikk?,
         ufoereHistorikk: UforeHistorikk?,
+        uttaksgradListe: List<Uttaksgrad>,
         erBrukergruppe4Eller5: Boolean
     ): Map<Int, List<MerknadCode>> =
         opptjeningPerAar.map { (aar, opptjening) ->
@@ -22,6 +23,7 @@ object MerknadDeducer {
                 beholdningListe,
                 afpHistorikk,
                 ufoereHistorikk,
+                uttaksgradListe,
                 erBrukergruppe4Eller5
             )
         }.toMap()
@@ -32,6 +34,7 @@ object MerknadDeducer {
         beholdningListe: List<Beholdning>,
         afpHistorikk: AfpHistorikk?,
         ufoereHistorikk: UforeHistorikk?,
+        uttaksgradListe: List<Uttaksgrad>,
         erBrukergruppe4Eller5: Boolean
     ): List<MerknadCode> {
         val merknadListe = mutableListOf<MerknadCode>()
@@ -45,6 +48,7 @@ object MerknadDeducer {
             foerstegangstjenesteMerknad(aar, beholdningListe)?.let(merknadListe::add)
         }
 
+        uttakMerknader(aar, uttaksgradListe, merknadListe).let(merknadListe::addAll)
         // NB: ingenOpptjeningMerknad must be after reformMerknad
         ingenOpptjeningMerknad(opptjening, merknadListe)?.let(merknadListe::add)
         return merknadListe
@@ -56,10 +60,26 @@ object MerknadDeducer {
         else
             null
 
+    private fun uttakMerknader(
+        aar: Int,
+        uttaksgradListe: List<Uttaksgrad>,
+        merknadListe: List<MerknadCode>
+    ): List<MerknadCode> =
+        uttaksgradListe
+            .filter { it.coversYear(aar) }
+            .mapNotNull { uttakMerknad(uttaksgrad = it, merknadListe) }
+
+    private fun uttakMerknad(uttaksgrad: Uttaksgrad, merknadListe: List<MerknadCode>): MerknadCode? =
+        when {
+            uttaksgrad.isGradert && merknadListe.contains(MerknadCode.GRADERT_UTTAK).not() -> MerknadCode.GRADERT_UTTAK
+            merknadListe.contains(MerknadCode.HELT_UTTAK).not() -> MerknadCode.HELT_UTTAK
+            else -> null
+        }
+
     private fun omsorgsopptjeningMerknad(
         aar: Int,
         opptjening: Opptjening,
-        beholdningListe: List<Beholdning>,
+        beholdningListe: List<Beholdning>
     ): MerknadCode? =
         if (opptjening.hasMerknad(MerknadCode.OMSORGSOPPTJENING).not() &&
             beholdningListe.any { MerknadHandler.hasOmsorgsopptjening(aar, it) }

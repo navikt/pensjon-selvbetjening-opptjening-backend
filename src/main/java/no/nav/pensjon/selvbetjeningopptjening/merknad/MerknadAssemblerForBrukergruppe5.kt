@@ -14,7 +14,8 @@ class MerknadAssemblerForBrukergruppe5 : OpptjeningAssembler() {
             restpensjonListe = basis.restpensjoner.orEmpty(),
             inntektListe = basis.inntekter.orEmpty(),
             afpHistorikk = basis.afpHistorikk,
-            ufoereHistorikk = basis.uforeHistorikk
+            ufoereHistorikk = basis.uforeHistorikk,
+            uttaksgradListe = basis.uttaksgrader.orEmpty()
         )
 
     fun merknader(
@@ -23,7 +24,8 @@ class MerknadAssemblerForBrukergruppe5 : OpptjeningAssembler() {
         restpensjonListe: List<Restpensjon>,
         inntektListe: List<Inntekt>,
         afpHistorikk: AfpHistorikk?,
-        ufoereHistorikk: UforeHistorikk?
+        ufoereHistorikk: UforeHistorikk?,
+        uttaksgradListe: List<Uttaksgrad>
     ): Merknader {
         val opptjeningPerAar = getOpptjeningerByYear(ArrayList<Pensjonspoeng?>(), restpensjonListe)
         populatePensjonsbeholdning(opptjeningPerAar, getBeholdningerByYear(beholdningListe))
@@ -45,6 +47,7 @@ class MerknadAssemblerForBrukergruppe5 : OpptjeningAssembler() {
                 beholdningListe,
                 afpHistorikk,
                 ufoereHistorikk,
+                uttaksgradListe,
                 erBrukergruppe4Eller5 = true
             )
         )
