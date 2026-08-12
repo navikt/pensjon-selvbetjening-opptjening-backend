@@ -47,7 +47,8 @@ class MerknadAssemblerForBrukergruppe4 : OpptjeningAssembler() {
                 afpHistorikk,
                 ufoereHistorikk,
                 uttaksgradListe,
-                erBrukergruppe4Eller5 = true
+                erBrukergruppe4Eller5 = true,
+                includeReformMerknad = false
             )
         )
     }
