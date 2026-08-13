@@ -13,7 +13,9 @@ object MerknadDeducer {
         beholdningListe: List<Beholdning>,
         afpHistorikk: AfpHistorikk?,
         ufoereHistorikk: UforeHistorikk?,
-        erBrukergruppe4Eller5: Boolean
+        uttaksgradListe: List<Uttaksgrad>,
+        erBrukergruppe4Eller5: Boolean,
+        includeReformMerknad: Boolean
     ): Map<Int, List<MerknadCode>> =
         opptjeningPerAar.map { (aar, opptjening) ->
             aar to merknadListe(
@@ -22,7 +24,9 @@ object MerknadDeducer {
                 beholdningListe,
                 afpHistorikk,
                 ufoereHistorikk,
-                erBrukergruppe4Eller5
+                uttaksgradListe,
+                erBrukergruppe4Eller5,
+                includeReformMerknad
             )
         }.toMap()
 
@@ -32,19 +36,24 @@ object MerknadDeducer {
         beholdningListe: List<Beholdning>,
         afpHistorikk: AfpHistorikk?,
         ufoereHistorikk: UforeHistorikk?,
-        erBrukergruppe4Eller5: Boolean
+        uttaksgradListe: List<Uttaksgrad>,
+        erBrukergruppe4Eller5: Boolean,
+        includeReformMerknad: Boolean
     ): List<MerknadCode> {
         val merknadListe = mutableListOf<MerknadCode>()
         afpHistorikk?.let { afpMerknad(aar, historikk = it)?.let(merknadListe::add) }
         ufoereHistorikk?.let { ufoeregradMerknad(aar, historikk = it)?.let(merknadListe::add) }
 
         if (erBrukergruppe4Eller5) {
-            reformMerknad(aar)?.let(merknadListe::add)
+            if (includeReformMerknad) {
+                reformMerknad(aar)?.let(merknadListe::add)
+            }
             omsorgsopptjeningMerknad(aar, opptjening, beholdningListe)?.let(merknadListe::add)
             dagpengerMerknad(aar, beholdningListe)?.let(merknadListe::add)
             foerstegangstjenesteMerknad(aar, beholdningListe)?.let(merknadListe::add)
         }
 
+        uttakMerknader(aar, uttaksgradListe, merknadListe).let(merknadListe::addAll)
         // NB: ingenOpptjeningMerknad must be after reformMerknad
         ingenOpptjeningMerknad(opptjening, merknadListe)?.let(merknadListe::add)
         return merknadListe
@@ -56,10 +65,35 @@ object MerknadDeducer {
         else
             null
 
+    private fun uttakMerknader(
+        aar: Int,
+        uttaksgradListe: List<Uttaksgrad>,
+        merknadListe: List<MerknadCode>
+    ): List<MerknadCode> {
+        val existing = merknadListe.toMutableSet()
+        val result = mutableListOf<MerknadCode>()
+
+        uttaksgradListe
+            .asSequence()
+            .filter { it.coversYear(aar) }
+            .forEach {
+                uttakMerknad(it)?.run { if (existing.add(this)) result.add(this) }
+            }
+
+        return result
+    }
+
+    private fun uttakMerknad(uttaksgrad: Uttaksgrad): MerknadCode? =
+        when {
+            uttaksgrad.isGradert -> MerknadCode.GRADERT_UTTAK
+            uttaksgrad.uttaksgrad == 100 -> MerknadCode.HELT_UTTAK
+            else -> null
+        }
+
     private fun omsorgsopptjeningMerknad(
         aar: Int,
         opptjening: Opptjening,
-        beholdningListe: List<Beholdning>,
+        beholdningListe: List<Beholdning>
     ): MerknadCode? =
         if (opptjening.hasMerknad(MerknadCode.OMSORGSOPPTJENING).not() &&
             beholdningListe.any { MerknadHandler.hasOmsorgsopptjening(aar, it) }

@@ -43,7 +43,9 @@ class MerknadAssemblerForBrukergruppe123 : OpptjeningAssembler() {
                 beholdningListe = emptyList(),
                 afpHistorikk,
                 ufoereHistorikk,
-                erBrukergruppe4Eller5 = false
+                uttaksgradListe,
+                erBrukergruppe4Eller5 = false,
+                includeReformMerknad = false
             )
         )
     }
