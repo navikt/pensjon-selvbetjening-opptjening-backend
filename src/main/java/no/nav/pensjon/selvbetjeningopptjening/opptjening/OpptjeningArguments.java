@@ -1,9 +1,9 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.BeholdningClient;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.OpptjeningClient;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.PensjonspoengClient;
 import no.nav.pensjon.selvbetjeningopptjening.person.Person;
 
 import java.util.List;
@@ -14,9 +14,9 @@ public class OpptjeningArguments {
     private final List<Uttaksgrad> uttaksgrader;
     private final AfpHistorikk afpHistorikk;
     private final UforeHistorikk uforeHistorikk;
-    private final OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer;
-    private final PensjonspoengConsumer pensjonspoengConsumer;
-    private final PensjonsbeholdningConsumer beholdningConsumer;
+    private final OpptjeningClient opptjeningsgrunnlagConsumer;
+    private final PensjonspoengClient pensjonspoengConsumer;
+    private final BeholdningClient beholdningConsumer;
     private final UttaksgradGetter uttaksgradGetter;
 
     public OpptjeningArguments(Person person,
@@ -24,9 +24,9 @@ public class OpptjeningArguments {
                                List<Uttaksgrad> uttaksgrader,
                                AfpHistorikk afpHistorikk,
                                UforeHistorikk uforeHistorikk,
-                               OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer,
-                               PensjonspoengConsumer pensjonspoengConsumer,
-                               PensjonsbeholdningConsumer beholdningConsumer,
+                               OpptjeningClient opptjeningsgrunnlagConsumer,
+                               PensjonspoengClient pensjonspoengConsumer,
+                               BeholdningClient beholdningConsumer,
                                UttaksgradGetter uttaksgradGetter) {
         this.person = person;
         this.restpensjoner = restpensjoner;
@@ -59,15 +59,15 @@ public class OpptjeningArguments {
         return uforeHistorikk;
     }
 
-    public OpptjeningsgrunnlagConsumer getOpptjeningsgrunnlagConsumer() {
+    public OpptjeningClient getOpptjeningsgrunnlagConsumer() {
         return opptjeningsgrunnlagConsumer;
     }
 
-    public PensjonspoengConsumer getPensjonspoengConsumer() {
+    public PensjonspoengClient getPensjonspoengConsumer() {
         return pensjonspoengConsumer;
     }
 
-    public PensjonsbeholdningConsumer getBeholdningConsumer() {
+    public BeholdningClient getBeholdningConsumer() {
         return beholdningConsumer;
     }
 

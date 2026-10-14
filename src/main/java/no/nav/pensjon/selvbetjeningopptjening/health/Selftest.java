@@ -1,13 +1,13 @@
 package no.nav.pensjon.selvbetjeningopptjening.health;
 
 import no.nav.pensjon.selvbetjeningopptjening.consumer.FailedCallingExternalServiceException;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.pdl.PdlConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradConsumer;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.BeholdningClient;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.OpptjeningClient;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.PensjonspoengClient;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.RestpensjonClient;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -23,10 +23,10 @@ public class Selftest {
 
     private final List<Pingable> services;
 
-    public Selftest(OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer,
-                    PensjonsbeholdningConsumer pensjonsbeholdningConsumer,
-                    PensjonspoengConsumer pensjonspoengConsumer,
-                    RestpensjonConsumer restpensjonConsumer,
+    public Selftest(OpptjeningClient opptjeningsgrunnlagConsumer,
+                    BeholdningClient pensjonsbeholdningConsumer,
+                    PensjonspoengClient pensjonspoengConsumer,
+                    RestpensjonClient restpensjonConsumer,
                     PersonConsumer personConsumer,
                     UttaksgradConsumer uttaksgradConsumer,
                     PdlConsumer pdlConsumer) {
@@ -60,7 +60,7 @@ public class Selftest {
                 .collect(toMap(
                         service -> service.getPingInfo().getDescription(),
                         service -> "up".equalsIgnoreCase(ping(service)),
-                        (a, b) -> b, HashMap::new));
+                        (_, b) -> b, HashMap::new));
     }
 
     private String getServiceStatuses() {

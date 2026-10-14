@@ -4,14 +4,14 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer
 import no.nav.pensjon.selvbetjeningopptjening.mock.TestObjects.beholdning
 import no.nav.pensjon.selvbetjeningopptjening.mock.TestObjects.pid
 import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.AfpHistorikk
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Inntekt
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.BeholdningClient
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.OpptjeningClient
 import no.nav.pensjon.selvbetjeningopptjening.person.Foedselsdato2
 import no.nav.pensjon.selvbetjeningopptjening.person.Person
 import no.nav.pensjon.selvbetjeningopptjening.person.PersonService
@@ -56,17 +56,17 @@ private fun arrangeAfp(): PersonConsumer =
 /**
  * Beholdning (dvs. opptjening) i 2025
  */
-private fun arrangeBeholdning(): PensjonsbeholdningConsumer =
+private fun arrangeBeholdning(): BeholdningClient =
     mockk {
         every {
             getPensjonsbeholdning(any())
         } returns listOf(beholdning(aar = 2025))
     }
 
-private fun arrangeInntekt(): OpptjeningsgrunnlagConsumer =
+private fun arrangeInntekt(): OpptjeningClient =
     mockk {
         every {
-            getInntektListeFromOpptjeningsgrunnlag(any(), any(), any())
+            getInntektListeFromOpptjeningsgrunnlag(any())
         } returns listOf(Inntekt(2025, "T", 111000L))
     }
 

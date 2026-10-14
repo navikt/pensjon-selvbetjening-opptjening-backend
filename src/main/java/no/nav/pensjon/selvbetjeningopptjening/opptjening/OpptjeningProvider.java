@@ -1,12 +1,12 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.restpensjon.RestpensjonConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.BeholdningClient;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.OpptjeningClient;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.PensjonspoengClient;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.RestpensjonClient;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
 import no.nav.pensjon.selvbetjeningopptjening.person.Person;
 import no.nav.pensjon.selvbetjeningopptjening.person.PersonService;
@@ -19,18 +19,18 @@ import java.util.List;
 @Component
 public class OpptjeningProvider {
 
-    private final PensjonsbeholdningConsumer pensjonsbeholdningConsumer;
-    private final OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer;
-    private final PensjonspoengConsumer pensjonspoengConsumer;
-    private final RestpensjonConsumer restpensjonConsumer;
+    private final BeholdningClient pensjonsbeholdningConsumer;
+    private final OpptjeningClient opptjeningsgrunnlagConsumer;
+    private final PensjonspoengClient pensjonspoengConsumer;
+    private final RestpensjonClient restpensjonConsumer;
     private final PersonConsumer personConsumer;
     private final PersonService personService;
     private final UttaksgradGetter uttaksgradGetter;
 
-    public OpptjeningProvider(PensjonsbeholdningConsumer pensjonsbeholdningConsumer,
-                              OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer,
-                              PensjonspoengConsumer pensjonspoengConsumer,
-                              RestpensjonConsumer restpensjonConsumer,
+    public OpptjeningProvider(BeholdningClient pensjonsbeholdningConsumer,
+                              OpptjeningClient opptjeningsgrunnlagConsumer,
+                              PensjonspoengClient pensjonspoengConsumer,
+                              RestpensjonClient restpensjonConsumer,
                               PersonConsumer personConsumer,
                               PersonService personService,
                               UttaksgradGetter uttaksgradGetter) {
@@ -52,7 +52,7 @@ public class OpptjeningProvider {
         UforeHistorikk uforehistorikk = personConsumer.getUforeHistorikkForPerson(fnr);
 
         List<Restpensjon> restpensjoner = shouldGetRestpensjon(userGroup, uttaksgrader)
-                ? restpensjonConsumer.getRestpensjonListe(fnr)
+                ? restpensjonConsumer.getRestpensjonListe(pid)
                 : new ArrayList<>();
 
         return userGroup.getOpptjeningAssembler().apply(
