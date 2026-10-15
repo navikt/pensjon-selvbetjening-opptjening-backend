@@ -1,14 +1,16 @@
 package no.nav.pensjon.selvbetjeningopptjening.model.code;
 
-import no.nav.pensjon.selvbetjeningopptjening.consumer.opptjeningsgrunnlag.OpptjeningsgrunnlagConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.PensjonsbeholdningConsumer;
-import no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonspoeng.PensjonspoengConsumer;
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.*;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.BeholdningClient;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.OpptjeningClient;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.PensjonspoengClient;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.grunnlag.OpptjeningsgrunnlagSpec;
 import no.nav.pensjon.selvbetjeningopptjening.person.Person;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -70,8 +72,8 @@ public enum UserGroup {
                                                                     List<Uttaksgrad> uttaksgrader,
                                                                     AfpHistorikk afpHistorikk,
                                                                     UforeHistorikk uforeHistorikk,
-                                                                    PensjonspoengConsumer pensjonspoengConsumer) {
-        List<Pensjonspoeng> pensjonspoengList = pensjonspoengConsumer.getPensjonspoengListe(person.getPid().getPid());
+                                                                    PensjonspoengClient pensjonspoengConsumer) {
+        List<Pensjonspoeng> pensjonspoengList = pensjonspoengConsumer.getPensjonspoengListe(person.getPid());
 
         var basis = new OpptjeningBasis(
                 pensjonspoengList,
@@ -91,10 +93,10 @@ public enum UserGroup {
                                                                  List<Uttaksgrad> uttaksgrader,
                                                                  AfpHistorikk afpHistorikk,
                                                                  UforeHistorikk uforeHistorikk,
-                                                                 PensjonspoengConsumer pensjonspoengConsumer,
-                                                                 PensjonsbeholdningConsumer beholdningConsumer,
+                                                                 PensjonspoengClient pensjonspoengConsumer,
+                                                                 BeholdningClient beholdningConsumer,
                                                                  UttaksgradGetter uttaksgradGetter) {
-        String pid = person.getPid().getPid();
+        var pid = person.getPid();
         List<Beholdning> beholdninger = beholdningConsumer.getPensjonsbeholdning(pid);
         List<Pensjonspoeng> pensjonspoengList = pensjonspoengConsumer.getPensjonspoengListe(pid);
         List<Long> vedtakIds = getVedtakIdsForBeholdningAfter2009(beholdninger);
@@ -118,13 +120,13 @@ public enum UserGroup {
                                                                  List<Uttaksgrad> uttaksgrader,
                                                                  AfpHistorikk afpHistorikk,
                                                                  UforeHistorikk uforeHistorikk,
-                                                                 OpptjeningsgrunnlagConsumer opptjeningsgrunnlagConsumer,
-                                                                 PensjonsbeholdningConsumer beholdningConsumer,
+                                                                 OpptjeningClient opptjeningsgrunnlagConsumer,
+                                                                 BeholdningClient beholdningConsumer,
                                                                  UttaksgradGetter uttaksgradGetter) {
-        String pid = person.getPid().getPid();
+        Pid pid = person.getPid();
         List<Beholdning> beholdninger = beholdningConsumer.getPensjonsbeholdning(pid);
         int firstPossibleInntektYear = person.getFodselsdato().getYear() + 13;
-        List<Inntekt> inntekter = opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(pid, firstPossibleInntektYear, LocalDate.now().getYear());
+        List<Inntekt> inntekter = opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(new OpptjeningsgrunnlagSpec(pid, new ArrayList<>(), firstPossibleInntektYear, LocalDate.now().getYear()));
         List<Long> vedtakIds = getVedtakIdsForBeholdningAfter2009(beholdninger);
         List<Uttaksgrad> uttaksgraderForBeholdningAfter2009 = uttaksgradGetter.getUttaksgradForVedtak(vedtakIds);
 
