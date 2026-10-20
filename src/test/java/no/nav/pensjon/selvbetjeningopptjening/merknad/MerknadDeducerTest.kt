@@ -349,6 +349,30 @@ class MerknadDeducerTest : ShouldSpec({
             }
         }
     }
+
+    context("usortert input") {
+        should("sortere i.h.t. årstall") {
+            val merknader = MerknadDeducer.merknaderPerAar(
+                opptjeningPerAar = mapOf(
+                    2021 to Opptjening(111000L, 2.1),
+                    2023 to Opptjening(113000L, 2.3),
+                    2022 to Opptjening(112000L, 2.2)
+                ),
+                beholdningListe = emptyList(),
+                afpHistorikk = null,
+                ufoereHistorikk = null,
+                uttaksgradListe = emptyList(),
+                erBrukergruppe4Eller5 = true,
+                includeReformMerknad = true
+            )
+
+            with(merknader.toList()) {
+                this[0].first shouldBe 2021
+                this[1].first shouldBe 2022
+                this[2].first shouldBe 2023
+            }
+        }
+    }
 })
 
 private fun opptjening(aar: Int): Map<Int, Opptjening> =

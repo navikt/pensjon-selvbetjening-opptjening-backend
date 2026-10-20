@@ -17,7 +17,7 @@ object MerknadDeducer {
         erBrukergruppe4Eller5: Boolean,
         includeReformMerknad: Boolean
     ): Map<Int, List<Merknad>> =
-        opptjeningPerAar.map { (aar, opptjening) ->
+        opptjeningPerAar.toSortedMap().map { (aar, opptjening) ->
             aar to merknadListe(
                 aar,
                 opptjening,

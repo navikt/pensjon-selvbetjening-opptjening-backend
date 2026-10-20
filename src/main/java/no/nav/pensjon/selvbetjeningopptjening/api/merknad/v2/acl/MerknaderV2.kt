@@ -1,5 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.api.merknad.v2.acl
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknad
 import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknader
 import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode
@@ -18,6 +20,7 @@ data class MerknaderV2(
     }
 }
 
+@JsonInclude(NON_NULL)
 data class MerknadV2(
     val kode: MerknadCodeV2,
     val uttaksgrad: UttaksgradV2?
