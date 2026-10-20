@@ -306,7 +306,7 @@ public class EndringPensjonsbeholdningCalculator {
         return uttaksgrader.stream()
                 .filter(grad -> matchesVedtakAndDate(grad, vedtakId, date))
                 .findFirst()
-                .map(Uttaksgrad::getUttaksgrad)
+                .map(Uttaksgrad::getGrad)
                 .orElse(0);
     }
 

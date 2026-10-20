@@ -86,8 +86,8 @@ object MerknadDeducer {
     private fun uttakMerknad(uttaksgrad: Uttaksgrad): Merknad? =
         when {
             uttaksgrad.erGradert -> Merknad(kode = MerknadCode.GRADERT_UTTAK, uttaksgrad)
-            uttaksgrad.uttaksgrad == 100 -> Merknad(kode = MerknadCode.HELT_UTTAK, uttaksgrad)
-            uttaksgrad.uttaksgrad == 0 -> Merknad(kode = MerknadCode.UTTAK_STOPPET, uttaksgrad)
+            uttaksgrad.grad == 100 -> Merknad(kode = MerknadCode.HELT_UTTAK, uttaksgrad)
+            uttaksgrad.grad == 0 -> Merknad(kode = MerknadCode.UTTAK_STOPPET, uttaksgrad)
             else -> null
         }
 

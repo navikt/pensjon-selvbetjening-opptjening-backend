@@ -38,7 +38,7 @@ data class UttaksgradV2(
     companion object {
         fun transferable(source: Uttaksgrad) =
             UttaksgradV2(
-                grad = source.uttaksgrad,
+                grad = source.grad,
                 kalendermaanedFom = source.fom.monthValue
             )
     }

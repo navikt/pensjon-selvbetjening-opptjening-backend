@@ -204,7 +204,7 @@ class MerknadDeducerTest : ShouldSpec({
                 with(merknad!!) {
                     kode shouldBe MerknadCode.GRADERT_UTTAK
                     with(uttaksgrad!!) {
-                        uttaksgrad shouldBe 50
+                        grad shouldBe 50
                         fom shouldBe LocalDate.of(2021, 1, 1)
                     }
                 }
@@ -233,7 +233,7 @@ class MerknadDeducerTest : ShouldSpec({
                 with(merknad!!) {
                     kode shouldBe MerknadCode.HELT_UTTAK
                     with(uttaksgrad!!) {
-                        uttaksgrad shouldBe 100
+                        grad shouldBe 100
                         fom shouldBe LocalDate.of(2021, 1, 1)
                     }
                 }
@@ -273,7 +273,7 @@ class MerknadDeducerTest : ShouldSpec({
                     with(first()) {
                         kode shouldBe MerknadCode.GRADERT_UTTAK
                         with(uttaksgrad!!) {
-                            uttaksgrad shouldBe 20
+                            grad shouldBe 20
                             fom shouldBe LocalDate.of(2021, 2, 1)
                         }
                     }
@@ -283,7 +283,7 @@ class MerknadDeducerTest : ShouldSpec({
                     with(first()) {
                         kode shouldBe MerknadCode.HELT_UTTAK
                         with(uttaksgrad!!) {
-                            uttaksgrad shouldBe 100
+                            grad shouldBe 100
                             fom shouldBe LocalDate.of(2022, 1, 1)
                         }
                     }
@@ -327,21 +327,21 @@ class MerknadDeducerTest : ShouldSpec({
                     with(this[0]) {
                         kode shouldBe MerknadCode.HELT_UTTAK
                         with(uttaksgrad!!) {
-                            uttaksgrad shouldBe 100
+                            grad shouldBe 100
                             fom shouldBe LocalDate.of(2021, 2, 1)
                         }
                     }
                     with(this[1]) {
                         kode shouldBe MerknadCode.UTTAK_STOPPET
                         with(uttaksgrad!!) {
-                            uttaksgrad shouldBe 0
+                            grad shouldBe 0
                             fom shouldBe LocalDate.of(2021, 4, 1)
                         }
                     }
                     with(this[2]) {
                         kode shouldBe MerknadCode.HELT_UTTAK
                         with(uttaksgrad!!) {
-                            uttaksgrad shouldBe 100
+                            grad shouldBe 100
                             fom shouldBe LocalDate.of(2021, 7, 1)
                         }
                     }

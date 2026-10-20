@@ -17,7 +17,7 @@ class UttaksgradTest {
                 LocalDate.of(1992, 2, 2));
 
         assertEquals(1L, uttaksgrad.getVedtakId());
-        assertEquals(2, uttaksgrad.getUttaksgrad());
+        assertEquals(2, uttaksgrad.getGrad());
         assertEquals(LocalDate.of(1991, 1, 1), uttaksgrad.getFom());
         assertEquals(LocalDate.of(1992, 2, 2), uttaksgrad.getTom());
     }

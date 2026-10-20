@@ -397,7 +397,7 @@ class MerknadHandlerTest {
 
     private static Uttaksgrad uttaksgrad(int value) {
         return new Uttaksgrad(
-                0,
+                null,
                 value,
                 LocalDate.of(1980, 1, 1),
                 LocalDate.of(2000, 1, 1));

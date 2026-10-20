@@ -543,10 +543,10 @@ class EndringPensjonsbeholdningCalculatorTest {
     }
 
     private static Uttaksgrad uttaksgrad(LocalDate fomDate, LocalDate tomDate) {
-        return new Uttaksgrad(0, 0, fomDate, tomDate);
+        return new Uttaksgrad(null, 0, fomDate, tomDate);
     }
 
     private static Uttaksgrad uttaksgradFom(LocalDate date) {
-        return new Uttaksgrad(0, 0, date, null);
+        return new Uttaksgrad(null, 0, date, null);
     }
 }
