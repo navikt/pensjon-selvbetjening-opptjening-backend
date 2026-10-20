@@ -7,7 +7,7 @@ object MerknadMapper {
     fun transferable(source: Merknader) =
         MerknaderV1(
             merknaderPerAar = source.perAar.map { (aar, code) ->
-                aar to code.map(MerknadCodeV1::fromInternalValue)
+                aar to code.map { MerknadCodeV1.fromInternalValue(it.kode) }
             }.toMap()
         )
 }

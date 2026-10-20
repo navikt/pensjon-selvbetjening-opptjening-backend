@@ -322,14 +322,14 @@ public class EndringPensjonsbeholdningCalculator {
 
     private static boolean matchesVedtakAndDate(Uttaksgrad uttaksgrad, long vedtakId, LocalDate date) {
         return uttaksgrad.getVedtakId() == vedtakId
-                && isDateInPeriod(date, uttaksgrad.getFomDate(), uttaksgrad.getTomDate());
+                && isDateInPeriod(date, uttaksgrad.getFom(), uttaksgrad.getTom());
     }
 
     private static boolean isBeholdningWithinUttaksgradsperiodeIncludeSameDay(Beholdning beholdning,
                                                                               List<Uttaksgrad> uttaksgrader) {
         return uttaksgrader
                 .stream()
-                .anyMatch(grad -> beholdning.isWithinInclusive(grad.getFomDate(), grad.getTomDate()));
+                .anyMatch(grad -> beholdning.isWithinInclusive(grad.getFom(), grad.getTom()));
     }
 
     private static <T> T getLastElement(List<T> list) {

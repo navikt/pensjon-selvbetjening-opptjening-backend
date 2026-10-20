@@ -32,8 +32,8 @@ class MerknadServiceTest : ShouldSpec({
             ).merknaderPerAar(pid) shouldBe
                     Merknader(
                         perAar = mapOf(
-                            2024 to listOf(MerknadCode.INGEN_OPPTJENING),
-                            2025 to listOf(MerknadCode.AFP)
+                            2024 to listOf(Merknad(kode = MerknadCode.INGEN_OPPTJENING)),
+                            2025 to listOf(Merknad(kode = MerknadCode.AFP))
                         )
                     )
         }

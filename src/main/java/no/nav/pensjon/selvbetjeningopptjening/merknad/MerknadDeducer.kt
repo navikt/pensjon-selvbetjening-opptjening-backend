@@ -16,7 +16,7 @@ object MerknadDeducer {
         uttaksgradListe: List<Uttaksgrad>,
         erBrukergruppe4Eller5: Boolean,
         includeReformMerknad: Boolean
-    ): Map<Int, List<MerknadCode>> =
+    ): Map<Int, List<Merknad>> =
         opptjeningPerAar.map { (aar, opptjening) ->
             aar to merknadListe(
                 aar,
@@ -39,8 +39,8 @@ object MerknadDeducer {
         uttaksgradListe: List<Uttaksgrad>,
         erBrukergruppe4Eller5: Boolean,
         includeReformMerknad: Boolean
-    ): List<MerknadCode> {
-        val merknadListe = mutableListOf<MerknadCode>()
+    ): List<Merknad> {
+        val merknadListe = mutableListOf<Merknad>()
         afpHistorikk?.let { afpMerknad(aar, historikk = it)?.let(merknadListe::add) }
         ufoereHistorikk?.let { ufoeregradMerknad(aar, historikk = it)?.let(merknadListe::add) }
 
@@ -59,23 +59,23 @@ object MerknadDeducer {
         return merknadListe
     }
 
-    private fun afpMerknad(aar: Int, historikk: AfpHistorikk): MerknadCode? =
+    private fun afpMerknad(aar: Int, historikk: AfpHistorikk): Merknad? =
         if (aar in historikk.startYear..sluttAar(historikk))
-            MerknadCode.AFP
+            Merknad(kode = MerknadCode.AFP)
         else
             null
 
     private fun uttakMerknader(
         aar: Int,
         uttaksgradListe: List<Uttaksgrad>,
-        merknadListe: List<MerknadCode>
-    ): List<MerknadCode> {
-        val existing = merknadListe.toMutableSet()
-        val result = mutableListOf<MerknadCode>()
+        merknadListe: List<Merknad>
+    ): List<Merknad> {
+        val existing: MutableSet<Merknad> = merknadListe.toMutableSet()
+        val result = mutableListOf<Merknad>()
 
         uttaksgradListe
             .asSequence()
-            .filter { it.coversYear(aar) }
+            .filter { it.dekkerAaret(aar) }
             .forEach {
                 uttakMerknad(it)?.run { if (existing.add(this)) result.add(this) }
             }
@@ -83,10 +83,11 @@ object MerknadDeducer {
         return result
     }
 
-    private fun uttakMerknad(uttaksgrad: Uttaksgrad): MerknadCode? =
+    private fun uttakMerknad(uttaksgrad: Uttaksgrad): Merknad? =
         when {
-            uttaksgrad.isGradert -> MerknadCode.GRADERT_UTTAK
-            uttaksgrad.uttaksgrad == 100 -> MerknadCode.HELT_UTTAK
+            uttaksgrad.erGradert -> Merknad(kode = MerknadCode.GRADERT_UTTAK, uttaksgrad)
+            uttaksgrad.uttaksgrad == 100 -> Merknad(kode = MerknadCode.HELT_UTTAK, uttaksgrad)
+            uttaksgrad.uttaksgrad == 0 -> Merknad(kode = MerknadCode.UTTAK_STOPPET, uttaksgrad)
             else -> null
         }
 
@@ -94,43 +95,43 @@ object MerknadDeducer {
         aar: Int,
         opptjening: Opptjening,
         beholdningListe: List<Beholdning>
-    ): MerknadCode? =
+    ): Merknad? =
         if (opptjening.hasMerknad(MerknadCode.OMSORGSOPPTJENING).not() &&
             beholdningListe.any { MerknadHandler.hasOmsorgsopptjening(aar, it) }
         )
-            MerknadCode.OMSORGSOPPTJENING
+            Merknad(kode = MerknadCode.OMSORGSOPPTJENING)
         else
             null
 
-    private fun dagpengerMerknad(aar: Int, beholdningListe: List<Beholdning>): MerknadCode? =
+    private fun dagpengerMerknad(aar: Int, beholdningListe: List<Beholdning>): Merknad? =
         if (beholdningListe.any { MerknadHandler.mottattDagpenger(aar, it) })
-            MerknadCode.DAGPENGER
+            Merknad(kode = MerknadCode.DAGPENGER)
         else
             null
 
-    private fun foerstegangstjenesteMerknad(aar: Int, beholdningListe: List<Beholdning>): MerknadCode? =
+    private fun foerstegangstjenesteMerknad(aar: Int, beholdningListe: List<Beholdning>): Merknad? =
         if (beholdningListe.any { MerknadHandler.mottattForstegangstjeneste(aar, it) })
-            MerknadCode.FORSTEGANGSTJENESTE
+            Merknad(kode = MerknadCode.FORSTEGANGSTJENESTE)
         else
             null
 
-    private fun ufoeregradMerknad(aar: Int, historikk: UforeHistorikk): MerknadCode? =
+    private fun ufoeregradMerknad(aar: Int, historikk: UforeHistorikk): Merknad? =
         if ((MerknadHandler.getMaxUforegrad(aar, historikk) ?: 0) > 0)
-            MerknadCode.UFOREGRAD
+            Merknad(kode = MerknadCode.UFOREGRAD)
         else
             null
 
-    private fun reformMerknad(aar: Int): MerknadCode? =
+    private fun reformMerknad(aar: Int): Merknad? =
         if (aar == REFORM_AAR)
-            MerknadCode.REFORM
+            Merknad(kode = MerknadCode.REFORM)
         else
             null
 
-    private fun ingenOpptjeningMerknad(opptjening: Opptjening, merknadListe: List<MerknadCode>): MerknadCode? =
-        if (opptjening.isPositive || merknadListe.contains(MerknadCode.REFORM))
+    private fun ingenOpptjeningMerknad(opptjening: Opptjening, merknadListe: List<Merknad>): Merknad? =
+        if (opptjening.isPositive || merknadListe.any { it.kode == MerknadCode.REFORM })
             null
         else
-            MerknadCode.INGEN_OPPTJENING
+            Merknad(kode = MerknadCode.INGEN_OPPTJENING)
 
     private fun sluttAar(historikk: AfpHistorikk): Int =
         historikk.getEndYearOrDefault { LocalDate.now().year - 1 }

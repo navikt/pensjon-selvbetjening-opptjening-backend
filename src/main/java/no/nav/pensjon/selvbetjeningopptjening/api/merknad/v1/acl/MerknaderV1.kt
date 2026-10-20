@@ -22,7 +22,6 @@ enum class MerknadCodeV1(private val internalValue: MerknadCode) {
 
     companion object {
         fun fromInternalValue(value: MerknadCode): MerknadCodeV1 =
-            entries.singleOrNull { it.internalValue == value }
-                ?: throw IllegalArgumentException("Intern verdi ikke støttet i API v1 - MerknadCode $value")
+            entries.singleOrNull { it.internalValue == value } ?: UNKNOWN
     }
 }
