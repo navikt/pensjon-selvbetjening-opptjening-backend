@@ -2,6 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.api.merknad.v1.acl
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknad
 import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknader
 import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode
 
@@ -11,8 +12,8 @@ class MerknadMapperTest : ShouldSpec({
         MerknadMapper.transferable(
             Merknader(
                 perAar = mapOf(
-                    2001 to listOf(MerknadCode.INGEN_OPPTJENING),
-                    2002 to listOf(MerknadCode.AFP, MerknadCode.DAGPENGER)
+                    2001 to listOf(Merknad(kode = MerknadCode.INGEN_OPPTJENING)),
+                    2002 to listOf(Merknad(kode = MerknadCode.AFP), Merknad(kode = MerknadCode.DAGPENGER))
                 )
             )
         ) shouldBe

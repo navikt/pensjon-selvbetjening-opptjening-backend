@@ -1,6 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.merknad
 
 import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.selvbetjeningopptjening.mock.TestObjects.beholdning
 import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode
@@ -20,7 +21,7 @@ class MerknadDeducerTest : ShouldSpec({
                 uttaksgradListe = emptyList(),
                 erBrukergruppe4Eller5 = false,
                 includeReformMerknad = true
-            ) shouldBe mapOf(2026 to listOf(MerknadCode.INGEN_OPPTJENING))
+            ) shouldBe mapOf(2026 to listOf(Merknad(kode = MerknadCode.INGEN_OPPTJENING)))
         }
 
         context("reformår uten opptjening, brukergruppe 4 eller 5, inkludere reform-merknad") {
@@ -33,7 +34,7 @@ class MerknadDeducerTest : ShouldSpec({
                     uttaksgradListe = emptyList(),
                     erBrukergruppe4Eller5 = true,
                     includeReformMerknad = true
-                ) shouldBe mapOf(2010 to listOf(MerknadCode.REFORM))
+                ) shouldBe mapOf(2010 to listOf(Merknad(kode = MerknadCode.REFORM)))
             }
         }
 
@@ -47,7 +48,7 @@ class MerknadDeducerTest : ShouldSpec({
                     uttaksgradListe = emptyList(),
                     erBrukergruppe4Eller5 = true,
                     includeReformMerknad = false
-                ) shouldBe mapOf(2010 to listOf(MerknadCode.INGEN_OPPTJENING))
+                ) shouldBe mapOf(2010 to listOf(Merknad(kode = MerknadCode.INGEN_OPPTJENING)))
             }
         }
     }
@@ -65,7 +66,7 @@ class MerknadDeducerTest : ShouldSpec({
                 uttaksgradListe = emptyList(),
                 erBrukergruppe4Eller5 = false,
                 includeReformMerknad = true
-            ) shouldBe mapOf(2026 to listOf(MerknadCode.AFP))
+            ) shouldBe mapOf(2026 to listOf(Merknad(kode = MerknadCode.AFP)))
         }
     }
 
@@ -88,7 +89,7 @@ class MerknadDeducerTest : ShouldSpec({
                 uttaksgradListe = emptyList(),
                 erBrukergruppe4Eller5 = false,
                 includeReformMerknad = true
-            ) shouldBe mapOf(2026 to listOf(MerknadCode.UFOREGRAD))
+            ) shouldBe mapOf(2026 to listOf(Merknad(kode = MerknadCode.UFOREGRAD)))
         }
     }
 
@@ -116,7 +117,7 @@ class MerknadDeducerTest : ShouldSpec({
                 uttaksgradListe = emptyList(),
                 erBrukergruppe4Eller5 = true,
                 includeReformMerknad = true
-            ) shouldBe mapOf(2010 to listOf(MerknadCode.REFORM))
+            ) shouldBe mapOf(2010 to listOf(Merknad(kode = MerknadCode.REFORM)))
         }
 
         context("har omsorgsopptjening i opptjeningsperioden") {
@@ -129,7 +130,7 @@ class MerknadDeducerTest : ShouldSpec({
                     uttaksgradListe = emptyList(),
                     erBrukergruppe4Eller5 = true,
                     includeReformMerknad = true
-                ) shouldBe mapOf(2026 to listOf(MerknadCode.OMSORGSOPPTJENING))
+                ) shouldBe mapOf(2026 to listOf(Merknad(kode = MerknadCode.OMSORGSOPPTJENING)))
             }
         }
 
@@ -145,7 +146,7 @@ class MerknadDeducerTest : ShouldSpec({
                     uttaksgradListe = emptyList(),
                     erBrukergruppe4Eller5 = true,
                     includeReformMerknad = true
-                ) shouldBe mapOf(2026 to listOf(MerknadCode.DAGPENGER))
+                ) shouldBe mapOf(2026 to listOf(Merknad(kode = MerknadCode.DAGPENGER)))
             }
         }
 
@@ -161,7 +162,7 @@ class MerknadDeducerTest : ShouldSpec({
                     uttaksgradListe = emptyList(),
                     erBrukergruppe4Eller5 = true,
                     includeReformMerknad = true
-                ) shouldBe mapOf(2026 to listOf(MerknadCode.DAGPENGER))
+                ) shouldBe mapOf(2026 to listOf(Merknad(kode = MerknadCode.DAGPENGER)))
             }
         }
 
@@ -177,13 +178,13 @@ class MerknadDeducerTest : ShouldSpec({
                     uttaksgradListe = emptyList(),
                     erBrukergruppe4Eller5 = true,
                     includeReformMerknad = true
-                ) shouldBe mapOf(2025 to listOf(MerknadCode.FORSTEGANGSTJENESTE))
+                ) shouldBe mapOf(2025 to listOf(Merknad(kode = MerknadCode.FORSTEGANGSTJENESTE)))
             }
         }
 
         context("har gradert uttak") {
             should("gi merknad 'gradert uttak'") {
-                MerknadDeducer.merknaderPerAar(
+                val merknad = MerknadDeducer.merknaderPerAar(
                     opptjeningPerAar = opptjening(aar = 2021),
                     beholdningListe = emptyList(),
                     afpHistorikk = null,
@@ -198,13 +199,21 @@ class MerknadDeducerTest : ShouldSpec({
                     ),
                     erBrukergruppe4Eller5 = false,
                     includeReformMerknad = true
-                ) shouldBe mapOf(2021 to listOf(MerknadCode.GRADERT_UTTAK))
+                )[2021]?.first()
+
+                with(merknad!!) {
+                    kode shouldBe MerknadCode.GRADERT_UTTAK
+                    with(uttaksgrad!!) {
+                        grad shouldBe 50
+                        fom shouldBe LocalDate.of(2021, 1, 1)
+                    }
+                }
             }
         }
 
         context("har helt uttak") {
             should("gi merknad 'helt uttak'") {
-                MerknadDeducer.merknaderPerAar(
+                val merknad = MerknadDeducer.merknaderPerAar(
                     opptjeningPerAar = opptjening(aar = 2021),
                     beholdningListe = emptyList(),
                     afpHistorikk = null,
@@ -219,13 +228,21 @@ class MerknadDeducerTest : ShouldSpec({
                     ),
                     erBrukergruppe4Eller5 = true,
                     includeReformMerknad = true
-                ) shouldBe mapOf(2021 to listOf(MerknadCode.HELT_UTTAK))
+                )[2021]?.first()
+
+                with(merknad!!) {
+                    kode shouldBe MerknadCode.HELT_UTTAK
+                    with(uttaksgrad!!) {
+                        grad shouldBe 100
+                        fom shouldBe LocalDate.of(2021, 1, 1)
+                    }
+                }
             }
         }
 
         context("har gradert og helt uttak") {
             should("gi merknader 'gradert uttak' og 'helt uttak'") {
-                MerknadDeducer.merknaderPerAar(
+                val merknader = MerknadDeducer.merknaderPerAar(
                     opptjeningPerAar = mapOf(
                         2021 to Opptjening(111000L, 2.3),
                         2022 to Opptjening(112000L, 2.4)
@@ -249,16 +266,34 @@ class MerknadDeducerTest : ShouldSpec({
                     ),
                     erBrukergruppe4Eller5 = true,
                     includeReformMerknad = true
-                ) shouldBe mapOf(
-                    2021 to listOf(MerknadCode.GRADERT_UTTAK),
-                    2022 to listOf(MerknadCode.HELT_UTTAK)
                 )
+
+                with(merknader[2021]!!) {
+                    this shouldHaveSize 1
+                    with(first()) {
+                        kode shouldBe MerknadCode.GRADERT_UTTAK
+                        with(uttaksgrad!!) {
+                            grad shouldBe 20
+                            fom shouldBe LocalDate.of(2021, 2, 1)
+                        }
+                    }
+                }
+                with(merknader[2022]!!) {
+                    this shouldHaveSize 1
+                    with(first()) {
+                        kode shouldBe MerknadCode.HELT_UTTAK
+                        with(uttaksgrad!!) {
+                            grad shouldBe 100
+                            fom shouldBe LocalDate.of(2022, 1, 1)
+                        }
+                    }
+                }
             }
         }
 
-        context("to graderte uttak samme år") {
-            should("gi én 'gradert uttak'-merknad") {
-                MerknadDeducer.merknaderPerAar(
+        context("helt uttak med pause innenfor samme år") {
+            should("gi 2 'helt uttak'-merknader") {
+                val merknader = MerknadDeducer.merknaderPerAar(
                     opptjeningPerAar = opptjening(aar = 2021),
                     beholdningListe = emptyList(),
                     afpHistorikk = null,
@@ -266,22 +301,75 @@ class MerknadDeducerTest : ShouldSpec({
                     uttaksgradListe = listOf(
                         Uttaksgrad(
                             1L,
-                            20,
+                            100,
                             LocalDate.of(2021, 2, 1),
                             LocalDate.of(2021, 3, 31)
                         ),
                         Uttaksgrad(
                             2L,
-                            80,
-                            LocalDate.of(2021, 6, 1),
-                            LocalDate.of(2021, 7, 31)
+                            0,
+                            LocalDate.of(2021, 4, 1),
+                            LocalDate.of(2021, 6, 30)
+                        ),
+                        Uttaksgrad(
+                            3L,
+                            100,
+                            LocalDate.of(2021, 7, 1),
+                            LocalDate.of(2021, 12, 31)
                         )
                     ),
                     erBrukergruppe4Eller5 = true,
                     includeReformMerknad = true
-                ) shouldBe mapOf(
-                    2021 to listOf(MerknadCode.GRADERT_UTTAK)
                 )
+
+                with(merknader[2021]!!) {
+                    this shouldHaveSize 3
+                    with(this[0]) {
+                        kode shouldBe MerknadCode.HELT_UTTAK
+                        with(uttaksgrad!!) {
+                            grad shouldBe 100
+                            fom shouldBe LocalDate.of(2021, 2, 1)
+                        }
+                    }
+                    with(this[1]) {
+                        kode shouldBe MerknadCode.UTTAK_STOPPET
+                        with(uttaksgrad!!) {
+                            grad shouldBe 0
+                            fom shouldBe LocalDate.of(2021, 4, 1)
+                        }
+                    }
+                    with(this[2]) {
+                        kode shouldBe MerknadCode.HELT_UTTAK
+                        with(uttaksgrad!!) {
+                            grad shouldBe 100
+                            fom shouldBe LocalDate.of(2021, 7, 1)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    context("usortert input") {
+        should("sortere i.h.t. årstall") {
+            val merknader = MerknadDeducer.merknaderPerAar(
+                opptjeningPerAar = mapOf(
+                    2021 to Opptjening(111000L, 2.1),
+                    2023 to Opptjening(113000L, 2.3),
+                    2022 to Opptjening(112000L, 2.2)
+                ),
+                beholdningListe = emptyList(),
+                afpHistorikk = null,
+                ufoereHistorikk = null,
+                uttaksgradListe = emptyList(),
+                erBrukergruppe4Eller5 = true,
+                includeReformMerknad = true
+            )
+
+            with(merknader.toList()) {
+                this[0].first shouldBe 2021
+                this[1].first shouldBe 2022
+                this[2].first shouldBe 2023
             }
         }
     }

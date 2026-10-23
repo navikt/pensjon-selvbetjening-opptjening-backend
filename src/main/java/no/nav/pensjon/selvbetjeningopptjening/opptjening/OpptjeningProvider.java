@@ -74,6 +74,6 @@ public class OpptjeningProvider {
 
     private static boolean userHasUttakAlderspensjonWithUttaksgradLessThan100(List<Uttaksgrad> uttaksgrader) {
         return uttaksgrader.stream()
-                .anyMatch(grad -> grad.getUttaksgrad() < 100);
+                .anyMatch(grad -> grad.getGrad() < 100);
     }
 }

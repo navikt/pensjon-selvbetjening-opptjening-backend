@@ -22,9 +22,9 @@ class UttaksgradMapperTest {
         List<Uttaksgrad> uttaksgrader = UttaksgradMapper.fromDtos(List.of(dto));
 
         Uttaksgrad uttaksgrad = uttaksgrader.get(0);
-        assertEquals(11, uttaksgrad.getUttaksgrad());
+        assertEquals(11, uttaksgrad.getGrad());
         assertEquals(1L, uttaksgrad.getVedtakId());
-        assertEquals(LocalDate.of(1991, 2, 4), uttaksgrad.getFomDate());
-        assertEquals(LocalDate.of(1992, 3, 5), uttaksgrad.getTomDate());
+        assertEquals(LocalDate.of(1991, 2, 4), uttaksgrad.getFom());
+        assertEquals(LocalDate.of(1992, 3, 5), uttaksgrad.getTom());
     }
 }

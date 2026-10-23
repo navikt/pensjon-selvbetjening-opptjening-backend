@@ -86,6 +86,6 @@ class MerknadService(
         private const val OPPTJENING_MINSTEALDER_AAR = 13
 
         private fun shouldGetRestpensjon(brukergruppe: Brukergruppe, uttaksgradListe: List<Uttaksgrad>): Boolean =
-            brukergruppe.harRestpensjon && uttaksgradListe.any { it.uttaksgrad < 100 }
+            brukergruppe.harRestpensjon && uttaksgradListe.any { it.grad < 100 }
     }
 }

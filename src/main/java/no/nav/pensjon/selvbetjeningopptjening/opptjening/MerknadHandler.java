@@ -222,12 +222,12 @@ public class MerknadHandler {
     private static void addMerknadGradertAlderspensjon(int year, List<Uttaksgrad> uttaksgrader, List<MerknadCode> merknader) {
         uttaksgrader
                 .stream()
-                .filter(uttaksgrad -> uttaksgrad.coversYear(year))
+                .filter(uttaksgrad -> uttaksgrad.dekkerAaret(year))
                 .forEach(uttaksgrad -> addUttakMerknad(merknader, uttaksgrad));
     }
 
     private static void addUttakMerknad(List<MerknadCode> merknader, Uttaksgrad uttaksgrad) {
-        if (uttaksgrad.isGradert() && !merknader.contains(MerknadCode.GRADERT_UTTAK)) {
+        if (uttaksgrad.getErGradert() && !merknader.contains(MerknadCode.GRADERT_UTTAK)) {
             merknader.add(MerknadCode.GRADERT_UTTAK);
             return;
         }

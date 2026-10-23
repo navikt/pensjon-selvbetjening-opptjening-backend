@@ -17,58 +17,58 @@ class UttaksgradTest {
                 LocalDate.of(1992, 2, 2));
 
         assertEquals(1L, uttaksgrad.getVedtakId());
-        assertEquals(2, uttaksgrad.getUttaksgrad());
-        assertEquals(LocalDate.of(1991, 1, 1), uttaksgrad.getFomDate());
-        assertEquals(LocalDate.of(1992, 2, 2), uttaksgrad.getTomDate());
+        assertEquals(2, uttaksgrad.getGrad());
+        assertEquals(LocalDate.of(1991, 1, 1), uttaksgrad.getFom());
+        assertEquals(LocalDate.of(1992, 2, 2), uttaksgrad.getTom());
     }
 
     @Test
     void coversYear_is_true_when_uttaksgrad_starts_before_given_year_and_has_no_end() {
         Uttaksgrad uttaksgrad = uttaksgrad(1990, null);
-        assertTrue(uttaksgrad.coversYear(1991));
+        assertTrue(uttaksgrad.dekkerAaret(1991));
     }
 
     @Test
     void coversYear_is_true_when_uttaksgrad_starts_given_year_and_has_no_end() {
         Uttaksgrad uttaksgrad = uttaksgrad(1991, null);
-        assertTrue(uttaksgrad.coversYear(1991));
+        assertTrue(uttaksgrad.dekkerAaret(1991));
     }
 
     @Test
     void coversYear_is_false_when_uttaksgrad_starts_after_given_year() {
         Uttaksgrad uttaksgrad = uttaksgrad(1992, null);
-        assertFalse(uttaksgrad.coversYear(1991));
+        assertFalse(uttaksgrad.dekkerAaret(1991));
     }
 
     @Test
     void coversYear_is_true_when_uttaksgrad_starts_and_ends_at_given_year() {
         Uttaksgrad uttaksgrad = uttaksgrad(1992, 1992);
-        assertTrue(uttaksgrad.coversYear(1992));
+        assertTrue(uttaksgrad.dekkerAaret(1992));
     }
 
     @Test
     void coversYear_is_false_when_uttaksgrad_ends_before_given_year() {
         Uttaksgrad uttaksgrad = uttaksgrad(1992, 1999);
-        assertFalse(uttaksgrad.coversYear(2000));
+        assertFalse(uttaksgrad.dekkerAaret(2000));
     }
 
     @Test
-    void isGradert_is_true_when_uttaksgradPercent_is_between_0_and_100() {
-        assertTrue(uttaksgrad(1).isGradert());
-        assertTrue(uttaksgrad(50).isGradert());
-        assertTrue(uttaksgrad(99).isGradert());
+    void getErGradert_is_true_when_uttaksgradPercent_is_between_0_and_100() {
+        assertTrue(uttaksgrad(1).getErGradert());
+        assertTrue(uttaksgrad(50).getErGradert());
+        assertTrue(uttaksgrad(99).getErGradert());
     }
 
     @Test
-    void isGradert_is_false_when_uttaksgradPercent_is_0_or_less() {
-        assertFalse(uttaksgrad(0).isGradert());
-        assertFalse(uttaksgrad(-100).isGradert());
+    void getErGradert_is_false_when_uttaksgradPercent_is_0_or_less() {
+        assertFalse(uttaksgrad(0).getErGradert());
+        assertFalse(uttaksgrad(-100).getErGradert());
     }
 
     @Test
-    void isGradert_is_false_when_uttaksgradPercent_is_100_or_more() {
-        assertFalse(uttaksgrad(100).isGradert());
-        assertFalse(uttaksgrad(200).isGradert());
+    void getErGradert_is_false_when_uttaksgradPercent_is_100_or_more() {
+        assertFalse(uttaksgrad(100).getErGradert());
+        assertFalse(uttaksgrad(200).getErGradert());
     }
 
     private static Uttaksgrad uttaksgrad(int fomYear, Integer tomYear) {
