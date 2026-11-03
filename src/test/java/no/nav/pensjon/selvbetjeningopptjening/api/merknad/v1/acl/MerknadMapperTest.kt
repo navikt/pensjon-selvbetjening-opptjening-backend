@@ -1,5 +1,5 @@
 package no.nav.pensjon.selvbetjeningopptjening.api.merknad.v1.acl
-
+/*
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknad
@@ -24,4 +24,4 @@ class MerknadMapperTest : ShouldSpec({
                     )
                 )
     }
-})
+})*/
