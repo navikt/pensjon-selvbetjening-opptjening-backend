@@ -16,10 +16,15 @@ data class MerknadV1(
     val uttaksgrad: UttaksgradV1? = null
 ) {
     companion object {
-        fun transferable(source: Merknad, aar: Int) =
-            MerknadV1(
-                kode = MerknadkodeV1.fromInternalValue(source.kode),
-                uttaksgrad = source.uttaksgrad?.let { UttaksgradV1.transferable(it, aar) }
-            )
+        fun transferable(source: Merknad, aar: Int): MerknadV1? =
+            MerknadkodeV1.fromInternalValue(source.kode)?.let {
+                MerknadV1(
+                    kode = it,
+                    uttaksgrad = uttaksgrad(source, aar)
+                )
+            }
+
+        private fun uttaksgrad(source: Merknad, aar: Int): UttaksgradV1? =
+            source.uttaksgrad?.let { UttaksgradV1.transferable(it, aar) }
     }
 }

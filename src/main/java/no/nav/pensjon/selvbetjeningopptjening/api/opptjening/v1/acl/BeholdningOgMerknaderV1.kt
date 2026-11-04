@@ -17,7 +17,7 @@ data class BeholdningOgMerknaderV1(
         fun transferable(source: BeholdningOgMerknader, aar: Int) =
             BeholdningOgMerknaderV1(
                 beholdning = BeholdningV1.transferable(source.beholdning),
-                merknadListe = source.merknadListe.map { MerknadV1.transferable(it, aar) }
+                merknadListe = source.merknadListe.mapNotNull { MerknadV1.transferable(it, aar) }
             )
     }
 }
