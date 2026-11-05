@@ -1,14 +1,12 @@
 package no.nav.pensjon.selvbetjeningopptjening.gruppe
 
-import no.nav.pensjon.selvbetjeningopptjening.merknad.MerknadArguments
-import no.nav.pensjon.selvbetjeningopptjening.merknad.MerknadAssemblerForBrukergruppe123
-import no.nav.pensjon.selvbetjeningopptjening.merknad.MerknadAssemblerForBrukergruppe4
-import no.nav.pensjon.selvbetjeningopptjening.merknad.MerknadAssemblerForBrukergruppe5
-import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknader
-import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup.getOpptjeningForUserGroup4
-import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup.getOpptjeningForUserGroup5
-import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup.getOpptjeningForUserGroups123
+import no.nav.pensjon.selvbetjeningopptjening.merknad.*
+import no.nav.pensjon.selvbetjeningopptjening.model.code.UserGroup.*
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.*
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.beholdning.AarvisBeholdningOgMerknader
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.beholdning.BeholdningOgMerknaderAssemblerForBrukergruppe123
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.beholdning.BeholdningOgMerknaderAssemblerForBrukergruppe4
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.beholdning.BeholdningOgMerknaderAssemblerForBrukergruppe5
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.dto.OpptjeningResponse
 import no.nav.pensjon.selvbetjeningopptjening.person.Person
 
@@ -19,6 +17,7 @@ enum class Brukergruppe(
     val harPensjonspoeng: Boolean = false,
     val opptjeningAssembler: (OpptjeningArguments) -> OpptjeningResponse,
     val merknadAssembler: (MerknadArguments) -> Merknader,
+    val beholdningOgMerknaderAssembler: (MerknadArguments) -> AarvisBeholdningOgMerknader,
     val aldersbeskrivelse: String
 ) {
     EN(
@@ -26,6 +25,7 @@ enum class Brukergruppe(
         harPensjonspoeng = true,
         opptjeningAssembler = { getOpptjeningForUserGroups123(it) },
         merknadAssembler = { merknaderForBrukergruppe1og2og3(it) },
+        beholdningOgMerknaderAssembler = { beholdningOgMerknaderForBrukergruppe1og2og3(it) },
         aldersbeskrivelse = "Født før 1954"
     ),
     TO(
@@ -33,6 +33,7 @@ enum class Brukergruppe(
         harPensjonspoeng = true,
         opptjeningAssembler = { getOpptjeningForUserGroups123(it) },
         merknadAssembler = { merknaderForBrukergruppe1og2og3(it) },
+        beholdningOgMerknaderAssembler = { beholdningOgMerknaderForBrukergruppe1og2og3(it) },
         aldersbeskrivelse = "Født før 1954"
     ),
     TRE(
@@ -40,6 +41,7 @@ enum class Brukergruppe(
         harPensjonspoeng = true,
         opptjeningAssembler = { getOpptjeningForUserGroups123(it) },
         merknadAssembler = { merknaderForBrukergruppe1og2og3(it) },
+        beholdningOgMerknaderAssembler = { beholdningOgMerknaderForBrukergruppe1og2og3(it) },
         aldersbeskrivelse = "Født før 1954"
     ),
     FIRE(
@@ -48,6 +50,7 @@ enum class Brukergruppe(
         harPensjonspoeng = true,
         opptjeningAssembler = { getOpptjeningForUserGroup4(it) },
         merknadAssembler = { merknaderForBrukergruppe4(it) },
+        beholdningOgMerknaderAssembler = { beholdningOgMerknaderForBrukergruppe4(it) },
         aldersbeskrivelse = "Født 1954-1962"
     ),
     FEM(
@@ -56,6 +59,7 @@ enum class Brukergruppe(
         harInntekt = true,
         opptjeningAssembler = { getOpptjeningForUserGroup5(it) },
         merknadAssembler = { merknaderForBrukergruppe5(it) },
+        beholdningOgMerknaderAssembler = { beholdningOgMerknaderForBrukergruppe5(it) },
         aldersbeskrivelse = "Født etter 1962"
     );
 
@@ -158,6 +162,106 @@ enum class Brukergruppe(
             )
 
             return MerknadAssemblerForBrukergruppe5().merknader(person, basis)
+        }
+
+        fun beholdningOgMerknaderForBrukergruppe1og2og3(args: MerknadArguments): AarvisBeholdningOgMerknader =
+            beholdningOgMerknaderForBrukergruppe1og2og3(
+                args.person,
+                args.restpensjonListe,
+                args.uttaksgradListe,
+                args.afpHistorikk,
+                args.ufoereHistorikk,
+                args.pensjonspoengListe
+            )
+
+        fun beholdningOgMerknaderForBrukergruppe4(args: MerknadArguments): AarvisBeholdningOgMerknader =
+            beholdningOgMerknaderForBrukergruppe4(
+                args.person,
+                args.restpensjonListe,
+                args.uttaksgradListe,
+                args.afpHistorikk,
+                args.ufoereHistorikk,
+                args.pensjonspoengListe,
+                args.beholdningListe
+            )
+
+        fun beholdningOgMerknaderForBrukergruppe5(args: MerknadArguments): AarvisBeholdningOgMerknader =
+            beholdningOgMerknaderForBrukergruppe5(
+                args.person,
+                args.restpensjonListe,
+                args.uttaksgradListe,
+                args.afpHistorikk,
+                args.ufoereHistorikk,
+                args.inntektListe,
+                args.beholdningListe
+            )
+
+        private fun beholdningOgMerknaderForBrukergruppe1og2og3(
+            person: Person,
+            restpensjonListe: List<Restpensjon>,
+            uttaksgradListe: List<Uttaksgrad>,
+            afpHistorikk: AfpHistorikk?,
+            ufoereHistorikk: UforeHistorikk?,
+            pensjonspoengListe: List<Pensjonspoeng>
+        ): AarvisBeholdningOgMerknader {
+            val basis = OpptjeningBasis(
+                pensjonspoengListe,
+                emptyList(), // beholdninger irrelevant her
+                restpensjonListe,
+                emptyList(), // inntekter irrelevant her
+                uttaksgradListe,
+                emptyList(),
+                afpHistorikk,
+                ufoereHistorikk
+            )
+
+            return BeholdningOgMerknaderAssemblerForBrukergruppe123().beholdningOgMerknader(person, basis)
+        }
+
+        private fun beholdningOgMerknaderForBrukergruppe4(
+            person: Person,
+            restpensjonListe: List<Restpensjon>,
+            uttaksgradListe: List<Uttaksgrad>,
+            afpHistorikk: AfpHistorikk?,
+            ufoereHistorikk: UforeHistorikk?,
+            pensjonspoengListe: List<Pensjonspoeng>,
+            beholdningListe: List<Beholdning>
+        ): AarvisBeholdningOgMerknader {
+            val basis = OpptjeningBasis(
+                pensjonspoengListe,
+                beholdningListe,
+                restpensjonListe,
+                emptyList(), // inntekter irrelevant her
+                uttaksgradListe,
+                emptyList(),
+                afpHistorikk,
+                ufoereHistorikk
+            )
+
+            return BeholdningOgMerknaderAssemblerForBrukergruppe4().beholdningOgMerknader(person, basis)
+        }
+
+        private fun beholdningOgMerknaderForBrukergruppe5(
+            person: Person,
+            restpensjonListe: List<Restpensjon>,
+            uttaksgradListe: List<Uttaksgrad>,
+            afpHistorikk: AfpHistorikk?,
+            ufoereHistorikk: UforeHistorikk?,
+            inntektListe: List<Inntekt>,
+            beholdningListe: List<Beholdning>
+        ): AarvisBeholdningOgMerknader {
+            val basis = OpptjeningBasis(
+                emptyList(), // pensjonspoeng irrelevant her
+                beholdningListe,
+                restpensjonListe,
+                inntektListe,
+                uttaksgradListe,
+                emptyList(),
+                afpHistorikk,
+                ufoereHistorikk
+            )
+
+            return BeholdningOgMerknaderAssemblerForBrukergruppe5().beholdningOgMerknader(person, basis)
         }
     }
 }

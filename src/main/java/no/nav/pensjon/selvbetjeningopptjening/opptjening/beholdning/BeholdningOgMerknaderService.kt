@@ -1,0 +1,92 @@
+package no.nav.pensjon.selvbetjeningopptjening.opptjening.beholdning
+
+import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer
+import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter
+import no.nav.pensjon.selvbetjeningopptjening.gruppe.Brukergruppe
+import no.nav.pensjon.selvbetjeningopptjening.merknad.MerknadArguments
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.*
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.BeholdningClient
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.OpptjeningClient
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.PensjonspoengClient
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.RestpensjonClient
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.grunnlag.OpptjeningsgrunnlagSpec
+import no.nav.pensjon.selvbetjeningopptjening.person.Person
+import no.nav.pensjon.selvbetjeningopptjening.person.PersonService
+import no.nav.pensjon.selvbetjeningopptjening.person.group.UserGroupUtil.brukergruppe
+import org.springframework.stereotype.Service
+import java.time.LocalDate
+
+/**
+ * Henter grunnlagsdata for beholdning og merknader, og utleder siste beholdning og merknader for hvert år med opptjening.
+ */
+@Service
+class BeholdningOgMerknaderService(
+    private val personService: PersonService,
+    private val personConsumer: PersonConsumer,
+    private val uttaksgradGetter: UttaksgradGetter,
+    private val opptjeningsgrunnlagConsumer: OpptjeningClient,
+    private val pensjonsbeholdningConsumer: BeholdningClient,
+    private val pensjonspoengConsumer: PensjonspoengClient,
+    private val restpensjonConsumer: RestpensjonClient
+) {
+    fun beholdningOgMerknader(pid: Pid): AarvisBeholdningOgMerknader {
+        val person: Person = personService.getPerson(pid)!!
+        val fnr = pid.pid
+        val brukergruppe: Brukergruppe = brukergruppe(foedselsdato = person.getFodselsdato())
+        val uttaksgradListe: List<Uttaksgrad> = uttaksgradGetter.getAlderSakUttaksgradhistorikkForPerson(fnr).orEmpty()
+
+        return brukergruppe.beholdningOgMerknaderAssembler(
+            MerknadArguments(
+                person,
+                uttaksgradListe,
+                afpHistorikk = personConsumer.getAfpHistorikkForPerson(fnr),
+                ufoereHistorikk = personConsumer.getUforeHistorikkForPerson(fnr),
+                inntektListe = inntektListe(brukergruppe, person),
+                beholdningListe = beholdningListe(brukergruppe, pid),
+                pensjonspoengListe = pensjonspoengListe(brukergruppe, pid),
+                restpensjonListe = restpensjonListe(brukergruppe, uttaksgradListe, pid)
+            )
+        )
+    }
+
+    private fun inntektListe(brukergruppe: Brukergruppe, person: Person): List<Inntekt> =
+        if (brukergruppe.harInntekt)
+            opptjeningsgrunnlagConsumer.getInntektListeFromOpptjeningsgrunnlag(
+                OpptjeningsgrunnlagSpec(
+                    pid = person.pid,
+                    fomAar = person.getFodselsdato().year + OPPTJENING_MINSTEALDER_AAR,
+                    tomAar = LocalDate.now().year
+                )
+            )
+        else
+            emptyList()
+
+    private fun beholdningListe(brukergruppe: Brukergruppe, pid: Pid): List<Beholdning> =
+        if (brukergruppe.harBeholdning)
+            pensjonsbeholdningConsumer.getPensjonsbeholdning(pid)
+        else
+            emptyList()
+
+    private fun pensjonspoengListe(brukergruppe: Brukergruppe, pid: Pid): List<Pensjonspoeng> =
+        if (brukergruppe.harPensjonspoeng)
+            pensjonspoengConsumer.getPensjonspoengListe(pid)
+        else
+            emptyList()
+
+    private fun restpensjonListe(
+        brukergruppe: Brukergruppe,
+        uttaksgradListe: List<Uttaksgrad>,
+        pid: Pid
+    ): List<Restpensjon> =
+        if (shouldGetRestpensjon(brukergruppe, uttaksgradListe))
+            restpensjonConsumer.getRestpensjonListe(pid)
+        else
+            emptyList()
+
+    companion object {
+        private const val OPPTJENING_MINSTEALDER_AAR = 13
+
+        private fun shouldGetRestpensjon(brukergruppe: Brukergruppe, uttaksgradListe: List<Uttaksgrad>): Boolean =
+            brukergruppe.harRestpensjon && uttaksgradListe.any { it.grad < 100 }
+    }
+}
