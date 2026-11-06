@@ -1,6 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.acl
 
-import no.nav.pensjon.selvbetjeningopptjening.opptjening.Forstegangstjenesteopptjening
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Foerstegangstjenesteopptjening
 
 data class PoppFoerstegangstjenesteOpptjeningBeloep(
     val forstegangstjenesteOpptjeningBelopId: Long? = null,
@@ -10,5 +10,5 @@ data class PoppFoerstegangstjenesteOpptjeningBeloep(
     val anvendtForstegangstjenestePeriodeListe: List<PoppFoerstegangstjenestePeriode>? = null
 ) {
     fun fromDto() =
-        Forstegangstjenesteopptjening(ar, belop)
+        Foerstegangstjenesteopptjening(ar, belop)
 }

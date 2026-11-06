@@ -1,6 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
+import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknadkode;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -13,20 +13,20 @@ import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
 public class MerknadHandler {
 
     static void setMerknadOmsorgsopptjeningPensjonspoeng(Opptjening opptjening, Pensjonspoeng pensjonspoeng) {
-        if (opptjening.hasMerknad(MerknadCode.OMSORGSOPPTJENING) || !pensjonspoeng.hasOmsorg()) {
+        if (opptjening.hasMerknad(Merknadkode.OMSORGSOPPTJENING) || !pensjonspoeng.hasOmsorg()) {
             return;
         }
-        opptjening.addMerknad(MerknadCode.OMSORGSOPPTJENING);
+        opptjening.addMerknad(Merknadkode.OMSORGSOPPTJENING);
     }
 
     static void setMerknadOverforOmsorgsopptjeningPensjonspoeng(Opptjening opptjening, Pensjonspoeng pensjonspoeng, List<Uttaksgrad> uttaksgrader) {
-        if (opptjening.hasMerknad(MerknadCode.OVERFORE_OMSORGSOPPTJENING)) {
+        if (opptjening.hasMerknad(Merknadkode.OVERFORE_OMSORGSOPPTJENING)) {
             return;
         }
 
         if (isTypeOmsorgBarn(pensjonspoeng.getOmsorg()) && (uttaksgrader == null || uttaksgrader.isEmpty() ||
                 opptjening.isOmsorgspoengLessThanPensjonspoeng())) {
-            opptjening.addMerknad(MerknadCode.OVERFORE_OMSORGSOPPTJENING);
+            opptjening.addMerknad(Merknadkode.OVERFORE_OMSORGSOPPTJENING);
         }
     }
 
@@ -36,7 +36,7 @@ public class MerknadHandler {
                                          List<Uttaksgrad> uttaksgrader,
                                          AfpHistorikk afpHistorikk,
                                          UforeHistorikk uforehistorikk) {
-        List<MerknadCode> merknader = new ArrayList<>();
+        List<Merknadkode> merknader = new ArrayList<>();
         addMerknadAfp(year, merknader, afpHistorikk);
         addMerknadUforegrad(year, uforehistorikk, opptjening, merknader);
 
@@ -52,45 +52,45 @@ public class MerknadHandler {
         opptjening.addMerknader(merknader);
     }
 
-    private static void addMerknadDagpengerAndForstegangstjeneste(int year, List<MerknadCode> merknader, List<Beholdning> beholdninger) {
+    private static void addMerknadDagpengerAndForstegangstjeneste(int year, List<Merknadkode> merknader, List<Beholdning> beholdninger) {
         beholdninger
                 .stream()
                 .filter(beholdning -> mottattDagpenger(year, beholdning))
                 .findFirst()
-                .ifPresent(beholdning -> merknader.add(MerknadCode.DAGPENGER));
+                .ifPresent(beholdning -> merknader.add(Merknadkode.DAGPENGER));
 
         beholdninger
                 .stream()
                 .filter(beholdning -> mottattForstegangstjeneste(year, beholdning))
                 .findFirst()
-                .ifPresent(beholdning -> merknader.add(MerknadCode.FORSTEGANGSTJENESTE));
+                .ifPresent(beholdning -> merknader.add(Merknadkode.FORSTEGANGSTJENESTE));
     }
 
     public static boolean mottattDagpenger(int year, Beholdning beholdning) {
         return (mottattDagpengerFiskere(beholdning) || mottattDagpenger(beholdning))
-                && year == beholdning.getDagpengeopptjening().getYear();
+                && year == beholdning.getDagpengeopptjening().getAar();
     }
 
     private static boolean mottattDagpengerFiskere(Beholdning beholdning) {
         Dagpengeopptjening belop = beholdning.getDagpengeopptjening();
 
-        return belop != null && belop.getFiskerBelop() > 0;
+        return belop != null && belop.getFiskerBeloep() > 0;
     }
 
     private static boolean mottattDagpenger(Beholdning beholdning) {
         Dagpengeopptjening belop = beholdning.getDagpengeopptjening();
-        return belop != null && belop.getOrdinartBelop() > 0;
+        return belop != null && belop.getOrdinaertBeloep() > 0;
     }
 
     public static boolean mottattForstegangstjeneste(int year, Beholdning beholdning) {
-        Forstegangstjenesteopptjening belop = beholdning.getForstegangstjenesteopptjening();
+        Foerstegangstjenesteopptjening belop = beholdning.getFoerstegangstjenesteopptjening();
 
         return belop != null
-                && belop.getBelop() > 0
-                && belop.getYear() == year;
+                && belop.getBeloep() > 0
+                && belop.getAar() == year;
     }
 
-    private static void addMerknadAfp(int year, List<MerknadCode> merknader, AfpHistorikk afpHistorikk) {
+    private static void addMerknadAfp(int year, List<Merknadkode> merknader, AfpHistorikk afpHistorikk) {
         if (afpHistorikk == null) {
             return;
         }
@@ -99,11 +99,11 @@ public class MerknadHandler {
         int lastYearToBeMarkedWithAfp = afpHistorikk.getEndYearOrDefault(() -> LocalDate.now().getYear() - 1);
 
         if (firstYearToBeMarkedWithAfp <= year && year <= lastYearToBeMarkedWithAfp) {
-            merknader.add(MerknadCode.AFP);
+            merknader.add(Merknadkode.AFP);
         }
     }
 
-    private static void addMerknadUforegrad(int year, UforeHistorikk uforehistorikk, Opptjening opptjening, List<MerknadCode> merknader) {
+    private static void addMerknadUforegrad(int year, UforeHistorikk uforehistorikk, Opptjening opptjening, List<Merknadkode> merknader) {
         if (uforehistorikk == null) {
             return;
         }
@@ -115,7 +115,7 @@ public class MerknadHandler {
         }
 
         opptjening.setMaxUforegrad(maxUforegrad);
-        merknader.add(MerknadCode.UFOREGRAD);
+        merknader.add(Merknadkode.UFOREGRAD);
     }
 
     public static Integer getMaxUforegrad(int year, UforeHistorikk historikk) {
@@ -133,25 +133,25 @@ public class MerknadHandler {
         return maxUforegrad;
     }
 
-    private static void addMerknadReform2010(int year, List<MerknadCode> merknader) {
+    private static void addMerknadReform2010(int year, List<Merknadkode> merknader) {
         if (year == REFORM_2010) {
-            merknader.add(MerknadCode.REFORM);
+            merknader.add(Merknadkode.REFORM);
         }
     }
 
-    private static void addMerknadIngenOpptjening(Opptjening opptjening, List<MerknadCode> merknader) {
-        if (merknader.contains(MerknadCode.REFORM)) {
+    private static void addMerknadIngenOpptjening(Opptjening opptjening, List<Merknadkode> merknader) {
+        if (merknader.contains(Merknadkode.REFORM)) {
             return;
         }
 
         if (opptjening.isNotPositive()) {
-            merknader.add(MerknadCode.INGEN_OPPTJENING);
+            merknader.add(Merknadkode.INGEN_OPPTJENING);
         }
     }
 
     private static void addMerknadOmsorgFromPensjonsbeholdning(int year,
                                                                Opptjening opptjening,
-                                                               List<MerknadCode> merknader,
+                                                               List<Merknadkode> merknader,
                                                                List<Beholdning> beholdninger,
                                                                List<Uttaksgrad> uttaksgrader) {
         beholdninger
@@ -174,29 +174,29 @@ public class MerknadHandler {
         Omsorgsopptjening opptjening = beholdning.getOmsorgsopptjening();
 
         return opptjening != null
-                && opptjening.getBelop() > 0
-                && opptjening.getYear() == year;
+                && opptjening.getBeloep() > 0
+                && opptjening.getAar() == year;
     }
 
     private static boolean hasOverforeOmsorgsopptjening(int year, Beholdning beholdning) {
         Omsorgsopptjening opptjening = beholdning.getOmsorgsopptjening();
-        return beholdningHasOpptjeningOmsorgBarn(opptjening) && opptjening.getYear() == year;
+        return beholdningHasOpptjeningOmsorgBarn(opptjening) && opptjening.getAar() == year;
     }
 
-    private static void addOmsorgsopptjeningMerknad(Opptjening opptjening, List<MerknadCode> merknader) {
-        if (opptjening.hasMerknad(MerknadCode.OMSORGSOPPTJENING)) {
+    private static void addOmsorgsopptjeningMerknad(Opptjening opptjening, List<Merknadkode> merknader) {
+        if (opptjening.hasMerknad(Merknadkode.OMSORGSOPPTJENING)) {
             return;
         }
 
-        merknader.add(MerknadCode.OMSORGSOPPTJENING);
+        merknader.add(Merknadkode.OMSORGSOPPTJENING);
     }
 
-    private static void addOverforeOmsorgsopptjeningMerknad(Opptjening opptjening, List<MerknadCode> merknader) {
-        if (opptjening.hasMerknad(MerknadCode.OVERFORE_OMSORGSOPPTJENING)) {
+    private static void addOverforeOmsorgsopptjeningMerknad(Opptjening opptjening, List<Merknadkode> merknader) {
+        if (opptjening.hasMerknad(Merknadkode.OVERFORE_OMSORGSOPPTJENING)) {
             return;
         }
 
-        merknader.add(MerknadCode.OVERFORE_OMSORGSOPPTJENING);
+        merknader.add(Merknadkode.OVERFORE_OMSORGSOPPTJENING);
     }
 
     private static Boolean beholdningHasOpptjeningOmsorgBarn(Omsorgsopptjening opptjening) {
@@ -205,7 +205,7 @@ public class MerknadHandler {
         }
 
         return opptjening
-                .getOmsorger()
+                .getOmsorgListe()
                 .stream()
                 .anyMatch(MerknadHandler::isTypeOmsorgBarn);
     }
@@ -219,21 +219,21 @@ public class MerknadHandler {
                 OMSORG_BARN_UNDER_6.equals(type);
     }
 
-    private static void addMerknadGradertAlderspensjon(int year, List<Uttaksgrad> uttaksgrader, List<MerknadCode> merknader) {
+    private static void addMerknadGradertAlderspensjon(int year, List<Uttaksgrad> uttaksgrader, List<Merknadkode> merknader) {
         uttaksgrader
                 .stream()
                 .filter(uttaksgrad -> uttaksgrad.dekkerAaret(year))
                 .forEach(uttaksgrad -> addUttakMerknad(merknader, uttaksgrad));
     }
 
-    private static void addUttakMerknad(List<MerknadCode> merknader, Uttaksgrad uttaksgrad) {
-        if (uttaksgrad.getErGradert() && !merknader.contains(MerknadCode.GRADERT_UTTAK)) {
-            merknader.add(MerknadCode.GRADERT_UTTAK);
+    private static void addUttakMerknad(List<Merknadkode> merknader, Uttaksgrad uttaksgrad) {
+        if (uttaksgrad.getErGradert() && !merknader.contains(Merknadkode.GRADERT_UTTAK)) {
+            merknader.add(Merknadkode.GRADERT_UTTAK);
             return;
         }
 
-        if (!merknader.contains(MerknadCode.HELT_UTTAK)) {
-            merknader.add(MerknadCode.HELT_UTTAK);
+        if (!merknader.contains(Merknadkode.HELT_UTTAK)) {
+            merknader.add(Merknadkode.HELT_UTTAK);
         }
     }
 }

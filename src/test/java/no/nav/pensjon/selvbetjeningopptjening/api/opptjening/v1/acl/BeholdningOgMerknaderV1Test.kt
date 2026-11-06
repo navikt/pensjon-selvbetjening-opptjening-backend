@@ -3,7 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.api.opptjening.v1.acl
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknad
-import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode
+import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknadkode
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Beholdning
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uttaksgrad
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.beholdning.BeholdningOgMerknader
@@ -19,7 +19,7 @@ class BeholdningOgMerknaderV1Test : ShouldSpec({
                     beholdning = beholdning(beloep = 222000),
                     merknadListe = listOf(
                         Merknad(
-                            kode = MerknadCode.GRADERT_UTTAK,
+                            kode = Merknadkode.GRADERT_UTTAK,
                             uttaksgrad = Uttaksgrad(
                                 grad = 80,
                                 fom = LocalDate.of(2021, Month.JULY, 1)
@@ -46,7 +46,7 @@ class BeholdningOgMerknaderV1Test : ShouldSpec({
             BeholdningOgMerknaderV1.transferable(
                 BeholdningOgMerknader(
                     beholdning = beholdning(beloep = 111000),
-                    merknadListe = listOf(Merknad(kode = MerknadCode.INGEN_OPPTJENING))
+                    merknadListe = listOf(Merknad(kode = Merknadkode.INGEN_OPPTJENING))
                 ),
                 aar = 2021
             ) shouldBe BeholdningOgMerknaderV1(

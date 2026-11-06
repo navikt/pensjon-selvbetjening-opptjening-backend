@@ -3,7 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
+import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknadkode;
 
 public class OpptjeningDto {
 
@@ -12,7 +12,7 @@ public class OpptjeningDto {
     private Double omsorgspoeng;
     private String omsorgspoengType;
     private Double pensjonspoeng;
-    private List<MerknadCode> merknader = new ArrayList<>();
+    private List<Merknadkode> merknader = new ArrayList<>();
     private Double restpensjon;
     private int maksUforegrad;
     private List<EndringPensjonsopptjeningDto> endringOpptjening;
@@ -65,11 +65,11 @@ public class OpptjeningDto {
         this.restpensjon = restpensjon;
     }
 
-    public List<MerknadCode> getMerknader() {
+    public List<Merknadkode> getMerknader() {
         return merknader;
     }
 
-    public void setMerknader(List<MerknadCode> merknader) {
+    public void setMerknader(List<Merknadkode> merknader) {
         this.merknader = merknader;
     }
 
@@ -89,7 +89,7 @@ public class OpptjeningDto {
         this.endringOpptjening = endringOpptjening;
     }
 
-    public void addMerknader(List<MerknadCode> merknader) {
+    public void addMerknader(List<Merknadkode> merknader) {
         this.merknader.addAll(merknader);
     }
 }

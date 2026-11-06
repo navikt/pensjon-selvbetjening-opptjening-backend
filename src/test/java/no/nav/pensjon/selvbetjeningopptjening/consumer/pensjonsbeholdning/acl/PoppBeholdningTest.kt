@@ -42,24 +42,24 @@ private fun beholdning(number: Int) =
 
 private fun assertBeholdning(beholdning: Beholdning, number: Int) {
     assertEquals(number.toLong(), beholdning.id)
-    assertEquals(number + .1, beholdning.belop)
+    assertEquals(number + .1, beholdning.beloep)
     assertEquals(number + 1.1, beholdning.grunnlag)
-    assertEquals(number + 2.1, beholdning.grunnlagAvkortet)
+    assertEquals(number + 2.1, beholdning.avkortetGrunnlag)
     assertEquals(number + 3.1, beholdning.innskudd)
     assertEquals(number + 4.1, beholdning.innskuddUtenOmsorg)
     assertEquals("beholdningstype$number", beholdning.type)
-    assertEquals("1234567890$number", beholdning.fnr)
+    assertEquals("1234567890$number", beholdning.pid)
     assertEquals("status$number", beholdning.status)
-    assertEquals(LocalDate.of(1990 + number, number, number + 2), beholdning.fomDato)
-    assertEquals(LocalDate.of(1991 + number, number + 1, number + 3), beholdning.tomDato)
+    assertEquals(LocalDate.of(1990 + number, number, number + 2), beholdning.fom)
+    assertEquals(LocalDate.of(1991 + number, number + 1, number + 3), beholdning.tom)
     assertEquals((number + 1).toLong(), beholdning.vedtakId)
-    assertEquals("årsak$number", beholdning.oppdateringArsak)
-    assertDagpengeopptjening(beholdning.dagpengeopptjening, number)
-    assertInntektsopptjening(beholdning.inntektsopptjening, number)
-    assertLoennsvekstregulering(beholdning.lonnsvekstregulering, number)
-    assertOmsorgsopptjening(beholdning.omsorgsopptjening, number)
-    assertFoerstegangstjenesteopptjening(beholdning.forstegangstjenesteopptjening, number)
-    assertUfoereopptjening(beholdning.uforeopptjening, number)
+    assertEquals("årsak$number", beholdning.oppdateringAarsak)
+    beholdning.dagpengeopptjening?.let { assertDagpengeopptjening(it, number) }
+    beholdning.inntektsopptjening?.let { assertInntektsopptjening(it, number) }
+    beholdning.loennsvekstregulering?.let { assertLoennsvekstregulering(it, number) }
+    beholdning.omsorgsopptjening?.let { assertOmsorgsopptjening(it, number) }
+    beholdning.foerstegangstjenesteopptjening?.let { assertFoerstegangstjenesteopptjening(it, number) }
+    beholdning.ufoereopptjening?.let { assertUfoereopptjening(it, number) }
     // Note: No mapping for:
     // - dagpengerOpptjeningBelopId
     // - dagpengerListe
@@ -75,9 +75,9 @@ private fun dagpengeopptjening(number: Int) =
     )
 
 private fun assertDagpengeopptjening(opptjening: Dagpengeopptjening, number: Int) {
-    assertEquals(1980 + number, opptjening.year)
-    assertEquals(number + .2, opptjening.ordinartBelop)
-    assertEquals(number + 1.2, opptjening.fiskerBelop)
+    assertEquals(1980 + number, opptjening.aar)
+    assertEquals(number + .2, opptjening.ordinaertBeloep)
+    assertEquals(number + 1.2, opptjening.fiskerBeloep)
     // Note: No mapping for:
     // - dagpengerOpptjeningBelopId
     // - dagpengerListe
@@ -93,9 +93,9 @@ private fun inntektsopptjening(number: Int) =
     )
 
 private fun assertInntektsopptjening(opptjening: Inntektsopptjening, number: Int) {
-    assertEquals(1990 + number, opptjening.year)
-    assertEquals(number + .1, opptjening.belop)
-    assertInntekt(opptjening.sumPensjonsgivendeInntekt, number)
+    assertEquals(1990 + number, opptjening.aar)
+    assertEquals(number + .1, opptjening.beloep)
+    opptjening.sumPensjonsgivendeInntekt?.let { assertInntekt(it, number) }
     // Note: No mapping for:
     // - inntektOpptjeningBelopId
     // - inntektListe
@@ -108,8 +108,8 @@ private fun loennsvekstregulering(number: Int) =
         reguleringsDato = LocalDate.of(1990 + number, number + 1, number + 2)
     )
 
-private fun assertLoennsvekstregulering(regulering: Lonnsvekstregulering, number: Int) {
-    assertEquals(number + .1, regulering.belop)
+private fun assertLoennsvekstregulering(regulering: Loennsvekstregulering, number: Int) {
+    assertEquals(number + .1, regulering.beloep)
     // Note: No mapping for:
     // - lonnsvekstreguleringId
     // - reguleringsDato
@@ -125,9 +125,9 @@ private fun omsorgsopptjening(number: Int) =
     )
 
 private fun assertOmsorgsopptjening(opptjening: Omsorgsopptjening, number: Int) {
-    assertEquals(1960 + number, opptjening.year)
-    assertEquals(number + .4, opptjening.belop)
-    assertOmsorg(opptjening.omsorger[0], number)
+    assertEquals(1960 + number, opptjening.aar)
+    assertEquals(number + .4, opptjening.beloep)
+    assertOmsorg(opptjening.omsorgListe[0], number)
     // Note: No mapping for:
     // - omsorgOpptjeningBelopId
     // - omsorgOpptjeningInnskudd
@@ -142,9 +142,9 @@ private fun foerstegangstjenesteopptjening(number: Int) =
         anvendtForstegangstjenestePeriodeListe = listOf(foerstegangstjenesteperiode(number))
     )
 
-private fun assertFoerstegangstjenesteopptjening(opptjening: Forstegangstjenesteopptjening, number: Int) {
-    assertEquals(1990 + number, opptjening.year)
-    assertEquals(number + .1, opptjening.belop)
+private fun assertFoerstegangstjenesteopptjening(opptjening: Foerstegangstjenesteopptjening, number: Int) {
+    assertEquals(1990 + number, opptjening.aar)
+    assertEquals(number + .1, opptjening.beloep)
     // Note: No mapping for:
     // - forstegangstjenesteOpptjeningBelopId
     // - forstegangstjeneste
@@ -175,9 +175,9 @@ private fun ufoereopptjening(number: Int) =
         yrkesskade = number % 2 == 0
     )
 
-private fun assertUfoereopptjening(opptjening: Uforeopptjening, number: Int) {
-    assertEquals(number, opptjening.uforegrad)
-    assertEquals(number + .1, opptjening.belop)
+private fun assertUfoereopptjening(opptjening: Ufoereopptjening, number: Int) {
+    assertEquals(number, opptjening.ufoeregrad)
+    assertEquals(number + .1, opptjening.beloep)
     // Note: No mapping for:
     // - uforeOpptjeningBelopId
     // - ar
@@ -241,8 +241,8 @@ private fun inntekt(number: Int) =
     )
 
 private fun assertInntekt(inntekt: Inntekt, number: Int) {
-    assertEquals(1970 + number, inntekt.year)
-    assertEquals((number + 1).toLong(), inntekt.belop)
+    assertEquals(1970 + number, inntekt.aar)
+    assertEquals((number + 1).toLong(), inntekt.beloep)
     assertEquals("inntektstype$number", inntekt.type)
     // Note: No mapping for:
     // - inntektId

@@ -12,7 +12,7 @@ data class BeholdningV1(
     companion object {
         fun transferable(source: Beholdning) =
             BeholdningV1(
-                beloep = source.belop.toInt()
+                beloep = source.beloep.toInt()
             )
     }
 }

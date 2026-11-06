@@ -1,6 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
+import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknadkode;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -31,14 +31,14 @@ class OpptjeningTest {
     @Test
     void hasMerknad_is_true_when_merknad_present() {
         var opptjening = new Opptjening(1L, 1D);
-        opptjening.addMerknad(MerknadCode.OVERFORE_OMSORGSOPPTJENING);
-        assertTrue(opptjening.hasMerknad(MerknadCode.OVERFORE_OMSORGSOPPTJENING));
+        opptjening.addMerknad(Merknadkode.OVERFORE_OMSORGSOPPTJENING);
+        assertTrue(opptjening.hasMerknad(Merknadkode.OVERFORE_OMSORGSOPPTJENING));
     }
 
     @Test
     void hasMerknad_is_false_when_merknad_not_present() {
         var opptjening = new Opptjening(1L, 1D);
-        assertFalse(opptjening.hasMerknad(MerknadCode.OVERFORE_OMSORGSOPPTJENING));
+        assertFalse(opptjening.hasMerknad(Merknadkode.OVERFORE_OMSORGSOPPTJENING));
     }
 
     @Test

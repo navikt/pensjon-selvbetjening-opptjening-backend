@@ -2,6 +2,7 @@ package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.acl
 
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Beholdning
 import java.time.LocalDate
+import java.time.Month
 
 data class PoppBeholdning(
     val beholdningId: Long? = null,
@@ -30,9 +31,9 @@ data class PoppBeholdning(
             fnr,
             status,
             beholdningType,
-            belop,
+            belop ?: 0.0,
             vedtakId,
-            fomDato,
+            fomDato ?: LocalDate.of(9999, Month.DECEMBER, 31),
             tomDato,
             beholdningGrunnlag,
             beholdningGrunnlagAvkortet,

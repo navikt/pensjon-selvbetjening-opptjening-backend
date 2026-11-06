@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode;
-import no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.grunnlag.Grunnlagstype;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.TypeArsakCode;
 
 public class EndringPensjonsopptjeningDto {
@@ -31,7 +31,7 @@ public class EndringPensjonsopptjeningDto {
      */
     private Double grunnlag;
 
-    private List<GrunnlagTypeCode> grunnlagTypes;
+    private List<Grunnlagstype> grunnlagTypes;
 
     /**
      * Beløpet for pensjonsbeholdning for den gitte datoen.
@@ -85,11 +85,11 @@ public class EndringPensjonsopptjeningDto {
         this.grunnlag = grunnlag;
     }
 
-    public List<GrunnlagTypeCode> getGrunnlagTypes() {
+    public List<Grunnlagstype> getGrunnlagTypes() {
         return grunnlagTypes;
     }
 
-    public void setGrunnlagTypes(List<GrunnlagTypeCode> grunnlagTypes) {
+    public void setGrunnlagTypes(List<Grunnlagstype> grunnlagTypes) {
         this.grunnlagTypes = grunnlagTypes;
     }
 

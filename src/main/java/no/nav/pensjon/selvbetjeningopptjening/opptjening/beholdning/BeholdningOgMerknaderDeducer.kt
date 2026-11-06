@@ -1,7 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening.beholdning
 
 import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknad
-import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode
+import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknadkode
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.*
 import java.time.LocalDate
 import java.time.Month
@@ -58,7 +58,7 @@ object BeholdningOgMerknaderDeducer {
         uttakMerknader(aar, uttaksgradListe, merknadListe).let(merknadListe::addAll)
         // NB: ingenOpptjeningMerknad must be after reformMerknad
         ingenOpptjeningMerknad(opptjening, merknadListe)?.let(merknadListe::add)
-        val beholdning = beholdningListe.filter { it.fomDato?.year == aar }.maxByOrNull { it.fomDato }
+        val beholdning = beholdningListe.filter { it.fom.year == aar }.maxByOrNull { it.fom }
 
         return BeholdningOgMerknader(
             beholdning = beholdning ?: ingenBeholdning(aar),
@@ -68,7 +68,7 @@ object BeholdningOgMerknaderDeducer {
 
     private fun afpMerknad(aar: Int, historikk: AfpHistorikk): Merknad? =
         if (aar in historikk.startYear..sluttAar(historikk))
-            Merknad(kode = MerknadCode.AFP)
+            Merknad(kode = Merknadkode.AFP)
         else
             null
 
@@ -92,9 +92,9 @@ object BeholdningOgMerknaderDeducer {
 
     private fun uttakMerknad(uttaksgrad: Uttaksgrad): Merknad? =
         when {
-            uttaksgrad.erGradert -> Merknad(kode = MerknadCode.GRADERT_UTTAK, uttaksgrad)
-            uttaksgrad.grad == 100 -> Merknad(kode = MerknadCode.HELT_UTTAK, uttaksgrad)
-            uttaksgrad.grad == 0 -> Merknad(kode = MerknadCode.UTTAK_STOPPET, uttaksgrad)
+            uttaksgrad.erGradert -> Merknad(kode = Merknadkode.GRADERT_UTTAK, uttaksgrad)
+            uttaksgrad.grad == 100 -> Merknad(kode = Merknadkode.HELT_UTTAK, uttaksgrad)
+            uttaksgrad.grad == 0 -> Merknad(kode = Merknadkode.UTTAK_STOPPET, uttaksgrad)
             else -> null
         }
 
@@ -103,66 +103,49 @@ object BeholdningOgMerknaderDeducer {
         opptjening: Opptjening,
         beholdningListe: List<Beholdning>
     ): Merknad? =
-        if (opptjening.hasMerknad(MerknadCode.OMSORGSOPPTJENING).not() &&
+        if (opptjening.hasMerknad(Merknadkode.OMSORGSOPPTJENING).not() &&
             beholdningListe.any { MerknadHandler.hasOmsorgsopptjening(aar, it) }
         )
-            Merknad(kode = MerknadCode.OMSORGSOPPTJENING)
+            Merknad(kode = Merknadkode.OMSORGSOPPTJENING)
         else
             null
 
     private fun dagpengerMerknad(aar: Int, beholdningListe: List<Beholdning>): Merknad? =
         if (beholdningListe.any { MerknadHandler.mottattDagpenger(aar, it) })
-            Merknad(kode = MerknadCode.DAGPENGER)
+            Merknad(kode = Merknadkode.DAGPENGER)
         else
             null
 
     private fun foerstegangstjenesteMerknad(aar: Int, beholdningListe: List<Beholdning>): Merknad? =
         if (beholdningListe.any { MerknadHandler.mottattForstegangstjeneste(aar, it) })
-            Merknad(kode = MerknadCode.FORSTEGANGSTJENESTE)
+            Merknad(kode = Merknadkode.FORSTEGANGSTJENESTE)
         else
             null
 
     private fun ufoeregradMerknad(aar: Int, historikk: UforeHistorikk): Merknad? =
         if ((MerknadHandler.getMaxUforegrad(aar, historikk) ?: 0) > 0)
-            Merknad(kode = MerknadCode.UFOREGRAD)
+            Merknad(kode = Merknadkode.UFOREGRAD)
         else
             null
 
     private fun reformMerknad(aar: Int): Merknad? =
         if (aar == REFORM_AAR)
-            Merknad(kode = MerknadCode.REFORM)
+            Merknad(kode = Merknadkode.REFORM)
         else
             null
 
     private fun ingenOpptjeningMerknad(opptjening: Opptjening, merknadListe: List<Merknad>): Merknad? =
-        if (opptjening.isPositive || merknadListe.any { it.kode == MerknadCode.REFORM })
+        if (opptjening.isPositive || merknadListe.any { it.kode == Merknadkode.REFORM })
             null
         else
-            Merknad(kode = MerknadCode.INGEN_OPPTJENING)
+            Merknad(kode = Merknadkode.INGEN_OPPTJENING)
 
     private fun sluttAar(historikk: AfpHistorikk): Int =
         historikk.getEndYearOrDefault { LocalDate.now().year - 1 }
 
     private fun ingenBeholdning(aar: Int) =
         Beholdning(
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            LocalDate.of(aar, Month.JANUARY, 1),
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
+            beloep = 0.0,
+            fom = LocalDate.of(aar, Month.JANUARY, 1)
         )
 }

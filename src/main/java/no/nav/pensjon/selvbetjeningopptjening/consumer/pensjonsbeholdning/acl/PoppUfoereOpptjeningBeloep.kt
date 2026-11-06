@@ -1,6 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.acl
 
-import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uforeopptjening
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Ufoereopptjening
 
 data class PoppUfoereOpptjeningBeloep(
     val uforeOpptjeningBelopId: Long? = null,
@@ -25,5 +25,5 @@ data class PoppUfoereOpptjeningBeloep(
     val yrkesskade: Boolean? = null
 ) {
     fun fromDto() =
-        Uforeopptjening(uforegrad, belop)
+        Ufoereopptjening(uforegrad, belop)
 }
