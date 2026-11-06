@@ -1,13 +1,13 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
+import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknadkode;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Opptjening {
 
-    private final List<MerknadCode> merknader = new ArrayList<>();
+    private final List<Merknadkode> merknader = new ArrayList<>();
     private boolean hasPensjonsgivendeInntekt;
     private boolean hasPensjonsbeholdning;
     private boolean hasPensjonspoeng;
@@ -114,19 +114,19 @@ public class Opptjening {
         return hasOmsorgspoeng;
     }
 
-    public List<MerknadCode> getMerknader() {
+    public List<Merknadkode> getMerknader() {
         return merknader;
     }
 
-    public boolean hasMerknad(MerknadCode value) {
+    public boolean hasMerknad(Merknadkode value) {
         return merknader.contains(value);
     }
 
-    public void addMerknad(MerknadCode value) {
+    public void addMerknad(Merknadkode value) {
         merknader.add(value);
     }
 
-    public void addMerknader(List<MerknadCode> values) {
+    public void addMerknader(List<Merknadkode> values) {
         merknader.addAll(values);
     }
 

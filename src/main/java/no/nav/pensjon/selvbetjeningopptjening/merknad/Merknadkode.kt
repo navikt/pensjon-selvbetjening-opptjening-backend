@@ -1,7 +1,6 @@
-package no.nav.pensjon.selvbetjeningopptjening.model.code;
+package no.nav.pensjon.selvbetjeningopptjening.merknad
 
-public enum MerknadCode {
-    TESTMERKNAD,
+enum class Merknadkode {
     AFP,
     REFORM,
     INGEN_OPPTJENING,

@@ -1,6 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
-import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
+import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknadkode;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.UforeTypeCode;
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +9,7 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode.*;
+import static no.nav.pensjon.selvbetjeningopptjening.merknad.Merknadkode.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -238,7 +238,7 @@ class MerknadHandlerTest {
 
     @Test
     void when_OmsorgOpptjeningBelop_for_barn_is_not_grunnlag_and_Year_same_as_BelopAr_with_uttak_then_addMerknaderOnOpptjening_should_only_return_OVERFORE_OMSORGSOPPTJENING_and_OMSORGSOPPTJENING() {
-        List<MerknadCode> expectedMerknads = List.of(OVERFORE_OMSORGSOPPTJENING, OMSORGSOPPTJENING);
+        List<Merknadkode> expectedMerknads = List.of(OVERFORE_OMSORGSOPPTJENING, OMSORGSOPPTJENING);
         Opptjening opptjening = opptjeningBasedOnPensjonsbeholdning();
         Beholdning beholdning = beholdning("OBU6", 10D, 9D);
 
@@ -251,7 +251,7 @@ class MerknadHandlerTest {
 
     @Test
     void when_OmsorgOpptjeningBelop_for_barn_and_Year_same_as_BelopAr_with_no_uttak_then_addMerknaderOnOpptjening_returns_MerknadCodes_OVERFORE_OMSORGSOPPTJENING_and_OMSORGSOPPTJENING() {
-        List<MerknadCode> expectedMerknads = List.of(OVERFORE_OMSORGSOPPTJENING, OMSORGSOPPTJENING);
+        List<Merknadkode> expectedMerknads = List.of(OVERFORE_OMSORGSOPPTJENING, OMSORGSOPPTJENING);
         Opptjening opptjening = opptjeningBasedOnPensjonsbeholdning();
         Beholdning beholdning = beholdning("OBU7");
 
@@ -262,7 +262,7 @@ class MerknadHandlerTest {
 
     @Test
     void when_OmsorgOpptjeningBelop_Type_omsorg_for_barn_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCodes_OVERFORE_OMSORGSOPPTJENING_and_OMSORGSOPPTJENING() {
-        List<MerknadCode> expectedMerknads = List.of(OVERFORE_OMSORGSOPPTJENING, OMSORGSOPPTJENING);
+        List<Merknadkode> expectedMerknads = List.of(OVERFORE_OMSORGSOPPTJENING, OMSORGSOPPTJENING);
         Opptjening opptjening = opptjeningBasedOnPensjonsbeholdning();
         Beholdning beholdning = beholdning("OBU6");
 
@@ -306,7 +306,7 @@ class MerknadHandlerTest {
     @Test
     void when_ForstegangstjenesteOpptjeningBelop_with_Belop_more_than_0_and_Year_same_as_BelopAr_then_addMerknaderOnOpptjening_returns_MerknadCode_FORSTEGANGSTJENESTE() {
         Opptjening opptjening = opptjening();
-        Beholdning beholdning = beholdning(new Forstegangstjenesteopptjening(1990, 10d));
+        Beholdning beholdning = beholdning(new Foerstegangstjenesteopptjening(1990, 10d));
 
         MerknadHandler.addMerknaderOnOpptjening(1990, opptjening, singletonList(beholdning), emptyList(), null, null);
 
@@ -322,12 +322,12 @@ class MerknadHandlerTest {
         return new Pensjonspoeng(null, "", null, null, null);
     }
 
-    private static Beholdning beholdning(Forstegangstjenesteopptjening forstegangstjenesteopptjening) {
+    private static Beholdning beholdning(Foerstegangstjenesteopptjening foerstegangstjenesteopptjening) {
         return new Beholdning(
                 null, "", "", "", null, null, LocalDate.MIN,
                 null, null, null, null, null,
                 "", null, null, null,
-                null, forstegangstjenesteopptjening, null);
+                null, foerstegangstjenesteopptjening, null);
     }
 
     private static Beholdning beholdning(Dagpengeopptjening dagpengeopptjening) {
@@ -431,7 +431,7 @@ class MerknadHandlerTest {
                 LocalDate.of(2000, 1, 1));
     }
 
-    private static void assertSingleMerknad(MerknadCode expected, List<MerknadCode> actual) {
+    private static void assertSingleMerknad(Merknadkode expected, List<Merknadkode> actual) {
         assertEquals(1, actual.size());
         assertEquals(expected, actual.get(0));
     }

@@ -3,7 +3,7 @@ package no.nav.pensjon.selvbetjeningopptjening.api.opptjening.v1.acl
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknad
-import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode
+import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknadkode
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Beholdning
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uttaksgrad
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.beholdning.AarvisBeholdningOgMerknader
@@ -21,7 +21,7 @@ class AarvisBeholdningOgMerknaderV1Test : ShouldSpec({
                         beholdning(aar = 2001, beloep = 210000),
                         merknadListe = listOf(
                             Merknad(
-                                kode = MerknadCode.GRADERT_UTTAK,
+                                kode = Merknadkode.GRADERT_UTTAK,
                                 uttaksgrad = Uttaksgrad(
                                     grad = 40,
                                     fom = LocalDate.of(2001, 7, 1)
@@ -31,7 +31,7 @@ class AarvisBeholdningOgMerknaderV1Test : ShouldSpec({
                     ),
                     2002 to BeholdningOgMerknader(
                         beholdning(aar = 2002, beloep = 220000),
-                        merknadListe = listOf(Merknad(kode = MerknadCode.AFP), Merknad(kode = MerknadCode.DAGPENGER))
+                        merknadListe = listOf(Merknad(kode = Merknadkode.AFP), Merknad(kode = Merknadkode.DAGPENGER))
                     )
                 )
             )

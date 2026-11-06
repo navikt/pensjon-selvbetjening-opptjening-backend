@@ -3,7 +3,6 @@ package no.nav.pensjon.selvbetjeningopptjening.opptjening.beholdning
 import no.nav.pensjon.selvbetjeningopptjening.consumer.person.PersonConsumer
 import no.nav.pensjon.selvbetjeningopptjening.consumer.uttaksgrad.UttaksgradGetter
 import no.nav.pensjon.selvbetjeningopptjening.gruppe.Brukergruppe
-import no.nav.pensjon.selvbetjeningopptjening.merknad.MerknadArguments
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.*
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.BeholdningClient
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.client.OpptjeningClient
@@ -36,7 +35,7 @@ class BeholdningOgMerknaderService(
         val uttaksgradListe: List<Uttaksgrad> = uttaksgradGetter.getAlderSakUttaksgradhistorikkForPerson(fnr).orEmpty()
 
         return brukergruppe.beholdningOgMerknaderAssembler(
-            MerknadArguments(
+            BeholdningOgMerknaderArguments(
                 person,
                 uttaksgradListe,
                 afpHistorikk = personConsumer.getAfpHistorikkForPerson(fnr),

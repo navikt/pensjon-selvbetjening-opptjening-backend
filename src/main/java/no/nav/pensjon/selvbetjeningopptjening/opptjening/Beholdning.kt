@@ -1,278 +1,173 @@
-package no.nav.pensjon.selvbetjeningopptjening.opptjening;
+package no.nav.pensjon.selvbetjeningopptjening.opptjening
 
-import no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.grunnlag.Grunnlagstype
+import no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010
+import no.nav.pensjon.selvbetjeningopptjening.util.DateUtil.firstDayOf
+import no.nav.pensjon.selvbetjeningopptjening.util.DateUtil.lastDayOf
+import java.time.LocalDate
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+@ConsistentCopyVisibility
+data class Beholdning private constructor(
+    val id: Long,
+    val pid: String? = null,
+    val status: String? = null,
+    val type: String? = null,
+    val beloep: Double,
+    val vedtakId: Long,
+    val harVedtak: Boolean,
+    val fom: LocalDate,
+    val tom: LocalDate? = null,
+    val harTomDato: Boolean,
+    val grunnlag: Double,
+    val avkortetGrunnlag: Double,
+    val innskudd: Double,
+    val harInnskudd: Boolean,
+    val innskuddUtenOmsorg: Double,
+    val oppdateringAarsak: String? = null,
+    val loennsvekstregulering: Loennsvekstregulering? = null,
+    val inntektsopptjening: Inntektsopptjening? = null,
+    val omsorgsopptjening: Omsorgsopptjening? = null,
+    val dagpengeopptjening: Dagpengeopptjening? = null,
+    val foerstegangstjenesteopptjening: Foerstegangstjenesteopptjening? = null,
+    val ufoereopptjening: Ufoereopptjening? = null,
+) : Periode {
+    constructor(
+        id: Long? = null,
+        pid: String? = null,
+        status: String? = null,
+        type: String? = null,
+        beloep: Double? = null,
+        vedtakId: Long? = null,
+        fom: LocalDate,
+        tom: LocalDate? = null,
+        grunnlag: Double? = null,
+        avkortetGrunnlag: Double? = null,
+        innskudd: Double? = null,
+        innskuddUtenOmsorg: Double? = null,
+        oppdateringAarsak: String? = null,
+        loennsvekstregulering: Loennsvekstregulering? = null,
+        inntektsopptjening: Inntektsopptjening? = null,
+        omsorgsopptjening: Omsorgsopptjening? = null,
+        dagpengeopptjening: Dagpengeopptjening? = null,
+        foerstegangstjenesteopptjening: Foerstegangstjenesteopptjening? = null,
+        ufoereopptjening: Ufoereopptjening? = null,
+    ) : this(
+        id = id ?: 0L,
+        pid = pid,
+        status = status,
+        type = type,
+        beloep = beloep ?: 0.0,
+        vedtakId = vedtakId ?: 0L,
+        harVedtak = vedtakId != null,
+        fom = fom,
+        tom = tom,
+        harTomDato = tom != null,
+        grunnlag = grunnlag ?: 0.0,
+        avkortetGrunnlag = avkortetGrunnlag ?: 0.0,
+        innskudd = innskudd ?: 0.0,
+        harInnskudd = innskudd != null,
+        innskuddUtenOmsorg = innskuddUtenOmsorg ?: 0.0,
+        oppdateringAarsak = oppdateringAarsak,
+        loennsvekstregulering = loennsvekstregulering,
+        inntektsopptjening = inntektsopptjening,
+        omsorgsopptjening = omsorgsopptjening,
+        dagpengeopptjening = dagpengeopptjening,
+        foerstegangstjenesteopptjening = foerstegangstjenesteopptjening,
+        ufoereopptjening = ufoereopptjening
+    )
 
-import static java.util.Objects.requireNonNull;
-import static no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode.*;
-import static no.nav.pensjon.selvbetjeningopptjening.util.Constants.REFORM_2010;
-import static no.nav.pensjon.selvbetjeningopptjening.util.DateUtil.firstDayOf;
-import static no.nav.pensjon.selvbetjeningopptjening.util.DateUtil.lastDayOf;
+    override fun getFomDato(): LocalDate = fom
 
-public class Beholdning implements Periode {
+    override fun getTomDato(): LocalDate? = tom
 
-    private final boolean hasInnskudd;
-    private final boolean hasVedtak;
-    private final boolean hasTomDato;
-    private final long id;
-    private final String fnr;
-    private final String status;
-    private final String type;
-    private final double belop;
-    private final long vedtakId;
-    private final LocalDate fomDato;
-    private final LocalDate tomDato;
-    private final double grunnlag;
-    private final double grunnlagAvkortet;
-    private final double innskudd;
-    private final double innskuddUtenOmsorg;
-    private final String oppdateringArsak;
-    private final Lonnsvekstregulering lonnsvekstregulering;
-    private final Inntektsopptjening inntektsopptjening;
-    private final Omsorgsopptjening omsorgsopptjening;
-    private final Dagpengeopptjening dagpengeopptjening;
-    private final Forstegangstjenesteopptjening forstegangstjenesteopptjening;
-    private final Uforeopptjening uforeopptjening;
-
-    public Beholdning(Long id,
-                      String fnr,
-                      String status,
-                      String type,
-                      Double belop,
-                      Long vedtakId,
-                      LocalDate fomDato,
-                      LocalDate tomDato,
-                      Double grunnlag,
-                      Double grunnlagAvkortet,
-                      Double innskudd,
-                      Double innskuddUtenOmsorg,
-                      String oppdateringArsak,
-                      Lonnsvekstregulering lonnsvekstregulering,
-                      Inntektsopptjening inntektsopptjening,
-                      Omsorgsopptjening omsorgsopptjening,
-                      Dagpengeopptjening dagpengeopptjening,
-                      Forstegangstjenesteopptjening forstegangstjenesteopptjening,
-                      Uforeopptjening uforeopptjening) {
-        this.id = id == null ? 0L : id;
-        this.fnr = fnr;
-        this.status = status;
-        this.type = type;
-        this.belop = belop == null ? 0D : belop;
-        this.vedtakId = vedtakId == null ? 0L : vedtakId;
-        this.hasVedtak = vedtakId != null;
-        this.fomDato = requireNonNull(fomDato);
-        this.tomDato = tomDato;
-        this.hasTomDato = tomDato != null;
-        this.grunnlag = grunnlag == null ? 0D : grunnlag;
-        this.grunnlagAvkortet = grunnlagAvkortet == null ? 0D : grunnlagAvkortet;
-        this.innskudd = innskudd == null ? 0D : innskudd;
-        this.hasInnskudd = innskudd != null;
-        this.innskuddUtenOmsorg = innskuddUtenOmsorg == null ? 0D : innskuddUtenOmsorg;
-        this.oppdateringArsak = oppdateringArsak;
-        this.lonnsvekstregulering = lonnsvekstregulering;
-        this.inntektsopptjening = inntektsopptjening;
-        this.omsorgsopptjening = omsorgsopptjening;
-        this.dagpengeopptjening = dagpengeopptjening;
-        this.forstegangstjenesteopptjening = forstegangstjenesteopptjening;
-        this.uforeopptjening = uforeopptjening;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public String getFnr() {
-        return fnr;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public double getBelop() {
-        return belop;
-    }
-
-    public long getVedtakId() {
-        return vedtakId;
-    }
-
-    public boolean hasVedtak() {
-        return hasVedtak;
-    }
-
-    public LocalDate getFomDato() {
-        return fomDato;
-    }
-
-    public int getStartYear() {
-        return fomDato.getYear();
-    }
-
-    public LocalDate getTomDato() {
-        return tomDato;
-    }
-
-    public double getGrunnlag() {
-        return grunnlag;
-    }
-
-    public double getGrunnlagAvkortet() {
-        return grunnlagAvkortet;
-    }
-
-    public double getInnskudd() {
-        return innskudd;
-    }
-
-    public double getInnskuddUtenOmsorg() {
-        return innskuddUtenOmsorg;
-    }
-
-    public String getOppdateringArsak() {
-        return oppdateringArsak;
-    }
-
-    public Lonnsvekstregulering getLonnsvekstregulering() {
-        return lonnsvekstregulering;
-    }
-
-    double getLonnsvekstreguleringsbelop() {
-        return hasLonnsvekstreguleringsbelop() ? lonnsvekstregulering.getBelop() : 0D;
-    }
-
-    boolean hasLonnsvekstreguleringsbelop() {
-        return lonnsvekstregulering != null
-                && lonnsvekstregulering.hasBelop()
-                && lonnsvekstregulering.getReguleringsDato() != null;
-    }
-
-    public Inntektsopptjening getInntektsopptjening() {
-        return inntektsopptjening;
-    }
-
-    public Omsorgsopptjening getOmsorgsopptjening() {
-        return omsorgsopptjening;
-    }
-
-    public Dagpengeopptjening getDagpengeopptjening() {
-        return dagpengeopptjening;
-    }
-
-    public Forstegangstjenesteopptjening getForstegangstjenesteopptjening() {
-        return forstegangstjenesteopptjening;
-    }
-
-    public Uforeopptjening getUforeopptjening() {
-        return uforeopptjening;
-    }
-
-    boolean startsFirstDayOf(int year) {
-        return fomDato.isEqual(firstDayOf(year));
-    }
-
-    boolean endsLastDayOf(int year) {
-        return hasTomDato && tomDato.isEqual(lastDayOf(year));
-    }
-
-    boolean isWithinInclusive(LocalDate from, LocalDate to) {
-        return fomDato.compareTo(from) > -1
-                && (!hasTomDato && (to == null || to.compareTo(fomDato) > -1)
-                || (hasTomDato && (to == null || tomDato.compareTo(to) < 1)));
-    }
-
-    double getEffectiveInnskudd(int year) {
-        if (!hasInnskudd) {
-            return 0D;
+    fun effektivtInnskudd(aar: Int): Double =
+        when {
+            harInnskudd.not() -> 0.0
+            aar == REFORM_2010 -> innskudd + loennsvekstreguleringsbeloep()
+            else -> innskudd
         }
 
-        return year == REFORM_2010
-                ? innskudd + getLonnsvekstreguleringsbelop()
-                : innskudd;
+    fun loennsvekstreguleringsbeloep(): Double =
+         if (harLoennsvekstreguleringsbeloep()) loennsvekstregulering!!.beloep else 0.0
+
+    fun harLoennsvekstreguleringsbeloep(): Boolean =
+        loennsvekstregulering?.let {
+            it.harBeloep && it.reguleringsdato != null
+        } == true
+
+    fun isOmsorgGrunnlagForBeholdning(): Boolean =
+        grunnlag == omsorgsopptjening?.beloep
+
+    fun startsFirstDayOf(aar: Int): Boolean =
+        fom.isEqual(firstDayOf(aar))
+
+    fun endsLastDayOf(aar: Int): Boolean =
+        tom?.isEqual(lastDayOf(aar)) == true
+
+    fun isWithinInclusive(from: LocalDate, to: LocalDate?): Boolean =
+        fom.compareTo(from) > -1
+                && (harTomDato.not() && (to == null || to.compareTo(fom) > -1)
+                || (harTomDato && (to == null || tom!!.compareTo(to) < 1)))
+
+    fun ufoeregrad(): Int? =
+        ufoereopptjening?.ufoeregrad
+
+    fun opptjeningsgrunnlagTypeListe(): List<Grunnlagstype> {
+        val typer: MutableList<Grunnlagstype> = mutableListOf()
+
+        if ((inntektsopptjening?.beloep ?: 0.0) > 0) {
+            typer.add(Grunnlagstype.INNTEKT_GRUNNLAG)
+        }
+
+        if ((omsorgsopptjening?.beloep ?: 0.0) > 0) {
+            typer.add(Grunnlagstype.OMSORGSOPPTJENING_GRUNNLAG)
+        }
+
+        if ((ufoereopptjening?.beloep ?: 0.0) > 0) {
+            typer.add(Grunnlagstype.UFORE_GRUNNLAG)
+        }
+
+        if ((foerstegangstjenesteopptjening?.beloep ?: 0.0) > 0) {
+            typer.add(Grunnlagstype.FORSTEGANGSTJENESTE_GRUNNLAG)
+        }
+
+        if (dagpengeopptjening?.harPositivtBeloep() == true) {
+            typer.add(Grunnlagstype.DAGPENGER_GRUNNLAG)
+        }
+
+        return filterGrunnlagOnlyThoseThatApply(typer)
     }
 
-    List<GrunnlagTypeCode> getOpptjeningGrunnlagTypes() {
-        List<GrunnlagTypeCode> grunnlagTypes = new ArrayList<>();
+    private fun filterGrunnlagOnlyThoseThatApply(grunnlagstyper: MutableList<Grunnlagstype>): List<Grunnlagstype> {
+        if (grunnlag == 0.0)
+            return listOf(Grunnlagstype.NO_GRUNNLAG)
 
-        if (inntektsopptjening != null && inntektsopptjening.getBelop() > 0) {
-            grunnlagTypes.add(INNTEKT_GRUNNLAG);
+        if (grunnlagstyper.contains(Grunnlagstype.OMSORGSOPPTJENING_GRUNNLAG) && grunnlag == omsorgsopptjening?.beloep)
+            return listOf(Grunnlagstype.OMSORGSOPPTJENING_GRUNNLAG)
+
+        if (grunnlagstyper.contains(Grunnlagstype.UFORE_GRUNNLAG) ||
+            grunnlagstyper.contains(Grunnlagstype.FORSTEGANGSTJENESTE_GRUNNLAG) ||
+            grunnlagstyper.contains(Grunnlagstype.DAGPENGER_GRUNNLAG)
+        ) {
+            grunnlagstyper.remove(Grunnlagstype.OMSORGSOPPTJENING_GRUNNLAG)
+            return grunnlagstyper
         }
 
-        if (omsorgsopptjening != null && omsorgsopptjening.getBelop() > 0) {
-            grunnlagTypes.add(OMSORGSOPPTJENING_GRUNNLAG);
-        }
+        if (grunnlagstyper.contains(Grunnlagstype.INNTEKT_GRUNNLAG) && grunnlag == inntektsopptjening?.beloep)
+            return listOf(Grunnlagstype.INNTEKT_GRUNNLAG)
 
-        if (uforeopptjening != null && uforeopptjening.getBelop() > 0) {
-            grunnlagTypes.add(UFORE_GRUNNLAG);
-        }
-
-        if (forstegangstjenesteopptjening != null && forstegangstjenesteopptjening.getBelop() > 0) {
-            grunnlagTypes.add(FORSTEGANGSTJENESTE_GRUNNLAG);
-        }
-
-        if (dagpengeopptjening != null && dagpengeopptjening.hasPositiveBelop()) {
-            grunnlagTypes.add(DAGPENGER_GRUNNLAG);
-        }
-
-        return filterGrunnlagOnlyThoseThatApply(grunnlagTypes);
+        return if (grunnlagstyper.isEmpty()) listOf(Grunnlagstype.NO_GRUNNLAG) else grunnlagstyper
     }
 
-    Integer getUforegrad() {
-        return uforeopptjening == null ? null : uforeopptjening.getUforegrad();
+    companion object {
+        val ingen = Beholdning(
+            pid = "",
+            status = "",
+            type = "",
+            beloep = 0.0,
+            fom = LocalDate.MIN,
+            tom = LocalDate.MIN,
+            oppdateringAarsak = ""
+        )
     }
-
-    private List<GrunnlagTypeCode> filterGrunnlagOnlyThoseThatApply(List<GrunnlagTypeCode> grunnlagTypes) {
-        if (grunnlag == 0D) {
-            return List.of(NO_GRUNNLAG);
-        }
-
-        if (grunnlagTypes.contains(OMSORGSOPPTJENING_GRUNNLAG) && grunnlag == omsorgsopptjening.getBelop()) {
-            return List.of(OMSORGSOPPTJENING_GRUNNLAG);
-        }
-
-        if (grunnlagTypes.contains(UFORE_GRUNNLAG) ||
-                grunnlagTypes.contains(FORSTEGANGSTJENESTE_GRUNNLAG) ||
-                grunnlagTypes.contains(DAGPENGER_GRUNNLAG)) {
-            grunnlagTypes.remove(OMSORGSOPPTJENING_GRUNNLAG);
-            return grunnlagTypes;
-        }
-
-        if (grunnlagTypes.contains(INNTEKT_GRUNNLAG) && grunnlag == inntektsopptjening.getBelop()) {
-            return List.of(INNTEKT_GRUNNLAG);
-        }
-
-        return grunnlagTypes.isEmpty() ? List.of(NO_GRUNNLAG) : grunnlagTypes;
-    }
-
-    public boolean isOmsorgGrunnlagForBeholdning() {
-        return grunnlag == omsorgsopptjening.getBelop();
-    }
-
-    static final Beholdning NULL = new Beholdning(
-            null,
-            "",
-            "",
-            "",
-            null,
-            null, // use null (not 0), so that hasVedtak is set correctly
-            LocalDate.MIN,
-            LocalDate.MIN,
-            null,
-            null,
-            null, // use null (not 0), so that hasInnskudd is set correctly
-            null,
-            "",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null);
 }

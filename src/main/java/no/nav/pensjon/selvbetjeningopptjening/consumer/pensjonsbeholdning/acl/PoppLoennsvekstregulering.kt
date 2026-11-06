@@ -1,6 +1,6 @@
 package no.nav.pensjon.selvbetjeningopptjening.consumer.pensjonsbeholdning.acl
 
-import no.nav.pensjon.selvbetjeningopptjening.opptjening.Lonnsvekstregulering
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.Loennsvekstregulering
 import java.time.LocalDate
 
 data class PoppLoennsvekstregulering(
@@ -9,5 +9,5 @@ data class PoppLoennsvekstregulering(
     val reguleringsDato: LocalDate? = null
 ) {
     fun fromDto() =
-        Lonnsvekstregulering(reguleringsbelop, reguleringsDato)
+        Loennsvekstregulering(reguleringsbelop, reguleringsDato)
 }

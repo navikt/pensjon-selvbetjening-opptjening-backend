@@ -6,7 +6,7 @@ import io.mockk.every
 import no.nav.pensjon.selvbetjeningopptjening.SelvbetjeningOpptjeningApplication
 import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknad
 import no.nav.pensjon.selvbetjeningopptjening.mock.TestObjects.pid
-import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode
+import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknadkode
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Beholdning
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Uttaksgrad
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.beholdning.AarvisBeholdningOgMerknader
@@ -59,7 +59,7 @@ class BeholdningOgMerknaderControllerV1Test : ShouldSpec() {
                             beholdning = beholdning(aar = 2021, beloep = 210000),
                             merknadListe = listOf(
                                 Merknad(
-                                    kode = MerknadCode.GRADERT_UTTAK,
+                                    kode = Merknadkode.GRADERT_UTTAK,
                                     uttaksgrad = Uttaksgrad(
                                         grad = 60,
                                         fom = LocalDate.of(2021, 11, 1)
@@ -69,7 +69,7 @@ class BeholdningOgMerknaderControllerV1Test : ShouldSpec() {
                         ),
                         2022 to BeholdningOgMerknader(
                             beholdning = beholdning(aar = 2022, beloep = 220000),
-                            merknadListe = listOf(Merknad(kode = MerknadCode.AFP))
+                            merknadListe = listOf(Merknad(kode = Merknadkode.AFP))
                         )
                     )
                 )

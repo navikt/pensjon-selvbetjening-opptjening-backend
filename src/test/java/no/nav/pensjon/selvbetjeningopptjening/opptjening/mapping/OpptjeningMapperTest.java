@@ -1,8 +1,8 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening.mapping;
 
 import no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode;
-import no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode;
-import no.nav.pensjon.selvbetjeningopptjening.model.code.MerknadCode;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.grunnlag.Grunnlagstype;
+import no.nav.pensjon.selvbetjeningopptjening.merknad.Merknadkode;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.TypeArsakCode;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.EndringPensjonsopptjening;
 import no.nav.pensjon.selvbetjeningopptjening.opptjening.Opptjening;
@@ -32,8 +32,8 @@ class OpptjeningMapperTest {
         opptjening.setOmsorgspoeng(4.1D);
         opptjening.setOmsorgspoengType("poengtype");
         opptjening.setOpptjeningsendringer(List.of(endring()));
-        opptjening.addMerknad(MerknadCode.HELT_UTTAK);
-        opptjening.addMerknader(List.of(MerknadCode.FORSTEGANGSTJENESTE, MerknadCode.REFORM));
+        opptjening.addMerknad(Merknadkode.HELT_UTTAK);
+        opptjening.addMerknader(List.of(Merknadkode.FORSTEGANGSTJENESTE, Merknadkode.REFORM));
         return opptjening;
     }
 
@@ -54,11 +54,11 @@ class OpptjeningMapperTest {
         assertEndring(endringer.get(0));
     }
 
-    private static void assertMerknader(List<MerknadCode> merknader) {
+    private static void assertMerknader(List<Merknadkode> merknader) {
         assertEquals(3, merknader.size());
-        assertTrue(merknader.contains(MerknadCode.HELT_UTTAK));
-        assertTrue(merknader.contains(MerknadCode.FORSTEGANGSTJENESTE));
-        assertTrue(merknader.contains(MerknadCode.REFORM));
+        assertTrue(merknader.contains(Merknadkode.HELT_UTTAK));
+        assertTrue(merknader.contains(Merknadkode.FORSTEGANGSTJENESTE));
+        assertTrue(merknader.contains(Merknadkode.REFORM));
     }
 
     private static EndringPensjonsopptjening endring() {
@@ -68,7 +68,7 @@ class OpptjeningMapperTest {
                 2.2D,
                 1,
                 3.2D,
-                List.of(GrunnlagTypeCode.INNTEKT_GRUNNLAG),
+                List.of(Grunnlagstype.INNTEKT_GRUNNLAG),
                 2);
     }
 
@@ -76,7 +76,7 @@ class OpptjeningMapperTest {
         assertEquals(1.2D, endring.getPensjonsbeholdningBelop());
         assertEquals(2.2D, endring.getEndringBelop()); // innskudd
         assertEquals(1, endring.getGrunnlagTypes().size());
-        assertEquals(GrunnlagTypeCode.INNTEKT_GRUNNLAG, endring.getGrunnlagTypes().get(0));
+        assertEquals(Grunnlagstype.INNTEKT_GRUNNLAG, endring.getGrunnlagTypes().get(0));
         assertEquals(3.2D, endring.getGrunnlag());
         assertEquals(TypeArsakCode.OPPTJENING, endring.getArsakType());
         assertEquals(1, endring.getArsakDetails().size());

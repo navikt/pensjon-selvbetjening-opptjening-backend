@@ -1,26 +1,18 @@
-package no.nav.pensjon.selvbetjeningopptjening.opptjening;
+package no.nav.pensjon.selvbetjeningopptjening.opptjening
 
-public class Inntektsopptjening {
-
-    private final int year;
-    private final double belop;
-    private final Inntekt sumPensjonsgivendeInntekt;
-
-    public Inntektsopptjening(Integer year, Double belop, Inntekt sumPensjonsgivendeInntekt) {
-        this.year = year == null ? 1900 : year;
-        this.belop = belop == null ? 0D : belop;
-        this.sumPensjonsgivendeInntekt = sumPensjonsgivendeInntekt;
-    }
-
-    public double getBelop() {
-        return belop;
-    }
-
-    public Inntekt getSumPensjonsgivendeInntekt() {
-        return sumPensjonsgivendeInntekt;
-    }
-
-    public int getYear() {
-        return year;
-    }
+@ConsistentCopyVisibility
+data class Inntektsopptjening private constructor(
+    val aar: Int,
+    val beloep: Double,
+    val sumPensjonsgivendeInntekt: Inntekt?
+) {
+    constructor(
+        aar: Int? = null,
+        beloep: Double? = null,
+        sumPensjonsgivendeInntekt: Inntekt? = null
+    ) : this(
+        aar = aar ?: 1900,
+        beloep = beloep ?: 0.0,
+        sumPensjonsgivendeInntekt = sumPensjonsgivendeInntekt
+    )
 }

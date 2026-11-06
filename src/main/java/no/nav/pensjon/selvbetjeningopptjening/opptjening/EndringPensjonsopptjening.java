@@ -1,7 +1,7 @@
 package no.nav.pensjon.selvbetjeningopptjening.opptjening;
 
 import no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode;
-import no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode;
+import no.nav.pensjon.selvbetjeningopptjening.opptjening.grunnlag.Grunnlagstype;
 import no.nav.pensjon.selvbetjeningopptjening.model.code.TypeArsakCode;
 
 import java.time.LocalDate;
@@ -20,7 +20,7 @@ public class EndringPensjonsopptjening {
     private final Integer uttaksgrad;
     private final Double grunnlag;
     private final List<DetailsArsakCode> arsakDetails;
-    private final List<GrunnlagTypeCode> grunnlagTypes;
+    private final List<Grunnlagstype> grunnlagTypes;
     private final Integer uforegrad;
 
     static EndringPensjonsopptjening inngaende(int year, double pensjonsbeholdningsbelop, Integer uttaksgrad) {
@@ -43,7 +43,7 @@ public class EndringPensjonsopptjening {
                                                   double innskudd,
                                                   Integer uttaksgrad,
                                                   double grunnlag,
-                                                  List<GrunnlagTypeCode> grunnlagTypes,
+                                                  List<Grunnlagstype> grunnlagTypes,
                                                   Integer uforegrad) {
         TypeArsakCode opptjeningsarsak = year == REFORM_2010 ? TypeArsakCode.INNGAENDE_2010 : TypeArsakCode.OPPTJENING;
 
@@ -143,7 +143,7 @@ public class EndringPensjonsopptjening {
                                       Integer uttaksgrad,
                                       Double grunnlag,
                                       List<DetailsArsakCode> arsakDetails,
-                                      List<GrunnlagTypeCode> grunnlagTypes,
+                                      List<Grunnlagstype> grunnlagTypes,
                                       Integer uforegrad) {
         this.arsakType = arsakType;
         this.dato = dato;
@@ -184,7 +184,7 @@ public class EndringPensjonsopptjening {
         return arsakDetails;
     }
 
-    public List<GrunnlagTypeCode> getGrunnlagTypes() {
+    public List<Grunnlagstype> getGrunnlagTypes() {
         return grunnlagTypes;
     }
 

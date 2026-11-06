@@ -10,7 +10,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode.OPPTJENING_2012;
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.DetailsArsakCode.OPPTJENING_GRADERT;
-import static no.nav.pensjon.selvbetjeningopptjening.model.code.GrunnlagTypeCode.*;
+import static no.nav.pensjon.selvbetjeningopptjening.opptjening.grunnlag.Grunnlagstype.*;
 import static no.nav.pensjon.selvbetjeningopptjening.model.code.TypeArsakCode.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -65,8 +65,8 @@ class EndringPensjonsbeholdningCalculatorTest {
         assertEquals(2, endringer.size());
         assertNull(endringer.get(0).getEndringsbelop());
         assertEquals(0, endringer.get(0).getBeholdningsbelop());
-        assertEquals(beholdning.getBelop(), endringer.get(1).getEndringsbelop());
-        assertEquals(beholdning.getBelop(), endringer.get(1).getBeholdningsbelop());
+        assertEquals(beholdning.getBeloep(), endringer.get(1).getEndringsbelop());
+        assertEquals(beholdning.getBeloep(), endringer.get(1).getBeholdningsbelop());
     }
 
     @Test
@@ -83,8 +83,8 @@ class EndringPensjonsbeholdningCalculatorTest {
         assertEquals(0, endringer.get(0).getBeholdningsbelop());
         assertEquals(0, endringer.get(1).getBeholdningsbelop());
         assertEquals(0, endringer.get(1).getEndringsbelop());
-        assertEquals(beholdning.getBelop(), endringer.get(2).getEndringsbelop());
-        assertEquals(beholdning.getBelop(), endringer.get(2).getBeholdningsbelop());
+        assertEquals(beholdning.getBeloep(), endringer.get(2).getEndringsbelop());
+        assertEquals(beholdning.getBeloep(), endringer.get(2).getBeholdningsbelop());
     }
 
     @Test
@@ -101,8 +101,8 @@ class EndringPensjonsbeholdningCalculatorTest {
         assertEquals(0, endringer.get(0).getBeholdningsbelop());
         assertEquals(beholdning.getInnskudd(), endringer.get(1).getBeholdningsbelop());
         assertEquals(beholdning.getInnskudd(), endringer.get(1).getEndringsbelop());
-        assertEquals(beholdning.getBelop() - beholdning.getInnskudd(), endringer.get(2).getEndringsbelop());
-        assertEquals(beholdning.getBelop(), endringer.get(2).getBeholdningsbelop());
+        assertEquals(beholdning.getBeloep() - beholdning.getInnskudd(), endringer.get(2).getEndringsbelop());
+        assertEquals(beholdning.getBeloep(), endringer.get(2).getBeholdningsbelop());
     }
 
     @Test
@@ -120,29 +120,29 @@ class EndringPensjonsbeholdningCalculatorTest {
         assertEquals(0, endringer.get(0).getBeholdningsbelop());
         assertEquals(0, endringer.get(1).getBeholdningsbelop());
         assertEquals(0, endringer.get(1).getEndringsbelop());
-        assertEquals(beholdning.getBelop(), endringer.get(2).getEndringsbelop());
-        assertEquals(beholdning.getBelop(), endringer.get(2).getBeholdningsbelop());
+        assertEquals(beholdning.getBeloep(), endringer.get(2).getEndringsbelop());
+        assertEquals(beholdning.getBeloep(), endringer.get(2).getBeholdningsbelop());
         assertNull(endringer.get(3).getEndringsbelop());
-        assertEquals(beholdning.getBelop(), endringer.get(3).getBeholdningsbelop());
+        assertEquals(beholdning.getBeloep(), endringer.get(3).getBeholdningsbelop());
     }
 
     @Test
     void when_beholdning_list_has_one_element_with_fomDateOnRegulationDate_with_lonnsvekstregulering_and_uttak_then_calculator_returns_3_elements() {
         LocalDate fomDato = LocalDate.of(2020, 5, 1);
-        Beholdning beholdning = newBeholdning(100D, fomDato, new Lonnsvekstregulering(10D, fomDato));
+        Beholdning beholdning = newBeholdning(100D, fomDato, new Loennsvekstregulering(10D, fomDato));
         Uttaksgrad uttaksgrad = uttaksgradFom(fomDato);
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
                 .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), singletonList(uttaksgrad));
 
-        double reguleringsbelop = beholdning.getLonnsvekstreguleringsbelop();
+        double reguleringsbelop = beholdning.loennsvekstreguleringsbeloep();
         assertEquals(3, endringer.size());
         assertNull(endringer.get(0).getEndringsbelop());
         assertEquals(0, endringer.get(0).getBeholdningsbelop());
         assertEquals(reguleringsbelop, endringer.get(1).getBeholdningsbelop());
         assertEquals(reguleringsbelop, endringer.get(1).getEndringsbelop());
-        assertEquals(beholdning.getBelop() - reguleringsbelop, endringer.get(2).getEndringsbelop());
-        assertEquals(beholdning.getBelop(), endringer.get(2).getBeholdningsbelop());
+        assertEquals(beholdning.getBeloep() - reguleringsbelop, endringer.get(2).getEndringsbelop());
+        assertEquals(beholdning.getBeloep(), endringer.get(2).getBeholdningsbelop());
     }
 
     @Test
@@ -151,7 +151,7 @@ class EndringPensjonsbeholdningCalculatorTest {
         Beholdning beholdning = newBeholdning(
                 100D,
                 fomDato,
-                new Lonnsvekstregulering(10D, LocalDate.of(2020, 5, 1)));
+                new Loennsvekstregulering(10D, LocalDate.of(2020, 5, 1)));
         Uttaksgrad uttaksgrad = uttaksgradFom(fomDato);
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
@@ -167,7 +167,7 @@ class EndringPensjonsbeholdningCalculatorTest {
         Beholdning beholdning = newBeholdning(
                 100D,
                 fomDato,
-                new Lonnsvekstregulering(10D, fomDato));
+                new Loennsvekstregulering(10D, fomDato));
         Uttaksgrad uttaksgrad = uttaksgradFom(fomDato);
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
@@ -218,7 +218,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_fomDate_1MayGivenYear_with_Lonnsvekstregulering_then_calculator_returns_ArsakDetailCode_REGULERING() {
         LocalDate fomDato = LocalDate.of(2020, 5, 1);
-        Beholdning beholdning = newBeholdning(1D, fomDato, new Lonnsvekstregulering(2D, fomDato));
+        Beholdning beholdning = newBeholdning(1D, fomDato, new Loennsvekstregulering(2D, fomDato));
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
                 .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
@@ -290,7 +290,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     void when_fomDate_1MayGivenYear_with_Lonnsvekstregulering_then_calculator_returns_2_ArsakType_values() {
         LocalDate fomDato = LocalDate.of(2020, 5, 1);
         Beholdning beholdning = beholdningWithInnskudd(
-                fomDato, new Lonnsvekstregulering(10D, fomDato));
+                fomDato, new Loennsvekstregulering(10D, fomDato));
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
                 .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
@@ -362,7 +362,7 @@ class EndringPensjonsbeholdningCalculatorTest {
     @Test
     void when_beholdningGrunnlag_is_ufore_then_calculator_returns_grunnlagTypeCode_UFORE_GRUNNLAG() {
         double uforebelop = 1d;
-        Beholdning beholdning = beholdningFom1Jan2020(uforebelop, 0D, 0D, 0D, 0D, new Uforeopptjening(100, uforebelop));
+        Beholdning beholdning = beholdningFom1Jan2020(uforebelop, 0D, 0D, 0D, 0D, new Ufoereopptjening(100, uforebelop));
 
         List<EndringPensjonsopptjening> endringer = EndringPensjonsbeholdningCalculator
                 .calculatePensjonsbeholdningsendringer(2020, singletonList(beholdning), emptyList());
@@ -458,7 +458,7 @@ class EndringPensjonsbeholdningCalculatorTest {
                 null, null);
     }
 
-    private static Beholdning newBeholdning(double belop, LocalDate fomDate, Lonnsvekstregulering regulering) {
+    private static Beholdning newBeholdning(double belop, LocalDate fomDate, Loennsvekstregulering regulering) {
         return new Beholdning(
                 null, "", "", "",
                 belop,
@@ -475,12 +475,12 @@ class EndringPensjonsbeholdningCalculatorTest {
                                                     double uforebelop) {
         return beholdningFom1Jan2020(grunnlag, inntekt, omsorgsbelop,
                 forstegangstjenestebelop, dagpenger,
-                new Uforeopptjening(0, uforebelop));
+                new Ufoereopptjening(0, uforebelop));
     }
 
     private static Beholdning beholdningFom1Jan2020(Double grunnlag, double inntekt, double omsorgsbelop,
                                                     double forstegangstjenestebelop, double dagpenger,
-                                                    Uforeopptjening uforeopptjening) {
+                                                    Ufoereopptjening ufoereopptjening) {
         return new Beholdning(
                 null, "", "", "",
                 100D,
@@ -489,12 +489,12 @@ class EndringPensjonsbeholdningCalculatorTest {
                 null,
                 grunnlag,
                 null, null, null, "",
-                new Lonnsvekstregulering(null, null),
+                new Loennsvekstregulering(null, null),
                 new Inntektsopptjening(1990, inntekt, null),
                 new Omsorgsopptjening(1990, omsorgsbelop, null),
                 new Dagpengeopptjening(1990, dagpenger, null),
-                new Forstegangstjenesteopptjening(1990, forstegangstjenestebelop),
-                uforeopptjening);
+                new Foerstegangstjenesteopptjening(1990, forstegangstjenestebelop),
+                ufoereopptjening);
     }
 
     private static Beholdning beholdningWithInnskudd(LocalDate fomDate) {
@@ -510,7 +510,7 @@ class EndringPensjonsbeholdningCalculatorTest {
                 null, null);
     }
 
-    private static Beholdning beholdningWithInnskudd(LocalDate fomDate, Lonnsvekstregulering regulering) {
+    private static Beholdning beholdningWithInnskudd(LocalDate fomDate, Loennsvekstregulering regulering) {
         return new Beholdning(
                 null, "", "", "",
                 1.0,

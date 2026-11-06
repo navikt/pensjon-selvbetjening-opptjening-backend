@@ -14,8 +14,8 @@ data class PoppInntekt(
 ) {
     fun fromDto() =
         Inntekt(
-            inntektAr,
-            inntektType,
-            belop
+            aar = inntektAr,
+            type = inntektType,
+            beloep = belop
         )
 }

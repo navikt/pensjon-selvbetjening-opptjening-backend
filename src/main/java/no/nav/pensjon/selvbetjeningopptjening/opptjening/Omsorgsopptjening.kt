@@ -1,30 +1,18 @@
-package no.nav.pensjon.selvbetjeningopptjening.opptjening;
+package no.nav.pensjon.selvbetjeningopptjening.opptjening
 
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class Omsorgsopptjening {
-
-    private int year;
-    private double belop;
-    private List<Omsorg> omsorger;
-
-    public Omsorgsopptjening(Integer year, Double belop, List<Omsorg> omsorger) {
-        this.year = year == null ? 1900 : year;
-        this.belop = belop == null ? 0D : belop;
-        this.omsorger = omsorger == null ? new ArrayList<>() : omsorger;
-    }
-
-    public int getYear() {
-        return year;
-    }
-
-    public double getBelop() {
-        return belop;
-    }
-
-    public List<Omsorg> getOmsorger() {
-        return omsorger;
-    }
+@ConsistentCopyVisibility
+data class Omsorgsopptjening private constructor(
+    val aar: Int,
+    val beloep: Double,
+    val omsorgListe: List<Omsorg>
+) {
+    constructor(
+        aar: Int?,
+        beloep: Double?,
+        omsorgListe: List<Omsorg>? = null
+    ) : this(
+        aar = aar ?: 1900,
+        beloep = beloep ?: 0.0,
+        omsorgListe = omsorgListe.orEmpty()
+    )
 }

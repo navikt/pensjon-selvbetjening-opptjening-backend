@@ -41,7 +41,7 @@ public class EndringPensjonsbeholdningCalculator {
         beholdningsendringer.add(
                 EndringPensjonsopptjening.inngaende(
                         year,
-                        beholdningAtEndOfLastYear.getBelop(),
+                        beholdningAtEndOfLastYear.getBeloep(),
                         uttaksgradAtEndOfYear(year - 1, uttaksgrader, beholdningAtEndOfLastYear)));
 
         return beholdningAtEndOfLastYear;
@@ -59,7 +59,7 @@ public class EndringPensjonsbeholdningCalculator {
         }
 
         Double inngaendeBelop = beholdningsendringer.get(0).getBeholdningsbelop();
-        double innskudd = beholdning.getEffectiveInnskudd(year);
+        double innskudd = beholdning.effektivtInnskudd(year);
         double beholdningsbelop = inngaendeBelop + innskudd;
 
         if (isBeholdningWithinUttaksgradsperiodeIncludeSameDay(beholdning, uttaksgrader)) {
@@ -85,19 +85,19 @@ public class EndringPensjonsbeholdningCalculator {
 
         for (Beholdning beholdning : beholdninger) {
             if (beholdning.startsFirstDayOf(year)) {
-                previousBeholdningsbelop = beholdning.getBelop();
+                previousBeholdningsbelop = beholdning.getBeloep();
                 previousBeholdning = beholdning;
             } else if (PeriodeUtil.INSTANCE.isPeriodeWithinInterval(beholdning, firstDayOf(year), reguleringDayOf(year))) {
-                double endringsbelop = beholdning.getBelop() - previousBeholdningsbelop;
+                double endringsbelop = beholdning.getBeloep() - previousBeholdningsbelop;
 
                 beholdningsendringer.add(
                         EndringPensjonsopptjening.uttak(
-                                beholdning.getFomDato(),
-                                beholdning.getBelop(),
+                                beholdning.getFom(),
+                                beholdning.getBeloep(),
                                 endringsbelop,
                                 uttaksgradAtFomDate(beholdning, uttaksgrader)));
 
-                previousBeholdningsbelop = beholdning.getBelop();
+                previousBeholdningsbelop = beholdning.getBeloep();
                 previousBeholdning = beholdning;
             }
         }
@@ -154,7 +154,7 @@ public class EndringPensjonsbeholdningCalculator {
         beholdningsendringer.add(
                 EndringPensjonsopptjening.utgaende(
                         year,
-                        lastBeholdning.getBelop(),
+                        lastBeholdning.getBeloep(),
                         uttaksgradAtEndOfYear(year, uttaksgrader, lastBeholdning)));
     }
 
@@ -171,8 +171,8 @@ public class EndringPensjonsbeholdningCalculator {
                         innskudd,
                         uttaksgradAtStartOfYear(year, uttaksgrader, beholdning),
                         beholdning.getGrunnlag(),
-                        beholdning.getOpptjeningGrunnlagTypes(),
-                        beholdning.getUforegrad()));
+                        beholdning.opptjeningsgrunnlagTypeListe(),
+                        beholdning.ufoeregrad()));
     }
 
     private static void addUttakAtStartOfYear(int year,
@@ -180,12 +180,12 @@ public class EndringPensjonsbeholdningCalculator {
                                               List<EndringPensjonsopptjening> endringer,
                                               List<Uttaksgrad> uttaksgrader,
                                               double beholdningsbelop) {
-        double endringsbelop = beholdning.getBelop() - beholdningsbelop;
+        double endringsbelop = beholdning.getBeloep() - beholdningsbelop;
 
         endringer.add(
                 EndringPensjonsopptjening.uttakAtStartOfYear(
                         year,
-                        beholdning.getBelop(),
+                        beholdning.getBeloep(),
                         endringsbelop,
                         uttaksgradAtStartOfYear(year, uttaksgrader, beholdning)));
     }
@@ -196,15 +196,15 @@ public class EndringPensjonsbeholdningCalculator {
                                             List<EndringPensjonsopptjening> beholdningsendringer,
                                             List<Uttaksgrad> uttaksgrader,
                                             Double lastBeholdningsbelop) {
-        if (!beholdning.getFomDato().isEqual(reguleringDayOf(year))) {
+        if (!beholdning.getFom().isEqual(reguleringDayOf(year))) {
             return previousBeholdning;
         }
 
         double vedtakPensjonseringsbelop = 0D;
 
-        if (beholdning.hasLonnsvekstreguleringsbelop()
-                && beholdning.getLonnsvekstregulering().getReguleringsDato().isEqual(beholdning.getFomDato())) {
-            double lonnsvekstreguleringsbelop = beholdning.getLonnsvekstreguleringsbelop();
+        if (beholdning.harLoennsvekstreguleringsbeloep()
+                && beholdning.getLoennsvekstregulering().getReguleringsdato().isEqual(beholdning.getFom())) {
+            double lonnsvekstreguleringsbelop = beholdning.loennsvekstreguleringsbeloep();
             vedtakPensjonseringsbelop = lonnsvekstreguleringsbelop + lastBeholdningsbelop;
 
             beholdningsendringer.add(
@@ -218,12 +218,12 @@ public class EndringPensjonsbeholdningCalculator {
         }
 
         if (isBeholdningWithinUttaksgradsperiodeIncludeSameDay(beholdning, uttaksgrader)) {
-            double endringsbelop = beholdning.getBelop() - vedtakPensjonseringsbelop;
+            double endringsbelop = beholdning.getBeloep() - vedtakPensjonseringsbelop;
 
             beholdningsendringer.add(
                     EndringPensjonsopptjening.uttakOnReguleringDate(
                             year,
-                            beholdning.getBelop(),
+                            beholdning.getBeloep(),
                             endringsbelop,
                             uttaksgradForUttakOnReguleringDate(year, uttaksgrader, beholdning)));
 
@@ -238,7 +238,7 @@ public class EndringPensjonsbeholdningCalculator {
                                                   Beholdning previousBeholdning,
                                                   List<EndringPensjonsopptjening> beholdningsendringer,
                                                   List<Uttaksgrad> uttaksgrader) {
-        LocalDate fomDate = beholdning.getFomDato();
+        LocalDate fomDate = beholdning.getFom();
         LocalDate reguleringDate = reguleringDayOf(year);
 
         if (fomDate.isEqual(reguleringDate)) {
@@ -249,8 +249,8 @@ public class EndringPensjonsbeholdningCalculator {
             return previousBeholdning;
         }
 
-        double previousBelop = previousBeholdning == null ? 0D : previousBeholdning.getBelop();
-        double belop = beholdning.getBelop();
+        double previousBelop = previousBeholdning == null ? 0D : previousBeholdning.getBeloep();
+        double belop = beholdning.getBeloep();
         double endringsbelop = belop - previousBelop;
 
         beholdningsendringer.add(
@@ -279,7 +279,7 @@ public class EndringPensjonsbeholdningCalculator {
                                                       List<Uttaksgrad> uttaksgrader,
                                                       Beholdning beholdning,
                                                       double vedtakPensjonseringsbelop) {
-        LocalDate validityDate = beholdning.getBelop() == vedtakPensjonseringsbelop
+        LocalDate validityDate = beholdning.getBeloep() == vedtakPensjonseringsbelop
                 ? reguleringDayOf(year)
                 : reguleringDayOf(year).minusDays(1);
 
@@ -299,7 +299,7 @@ public class EndringPensjonsbeholdningCalculator {
                 .stream()
                 .filter(beholdning -> beholdning.endsLastDayOf(year))
                 .findFirst()
-                .orElse(Beholdning.NULL);
+                .orElse(Beholdning.Companion.getIngen());
     }
 
     private static int findUttaksgrad(LocalDate date, long vedtakId, List<Uttaksgrad> uttaksgrader) {
@@ -311,11 +311,11 @@ public class EndringPensjonsbeholdningCalculator {
     }
 
     private static Integer uttaksgradAtFomDate(Beholdning beholdning, List<Uttaksgrad> uttaksgrader) {
-        return uttaksgradAtDate(uttaksgrader, beholdning, beholdning.getFomDato());
+        return uttaksgradAtDate(uttaksgrader, beholdning, beholdning.getFom());
     }
 
     private static int uttaksgradAtDate(List<Uttaksgrad> uttaksgrader, Beholdning beholdning, LocalDate date) {
-        return beholdning.hasVedtak()
+        return beholdning.getHarVedtak()
                 ? findUttaksgrad(date, beholdning.getVedtakId(), uttaksgrader)
                 : 0;
     }

@@ -1,30 +1,21 @@
-package no.nav.pensjon.selvbetjeningopptjening.opptjening;
+package no.nav.pensjon.selvbetjeningopptjening.opptjening
 
-public class Dagpengeopptjening {
+@ConsistentCopyVisibility
+data class Dagpengeopptjening private constructor(
+    val aar: Int,
+    val ordinaertBeloep: Double,
+    val fiskerBeloep: Double
+) {
+    constructor(
+        aar: Int?,
+        ordinaertBeloep: Double? = null,
+        fiskerBeloep: Double? = null
+    ) : this(
+        aar = aar ?: 1900,
+        ordinaertBeloep = ordinaertBeloep ?: 0.0,
+        fiskerBeloep = fiskerBeloep ?: 0.0
+    )
 
-    private int year;
-    private double ordinartBelop;
-    private double fiskerBelop;
-
-    public Dagpengeopptjening(Integer year, Double ordinartBelop, Double fiskerBelop) {
-        this.year = year == null ? 1900 : year;
-        this.ordinartBelop = ordinartBelop == null ? 0D : ordinartBelop;
-        this.fiskerBelop = fiskerBelop == null ? 0D : fiskerBelop;
-    }
-
-    public int getYear() {
-        return year;
-    }
-
-    public double getOrdinartBelop() {
-        return ordinartBelop;
-    }
-
-    public double getFiskerBelop() {
-        return fiskerBelop;
-    }
-
-    boolean hasPositiveBelop() {
-        return ordinartBelop > 0 || fiskerBelop > 0;
-    }
+    fun harPositivtBeloep(): Boolean =
+        ordinaertBeloep > 0 || fiskerBeloep > 0
 }
